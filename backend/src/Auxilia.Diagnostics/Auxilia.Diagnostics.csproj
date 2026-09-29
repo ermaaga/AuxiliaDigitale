@@ -4,4 +4,9 @@
     <ProjectReference Include="..\Auxilia.SharedKernel\Auxilia.SharedKernel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- [LoggerMessage] attribute and its source generator; the only package allowed in Diagnostics -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
 </Project>
