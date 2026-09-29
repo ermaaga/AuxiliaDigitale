@@ -9,7 +9,7 @@ Status: [ ] not started · Tasks: P0-02, P0-04, P1-03, H-03, R-03 · Quirks: Q46
 - DB connection retry (3×, 5 s).
 
 ## Acceptance criteria
-- [ ] Aspire AppHost runs Postgres, Valkey, RabbitMQ, Api, Worker, Web locally with one command.
+- [ ] One command starts Postgres, Valkey, RabbitMQ locally (`deploy/compose.dev.yml`; Aspire replaced by Docker Compose, D-32 / ADR 0013); Api, Worker, Web run with `dotnet run` / `pnpm dev`.
 - [ ] Container images for Api, Worker, Web, MigrationRunner; compose for local/prod-like runs.
 - [ ] No secrets in versioned files (gitleaks in CI); all legacy flags mapped to either app config or tenant settings (mapping table in `docs/migration/mapping.md`).
 - [ ] Health endpoints live/ready (ready reports tenants behind schema version).

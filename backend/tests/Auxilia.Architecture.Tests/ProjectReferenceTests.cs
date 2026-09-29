@@ -12,8 +12,9 @@ public sealed class ProjectReferenceTests
     {
         [Solution.SharedKernel] = [],
         [Solution.Contracts] = [],
-        [Solution.ServiceDefaults] = [],
         [Solution.Diagnostics] = [Solution.SharedKernel],
+        // Logging pipeline (event codes, telemetry names); no application or domain code (ADR 0013).
+        [Solution.ServiceDefaults] = [Solution.Diagnostics],
         [Solution.Domain] = [Solution.SharedKernel, Solution.Diagnostics],
         [Solution.Application] = [Solution.SharedKernel, Solution.Diagnostics, Solution.Domain, Solution.Contracts],
         [Solution.Infrastructure] = [Solution.Application, Solution.Domain],

@@ -13,6 +13,9 @@ public sealed class BlocklistedPackageTests
         "MediatR", "AutoMapper", "FluentAssertions", "MassTransit", "EPPlus", "QuestPDF", "Moq",
         "Duende.", "SixLabors.ImageSharp", "Telerik.", "Syncfusion.", "DevExpress.", "Kendo.",
         "Hangfire.Pro", "AG-Grid",
+
+        // Open Source Maintenance Fee EULA (json-everything) and Aspire hosting, which depends on it (ADR 0013).
+        "JsonPatch.Net", "JsonPointer.Net", "Json.More.Net", "JsonSchema.Net", "Aspire.Hosting", "Aspire.AppHost",
     ];
 
     [Fact]
