@@ -19,6 +19,7 @@ public sealed record EventRegistryEntry(
     LogLevel? Level,
     string? Message,
     IReadOnlyList<ErrorType> ErrorTypes,
+    string? Operation,
     string? RetiredReason)
 {
     public string DisplayCode => $"AUX-{Code}";
@@ -31,6 +32,20 @@ public sealed record EventRegistryEntry(
 public static class EventRegistry
 {
     private const BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly;
+
+    private static readonly Lazy<IReadOnlyDictionary<int, string>> EventNames = new(() =>
+        Entries().ToDictionary(entry => entry.Code, entry => $"{entry.Range}.{entry.Name}"));
+
+    /// <summary>The operations of the <see cref="Operations"/> catalog.</summary>
+    public static IReadOnlyList<OperationDescriptor> OperationCatalog() =>
+        typeof(Operations).GetNestedTypes()
+            .SelectMany(type => type.GetFields(PublicStatic))
+            .Where(field => field.FieldType == typeof(OperationDescriptor))
+            .Select(field => (OperationDescriptor)field.GetValue(null)!)
+            .ToArray();
+
+    /// <summary>The event name <c>&lt;Range&gt;.&lt;CodeName&gt;</c> of a declared code, or null.</summary>
+    public static string? EventNameOf(int code) => EventNames.Value.GetValueOrDefault(code);
 
     public static IReadOnlyList<EventCodeRange> Ranges() =>
         typeof(EventCodes).GetNestedTypes()
@@ -55,6 +70,10 @@ public static class EventRegistry
             .GroupBy(error => error.Code)
             .ToDictionary(group => group.Key, group => group.Select(error => error.Type).Distinct().Order().ToArray());
 
+        var operations = OperationCatalog()
+            .GroupBy(operation => operation.SuccessCode)
+            .ToDictionary(group => group.Key, group => string.Join(", ", group.Select(operation => operation.Name)));
+
         return typeof(EventCodes).GetNestedTypes()
             .SelectMany(type => type.GetFields(PublicStatic)
                 .Where(field => field.IsLiteral && field.FieldType == typeof(int))
@@ -69,6 +88,7 @@ public static class EventRegistry
                     log?.Level,
                     log?.Message,
                     errorTypes.GetValueOrDefault(item.Code) ?? [],
+                    operations.GetValueOrDefault(item.Code),
                     item.Field.GetCustomAttribute<ObsoleteAttribute>()?.Message);
             })
             .OrderBy(entry => entry.Code)
@@ -102,8 +122,8 @@ public static class EventRegistry
         builder.AppendLine();
         builder.AppendLine("## Codes");
         builder.AppendLine();
-        builder.AppendLine("| Code | Event name | Log level | Error type | Message |");
-        builder.AppendLine("|---|---|---|---|---|");
+        builder.AppendLine("| Code | Event name | Log level | Error type | Operation | Message |");
+        builder.AppendLine("|---|---|---|---|---|---|");
         foreach (var entry in entries)
         {
             var name = $"{entry.Range}.{entry.Name}";
@@ -114,7 +134,8 @@ public static class EventRegistry
 
             var level = entry.Level?.ToString() ?? "–";
             var errorType = entry.ErrorTypes.Count == 0 ? "–" : string.Join(", ", entry.ErrorTypes);
-            builder.AppendLine(Invariant($"| {entry.DisplayCode} | {Escape(name)} | {level} | {errorType} | {Escape(entry.Message ?? "–")} |"));
+            var operation = entry.Operation is null ? "–" : $"{entry.Operation} (success)";
+            builder.AppendLine(Invariant($"| {entry.DisplayCode} | {Escape(name)} | {level} | {errorType} | {operation} | {Escape(entry.Message ?? "–")} |"));
         }
 
         return builder.ToString().ReplaceLineEndings("\n");

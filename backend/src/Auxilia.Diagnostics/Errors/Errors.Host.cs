@@ -9,6 +9,9 @@ public static partial class Errors
         public static Error Unexpected() =>
             Error.Failure(EventCodes.Host.UnhandledException, "An unexpected error occurred");
 
+        public static Error ValidationFailed(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Host.ValidationFailed, "The request is not valid", errors);
+
         public static Error ConcurrencyConflict() =>
             Error.Conflict(EventCodes.Host.ConcurrencyConflict, "The resource was modified by another request");
 

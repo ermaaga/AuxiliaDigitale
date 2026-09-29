@@ -1,5 +1,7 @@
 using Auxilia.Api.Endpoints;
 using Auxilia.Api.Infrastructure;
+using Auxilia.Application;
+using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +14,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddAuxiliaApiVersioning();
 builder.Services.AddAuxiliaOpenApi();
 
-// Modules, persistence and security are registered from task P1-05 onwards.
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
+builder.Services.AddApplication();
+
+// Persistence, tenancy, modules and security are registered from task P1-06 onwards.
 
 var app = builder.Build();
 

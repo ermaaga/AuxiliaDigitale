@@ -40,6 +40,14 @@ jobs:
       - name: Test
         # exit code 8 = a test project without tests; remove the flag once every project has tests
         run: dotnet test --solution Auxilia.slnx -c Release --no-build --ignore-exit-code 8
+      - name: Coverage gate (≥ 80% lines on SharedKernel + Domain and on Application)
+        run: |
+          dotnet test --project tests/Auxilia.Domain.Tests -c Release --no-build --coverlet \
+            --coverlet-include "[Auxilia.SharedKernel]*" --coverlet-include "[Auxilia.Domain]*" \
+            --coverlet-threshold 80 --coverlet-threshold-type line
+          dotnet test --project tests/Auxilia.Application.Tests -c Release --no-build --coverlet \
+            --coverlet-include "[Auxilia.Application]*" \
+            --coverlet-threshold 80 --coverlet-threshold-type line
       - name: Vulnerable packages report
         run: |
           dotnet list Auxilia.slnx package --vulnerable --include-transitive | tee vulnerable.txt
