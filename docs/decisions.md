@@ -4,13 +4,13 @@ Decisioni prese con l'utente. Estende `decisions.md` del marketplace `auxilia-cl
 
 | ID | Tema | Decisione | Data | Stato |
 |---|---|---|---|---|
-| D-01 | Remote GitHub | Da definire | – | Aperta (P0-01) |
-| D-02 | Creazione DB tenant da `auxctl` (utente con `CREATEDB`) | Default: sì, con `--existing-database` | – | Aperta (fine Fase 1) |
-| D-03 | "Token di sicurezza" | Default: refresh token rotante + credenziale client app (`X-Client-Id`) | – | Aperta (inizio Fase 2) |
+| D-01 | Remote GitHub | Repo **privato** `ermaaga/AuxiliaDigitale`, `main` protetto, squash merge (creazione del remote da confermare al momento di P0-02) | 2026-09-29 | Default confermato |
+| D-02 | Creazione DB tenant da `auxctl` | Sì, con utente Postgres `CREATEDB`/`CREATEROLE`; flag `--existing-database` per DB creati da un DBA | 2026-09-29 | Default confermato |
+| D-03 | "Token di sicurezza" | Refresh token rotante + credenziale client app (`X-Client-Id`, segreto solo per client confidenziali); API key per integrazioni: non ora | 2026-09-29 | Default confermato |
 | D-04 | Visibilità pratiche private | **Come il codice legacy**: pratica visibile se senza specializzazione, o con specializzazione non privata, o se l'operatore possiede la specializzazione. Administrator vede tutto | 2026-09-29 | Confermata |
 | D-05 | Accesso vs stato cliente | **Separati**: `users.is_active` (può fare login) ≠ `client_profiles.status` (Attivo/Inattivo in base alle pratiche) | 2026-09-29 | Confermata |
 | D-06 | Password iniziale | **Link di attivazione** monouso via email; lo staff può impostare una password a mano e reinviare il link | 2026-09-29 | Confermata |
-| D-07 | Scadenza pratica alla creazione | Default: `expires_on` nullo (come legacy), `due_on` facoltativo | – | Aperta (prima di B-08) |
+| D-07 | Scadenza pratica alla creazione | `expires_on` nullo (come legacy) + `due_on` facoltativo; nessuna scadenza automatica | 2026-09-29 | Default confermato |
 | D-08 | Sessione singola per utente | **Impostazione tenant `auth.singleSession`, default OFF** | 2026-09-29 | Confermata |
 | D-09 | Schede allenamento / codice palestra | **Rimosso** dal prodotto (F18) | 2026-09-29 | Confermata |
 | D-10 | Email automatica di scadenza | Superata da D-15 (nessun job schedulato); l'azione manuale "invia avviso scadenza" resta | 2026-09-29 | Chiusa |
@@ -29,5 +29,8 @@ Decisioni prese con l'utente. Estende `decisions.md` del marketplace `auxilia-cl
 | D-23 | Consenso marketing clienti migrati (Q-C) | Alla migrazione il consenso marketing email viene impostato a **true** (fonte `LegacyMigration`) | 2026-09-29 | Confermata |
 | D-24 | Pagina di disiscrizione (Q-D) | **Rimandata**: nessuna pagina né link di disiscrizione in v1; la revoca del consenso la fa lo staff dalla scheda cliente | 2026-09-29 | Confermata |
 | D-25 | Eliminazione tenant (Q-F) | Solo **archiviazione** (nessuna eliminazione fisica del DB dal sistema) | 2026-09-29 | Confermata |
-| D-26 | Organizzazione della logica applicativa | **Manager** per area (es. `ICaseManager`) iniettati con dependency injection, al posto di un handler per ogni caso d'uso; dettagli in ARCHITECTURE §4bis | 2026-09-29 | Preferenza confermata, dettagli da approvare |
-| A-01 | Layout del codice | Progetti per layer con cartelle per modulo + descrittori di modulo + test di confine | 2026-09-29 | Proposta (in ARCHITECTURE, da approvare) |
+| D-26 | Organizzazione della logica applicativa | **Manager** per area (`I<Area>Manager`, es. `ICaseManager`) iniettati con DI per le operazioni + `I<Area>QueryService` per le letture; ogni operazione passa da `IOperationRunner` (traccia, log con codice, metriche, transazione, errori). Nessun handler per singolo caso d'uso. Dettagli in ARCHITECTURE §4bis | 2026-09-29 | Confermata |
+| A-01 | Layout del codice | Progetti per layer con cartelle per modulo + descrittori di modulo + test di confine | 2026-09-29 | Default confermato |
+| D-27 | Pagina di approvazione registrazioni | Consapevolmente **assente** finché non si riprende la registrazione esterna (conferma di D-14) | 2026-09-29 | Confermata |
+| D-28 | Livello di log per tenant | Il System può alzare **temporaneamente** il livello minimo di log (fino a Debug) per un singolo tenant dalla console, senza riavvio; scade da solo all'ora indicata | 2026-09-29 | Confermata |
+| D-29 | Specializzazioni (Q-E) | Gestite dal System (parità con SystemConfigurator); l'assegnazione a operatori/clienti resta ad Admin/Operatore come nel legacy | 2026-09-29 | Default confermato |

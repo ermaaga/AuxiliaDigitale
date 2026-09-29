@@ -1,6 +1,6 @@
 # AuxiliaDigitale — Architettura (v0.2)
 
-> Stato: **proposta da approvare** prima della Fase 0. Nessun codice scritto.
+> Stato: **approvata** (2026-09-29). Nessun codice scritto.
 > Fonti: blueprint, `data-model.md`, `decisions.md` del marketplace `auxilia-claude-skills`; analisi del legacy (`docs/parity/`); decisioni del progetto in [`docs/decisions.md`](../decisions.md) (D-01…D-20), che **prevalgono** sul marketplace.
 > Le voci ancora da chiarire sono in §16.
 
@@ -55,8 +55,8 @@ AuxiliaDigitale/
 │   ├── Auxilia.AppHost · Auxilia.ServiceDefaults
 │   ├── Auxilia.SharedKernel · Auxilia.Diagnostics
 │   ├── Auxilia.Domain/<Module>/
-│   ├── Auxilia.Application/Abstractions/{Messaging(CQRS),Caching,Settings,Modules,Channels,Storage,Auth,Jobs,…}
-│   │                     /<Module>/<UseCase>/  ·  /<Module>/Public/I<Module>Api.cs
+│   ├── Auxilia.Application/Abstractions/{Operations,Caching,Settings,Modules,Channels,Storage,Auth,Jobs,…}
+│   │                     /<Module>/{I<Area>Manager, <Area>Manager, I<Area>QueryService, Validators, Dtos}  ·  /<Module>/Public/I<Module>Api.cs
 │   ├── Auxilia.Contracts/<Module>/  ·  Messages/v1/
 │   ├── Auxilia.Infrastructure/Adapters/<Capability>/<Provider>/  ·  Logging/  ·  Caching/  ·  Settings/
 │   ├── Auxilia.Persistence.Catalog/  ·  Auxilia.Persistence.Tenant/Configurations/<Module>/
@@ -74,7 +74,7 @@ AuxiliaDigitale/
 ├── deploy/ · docs/ (PLAN, decisions, parity, requirements, architecture, adr, migration, log-event-registry.md) · .github/
 ```
 
-**A-01 (da approvare)**: progetti per **layer** con cartelle per **modulo** (come prescrivono le skill), più descrittori di modulo (§5.1) e test di confine: un modulo non usa entità/handler interni di un altro; comunica tramite `I<Module>Api` pubbliche o eventi/messaggi. FK tra schemi ammesse, navigation property tra aggregati di moduli diversi no.
+**A-01 (confermata)**: progetti per **layer** con cartelle per **modulo** (come prescrivono le skill), più descrittori di modulo (§5.1) e test di confine: un modulo non usa entità/Manager interni di un altro; comunica tramite `I<Module>Api` pubbliche o eventi/messaggi. FK tra schemi ammesse, navigation property tra aggregati di moduli diversi no.
 
 ---
 
@@ -102,7 +102,49 @@ Il legacy `SystemConfigurator` (ruolo del tenant) **sparisce**: tutto ciò che f
 | Assegnare piano e abilitare/disabilitare moduli per tenant e per ruolo | fare login come un utente del tenant |
 | Impostazioni, branding, account di invio + regole per ruolo, griglie, etichette/traduzioni, campi custom, permessi dei ruoli, specializzazioni | |
 | Tipi di import ed esecuzione import (crea dati, ma è attività tecnica come nel legacy) | |
-| Consultare i log del tenant, eseguire a mano i job (es. scadenze pratiche) | |
+| Consultare i log del tenant, alzarne temporaneamente il livello (D-28), eseguire a mano i job (es. scadenze pratiche) | |
+
+---
+
+## 4bis. Logica applicativa: Manager + OperationRunner (D-26)
+
+### Struttura per area
+| Tipo | Responsabilità | Esempio |
+|---|---|---|
+| `I<Area>Manager` / `<Area>Manager` | operazioni che cambiano stato: validazione, permessi, regole di dominio, salvataggio, eventi | `ICaseManager.CreateAsync`, `AdvanceAsync`, `CompleteAsync` |
+| `I<Area>QueryService` | letture: liste paginate, filtri, dettaglio, export (solo `AsNoTracking` + proiezione) | `ICaseQueryService.ListAsync(CaseFilter, Paging)` |
+| `I<Module>Api` (Public) | unico ingresso per gli altri moduli | `IDirectoryApi.GetClientSummaryAsync` |
+| Validator (FluentValidation) | regole sugli input | `CreateCaseRequestValidator` |
+| Policy di accesso | regole resource-based | `ICaseAccessPolicy` (pratiche private D-04) |
+| Endpoint / handler Worker | sottili: leggono la richiesta, chiamano il Manager, mappano il `Result` | `CasesEndpoints.MapCases` |
+
+Tutto registrato con dependency injection (interfacce nell'Application, implementazioni `internal`), una classe = una responsabilità, dipendenze esplicite nel costruttore, testabile sostituendo le dipendenze.
+
+### `IOperationRunner` — ogni operazione è osservabile allo stesso modo
+```csharp
+public Task<Result<CaseDto>> CreateAsync(CreateCaseRequest request, CancellationToken ct) =>
+    operations.RunAsync(Operations.Cases.Create, new { request.ClientId, request.ServiceId }, async scope =>
+    {
+        var validation = await validator.ValidateAsync(request, ct);           // → Errors.Validation (AUX-…)
+        if (!validation.IsValid) return validation.ToResult<CaseDto>();
+        if (!await access.CanCreateAsync(request.ServiceId, ct)) return Errors.Cases.Forbidden();
+        // regole di dominio sull'aggregato, salvataggio, eventi (outbox)
+        scope.SetEntity("Case", created.Id);                                   // compare in log e traccia
+        return created.ToDto();
+    }, ct);
+```
+`RunAsync` fa sempre, nello stesso ordine:
+1. apre una **traccia** OpenTelemetry con nome dell'operazione (`Cases.Create`) e tag tenant, utente, entità;
+2. apre uno **scope di log** con `Operation`, `TenantSlug`, `UserId`, `CorrelationId`;
+3. per le operazioni di scrittura apre la **transazione** (execution strategy Postgres) e registra gli eventi nell'outbox;
+4. misura **durata ed esito** (metriche `auxilia.operation.duration` e `auxilia.operation.count{operation,outcome}`);
+5. scrive **un log di esito** con codice evento: Information per l'evento di business riuscito, Warning per errori attesi (validazione, permessi, regole), Error per eccezioni inattese (`AUX-10001`, con `TraceId`);
+6. converte le eccezioni note (concorrenza, timeout, annullamento) nei loro codici.
+
+`Operations.<Area>.<Nome>` è un catalogo di costanti (nome operazione + codice evento di successo) in `Auxilia.Diagnostics`, così operazioni, log e metriche hanno nomi univoci verificati dai test.
+
+### Percorso di troubleshooting
+Codice e riferimento mostrati all'utente (`AUX-14004 · rif. 4f2a…`) → file del tenant di quel giorno filtrato per `TraceId` → tutte le righe della richiesta, incluse quelle del Worker e degli invii (il `traceparent` viaggia negli header dei messaggi) → eventualmente livello Debug temporaneo per quel tenant (D-28) e riproduzione.
 
 ---
 
@@ -294,9 +336,10 @@ Per tenant DB + Catalog + storage file/log con prefisso tenant; test di ripristi
 
 | Cosa | Dove |
 |---|---|
-| **Tutti i log Information+** (Debug solo per configurazione in sviluppo) | file **JSON-lines** giornalieri sullo storage account: `logs/tenants/{slug}/{yyyy}/{MM}/{dd}.jsonl` e `logs/platform/{yyyy}/{MM}/{dd}.jsonl` per eventi senza tenant; append blob scritti da Api, Worker e Runner |
+| **Tutti i log Information+** (Debug in sviluppo per configurazione; in produzione per singolo tenant e a tempo, D-28) | file **JSON-lines** giornalieri sullo storage account: `logs/tenants/{slug}/{yyyy}/{MM}/{dd}.jsonl` e `logs/platform/{yyyy}/{MM}/{dd}.jsonl` per eventi senza tenant; append blob scritti da Api, Worker e Runner |
 | Campi di ogni riga | timestamp UTC, livello, `EventCode AUX-NNNNN`, messaggio, eccezione, `TenantSlug`, `UserId` / `PlatformUserId`, `ClientId`, `TraceId`, `CorrelationId`, host, versione |
 | Console | JSON compatto (container / sviluppo) |
+| Livello per tenant (D-28) | impostazione di piattaforma per tenant `logging.minimumLevel` + `logging.overrideUntil`: il filtro di Serilog legge il valore dalla cache del tenant (invalidata subito alla modifica) e torna al livello normale alla scadenza, senza job né riavvio; ogni modifica è auditata |
 | Pagina Log | console System → tenant → Log: legge i file per intervallo di date con filtri (livello, codice, traceId, utente, testo); nessuna copia nel DB |
 | Retention | fuori dal sistema, sullo storage account (D-17) |
 | Eventi di sicurezza | codici `29xxx` nei log |
@@ -349,7 +392,7 @@ Job registrati: `cases.expiry` (parità F11), `engagement.task-reminders` (futur
 | Comunicazioni | §8: account per ruolo, template localizzati, registro invii, retry |
 | Errori | `Result` + codici `AUX-`, ProblemDetails, UI con codice e riferimento traccia |
 | Log e audit | §12 |
-| Concorrenza / idempotenza | `xmin` + ETag/If-Match; `Idempotency-Key`; handler idempotenti |
+| Concorrenza / idempotenza | `xmin` + ETag/If-Match; `Idempotency-Key`; consumer delle code idempotenti |
 | Tempo | UTC nel DB, fuso del tenant nella presentazione e nelle regole di calendario |
 | Localizzazione | chiavi DB EN+IT, anche per email e PDF |
 | File | staging → commit, hash, magic bytes, antivirus pluggable, download autorizzato |
@@ -362,14 +405,14 @@ Job registrati: `cases.expiry` (parità F11), `engagement.task-reminders` (futur
 
 ---
 
-## 16. Punti ancora da chiarire
+## 16. Punti chiariti
 
 | ID | Domanda | Proposta |
 |---|---|---|
-| A-01 | Layout del codice | layer + cartelle per modulo + descrittori + test di confine |
+| A-01 | ✅ confermata | layer + cartelle per modulo + descrittori + test di confine |
 | Q-A | ✅ D-21 | Il System non vede i dati di business |
 | Q-B | ✅ D-22 | 2FA obbligatoria |
 | Q-C | ✅ D-23 | Consenso impostato a true in migrazione (fonte `LegacyMigration`) |
 | Q-D | ✅ D-24 | Disiscrizione rimandata |
-| Q-E | Specializzazioni: nel legacy le gestiva il SystemConfigurator (quindi ora il System); l'Administrator deve poterle gestire? | System (parità); assegnazione a operatori/clienti resta anche all'Admin/Operatore come oggi |
+| Q-E | ✅ D-29 | System gestisce le specializzazioni; Admin/Operatore le assegnano |
 | Q-F | ✅ D-25 | Solo archiviazione |

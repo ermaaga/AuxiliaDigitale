@@ -36,7 +36,7 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ## 3. Stato corrente
 - Fase: **Fase 0 — non iniziata**
 - Prossimo task: **P0-01**
-- In attesa: dettagli dei Manager (D-26, ARCHITECTURE §4bis), A-01, Q-E; decisioni aperte D-01, D-02, D-03, D-07
+- Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
 
 ---
 
@@ -47,7 +47,7 @@ Fuori perimetro per decisione: schede allenamento (D-09), pagine di registrazion
 ---
 
 ## 5. Decisioni
-Vedi [`decisions.md`](decisions.md). Aperte: **D-01** (remote GitHub, entro P0-02), **D-02** (creazione DB tenant, entro fine Fase 1), **D-03** (token client app, entro Fase 2), **D-07** (scadenza pratica, entro B-08), **D-11** (tenant del cliente attuale, entro Fase 7), **D-12** (hosting/osservabilità, entro Fase 8), **A-01**, **Q-E** e dettagli **D-26** (architettura, entro P0-02).
+Vedi [`decisions.md`](decisions.md). Aperte solo **D-11** (tenant del cliente attuale, entro Fase 7) e **D-12** (hosting/osservabilità, entro Fase 8).
 
 ---
 
@@ -58,7 +58,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 ### Fase 0 — Baseline e scheletro (≈ 4 gg)
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; approvazione architettura (A-01, Q-E, D-26); D-01; ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati). | 0,5 | – | tutte | legacy-migration |
+| [ ] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; conferma creazione remote GitHub (D-01); ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati, Manager + OperationRunner). | 0,5 | – | tutte | legacy-migration |
 | [ ] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
 | [ ] P0-03 | Workspace frontend pnpm: `apps/web`, `packages/{ui,api-client,config}`, Tailwind v4, shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
 | [ ] P0-04 | CI: build+test, NuGetAudit, licenze, `pnpm audit`, OSV-Scanner, gitleaks, Dependabot. | 1 | P0-03 | F32 | dependency-policy |
@@ -69,9 +69,9 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 |---|---|---|---|---|---|
 | [ ] P1-01 | `SharedKernel`: Result, Error, Entity/AggregateRoot, eventi, guard, Guid v7 + test. | 1 | P0-05 | – | backend-feature |
 | [ ] P1-02 | `Diagnostics`: EventCodes (19000 Marketing, 25000 Messaging), `Log.*`, `Errors.*`, registro generato, test unicità/range. | 1 | P1-01 | F25 | log-codes |
-| [ ] P1-03 | `ServiceDefaults` + `AppHost`; Serilog: console JSON + **file giornalieri per tenant** (`logs/tenants/{slug}/…`, `logs/platform/…`) su storage `local-file`/`azure-blob`, Information+, mascheramento; OTel predisposto; health. | 1,5 | P1-02 | F25, F32 | log-codes, observability |
+| [ ] P1-03 | `ServiceDefaults` + `AppHost`; Serilog: console JSON + **file giornalieri per tenant** (`logs/tenants/{slug}/…`, `logs/platform/…`) su storage `local-file`/`azure-blob`, Information+, mascheramento, **livello minimo per tenant a tempo** (D-28); OTel predisposto; health. | 1,5 | P1-02 | F25, F32 | log-codes, observability |
 | [ ] P1-04 | Host API: versioning, ProblemDetails+`errorCode`, `IExceptionHandler`, OpenAPI+Scalar, export OpenAPI in CI, header sicurezza. | 1 | P1-03 | F28, F29 | api-contract |
-| [ ] P1-05 | CQRS + decorator (Logging, Validation, Authorization, Transaction), Scrutor, contratto di paginazione. | 1 | P1-04 | F28 | backend-feature |
+| [ ] P1-05 | Base applicativa (D-26): convenzioni Manager/QueryService/Api pubblica, `IOperationRunner` (traccia, scope di log, transazione+outbox, metriche, log di esito con codice, mappatura eccezioni), catalogo `Operations.*`, `ICurrentUser`, validazione, contratto di paginazione, registrazione DI + test. | 1 | P1-04 | F28 | backend-feature, log-codes |
 | [ ] P1-06 | `Persistence.Catalog`: tenants, domini, **modules, plans, plan_modules, tenant_plans, tenant_module_overrides**, platform_users, platform_settings, client_applications, migration_runs, chiavi DP; seed piano `standard`. | 1,5 | P1-05 | F22, N02 | multitenancy, ef-migration |
 | [ ] P1-07 | Tenancy: `ITenantContext`, risoluzione (claim/header/host), 403 cross-tenant, `ITenantDbContextFactory`, test isolamento. | 1 | P1-06 | – | multitenancy |
 | [ ] P1-08 | `Persistence.Tenant` base: schemi, audit interceptor (`actor_type`), `xmin`, soft delete, `ops.*` (incl. `job_runs`), `IDataMigration` runner, Persistence.Tests. | 1,5 | P1-07 | F29, F30 | ef-migration, data-migration |
@@ -114,7 +114,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] S-04 | Layout griglie per ruolo + definizioni campi custom (gruppo, colore, visibile in griglia, contatore dashboard), validazione server-side. BE+FE. | 1,5 | S-01 | F20, F21 | backend-feature, frontend-feature |
 | [ ] S-05 | Editor etichette/traduzioni (ricerca, mancanti, modifica inline, nuove chiavi). FE. | 1 | P3-01, S-01 | F24 | localization |
 | [ ] S-06 | Permessi dei ruoli + specializzazioni (CRUD, privata, assegnazioni). BE+FE. | 1 | S-01 | F12, F22 | security |
-| [ ] S-07 | Visualizzatore log per tenant: API che legge i file giornalieri con filtri + pagina. | 1 | P1-03, S-01 | F25 | log-codes |
+| [ ] S-07 | Visualizzatore log per tenant (API che legge i file giornalieri con filtri + pagina) + **livello di log temporaneo per tenant** (D-28). | 1 | P1-03, S-01 | F25 | log-codes |
 | [ ] S-08 | Import: tipi (Employee/Client/Service/Case, template Excel), job (upload → Worker valida → anteprima → conferma/annulla), progresso real-time. BE+FE. | 2,5 | S-01, B-08 | F19 | messaging-rebus |
 
 > S-08 dipende dal modulo Pratiche: eseguirlo dopo B-08 anche se è nella console.
@@ -265,3 +265,4 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 |---|---|---|---|
 | 2026-09-29 | Analisi + piano v1 | Completato | Inventario F01–F34, anomalie Q01–Q60 |
 | 2026-09-29 | Decisioni + architettura v0.2 + piano v2 | Completato | D-04…D-20; console System, Messaging, Marketing, log su file per tenant |
+| 2026-09-29 | Chiusura decisioni | Completato | D-21…D-29, default D-01/02/03/07; Manager + OperationRunner; architettura approvata |
