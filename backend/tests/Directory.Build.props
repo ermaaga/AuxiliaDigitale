@@ -14,7 +14,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="Shouldly" />
     <PackageReference Include="NSubstitute" />
-    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.MTP" />
     <Using Include="Xunit" />
     <Using Include="Shouldly" />
   </ItemGroup>

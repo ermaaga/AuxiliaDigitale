@@ -39,5 +39,8 @@ public static partial class EventCodes
 
         /// <summary>The request body, route or query values cannot be read (400), e.g. malformed JSON.</summary>
         public const int RequestInvalid = 10019;
+
+        /// <summary>The request fails validation (400); field errors are translation keys.</summary>
+        public const int ValidationFailed = 10020;
     }
 }

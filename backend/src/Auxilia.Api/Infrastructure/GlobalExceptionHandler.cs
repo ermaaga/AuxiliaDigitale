@@ -9,7 +9,7 @@ namespace Auxilia.Api.Infrastructure;
 /// <summary>
 /// Last line of ADR 0012: the client cancelling is not an error; known technical exceptions get their own code;
 /// anything else is logged once as <c>AUX-10001</c> and answered with a generic 500 (no exception details).
-/// Concurrency (<c>AUX-10010</c>) is mapped where EF Core is introduced (P1-05 / P1-08).
+/// Exceptions inside Manager operations are logged and classified by <c>IOperationRunner</c> first.
 /// </summary>
 internal sealed class GlobalExceptionHandler : IExceptionHandler
 {
@@ -44,14 +44,25 @@ internal sealed class GlobalExceptionHandler : IExceptionHandler
             return await WriteAsync(httpContext, exception, badRequest.StatusCode, code: null, title: null);
         }
 
+        // An exception from IOperationRunner already has its outcome log: do not log it twice (ADR 0012).
+        var alreadyLogged = ExceptionLogging.IsLogged(exception);
+
         if (IsTimeout(exception))
         {
-            Log.Host.DatabaseTimeout(logger, exception, $"{method} {path}");
+            if (!alreadyLogged)
+            {
+                Log.Host.DatabaseTimeout(logger, exception, $"{method} {path}");
+            }
+
             var timeout = Errors.Host.DatabaseTimeout();
             return await WriteAsync(httpContext, exception, StatusCodes.Status503ServiceUnavailable, timeout.Code, timeout.Description);
         }
 
-        Log.Host.UnhandledException(logger, exception, method, path);
+        if (!alreadyLogged)
+        {
+            Log.Host.UnhandledException(logger, exception, method, path);
+        }
+
         var unexpected = Errors.Host.Unexpected();
         return await WriteAsync(httpContext, exception, StatusCodes.Status500InternalServerError, unexpected.Code, unexpected.Description);
     }
