@@ -404,3 +404,5 @@ dotnet_naming_style.underscore_camel.required_prefix = _
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_prefer_primary_constructors = true:suggestion
 dotnet_style_prefer_collection_expression = true:suggestion
+# C#-only solution: names such as Error (required by the architecture skills) are not a problem for other .NET languages
+dotnet_diagnostic.CA1716.severity = none
