@@ -11,7 +11,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 12 | 10021 |
-| 11000–11999 | Tenancy | Tenancy / Catalog | 1 | 11005 |
+| 11000–11999 | Tenancy | Tenancy / Catalog | 4 | 11008 |
 | 12000–12999 | Identity | Identity / Auth | 0 | 12001 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
@@ -48,3 +48,6 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10019 | Host.RequestInvalid | – | – | – | – |
 | AUX-10020 | Host.ValidationFailed | – | Validation | – | – |
 | AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
+| AUX-11005 | Tenancy.TenantSlugInvalid | – | Validation | – | – |
+| AUX-11006 | Tenancy.TenantTransitionNotAllowed | – | Conflict | – | – |
+| AUX-11007 | Tenancy.CatalogValueInvalid | – | Validation | – | – |
