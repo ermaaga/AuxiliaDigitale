@@ -1,6 +1,6 @@
 # F32 — Docker / Aspire / configuration
 
-Status: [ ] not started · Tasks: P0-02, P0-04, P1-03, P7-03, P8-03 · Quirks: Q46
+Status: [ ] not started · Tasks: P0-02, P0-04, P1-03, H-03, R-03 · Quirks: Q46
 
 ## Legacy behaviour
 - `Auxilia.AppHost` (Aspire) orchestrating Postgres, Redis/Valkey, RabbitMQ; `Auxilia.ServiceDefaults` (health checks, OTel).

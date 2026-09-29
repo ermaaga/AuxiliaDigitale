@@ -1,6 +1,6 @@
 # F31 — Password tool
 
-Status: [ ] not started · Tasks: P2-06
+Status: [ ] not started · Tasks: P2-07 
 
 ## Legacy behaviour
 - `Auxilia.Tools.Password` console: option 1 = hash a password with BCrypt; option 2 = verify a password against a hash.

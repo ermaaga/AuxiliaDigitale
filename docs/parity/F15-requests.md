@@ -1,6 +1,6 @@
 # F15 — Requests
 
-Status: [ ] not started · Tasks: 4.26, 4.29 · Quirks: Q16, Q17, Q18
+Status: [ ] not started · Tasks: B-18, B-21 · Quirks: Q16, Q17, Q18
 
 ## Legacy behaviour
 Entity `Request`: SenderId, ReceiverId?, Type, Subject, Message, Status (`Pending`/`Responded`/`Closed`), Response, CreatedAt, RespondedAt.

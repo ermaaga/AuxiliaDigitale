@@ -1,6 +1,8 @@
 # F23 — System configuration (settings, e-mail, theme, background)
 
-Status: [ ] not started · Tasks: 4.03, 4.06, P1-12 · Quirks: Q46
+Status: [ ] not started · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
+
+> **Decisions D-16, D-18:** settings, branding and **N sending accounts** (SMTP; WhatsApp prepared) with rules purpose × sender role are managed by **System**. See N03.
 
 ## Legacy behaviour
 `/system/configurations` (SystemConfigurator) with four sections + Refresh:
@@ -11,8 +13,8 @@ Status: [ ] not started · Tasks: 4.03, 4.06, P1-12 · Quirks: Q46
 App-level config (appsettings): `AppName` ("Auxilia Digitale"), `DefaultPassword`, `SessionTimeout`, storage, queue, reCAPTCHA, cache, logging.
 
 ## Acceptance criteria
-- [ ] `/settings/general`: all legacy keys with typed editors and descriptions; defaults seeded per tenant; generic list of other keys.
-- [ ] `/settings/email`: SMTP host/port/security/user/password (encrypted, never returned in clear), from e-mail/name, active; "send test e-mail".
-- [ ] `/settings/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
+- [ ] `/platform/tenants/{slug}/settings`: all legacy keys with typed editors and descriptions; defaults seeded per tenant; generic list of other keys.
+- [ ] `/platform/tenants/{slug}/messaging`: N SMTP accounts (host/port/security/user/password encrypted and never returned in clear, from e-mail/name, active, default) + rules purpose × sender role (N03); "send test e-mail".
+- [ ] `/platform/tenants/{slug}/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
 - [ ] Branding applied to the whole UI and to the public login/register pages (public branding endpoint).
 - [ ] Legacy values imported (SMTP password re-encrypted).

@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [ ] not started · Tasks: 4.19, 4.20, 4.21 · Quirks: Q13, Q49, Q50, Q51
+Status: [ ] not started · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.

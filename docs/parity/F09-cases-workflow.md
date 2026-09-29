@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [ ] not started · Tasks: 4.16, 4.17, 4.22, 4.37 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [ ] not started · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).
@@ -38,4 +38,4 @@ Status: [ ] not started · Tasks: 4.16, 4.17, 4.22, 4.37 · Quirks: Q02, Q03, Q0
 - [ ] Manual action "Send expiry reminder" e-mail (F11, Q24).
 
 ## Improvements
-Status history/timeline, multiple payments, document checklist (4.37), wizard creation, actions per status.
+Status history/timeline, multiple payments, document checklist (B-26), wizard creation, actions per status.

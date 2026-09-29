@@ -40,26 +40,28 @@ Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and ta
 | [F33](F33-folder-templates-zip.md) | Folder templates + ZIP (new in inventory) | ☐ |
 | [F34](F34-cross-cutting-ui.md) | Cross-cutting UI behaviours (new in inventory) | ☐ |
 
+New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing, N02 Platform console / tenants / plans, N03 Outbound messaging.
+
 ## Legacy route → new route
 | Legacy | New |
 |---|---|
-| `/login`, `/register`, `/` | `/{tenant}/login`, `/{tenant}/register`, `/{tenant}/dashboard` |
+| `/login`, `/register`, `/` | `/{tenant}/login`, *(register: API only, D-14)*, `/{tenant}/dashboard` |
 | `/admin`, `/employee`, `/client` | `/{tenant}/dashboard` |
 | `/admin/clients`, `/employee/clients`, `/employee/allclients`, `/admin/clients-overview` | `/clients` (views mine / all / overview) |
 | `/admin/clients/{id}`, `/employee/clients/{id}` | `/clients/{id}/…` (360°) |
 | `/admin/employees`, `/admin/employees/{id}` | `/employees`, `/employees/{id}` |
-| `/admin/memberships`, `/admin/memberships/{id}` | `/services`, `/services/{id}` (+ `/settings/service-categories`) |
+| `/admin/memberships`, `/admin/memberships/{id}` | `/services`, `/services/{id}` (+ categories inside `/services`) |
 | `/admin/subscriptions[/{id}]`, `/employee/subscriptions[/{id}]`, `/client/subscriptions` | `/cases`, `/cases/{id}` |
 | `/admin/documents[/{id}]`, `/employee/documents[/{id}]` | `/documents` (+ detail drawer) |
 | `/employee/appointments`, `/client/appointments` | `/appointments` |
 | `/admin/requests`, `/employee/requests`, `/client/requests` | `/requests` |
-| `/admin/registration-requests`, `/employee/registration-requests` | `/registrations` |
+| `/admin/registration-requests`, `/employee/registration-requests` | API only, no page (D-14) |
 | `/admin/sessions` | `/sessions` |
-| `/admin/logs` | `/logs` |
+| `/admin/logs` | `/platform/tenants/{slug}/logs` (System console, reads daily log files, D-17) |
 | `/profile` | `/profile` |
-| `/system/configurations` | `/settings/general`, `/settings/email`, `/settings/branding` |
-| `/system/page-configurations[/{id}]` | `/settings/modules`, `/settings/permissions`, `/settings/grids` |
-| `/system/entity-configurations[/{id}]` | `/settings/custom-fields` |
-| `/system/resources[/{id}]` | `/settings/localization` |
-| `/system/role-specializations[/{id}/assign]` | `/settings/specializations` |
-| `/system/import[/{id}]`, `/system/import-types` | `/imports`, `/imports/{id}`, `/imports/types` |
+| `/system/configurations` | `/platform/tenants/{slug}/settings`, `/platform/tenants/{slug}/messaging`, `/platform/tenants/{slug}/branding` (System console) |
+| `/system/page-configurations[/{id}]` | `/platform/tenants/{slug}/modules`, `/platform/tenants/{slug}/permissions`, `/platform/tenants/{slug}/grids` |
+| `/system/entity-configurations[/{id}]` | `/platform/tenants/{slug}/custom-fields` |
+| `/system/resources[/{id}]` | `/platform/tenants/{slug}/localization` |
+| `/system/role-specializations[/{id}/assign]` | `/platform/tenants/{slug}/specializations` |
+| `/system/import[/{id}]`, `/system/import-types` | `/platform/tenants/{slug}/imports` |

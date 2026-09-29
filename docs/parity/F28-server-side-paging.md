@@ -1,6 +1,6 @@
 # F28 — Server-side paging, filtering, sorting
 
-Status: [ ] not started · Tasks: P1-05, P3-06
+Status: [ ] not started · Tasks: P1-05, P3-07 
 
 ## Legacy behaviour
 - `DataGridRequest` {Page ≥1, PageSize 1..200 (default 10), SortColumn, SortAscending, Filters dict} → `PagedResult<T>` {Items, TotalCount, Page, PageSize, TotalPages}; `ToPagedResultAsync` counts on the filtered query before includes.

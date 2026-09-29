@@ -1,6 +1,6 @@
 # F08 — Services (Membership) and categories (MembershipType)
 
-Status: [ ] not started · Tasks: 4.15, 4.23 · Quirks: Q26, Q27, Q28
+Status: [ ] not started · Tasks: B-07, B-15 · Quirks: Q26, Q27, Q28
 
 ## Legacy behaviour
 - `Admin/Memberships.razor` (`/admin/memberships`, module `Memberships`): collapsible create/edit form: name (required), price €, duration days, type (MembershipType dropdown), specialization (Employee-role), active (edit only), description. Grid (config `Memberships/Administrator`): name, description, specialization, price, duration, status. Sort by name/price (default name). Actions: detail, delete (confirm, hard delete).

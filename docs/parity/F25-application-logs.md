@@ -1,6 +1,8 @@
 # F25 — Application logs
 
-Status: [ ] not started · Tasks: P1-02, 4.36 · Quirks: Q37
+Status: [ ] not started · Tasks: P1-02, P1-03, S-07, H-03 · Quirks: Q37
+
+> **Decision D-17:** all logs Information+ go to **daily files per tenant** on the storage account (`logs/tenants/{slug}/yyyy/MM/dd.jsonl`, plus `logs/platform/…`); no `app_logs` table; retention is handled outside the system; the Log page (System console) reads the files. Criteria about a DB log table are replaced accordingly.
 
 ## Legacy behaviour
 - Serilog: console + rolling file `logs/auxilia-.log` (30 days) + optional Azure Blob sink (`LogBlobStorage`).
@@ -10,6 +12,8 @@ Status: [ ] not started · Tasks: P1-02, 4.36 · Quirks: Q37
 
 ## Acceptance criteria
 - [ ] Every error has an `AUX-NNNNN` code visible in UI and in logs; traceId shown for support.
-- [ ] `audit.app_logs` stores Warning+ with code, trace, user, client; `/logs` with filters (code, level, date range, user, traceId, text), paging, details.
-- [ ] `audit.entity_changes` records create/update/delete of business entities (who/when/what).
-- [ ] Optional Azure Blob sink kept; retention policy instead of manual clear.
+- [ ] All events Information+ written as JSON lines to daily files per tenant (`logs/tenants/{slug}/yyyy/MM/dd.jsonl`) and to `logs/platform/…` for events without tenant, from Api, Worker and Runner; storage pluggable (`local-file` in development, `azure-blob` in production).
+- [ ] Each line carries timestamp, level, event code, message, exception, tenant, user/platform user, client app, traceId, correlationId, host, version; sensitive data masked.
+- [ ] System console → tenant → Logs: date range + filters (level, code, traceId, user, text) reading the files; no DB copy.
+- [ ] `audit.entity_changes` records create/update/delete of business entities (who — including platform actors — when, what).
+- [ ] No retention logic inside the system; retention via storage lifecycle policy (H-03).

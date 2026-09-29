@@ -1,6 +1,6 @@
 # F16 — Notifications
 
-Status: [ ] not started · Tasks: P2-05, 4.27, 4.29 · Quirks: Q12, Q13
+Status: [ ] not started · Tasks: P2-05, B-19, B-21 · Quirks: Q12, Q13
 
 ## Legacy behaviour
 Entity `Notification`: UserId, Title, Message, Type (`Info`, `Request`, `RegistrationRequest`, `Appointment`, `Subscription`, `WorkoutPlan` (dropped, F18), …), IsRead, IsCreatedByFinalUser, CreatedAt, RelatedEntityId.

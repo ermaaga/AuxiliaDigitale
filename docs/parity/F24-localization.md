@@ -1,6 +1,8 @@
 # F24 — Localization
 
-Status: [ ] not started · Tasks: 4.01, 4.02, P3-04
+Status: [ ] not started · Tasks: P3-01, P3-05, S-05 
+
+> **Decision D-18:** labels/translations are edited by **System** (platform console).
 
 ## Legacy behaviour
 - Tables `Languages` (en, it), `ResourceKeys` (unique Key, Category), `ResourceTranslations`. Seed dictionary `LocalizationSeedData.cs` (~500 keys `{Key, (EN, IT)}`) upserted at startup + incremental seed scripts for new keys.
@@ -11,5 +13,5 @@ Status: [ ] not started · Tasks: 4.01, 4.02, P3-04
 - [ ] All legacy keys and values (EN/IT) available at go-live; tenant-customized values preserved (`is_customized`).
 - [ ] `GET /i18n/{lang}` with ETag; cache invalidated immediately on edit (no restart/reload needed).
 - [ ] Fallback chain: requested language → tenant default → English → key (and missing keys reported in the editor).
-- [ ] `/settings/localization`: search, filter by category, show missing translations, inline edit, add/delete key, add language via data-migration.
+- [ ] `/platform/tenants/{slug}/localization` (System console): search, filter by category, show missing translations, inline edit, add/delete key, add language via data-migration.
 - [ ] No hard-coded user-visible strings in new code (EN + IT mandatory).

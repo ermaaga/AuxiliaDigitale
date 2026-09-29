@@ -1,6 +1,8 @@
 # F03 — Registration approval
 
-Status: [ ] not started · Tasks: 4.13, 4.14 · Quirks: Q06, Q07, Q54
+Status: [ ] not started · Tasks: B-06 · Quirks: Q06, Q07, Q54
+
+> **Decision D-14:** API only (list pending/processed, approve, reject) for Administrator and Employee; **no pages**. Activation e-mail per D-06.
 
 ## Legacy behaviour
 - Two identical pages: `Admin/AdminRegistrationRequests.razor` (`/admin/registration-requests`, module `Requests.RegistrationRequests`) and `Employee/EmployeeRegistrationRequests.razor` (`/employee/registration-requests`, no module check). Both roles can approve/reject.
@@ -21,7 +23,7 @@ Status: [ ] not started · Tasks: 4.13, 4.14 · Quirks: Q06, Q07, Q54
 - [ ] Given a request already processed, when someone tries to process it again, then `409` with code.
 - [ ] Rejection stores optional notes and status `Rejected`; no user is created.
 - [ ] Fiscal code / e-mail / username collision with an existing person is detected at approval and reported.
-- [ ] Single `/registrations` inbox with filters (status, date, text) for both roles, permission-based.
+- [ ] Single list API with filters (status, date, text) for both roles, permission-based (page deferred, D-14).
 
 ## Improvements
 One inbox, explicit status, activation link, optional notes on approve/reject.

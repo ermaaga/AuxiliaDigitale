@@ -1,6 +1,6 @@
 # F34 — Cross-cutting UI behaviours
 
-Status: [ ] not started · Tasks: P2-04, P3-01, P3-05, P3-06, 4.10, 4.29, 4.34 · **Not listed in the blueprint — added by the legacy analysis.** · Quirks: Q35, Q39, Q41, Q44, Q56, Q57
+Status: [ ] not started · Tasks: P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 · **Not listed in the blueprint — added by the legacy analysis.** · Quirks: Q35, Q39, Q41, Q44, Q56, Q57
 
 ## Legacy behaviour
 - Single active session per user (new login force-logs-out others) — F01/F17.

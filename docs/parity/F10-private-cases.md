@@ -1,6 +1,6 @@
 # F10 — Private cases and employee visibility rules
 
-Status: [ ] not started · Tasks: 4.17, 4.20, 4.22 · Quirks: Q09, Q10, Q11 · **Decision D-04 required**
+Status: [ ] not started · Tasks: B-09, B-12, B-14 · Quirks: Q09, Q10, Q11 · **Decision D-04: code semantics confirmed**
 
 ## Legacy behaviour (code = source of truth)
 Let `S(e)` = specializations assigned to employee `e` (`UserRoleSpecializations`).
@@ -22,7 +22,7 @@ case visible ⇔ `case.SpecializationId == null` ∨ `!case.Specialization.Priva
 
 **Documentation divergence**: `documentations/PRIVATE_SUBSCRIPTIONS.md` and `data-model.md` state "only the assigned employee can see private cases". The code does **not** check the assigned employee for cases.
 
-## Acceptance criteria (after D-04; default = code semantics)
+## Acceptance criteria (D-04: code semantics)
 - [ ] Rules implemented as a query-level policy (`VisibleTo(user)`), never as UI filtering; applied to lists, detail, documents, downloads, ZIP, search, exports, dashboards counts.
 - [ ] Non-visible case/document by id → `404` (Q10).
 - [ ] Test matrix (Application + Api integration): {no spec, non-private spec, private spec held, private spec not held} × {case, case document, client document with/without assignment} × {Admin, Employee}.

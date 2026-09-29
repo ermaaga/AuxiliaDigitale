@@ -1,6 +1,8 @@
 # F22 — Module and page enabling per role
 
-Status: [ ] not started · Tasks: P2-03, 4.04, 4.06 · Quirks: Q39, Q40
+Status: [ ] not started · Tasks: P1-06, P1-11, P2-03, S-01 · Quirks: Q39, Q40
+
+> **Decisions D-18:** only the platform **System** role enables/disables modules, per tenant **and per role**; model = plans (future pricing) + tenant overrides (ARCHITECTURE §5). The tenant `SystemConfigurator` role no longer exists.
 
 ## Legacy behaviour
 - `environmentconfig.json` seeds `ModuleConfiguration(Role, ModulePath, IsEnabled)` on empty DB: Administrator {Dashboard, Employees, Clients, Requests{UserRequests, RegistrationRequests}, Subscriptions, Memberships, Logs, Sessions}; Employee {Dashboard, Clients, AllClients, Documents, Subscriptions, Appointments, RegistrationRequests, Requests}; Client {Dashboard, Appointments, Requests, Subscription}. Seed script adds Employee `Subscriptions`.
@@ -13,4 +15,4 @@ Status: [ ] not started · Tasks: P2-03, 4.04, 4.06 · Quirks: Q39, Q40
 - [ ] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`).
 - [ ] `GET /me/navigation` returns only allowed entries (union of roles); sidebar and mobile use it.
 - [ ] Disabled module → endpoints 404 and hidden from navigation; missing permission → 403.
-- [ ] SystemConfigurator can enable/disable modules and edit role permissions from `/settings/modules` and `/settings/permissions`.
+- [ ] Only the platform System role enables/disables modules per tenant and per role (`/platform/tenants/{slug}/modules`, plans in `/platform/plans`) and edits role permissions (`/platform/tenants/{slug}/permissions`).

@@ -1,6 +1,6 @@
 # F27 — Dashboards per role
 
-Status: [ ] not started · Tasks: 4.34, 4.35, 4.37 · Quirks: Q41, Q42, Q43
+Status: [ ] not started · Tasks: B-23, B-24, B-26 · Quirks: Q41, Q42, Q43
 
 ## Legacy behaviour
 **Administrator** `/admin`: "Welcome, {name}"; cards: total employees, total clients, active subscriptions (link), pending requests (link), "my clients" (shows the same total clients value), pending registrations (link). Charts (Chart.js): subscriptions per membership (filter all/month/week by start date), revenue per month = sum `AmountPaid` by start month (filter all/month/week, Q43). Appointments grid (all from yesterday on; employee, client, date, duration, status).

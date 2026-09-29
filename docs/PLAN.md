@@ -1,351 +1,267 @@
-# AuxiliaDigitale — Piano di porting da Auxilia (Blazor) a .NET 10 API + Next.js
+# AuxiliaDigitale — Piano di lavoro (v2)
 
-> Documento vivo. Aggiornalo a fine di ogni sessione di lavoro: spunta i task, aggiorna **Stato corrente** e il registro sessioni in fondo.
-> Ultima revisione: 2026-09-29.
+> Documento vivo: a fine sessione spunta i task, aggiorna **Stato corrente** e **Registro sessioni**.
+> v2 (2026-09-29): integrate le decisioni D-04…D-20 ([`decisions.md`](decisions.md)) e l'architettura v0.2 ([`architecture/ARCHITECTURE.md`](architecture/ARCHITECTURE.md)).
 
 ---
 
-## 1. Obiettivo e fonti di verità
+## 1. Obiettivo e fonti
 
-Portare l'applicazione legacy **Auxilia** (Blazor Server, `../Auxilia`, HEAD `8fa6622` del 2026-06-23, tag `v.2.0.0`) su una nuova piattaforma:
+Rifare **Auxilia** (Blazor Server, `../Auxilia`, HEAD `8fa6622`, tag `v.2.0.0`) come piattaforma multi-tenant per **clienti, pratiche, appuntamenti e campagne marketing**: API .NET 10 + Next.js (app tenant + console di piattaforma), Worker su code, configurazione nel DB servita da Redis.
 
-- **Backend**: .NET 10, API REST versionate (`/api/v1`), modular monolith + Clean Architecture, multi-tenant (Catalog DB + DB per tenant), Worker Rebus/RabbitMQ, Redis/Valkey.
-- **Frontend**: Next.js (App Router) + BFF, UI nuova (shadcn/ui, Tailwind v4), responsive, dark mode, WCAG 2.2 AA.
-- **Regola d'oro**: nessuna funzionalità del legacy può andare persa. Il contratto è l'inventario `docs/parity/F01…F34`.
-
-| Fonte | Cosa decide | Dove |
+| Fonte | Decide | Dove |
 |---|---|---|
-| Codice legacy | **Comportamento funzionale** (vince su tutto il resto in caso di dubbio) | `../Auxilia` |
-| Blueprint | Architettura, stack, fasi, sicurezza, workflow | `~/.claude/plugins/marketplaces/auxilia-claude-skills/docs/BLUEPRINT.md` |
-| Data model | Schema DB target (supera il blueprint §6.3) | `…/auxilia-claude-skills/docs/data-model.md` |
-| Decisioni | Decisioni già prese (#1–#12) | `…/auxilia-claude-skills/docs/decisions.md` |
-| Skill `auxilia-dev` | Regole operative per ogni tipo di task | plugin `auxilia-dev@auxilia-claude-skills` |
-| Parità | Criteri di accettazione per funzionalità | `docs/parity/Fxx.md` |
-| Anomalie legacy | Bug/stranezze del legacy e come trattarle | `docs/parity/legacy-quirks.md` |
+| Codice legacy | comportamento funzionale | `../Auxilia` |
+| Decisioni del progetto | scelte con l'utente (prevalgono) | `docs/decisions.md` |
+| Architettura | struttura, DB, plug-in, config, log | `docs/architecture/ARCHITECTURE.md` |
+| Parità legacy | criteri di accettazione F01–F34 | `docs/parity/` |
+| Nuove funzionalità | criteri di accettazione N01–N03 | `docs/requirements/` |
+| Blueprint / data-model / skill | regole tecniche generali | marketplace `auxilia-claude-skills` |
 
-> Nota: il blueprint chiama il monorepo `auxilia-next`. **Questo repository (`AuxiliaDigitale`) è quel monorepo** (decisione #1): stessa struttura `backend/`, `frontend/`, `deploy/`, `docs/`. Nei riferimenti delle skill leggere `auxilia-next` = `AuxiliaDigitale`.
+Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 
 ---
 
-## 2. Come usare il piano (ogni giornata di lavoro)
+## 2. Come lavorare ogni giorno
+1. Leggi **Stato corrente**, prendi il primo task aperto con dipendenze chiuse.
+2. Carica le skill `auxilia-architecture` + `auxilia-dependency-policy` + quelle del task.
+3. Leggi i file `Fxx`/`Nxx` citati e le decisioni collegate.
+4. Workflow W3: contratto → backend → test → OpenAPI/api-client → frontend → E2E.
+5. Chiudi: build/test verdi, criteri spuntati, task spuntato, stato e registro aggiornati, commit.
 
-1. Apri questo file, sezione **Stato corrente**: prendi il primo task non completato le cui dipendenze sono chiuse.
-2. Carica le skill: sempre `auxilia-architecture` + `auxilia-dependency-policy`; poi quelle indicate nel task (per le story: `auxilia-story`).
-3. Leggi i file di parità `docs/parity/Fxx.md` citati dal task e le anomalie `Qxx` collegate.
-4. Implementa con il workflow W3 (contract-first → backend → test → OpenAPI/api-client → frontend → E2E).
-5. Chiusura: build e test verdi, spunta i criteri di accettazione nei `Fxx.md`, spunta il task qui, aggiorna **Stato corrente** e **Registro sessioni**, commit.
-
-Dimensionamento: **1 task ≈ 1 giornata** (0,5 = mezza giornata; 1,5/2 = task da spezzare in due sessioni, stesso ID con suffisso `a`/`b` nel registro).
+1 task ≈ 1 giornata (0,5 mezza; ≥1,5 in più sessioni).
 
 ---
 
 ## 3. Stato corrente
-
-- Fase in corso: **Fase 0 — non iniziata**
+- Fase: **Fase 0 — non iniziata**
 - Prossimo task: **P0-01**
-- Decisioni bloccanti aperte: D-01, D-02, D-03 (vedi §5); proposta di architettura in revisione
+- In attesa: dettagli dei Manager (D-26, ARCHITECTURE §4bis), A-01, Q-E; decisioni aperte D-01, D-02, D-03, D-07
 
 ---
 
-## 4. Risultati dell'analisi del legacy (sintesi)
-
-| Area | Legacy (numeri) |
-|---|---|
-| Entità EF | 29 (`Auxilia.Model/Entities`), 22 migrazioni, 6 seed script incrementali |
-| Servizi | 23 con interfaccia + 12 senza + 1 background service + 1 handler Rebus |
-| UI | 78 componenti Razor, 45 route (`/admin/*` 16, `/employee/*` 11, `/client/*` 4, `/system/*` 12, pubbliche 4) |
-| Traduzioni | ~500 chiavi EN/IT in `LocalizationSeedData.cs` |
-| Configurazioni | 6 chiavi `SystemConfiguration` di default + tema/background; `environmentconfig.json` (moduli per ruolo); `PageConfiguration` (visibilità pagine + colonne griglie) |
-| Test | 28 test unitari (4 file) |
-
-**Funzionalità trovate che il blueprint non elenca** (aggiunte all'inventario):
-- **F33** — Template di cartelle per servizio (`MembershipFolderTemplate`): albero cartelle per Membership, documenti della pratica dentro le cartelle, spostamento documenti, **download ZIP** di una cartella o dell'intera pratica.
-- **F34** — Comportamenti trasversali UI: sessione singola per utente (il nuovo login disconnette le altre sessioni), "ricorda username", toggle chiaro/scuro, nome app vs logo (`UseAppName`), sfondo login configurabile, KPI dashboard basati su campi custom (`CAF`, `PATRONATO`), polling notifiche, conferme, toast.
-
-**Regole implicite importanti** estratte dal codice (dettagli nei `Fxx.md`):
-- Stato attivo del cliente = esiste almeno una pratica `IsActive` con `EndDate` nulla o futura; la chiusura di una pratica imposta `EndDate = now` → il cliente diventa inattivo quando non ha più pratiche aperte (F05/F09).
-- Visibilità pratiche/documenti per l'operatore (F10): la pratica è visibile se senza specializzazione, o con specializzazione non privata, o se l'operatore possiede quella specializzazione. **Il codice diverge dalla documentazione legacy** → decisione D-04.
-- Operatore: può gestire (modificare/cancellare) solo pratiche senza specializzazione o con una sua specializzazione; cancellare solo se non concluse; crea pratiche solo su servizi senza specializzazione o con una sua (F10).
-- Nuovo cliente senza operatore → assegnato all'operatore di default (creazione cliente, approvazione registrazione, creazione pratica).
-- 60 anomalie/bug del legacy classificate in `docs/parity/legacy-quirks.md` (Q01–Q60), ciascuna con proposta *mantieni / correggi / decidi*.
+## 4. Sintesi dell'analisi del legacy
+29 entità, 22 migrazioni, 37 servizi, 78 componenti Razor, 45 route, ~500 chiavi di traduzione, 28 test. Aggiunte all'inventario due aree non presenti nel blueprint: **F33** (cartelle per servizio + ZIP) e **F34** (comportamenti trasversali UI). 60 anomalie del legacy classificate in `docs/parity/legacy-quirks.md`. Regole implicite chiave: stato cliente dalle pratiche (Q03), pratiche private come nel codice (D-04), operatore di default per nuovi clienti.
+Fuori perimetro per decisione: schede allenamento (D-09), pagine di registrazione (D-14, solo API), job schedulati (D-15), login Google (D-19, predisposto).
 
 ---
 
 ## 5. Decisioni
-
-### 5.1 Già prese (da `decisions.md`, non ridiscutere)
-**D-09 (2026-09-29): schede allenamento e tutto il codice "palestra" rimossi** (F18) · #1 monorepo · #2 tenant nel path `/{tenantSlug}` · #3 PDF con PDFsharp-MigraDoc · #8 EN+IT · #10 vocabolario CRM (`Subscription`→`Case`/Pratica, `Membership`→`Service`, `MembershipType`→`ServiceCategory`, modulo `Billing`→`Cases`) · #11 estensioni CRM (timeline attività, task/scadenze, checklist documenti per servizio, pagamenti multipli) · #12 data model v1.
-
-### 5.2 Da decidere (con default proposto)
-
-| ID | Domanda | Default proposto | Serve entro |
-|---|---|---|---|
-| D-01 | Remote GitHub per questo repo (`ermaaga/AuxiliaDigitale`?) e branch protection | repo privato `ermaaga/AuxiliaDigitale`, `main` protetto, squash merge | P0-02 |
-| D-02 | #6 blueprint: il runner crea i DB tenant (utente con `CREATEDB`)? | sì, con flag `--existing-database` | fine Fase 1 |
-| D-03 | #4 blueprint: "token di sicurezza" = refresh token rotante + credenziale client app | confermato | inizio Fase 2 |
-| D-04 | Semantica pratiche private (Q09): seguire il **codice** (chi possiede la specializzazione vede) o la **doc legacy/data-model** (solo operatore assegnato)? | seguire il codice (è ciò che gli utenti usano oggi) + admin vede tutto | P4 task 4.18 |
-| D-05 | Login vs stato cliente (Q01): oggi l'utente "inattivo" può comunque fare login | separare: `users.is_active` (accesso) ≠ `client_profiles.status` (business); import legacy con accesso abilitato per tutti | Fase 2 |
-| D-06 | Password iniziale (Q06): oggi `"password"`/`DefaultPassword` | link di attivazione via email (+ admin può impostare password manualmente come oggi) | 4.08 |
-| D-07 | Scadenza pratica alla creazione (Q04): oggi `EndDate` resta nulla, `DurationDays` non usato | mantenere (null) + campo `due_on` facoltativo; nessuna scadenza automatica | 4.17 |
-| D-08 | Sessione singola per utente (Q56) | mantenere come impostazione tenant, default ON | P2-04 |
-| D-10 | Job scadenze: invio email automatico (oggi solo notifica) | notifica sempre + email se `SendExpiryEmail` (nuova impostazione, default OFF = parità) | P5-02 |
-| D-11 | Slug e nome del tenant del cliente attuale | da chiedere | Fase 6 |
-| D-12 | #5 hosting prod, #7 osservabilità, #9 mobile | aperte (blueprint) | Fase 7 |
+Vedi [`decisions.md`](decisions.md). Aperte: **D-01** (remote GitHub, entro P0-02), **D-02** (creazione DB tenant, entro fine Fase 1), **D-03** (token client app, entro Fase 2), **D-07** (scadenza pratica, entro B-08), **D-11** (tenant del cliente attuale, entro Fase 7), **D-12** (hosting/osservabilità, entro Fase 8), **A-01**, **Q-E** e dettagli **D-26** (architettura, entro P0-02).
 
 ---
 
-## 6. Piano per fasi e task
+## 6. Fasi e task
 
-Legenda colonne: **Stima** in giornate · **Dip.** = dipendenze · **F** = file di parità coperti · **Skill** = skill da caricare oltre alle due sempre obbligatorie.
+Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalità) · **Skill** (oltre alle due sempre obbligatorie).
 
 ### Fase 0 — Baseline e scheletro (≈ 4 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P0-01 | Congelamento legacy: tag `legacy-final-baseline` su `../Auxilia`; revisione con l'utente di `docs/parity/*` e `legacy-quirks.md`; chiusura D-01. | 0,5 | – | tutte | legacy-migration |
-| [ ] P0-02 | Scheletro monorepo: `backend/` (`Auxilia.slnx`, `global.json` SDK 10, `Directory.Build.props` con nullable/warnings-as-errors/NuGetAudit, `Directory.Packages.props`, progetti vuoti §5.2 + test), `deploy/`, `.editorconfig`, `.gitignore`, `CLAUDE.md`, `.claude/settings.json` con marketplace `ermaaga/auxilia-claude-skills`. | 1 | P0-01 | F32 | architecture |
-| [ ] P0-03 | Workspace frontend: pnpm, `apps/web` (Next.js App Router, TS strict), `packages/ui`, `packages/api-client`, `packages/config` (eslint, tsconfig, tailwind v4), init shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
-| [ ] P0-04 | CI GitHub Actions: build+test backend e frontend, NuGetAudit, nuget-license, `pnpm audit`, licenze, OSV-Scanner, gitleaks; Dependabot settimanale. | 1 | P0-03 | F32 | dependency-policy |
-| [ ] P0-05 | `Auxilia.Architecture.Tests` (NetArchTest): dipendenze tra layer, pacchetti in blocklist, naming. | 0,5 | P0-02 | – | testing |
+| [ ] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; approvazione architettura (A-01, Q-E, D-26); D-01; ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati). | 0,5 | – | tutte | legacy-migration |
+| [ ] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
+| [ ] P0-03 | Workspace frontend pnpm: `apps/web`, `packages/{ui,api-client,config}`, Tailwind v4, shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
+| [ ] P0-04 | CI: build+test, NuGetAudit, licenze, `pnpm audit`, OSV-Scanner, gitleaks, Dependabot. | 1 | P0-03 | F32 | dependency-policy |
+| [ ] P0-05 | `Architecture.Tests`: layer, confini tra moduli, blocklist, naming. | 0,5 | P0-02 | – | testing |
 
-Uscita: pipeline verde sullo scheletro.
-
-### Fase 1 — Fondamenta backend (≈ 13 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 1 — Fondamenta backend (≈ 15 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P1-01 | `SharedKernel`: `Result<T>`, `Error`/`ErrorType`, `Entity`/`AggregateRoot`, eventi di dominio, guard, `IdGenerator` (Guid v7) + unit test. | 1 | P0-05 | – | backend-feature |
-| [ ] P1-02 | `Diagnostics`: `EventCodes` per range §7.2, `Log.*` con `[LoggerMessage]`, `Errors.*`, comando registry, test unicità/range. | 1 | P1-01 | F25 | log-codes |
-| [ ] P1-03 | `ServiceDefaults` + `AppHost` Aspire (Postgres, Valkey, RabbitMQ, Api, Worker, Web); Serilog + OTel + enricher (`EventCode`, `TenantSlug`, `TraceId`…); `/health/live`, `/health/ready`. | 1 | P1-02 | F32 | architecture |
-| [ ] P1-04 | `Auxilia.Api` host: Minimal API + `Asp.Versioning`, ProblemDetails con `errorCode`, `IExceptionHandler` (`AUX-10001`, concorrenza `AUX-10010`), OpenAPI + Scalar (dev), export OpenAPI in build + diff in CI, header di sicurezza. | 1 | P1-03 | F28, F29 | api-contract |
-| [ ] P1-05 | Astrazioni applicative: `ICommand/IQuery` + handler, decorator Logging→Validation→Authorization→Transaction, registrazione Scrutor, paginazione standard (`page,pageSize,sort,filter[...],search`). | 1 | P1-04 | F28 | backend-feature |
-| [ ] P1-06 | `Persistence.Catalog`: `tenants`, `tenant_domains`, `client_applications`, `platform_users`, `migration_runs`, `data_protection_keys` + migrazione; connection string cifrata (Data Protection). | 1 | P1-05 | – | multitenancy, ef-migration |
-| [ ] P1-07 | Tenancy: `ITenantContext`, risoluzione claim→`X-Tenant`→host, mismatch 403 `AUX-11004`, tenant non attivo, `ITenantDbContextFactory` con cache; test di isolamento. | 1 | P1-06 | – | multitenancy, testing |
-| [ ] P1-08 | `Persistence.Tenant` base: `TenantDbContext`, snake_case, schema per modulo, interceptor audit, `xmin`, soft delete, schema `ops` (`data_migrations_history`, `outbox_messages`, `processed_messages`, `legacy_id_map`, `number_sequences`), `IDataMigration` runner; `Persistence.Tests` (migra da zero, idempotenza ×2). | 1,5 | P1-07 | F29, F30 | ef-migration, data-migration |
-| [ ] P1-09 | `auxctl` (MigrationRunner): `migrate catalog`, `migrate tenants [--tenant] [--parallel] [--dry-run]`, `tenant provision` (W4, stato `MigrationFailed`), seed iniziale, `diagnostics registry`. | 1,5 | P1-08, D-02 | F30, F32 | tenant-provisioning |
-| [ ] P1-10 | Cache: HybridCache + Redis, chiavi `t:{slug}:…`, invalidazione per tag, degrado con Redis giù; `DistributedLock.Redis`. | 0,5 | P1-07 | – | caching |
-| [ ] P1-11 | Messaging: Rebus + RabbitMQ (code §5.6), step tenant/correlation, outbox transazionale + dispatcher, handler idempotenti, retry + second-level + `error`; host `Auxilia.Worker` vuoto; test con Testcontainers. | 1,5 | P1-08 | F14, F19 | messaging-rebus |
-| [ ] P1-12 | Email: porta `IEmailSender`, adapter MailKit, template Liquid (Fluid) EN/IT, coda `auxilia.email`, impostazioni SMTP lette dal tenant (password cifrata). | 1 | P1-11 | F23 | messaging-rebus, localization |
+| [ ] P1-01 | `SharedKernel`: Result, Error, Entity/AggregateRoot, eventi, guard, Guid v7 + test. | 1 | P0-05 | – | backend-feature |
+| [ ] P1-02 | `Diagnostics`: EventCodes (19000 Marketing, 25000 Messaging), `Log.*`, `Errors.*`, registro generato, test unicità/range. | 1 | P1-01 | F25 | log-codes |
+| [ ] P1-03 | `ServiceDefaults` + `AppHost`; Serilog: console JSON + **file giornalieri per tenant** (`logs/tenants/{slug}/…`, `logs/platform/…`) su storage `local-file`/`azure-blob`, Information+, mascheramento; OTel predisposto; health. | 1,5 | P1-02 | F25, F32 | log-codes, observability |
+| [ ] P1-04 | Host API: versioning, ProblemDetails+`errorCode`, `IExceptionHandler`, OpenAPI+Scalar, export OpenAPI in CI, header sicurezza. | 1 | P1-03 | F28, F29 | api-contract |
+| [ ] P1-05 | CQRS + decorator (Logging, Validation, Authorization, Transaction), Scrutor, contratto di paginazione. | 1 | P1-04 | F28 | backend-feature |
+| [ ] P1-06 | `Persistence.Catalog`: tenants, domini, **modules, plans, plan_modules, tenant_plans, tenant_module_overrides**, platform_users, platform_settings, client_applications, migration_runs, chiavi DP; seed piano `standard`. | 1,5 | P1-05 | F22, N02 | multitenancy, ef-migration |
+| [ ] P1-07 | Tenancy: `ITenantContext`, risoluzione (claim/header/host), 403 cross-tenant, `ITenantDbContextFactory`, test isolamento. | 1 | P1-06 | – | multitenancy |
+| [ ] P1-08 | `Persistence.Tenant` base: schemi, audit interceptor (`actor_type`), `xmin`, soft delete, `ops.*` (incl. `job_runs`), `IDataMigration` runner, Persistence.Tests. | 1,5 | P1-07 | F29, F30 | ef-migration, data-migration |
+| [ ] P1-09 | `auxctl`: migrate catalog/tenants, tenant provision/suspend/archive, diagnostics registry, `jobs run`. | 1,5 | P1-08, D-02 | F30, F32, N02 | tenant-provisioning |
+| [ ] P1-10 | Impostazioni: `SettingDefinition<T>`, 5 livelli, `ISettingsProvider`, `ReferenceDataCache<T>` (HybridCache + Redis + PUBLISH invalidazione L1), segreti cifrati. | 1 | P1-08 | F23 | caching |
+| [ ] P1-11 | Moduli: `IModuleDescriptor`, registry, sincronizzazione `catalog.modules`, calcolo moduli effettivi (piano ∩ override ∩ ruolo) in cache, filtro endpoint 404, builder navigazione. | 1 | P1-06, P1-10 | F22, N02 | architecture |
+| [ ] P1-12 | Rebus + RabbitMQ: code, outbox, handler idempotenti, retry, `error`; Worker (solo code); registry `IRecurringJob` + esecuzione manuale con lock e `ops.job_runs` (nessuno scheduler). | 1,5 | P1-08 | F11 | messaging-rebus |
+| [ ] P1-13 | `Messaging`: `IMessageChannel`, `messaging_accounts`, `sender_rules` (scopo × ruolo), risoluzione account, adapter `smtp` (MailKit), template Liquid EN/IT, `outbound_messages`, invio di prova; canale WhatsApp solo nel modello. | 1,5 | P1-12, P1-10 | F23, N03 | messaging-rebus, localization |
 
-Uscita: `auxctl tenant provision` funzionante in locale.
-
-### Fase 2 — Identità e sicurezza (≈ 7 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 2 — Identità e sicurezza (≈ 7,5 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P2-01 | Schema `identity` (+ `directory.people` minimo per la FK), ASP.NET Identity, hasher composito (verifica BCrypt legacy → rehash), lockout, policy password; separazione accesso/stato cliente (D-05). | 1 | P1-09, D-05 | F01, F31 | security |
-| [ ] P2-02 | JWT ES256 + rotazione chiavi + JWKS; `client_applications` + `X-Client-Id`; `refresh_sessions` con rotazione e rilevamento riuso; logout; deny-list `jti`. Endpoint login/refresh/logout/forgot/reset password. | 1,5 | P2-01, D-03 | F01, F17 | security |
-| [ ] P2-03 | Permessi: costanti per modulo, `role_permissions` seed (mappa ruoli legacy), policy provider, autorizzazione resource-based; `GET /me`, `GET /me/navigation` (stub). | 1 | P2-02 | F22 | security, backend-feature |
-| [ ] P2-04 | Rate limiting (login/registrazione per IP, per client app, per utente), eventi sicurezza `AUX-29xxx`, **sessione singola per utente** (D-08). | 0,5 | P2-02, D-08 | F17, F34 | security |
-| [ ] P2-05 | SignalR `/hubs/notifications` con JWT, gruppi `t:{slug}:u:{id}` / `role`, backplane Redis, evento `ForceLogout`. | 1 | P2-02, P1-10 | F16, F17 | security |
-| [ ] P2-06 | `auxctl users reset-password` (F31) + test di integrazione auth end-to-end (login, refresh, riuso, logout, cross-tenant, lockout). | 1 | P2-05 | F01, F31 | testing |
+| [ ] P2-01 | Schema `identity` (+ `directory.people` minimo), Identity, hasher BCrypt legacy → rehash, lockout, policy; accesso ≠ stato cliente (D-05); ruoli Administrator/Employee/Client. | 1 | P1-09 | F01, F31 | security |
+| [ ] P2-02 | JWT ES256 + JWKS, client app, refresh rotante con riuso, logout, deny-list; attivazione account e reset password via email (D-06). | 1,5 | P2-01, P1-13, D-03 | F01, F17 | security |
+| [ ] P2-03 | Permessi per modulo, `role_permissions` seed, policy resource-based, `/me`, `/me/navigation`. | 1 | P2-02, P1-11 | F22 | security |
+| [ ] P2-04 | Rate limiting, eventi sicurezza 29xxx, sessione singola come impostazione (default off, D-08). | 0,5 | P2-02 | F17, F34 | security |
+| [ ] P2-05 | SignalR `/hubs/notifications`, gruppi per tenant/utente/ruolo, backplane Redis, `ForceLogout`. | 1 | P2-02 | F16, F17 | security |
+| [ ] P2-06 | Identità di piattaforma: utenti System nel Catalog con 2FA TOTP obbligatoria (D-22), login console, scelta tenant → token di piattaforma (`act`), perimetro solo tecnico (D-21), audit. | 1,5 | P2-03 | N02 | security, multitenancy |
+| [ ] P2-07 | Framework metodi di login (`IAuthenticationMethod`, `/auth/methods`, grant `external_code` progettato), `auxctl users reset-password`, test integrazione auth (login, refresh, riuso, cross-tenant, token di piattaforma). | 1 | P2-06 | F01, F31 | security, testing |
 
-Uscita: login/refresh/logout testati end-to-end.
-
-### Fase 3 — Fondamenta frontend + Localizzazione (≈ 9 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 3 — Fondamenta frontend + localizzazione (≈ 9 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.01 | **Localizzazione BE** (anticipata perché serve alla shell): `languages`, `resource_keys`, `resource_translations`; data-migration con le ~500 chiavi di `LocalizationSeedData.cs`; `GET /i18n/{lang}` con ETag e cache per tag; CRUD chiavi/traduzioni con ricerca e "mancanti". | 1 | P2-03 | F24 | localization, data-migration |
-| [ ] P3-01 | Design system: token CSS, componenti shadcn di base, `next-themes` (dark mode), font self-hosted, override branding tenant. | 1 | P0-03 | F23, F34 | ui-design |
-| [ ] P3-02 | BFF auth: `/api/auth/login|logout|refresh`, sessione server-side in Redis, cookie `__Host-aux_sid`, proxy `/api/bff/[...path]` (Bearer, `X-Client-Id`, `X-Tenant`, refresh trasparente), CSRF, CSP con nonce; routing `[tenant]`. | 1,5 | P2-06 | F01 | security, frontend-feature |
-| [ ] P3-03 | `packages/api-client` generato (openapi-typescript + openapi-fetch), React Query, gestione errori con codice `AUX-xxxxx` copiabile. | 0,5 | P3-02 | F28 | api-contract |
-| [ ] P3-04 | i18n: `next-intl` con bundle dall'API (ETag) + fallback statico; switch lingua. | 0,5 | 4.01, P3-03 | F24 | localization |
-| [ ] P3-05 | Shell: sidebar da `/me/navigation`, topbar, ⌘K (placeholder), campanella (placeholder), menu utente, tema/lingua; pagine pubbliche login (ricorda username, nome app/logo, sfondo), forgot/reset password; stati loading/empty/error. | 1,5 | P3-01, P3-04 | F01, F23, F34 | ui-design, frontend-feature |
-| [ ] P3-06 | Kit componenti: `DataTable` (paginazione/ordinamento/filtri server-side, stato in URL con `nuqs`, colonne da layout, colonne campi custom con badge di gruppo, bottoni export, vista card mobile), form kit (rhf+zod), combobox ricercabile, dialog di conferma, toast `sonner`. | 1,5 | P3-03 | F20, F21, F26, F28, F34 | frontend-feature, ui-design |
-| [ ] P3-07 | Test FE: Vitest + MSW, Playwright + axe, E2E smoke login per ruolo. | 0,5 | P3-05 | F01 | testing |
-| [ ] 4.02 | **Localizzazione FE**: `/settings/localization` (ricerca, categorie, chiavi mancanti evidenziate, modifica inline, nuova chiave). | 1 | P3-06 | F24 | localization |
+| [ ] P3-01 | Localizzazione BE: lingue, chiavi, traduzioni; data-migration con le ~500 chiavi legacy (senza quelle palestra); `GET /i18n/{lang}` con ETag; API di gestione. | 1 | P2-03 | F24 | localization, data-migration |
+| [ ] P3-02 | Design system: token, shadcn, dark mode, font, branding tenant. | 1 | P0-03 | F23, F34 | ui-design |
+| [ ] P3-03 | BFF: sessioni separate app tenant / console, proxy con `X-Client-Id`/`X-Tenant`, refresh, CSRF, CSP. | 1,5 | P2-07 | F01, N02 | security, frontend-feature |
+| [ ] P3-04 | `api-client` generato + React Query + errori con codice AUX. | 0,5 | P3-03 | F28 | api-contract |
+| [ ] P3-05 | i18n `next-intl` dall'API + fallback. | 0,5 | P3-01, P3-04 | F24 | localization |
+| [ ] P3-06 | Shell app tenant (navigazione da API, topbar, notifiche placeholder, tema/lingua) + pagine pubbliche: login (ricorda username, nome app/logo, sfondo), forgot/reset, **attivazione**. | 1,5 | P3-02, P3-05 | F01, F23, F34 | ui-design, frontend-feature |
+| [ ] P3-07 | Kit: DataTable server-side (URL state, colonne da layout, colonne campi custom, export, card mobile), form kit, combobox, conferme, toast. | 1,5 | P3-04 | F20, F21, F26, F28, F34 | frontend-feature |
+| [ ] P3-08 | Shell console di piattaforma: login System, elenco e selettore tenant. | 1 | P3-06 | N02 | frontend-feature |
+| [ ] P3-09 | Vitest + MSW, Playwright + axe, E2E login (tenant e console). | 0,5 | P3-08 | F01 | testing |
 
-Uscita: login dal browser con tenant, shell tradotta.
-
-### Fase 4 — Porting dei moduli (≈ 44,5 gg)
-
-Ordine d'esecuzione = ordine della tabella. Ogni task BE include test unit + integrazione (permessi, isolamento tenant, errori); ogni task FE include E2E di parità + axe.
-
-**Configuration (F20–F23)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 4 — Console di piattaforma (System) (≈ 11 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.03 | BE impostazioni: `settings` (chiavi legacy + default), branding (tema gradient/solid, colori, sfondo gradient/colore/immagine, logo, `UseAppName`), endpoint pubblico branding per login, `email_settings` (password cifrata) + "invia email di prova". | 1 | 4.02, P1-12 | F23 | backend-feature |
-| [ ] 4.04 | BE moduli/navigazione/permessi: registry `modules` (seed da `environmentconfig.json` + `PageConfiguration.IsEnabled` per ruolo → permessi), `GET /me/navigation`, modulo disabilitato → 404; editor permessi per ruolo. | 1,5 | 4.03 | F22 | security, data-migration |
-| [ ] 4.05 | BE griglie e campi custom: `grid_layouts` (per griglia/ruolo), `user_saved_views`, `custom_field_definitions` (text/number/date/bool + gruppo + colore badge + visibile in griglia + mostra in dashboard), validazione server-side di `custom_fields`. | 1 | 4.04 | F20, F21 | schema-change |
-| [ ] 4.06 | FE `/settings/*`: generali (toggle), branding, email, moduli/permessi, griglie, campi custom + renderer form dinamico. | 1,5 | 4.05 | F20–F23 | frontend-feature |
+| [ ] S-01 | Tenant: elenco, creazione (provisioning asincrono), modifica, sospensione, archiviazione (nessuna eliminazione, D-25); piano e override moduli per ruolo. BE+FE. | 2 | P3-08, P1-11 | F22, N02 | tenant-provisioning |
+| [ ] S-02 | Impostazioni tipizzate e branding per tenant. FE (+ endpoint). | 1 | S-01, P1-10 | F23 | frontend-feature |
+| [ ] S-03 | Account di invio (SMTP; WhatsApp predisposto) e regole scopo × ruolo, invio di prova. BE+FE. | 1 | S-01, P1-13 | F23, N03 | frontend-feature |
+| [ ] S-04 | Layout griglie per ruolo + definizioni campi custom (gruppo, colore, visibile in griglia, contatore dashboard), validazione server-side. BE+FE. | 1,5 | S-01 | F20, F21 | backend-feature, frontend-feature |
+| [ ] S-05 | Editor etichette/traduzioni (ricerca, mancanti, modifica inline, nuove chiavi). FE. | 1 | P3-01, S-01 | F24 | localization |
+| [ ] S-06 | Permessi dei ruoli + specializzazioni (CRUD, privata, assegnazioni). BE+FE. | 1 | S-01 | F12, F22 | security |
+| [ ] S-07 | Visualizzatore log per tenant: API che legge i file giornalieri con filtri + pagina. | 1 | P1-03, S-01 | F25 | log-codes |
+| [ ] S-08 | Import: tipi (Employee/Client/Service/Case, template Excel), job (upload → Worker valida → anteprima → conferma/annulla), progresso real-time. BE+FE. | 2,5 | S-01, B-08 | F19 | messaging-rebus |
 
-**Directory (F04–F06, F12)**
+> S-08 dipende dal modulo Pratiche: eseguirlo dopo B-08 anche se è nella console.
 
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 5 — Moduli di business, app tenant (≈ 31,5 gg)
+
+**Anagrafiche (F04–F06)**
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.07 | BE clienti: `people`, `client_profiles`, `assignments` (storico); lista "miei"/"tutti" con filtri e ordinamenti legacy; dettaglio; creazione (regole admin vs operatore, CF regex+univocità, email=username, campi custom); modifica; soft delete; toggle stato (richiede operatore assegnato); assegna/rimuovi operatore; specializzazione cliente. | 1,5 | 4.05 | F05 | backend-feature, schema-change |
-| [ ] 4.08 | BE operatori: lista con specializzazioni, creazione (attivazione D-06), dettaglio, modifica, impostazione password, operatore di default unico, attiva/disattiva, clienti assegnati + assegna/rimuovi, assegnazione ad amministratore, carico di lavoro. | 1 | 4.07, D-06 | F06 | backend-feature |
-| [ ] 4.09 | BE specializzazioni: CRUD (ruolo Client/Employee, email, numero lavoro, privata), soft delete, assegna/rimuovi utenti del ruolo, elenco assegnati. | 0,5 | 4.07 | F12 | backend-feature |
-| [ ] 4.10 | BE profilo: `GET/PUT /me/profile`, lingua, cambio password, immagine profilo (ridimensionata 400×400), preferenza tema, sessioni personali. | 1 | 4.07 | F04, F34 | backend-feature |
-| [ ] 4.11 | FE clienti: `/clients` (viste "i miei"/"tutti"), wizard `/clients/new`, **Scheda 360°** (panoramica, dati, operatore, specializzazione, campi custom; tab successive vuote). | 1,5 | 4.07, P3-06 | F05 | frontend-feature, ui-design |
-| [ ] 4.12 | FE operatori (`/employees`, dettaglio), specializzazioni (`/settings/specializations` + assegnazioni), `/profile`. | 1,5 | 4.08–4.10 | F04, F06, F12 | frontend-feature |
+| [ ] B-01 | BE clienti: people, client_profiles, assignments; liste mie/tutti con filtri/ordinamenti legacy; dettaglio; creazione (Admin attivo / Operatore non attivo e assegnato; CF regex+univoco; email=username; campi custom; attivazione D-06); modifica; soft delete; stato cliente; assegna operatore; specializzazioni cliente; tag. | 1,5 | P2-03, S-04 | F05, N01 | backend-feature, schema-change |
+| [ ] B-02 | BE operatori: lista, creazione, dettaglio, modifica, password/attivazione, default unico, attivo, clienti assegnati, assegnazione ad amministratore, carico di lavoro. | 1 | B-01 | F06 | backend-feature |
+| [ ] B-03 | BE profilo: dati, lingua, cambio password, immagine, preferenze (tema), sessioni personali. | 1 | B-01 | F04, F34 | backend-feature |
+| [ ] B-04 | FE clienti: `/clients` (mie/tutti), wizard nuovo cliente, Scheda 360° (panoramica, dati, operatore, specializzazioni, tag, consensi, campi custom). | 1,5 | B-01, P3-07 | F05 | frontend-feature, ui-design |
+| [ ] B-05 | FE operatori + profilo. | 1 | B-02, B-03 | F04, F06 | frontend-feature |
+| [ ] B-06 | API registrazione esterna (D-14): invio da client app registrata (captcha pluggable), duplicati, conferma via email; elenco/approva/rifiuta per Admin/Operatore; **nessuna pagina**. | 1 | B-02, P1-13 | F02, F03 | security, backend-feature |
 
-**Registrations (F02–F03)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+**Pratiche (F08–F10, F33)**
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.13 | BE registrazioni: endpoint pubblico con ALTCHA, gate `RegistrationEnabled`, validazioni legacy, duplicato pendente, notifica admin, email conferma se `SendRegistrationConfirmationEmail`; inbox pending/processed (Admin e Operatore); approva (crea persona+utente, operatore default, attivazione) / rifiuta con note; stato `Approved/Rejected`. | 1 | 4.08, P1-12 | F02, F03 | security, backend-feature |
-| [ ] 4.14 | FE `/[tenant]/register` (lingua da `RegistrationLanguage`, messaggio se disabilitata, consenso privacy) + `/registrations`. | 1 | 4.13 | F02, F03 | frontend-feature |
+| [ ] B-07 | BE catalogo: categorie, servizi (prezzo, durata, attivo, categoria, specializzazione), dettaglio servizio con pratiche; disattivazione. | 1 | S-06 | F08 | backend-feature |
+| [ ] B-08 | BE dominio pratica: stati (avanti/indietro, Completed terminale), completamento con importo/esito, storico, numero pratica, pagamenti, regole di creazione, ricalcolo stato cliente. | 1,5 | B-07, D-07 | F05, F09 | backend-feature, schema-change |
+| [ ] B-09 | BE query/autorizzazione pratiche: filtri, ordinamenti, "mostra tutte"/"mostra concluse", pratiche private (D-04), regole di gestione operatore; test dedicati. | 1 | B-08 | F09, F10 | security, testing |
+| [ ] B-10 | BE cartelle per servizio (albero, rinomina, riordina, elimina ricorsivo). | 0,5 | B-07 | F33 | backend-feature |
 
-**Cases — backend (F08–F10, F33 struttura)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+**Documenti (F14, F33)**
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.15 | BE catalogo: `service_categories` CRUD, `services` CRUD (prezzo, durata, attivo, categoria, specializzazione), dettaglio servizio con elenco pratiche; soft delete/disattivazione. | 1 | 4.09 | F08 | backend-feature |
-| [ ] 4.16 | BE dominio pratica: aggregate `Case`, macchina a stati (avanti; indietro tranne da Inserted/Completed; Completed terminale), completamento con importo pagato + respinta, storico stati, `case_number`, pagamenti, regole di creazione (operatore default, prezzo snapshot, specializzazione), ricalcolo stato cliente. | 1,5 | 4.15, D-07 | F09, F05 | backend-feature, schema-change |
-| [ ] 4.17 | BE query e autorizzazione pratiche: lista con filtri (cliente, servizio, escludi concluse, "solo mie specializzazioni"), ordinamenti legacy, pratiche per cliente; policy **pratiche private** (D-04), regole di gestione operatore; test dedicati F10. | 1 | 4.16, D-04 | F09, F10 | security, testing |
-| [ ] 4.18 | BE template cartelle per servizio: albero (aggiungi radice/figlio, rinomina, riordina, elimina ricorsivo). | 0,5 | 4.15 | F33 | backend-feature |
+| [ ] B-11 | BE storage: `IFileStorage` Local/FTP/Azure, prefisso tenant, staging→commit, SHA-256, magic bytes, whitelist, dimensione max. | 1 | P1-12 | F14 | security |
+| [ ] B-12 | BE documenti: upload multiplo con metadati e regole legacy, liste con filtri e accesso operatore, dettaglio, modifica, elimina, download, aree, sposta cartella, ZIP, post-elaborazione in coda. | 1,5 | B-11, B-09, B-10 | F10, F14, F33 | backend-feature, messaging-rebus |
+| [ ] B-13 | FE documenti: pagina + tab 360°, uploader (drag&drop, multiplo, incolla, progresso), drawer dettaglio/anteprima. | 1,5 | B-12 | F14 | frontend-feature |
+| [ ] B-14 | FE pratiche: lista (creazione rapida, toggle operatore), dettaglio con timeline e contenuto per stato, dialog completamento, avanti/indietro, tab 360°. | 2 | B-13 | F09, F10, F33 | frontend-feature, ui-design |
+| [ ] B-15 | FE servizi + categorie + editor cartelle. | 1 | B-14 | F08, F33 | frontend-feature |
 
-**Documents (F14, F33 documenti)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+**Agenda e relazione (F13, F15–F17)**
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.19 | BE storage: porta `IFileStorage`, adapter Local/FTP (FluentFTP)/Azure Blob, selezione provider come legacy, chiavi `tenants/{slug}/documents/…`, staging→commit, SHA-256, magic bytes, whitelist, dimensione max per tenant. | 1 | P1-11 | F14 | security |
-| [ ] 4.20 | BE documenti: upload multipart multi-file (anno ≥ anno-10, area, descrizione, pratica, cartella, nome personalizzato con estensione, sanitizzazione, duplicati), lista (tutti/per cliente) con filtri e ordinamenti legacy + filtro accesso operatore, dettaglio, modifica, elimina, download; aree come lookup; spostamento cartella; **ZIP** cartella/pratica; percorso asincrono Worker + `DocumentProcessed`. | 1,5 | 4.19, 4.17, 4.18 | F14, F33, F10 | backend-feature, messaging-rebus |
-| [ ] 4.21 | FE documenti: `/documents` e tab nella Scheda 360°, uploader (drag&drop, multiplo, incolla da appunti, progresso, controlli duplicati/dimensione), drawer dettaglio con anteprima e modifica, permessi di gestione. | 1,5 | 4.20 | F14 | frontend-feature |
+| [ ] B-16 | BE appuntamenti: creazione staff/richiesta cliente, modifica, approva/rifiuta/completa/annulla/elimina con notifiche, stati, liste, storico, conflitti. | 1,5 | B-01, P2-05 | F13 | backend-feature |
+| [ ] B-17 | FE calendario (mese/settimana/giorno/lista), drawer, vista cliente, drag&drop, tab 360°. | 1,5 | B-16 | F13 | frontend-feature |
+| [ ] B-18 | BE richieste a thread (cliente → operatore assegnato o ufficio; operatore → ufficio), risposte con notifica, chiusura. | 1 | B-01 | F15 | backend-feature |
+| [ ] B-19 | BE notifiche: persistenza, liste, letto/tutte, elimina, push, deep link per tipo e ruolo, preferenze. | 1 | P2-05 | F16 | backend-feature |
+| [ ] B-20 | BE sessioni attive (Admin): elenco + forza logout. | 0,5 | P2-05 | F17 | security |
+| [ ] B-21 | FE richieste, centro notifiche, sessioni, client SignalR. | 1,5 | B-18–B-20 | F15–F17, F34 | frontend-feature |
 
-**Cases — frontend**
-
-| ID | Task | Stima | Dip. | F | Skill |
+**Report, dashboard, estensioni**
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.22 | FE pratiche: `/cases` (creazione rapida admin; toggle operatore "mostra tutte"/"mostra concluse"), dettaglio con timeline/progress, contenuto per stato (Inserita: dati servizio; In lavorazione: albero cartelle + uploader + sposta + ZIP; Inviata: riepilogo; Conclusa: importo/esito), dialog completamento, avanti/indietro con conferma; tab pratiche nella Scheda 360°. | 2 | 4.21 | F09, F10, F33 | frontend-feature, ui-design |
-| [ ] 4.23 | FE servizi (`/services` + dettaglio con pratiche ed export) + categorie + editor template cartelle. | 1 | 4.22 | F08, F33 | frontend-feature |
+| [ ] B-22 | BE export (PDF MigraDoc, CSV, Excel) per tutte le liste con filtri; overview clienti PDF; export grandi in coda. | 1,5 | B-01 | F07, F26 | backend-feature |
+| [ ] B-23 | BE dashboard per ruolo (KPI e grafici legacy, contatori da campi custom, "oggi"). | 1 | B-16, B-18, B-09 | F27, F34 | backend-feature |
+| [ ] B-24 | FE dashboard + overview clienti con export + export su tutte le tabelle. | 1,5 | B-23, B-22 | F07, F26, F27 | frontend-feature |
+| [ ] B-25 | Job `cases.expiry` come comando (scadute → inattive, stato cliente, notifiche "scaduta/in scadenza" 1/giorno) eseguibile a mano dal System + azione "invia avviso scadenza" sulla pratica. | 0,5 | B-09, B-19, P1-12 | F11 | messaging-rebus |
+| [ ] B-26 | Estensioni CRM: timeline attività, task/scadenze (senza promemoria automatici), checklist documenti per servizio/pratica. | 2 | B-14, B-17 | F09, F27 | backend-feature, frontend-feature |
 
-**Scheduling (F13)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 6 — Marketing (≈ 6 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.24 | BE appuntamenti: creazione staff (default Approved, visibile nel calendario globale, durata, note, data futura) con notifica cliente; richiesta cliente (Pending, scelta operatore, notifica); modifica/approva/rifiuta/completa/annulla/elimina con notifiche; stati `Pending/Approved/Rejected/Completed/Cancelled`; liste per operatore/cliente/globale/tutti; storico; conflitti. | 1,5 | 4.07, P2-05 | F13 | backend-feature |
-| [ ] 4.25 | FE `/appointments`: FullCalendar (mese/settimana/giorno/lista), drawer crea/gestisci, vista cliente con richiesta, drag&drop, tab nella Scheda 360°. | 1,5 | 4.24 | F13 | frontend-feature, ui-design |
+| [ ] M-01 | Consensi (storico per canale/finalità) e tag: BE + UI nella Scheda 360° e nell'import. | 1 | B-04 | N01 | backend-feature, frontend-feature |
+| [ ] M-02 | Segmenti dinamici (regola validata → query sicura, anteprima conteggio) e liste statiche (da selezione clienti o import). BE. | 1,5 | M-01, B-09 | N01 | backend-feature |
+| [ ] M-03 | Template email, campagne (Draft → Sending → Sent/Cancelled/Failed), "invia ora" in coda, snapshot destinatari, esclusione senza consenso/soppressi, invio a lotti via Messaging (scopo Marketing × ruolo). BE. (Disiscrizione rimandata, D-24.) | 1,5 | M-02, P1-13 | N01, N03 | messaging-rebus |
+| [ ] M-04 | FE marketing: segment builder con conteggio, liste, editor template con anteprima e invio di prova, wizard campagna, esiti. | 2 | M-03 | N01 | frontend-feature, ui-design |
 
-**Engagement (F15–F17)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 7 — Migrazione dati `auxctl legacy import` (≈ 7 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.26 | BE richieste a thread: creazione cliente (all'operatore assegnato o agli admin), creazione operatore (agli admin), tipi, liste ricevute/inviate secondo ruolo, risposta (messaggio + stato + notifica), chiusura, eliminazione admin. | 1 | 4.07 | F15 | backend-feature |
-| [ ] 4.27 | BE notifiche: persistenza, lista paginata, non lette, segna letta/tutte, elimina, push `NotificationReceived`, deep link per tipo e ruolo, preferenze. | 1 | P2-05 | F16 | backend-feature |
-| [ ] 4.28 | BE sessioni attive (admin): elenco con IP/UA/login/ultima attività/durata + KPI, forza logout. | 0,5 | P2-05 | F17 | security |
-| [ ] 4.29 | FE `/requests` (inbox, thread, risposta, nuova richiesta con "chiedi al mio operatore"), centro notifiche real-time, `/sessions`, client SignalR (riconnessione, `ForceLogout`). | 1,5 | 4.26–4.28 | F15–F17, F34 | frontend-feature |
+| [ ] E-01 | `docs/migration/mapping.md` + read model legacy + `legacy_id_map`; esclusioni: `WorkoutPlans`, utente/ruolo SystemConfigurator, `UserSessions`, `AppLogs`. | 1 | Fase 6, D-11 | tutte | legacy-migration |
+| [ ] E-02 | Utenti → people/users (BCrypt) + profili + assegnazioni + ruoli + specializzazioni. | 1 | E-01 | F01, F05, F06, F12 | legacy-migration |
+| [ ] E-03 | Servizi, categorie, cartelle, pratiche (+ pagamento, storico). | 1 | E-02 | F08, F09, F33 | legacy-migration |
+| [ ] E-04 | Documenti (copia file con SHA-256), aree, cartelle. | 1 | E-03 | F14, F33 | legacy-migration |
+| [ ] E-05 | Appuntamenti, richieste → messaggi, notifiche, registrazioni, storico import; configurazione → Catalog/tenant (impostazioni, SMTP → account di default ricifrato, pagine/moduli → override e permessi, griglie, campi custom, traduzioni `is_customized`, branding); consenso marketing email = true con fonte `LegacyMigration` (D-23). | 1,5 | E-04 | F13, F15–F17, F19–F24, N01 | legacy-migration |
+| [ ] E-06 | Riconciliazione, `--dry-run`, `--since`, `LegacyImport.Tests`. | 1,5 | E-05 | tutte | legacy-migration, testing |
 
-**Imports (F19)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 8 — Hardening (≈ 5 gg)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.31 | BE import: tipi (Employee/Client/Service/Case, campi importabili e obbligatori, template Excel con intestazioni obbligatorie evidenziate), job (upload → Worker valida riga per riga → anteprima → conferma/annulla), progresso `ImportProgress`, eliminazione solo a job concluso. | 1,5 | P1-11, 4.16 | F19 | messaging-rebus, backend-feature |
-| [ ] 4.32 | FE `/imports` wizard + tipi + dettaglio job con anteprima. | 1 | 4.31 | F19 | frontend-feature |
+| [ ] H-01 | ASVS L2, header, upload, segreti, rate limit, perimetro System, pen-test interno. | 1 | Fase 7 | – | security |
+| [ ] H-02 | Performance (indici, query, Lighthouse ≥ 90) + accessibilità. | 1 | Fase 7 | – | ui-design |
+| [ ] H-03 | Deploy (immagini, hosting D-12), storage log con lifecycle policy, backup, runbook. | 1,5 | D-12 | F25, F32 | – |
+| [ ] H-04 | Regressione E2E di parità per ruolo; verifica di tutti i `Fxx`/`Nxx`. | 1,5 | H-01 | tutte | testing |
 
-**Reporting e dashboard (F07, F26, F27)**
-
-| ID | Task | Stima | Dip. | F | Skill |
+### Fase 9 — UAT, cutover, dismissione (≈ 2,5 gg + tempo utenti)
+| ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] 4.33 | BE reporting: PDF (MigraDoc: griglia generica, overview clienti), CSV, Excel (ClosedXML); endpoint export per ogni lista che rispetta i filtri; export asincrono oltre soglia (`ExportReady`). | 1,5 | 4.07 | F07, F26 | backend-feature |
-| [ ] 4.34 | BE dashboard per ruolo: KPI e grafici legacy (admin: pratiche per servizio, incassi per mese, appuntamenti; operatore: KPI da campi custom, appuntamenti per giorno/stato; cliente: pratica attiva, prossimi appuntamenti) + "da fare oggi". | 1 | 4.24, 4.26, 4.13 | F27, F34 | backend-feature |
-| [ ] 4.35 | FE dashboard (recharts) + `/clients` vista overview con filtri ed export PDF + export su tutte le tabelle. | 1,5 | 4.34, 4.33 | F07, F26, F27 | frontend-feature |
+| [ ] R-01 | Tenant di staging da dump reale; UAT per ruolo (Admin, Operatore, Cliente, System). | 1 | Fase 8 | tutte | legacy-migration |
+| [ ] R-02 | Prova di cutover, criteri di rollback, go-live. | 1 | R-01 | – | legacy-migration |
+| [ ] R-03 | Dismissione legacy: backup, archivio, rotazione credenziali (Postgres in `appsettings`/`docker-compose`, SMTP in `DataSeeder`, FTP/Azure/reCAPTCHA). | 0,5 | R-02 | F32 | security |
 
-**Audit/Logs ed estensioni CRM**
-
-| ID | Task | Stima | Dip. | F | Skill |
-|---|---|---|---|---|---|
-| [ ] 4.36 | BE+FE log: sink `audit.app_logs` (Warning+ con codice evento), `entity_changes` via interceptor, API di ricerca (codice, livello, traceId, utente, data), pagina `/logs` con dettaglio. | 1 | P1-02 | F25 | log-codes |
-| [ ] 4.37 | Estensioni CRM (decisione #11): timeline attività (eventi di dominio), task/scadenze con promemoria, checklist documenti per servizio/pratica. | 2 | 4.22, 4.25 | F09, F27 | backend-feature, frontend-feature |
-
-### Fase 5 — Worker e job (≈ 3 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
-|---|---|---|---|---|---|
-| [ ] P5-01 | Job scadenze pratiche (ogni 6h, fan-out per tenant, lock, idempotente): gate `AutoSubscriptionExpiry`, soglia `SubscriptionExpiringDays`, disattiva scadute, aggiorna stato cliente, notifiche "scaduta"/"in scadenza" (una al giorno), email secondo D-10; azione manuale "invia avviso scadenza". | 1 | 4.17, 4.27, D-10 | F11 | messaging-rebus |
-| [ ] P5-02 | Job promemoria task, pulizia file orfani in staging, export asincroni. | 1 | 4.37, 4.33 | F14, F26 | messaging-rebus |
-| [ ] P5-03 | `Worker.IntegrationTests`: idempotenza, retry, error queue, job scadenze. | 1 | P5-02 | F11 | testing |
-
-### Fase 6 — Migrazione dati `auxctl legacy import` (≈ 7 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
-|---|---|---|---|---|---|
-| [ ] P6-01 | `docs/migration/mapping.md` tabella per tabella + read model EF del DB legacy (sola lettura) + `legacy_id_map`. | 1 | Fase 4, D-11 | tutte | legacy-migration |
-| [ ] P6-02 | Import utenti → `people` + `users` (BCrypt `LegacyBcrypt`) + profili + assegnazioni + ruoli + specializzazioni. | 1 | P6-01 | F01, F05, F06, F12 | legacy-migration |
-| [ ] P6-03 | Import servizi/categorie/template cartelle/pratiche (+ pagamento, storico stato). | 1 | P6-02 | F08, F09, F33 | legacy-migration |
-| [ ] P6-04 | Import documenti: copia file da Local/FTP/Azure con SHA-256, aree, cartelle. | 1 | P6-03 | F14, F33 | legacy-migration |
-| [ ] P6-05 | Import appuntamenti, richieste→messaggi, notifiche, registrazioni, storico import, configurazioni (settings, email ricifrata, moduli/pagine→permessi, griglie, campi custom, traduzioni `is_customized`, tema/sfondo). | 1,5 | P6-04 | F13, F15–F17, F19–F24 | legacy-migration |
-| [ ] P6-06 | Report di riconciliazione, `--dry-run`, `--since`, `LegacyImport.Tests` su dump anonimizzato. | 1,5 | P6-05 | tutte | legacy-migration, testing |
-
-### Fase 7 — Hardening (≈ 5 gg)
-
-| ID | Task | Stima | Dip. | F | Skill |
-|---|---|---|---|---|---|
-| [ ] P7-01 | Checklist OWASP ASVS L2, header, upload, segreti, rate limit, pen-test interno. | 1 | Fase 6 | – | security |
-| [ ] P7-02 | Performance (indici, piani query, Lighthouse ≥ 90) + audit accessibilità su tutte le pagine. | 1 | Fase 6 | – | ui-design |
-| [ ] P7-03 | Deploy: immagini API/Worker/Web/Runner, compose/hosting (D-12), osservabilità prod, backup, runbook. | 1,5 | D-12 | F32 | – |
-| [ ] P7-04 | Suite E2E di regressione di parità completa per ruolo; verifica che ogni `Fxx.md` sia spuntato. | 1,5 | P7-01 | tutte | testing |
-
-### Fase 8 — UAT, cutover, dismissione (≈ 3 gg + tempo utenti)
-
-| ID | Task | Stima | Dip. | F | Skill |
-|---|---|---|---|---|---|
-| [ ] P8-01 | Tenant di staging migrato da dump reale; UAT per ruolo (Admin, Operatore, Cliente, Configuratore) sugli scenari di parità; difetti tracciati sui `Fxx`. | 1 | Fase 7 | tutte | legacy-migration |
-| [ ] P8-02 | Prova generale di cutover + criteri oggettivi di rollback; go-live (legacy in sola lettura, import delta, riconciliazione, switch URL, monitoraggio per codice `AUX-*`). | 1 | P8-01 | – | legacy-migration |
-| [ ] P8-03 | Dismissione: backup finale, archivio `AppLogs`, spegnimento, **rotazione credenziali legacy** (password Postgres in `appsettings.json`/`docker-compose.yml`, app-password SMTP in `DataSeeder.cs`, segreti FTP/Azure/reCAPTCHA). | 0,5 | P8-02 | F32 | security |
-
-**Totale stimato: ≈ 88 giornate di lavoro** (Fase 0: 4 · F1: 13 · F2: 7 · F3: 9 · F4: 44,5 · F5: 3 · F6: 7 · F7: 5 · F8: 2,5). La Fase 4 si può parallelizzare per modulo dopo 4.07.
+**Totale ≈ 98 giornate** (F0 4 · F1 15 · F2 7,5 · F3 9 · F4 11 · F5 31,5 · F6 6 · F7 7 · F8 5 · F9 2,5). Le Fasi 4 e 5 si possono parallelizzare dopo B-01.
 
 ---
 
-## 7. Tracciabilità funzionalità → task
+## 7. Tracciabilità
 
-| F | Funzionalità | Task |
+| F/N | Funzionalità | Task |
 |---|---|---|
-| F01 | Login / logout | P2-01, P2-02, P2-06, P3-02, P3-05, P3-07 |
-| F02 | Registrazione pubblica | 4.13, 4.14 |
-| F03 | Approvazione registrazioni | 4.13, 4.14 |
-| F04 | Profilo utente | 4.10, 4.12 |
-| F05 | Gestione clienti | 4.07, 4.11, 4.16 |
-| F06 | Gestione operatori | 4.08, 4.12 |
-| F07 | Overview clienti + PDF | 4.33, 4.35 |
-| F08 | Servizi e categorie | 4.15, 4.23 |
-| F09 | Pratiche (workflow) | 4.16, 4.17, 4.22, 4.37 |
-| F10 | Pratiche private | 4.17, 4.20, 4.22 |
-| F11 | Scadenza pratiche | P5-01, P5-03 |
-| F12 | Specializzazioni | 4.09, 4.12 |
-| F13 | Appuntamenti | 4.24, 4.25 |
-| F14 | Documenti | 4.19, 4.20, 4.21 |
-| F15 | Richieste | 4.26, 4.29 |
-| F16 | Notifiche | P2-05, 4.27, 4.29 |
-| F17 | Sessioni attive | P2-02, P2-04, 4.28, 4.29 |
-| F18 | ~~Schede allenamento~~ — **rimossa** (D-09) | – |
-| F19 | Import dati | 4.31, 4.32 |
-| F20 | Campi custom | 4.05, 4.06, P3-06 |
-| F21 | Configurazione griglie | 4.05, 4.06, P3-06 |
-| F22 | Abilitazione moduli/pagine | P2-03, 4.04, 4.06 |
-| F23 | Configurazione sistema | 4.03, 4.06, P1-12 |
-| F24 | Localizzazione | 4.01, 4.02, P3-04 |
-| F25 | Log applicativi | P1-02, 4.36 |
-| F26 | Export griglie | P3-06, 4.33, 4.35 |
-| F27 | Dashboard | 4.34, 4.35 |
-| F28 | Paginazione server-side | P1-05, P3-06 |
-| F29 | Concorrenza ottimistica | P1-04, P1-08 |
+| F01 | Login / logout | P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 |
+| F02 | Registrazione pubblica → **solo API** (D-14) | B-06 |
+| F03 | Approvazione registrazioni → **solo API** (D-14) | B-06 |
+| F04 | Profilo | B-03, B-05 |
+| F05 | Clienti | B-01, B-04, B-08 |
+| F06 | Operatori | B-02, B-05 |
+| F07 | Overview clienti + PDF | B-22, B-24 |
+| F08 | Servizi e categorie | B-07, B-15 |
+| F09 | Pratiche | B-08, B-09, B-14, B-26 |
+| F10 | Pratiche private | B-09, B-12, B-14 |
+| F11 | Scadenze pratiche → **comando manuale** (D-15) | P1-12, B-25 |
+| F12 | Specializzazioni | S-06 |
+| F13 | Appuntamenti | B-16, B-17 |
+| F14 | Documenti | B-11, B-12, B-13 |
+| F15 | Richieste | B-18, B-21 |
+| F16 | Notifiche | P2-05, B-19, B-21 |
+| F17 | Sessioni | P2-02, P2-04, B-20, B-21 |
+| F18 | ~~Schede allenamento~~ — rimossa (D-09) | – |
+| F19 | Import | S-08 |
+| F20 | Campi custom | S-04, P3-07 |
+| F21 | Griglie | S-04, P3-07 |
+| F22 | Moduli per ruolo | P1-06, P1-11, P2-03, S-01 |
+| F23 | Configurazione sistema | P1-10, P1-13, S-02, S-03 |
+| F24 | Localizzazione | P3-01, P3-05, S-05 |
+| F25 | Log | P1-02, P1-03, S-07, H-03 |
+| F26 | Export | P3-07, B-22, B-24 |
+| F27 | Dashboard | B-23, B-24, B-26 |
+| F28 | Paginazione | P1-05, P3-07 |
+| F29 | Concorrenza | P1-04, P1-08 |
 | F30 | Seed incrementali | P1-08, P1-09 |
-| F31 | Tool password | P2-06 |
-| F32 | Docker / Aspire | P0-02, P0-04, P1-03, P7-03 |
-| F33 | Template cartelle + ZIP | 4.18, 4.20, 4.22, 4.23 |
-| F34 | Comportamenti trasversali UI | P2-04, P3-01, P3-05, P3-06, 4.10, 4.29, 4.34 |
+| F31 | Tool password | P2-07 |
+| F32 | Docker / Aspire | P0-02, P0-04, P1-03, H-03, R-03 |
+| F33 | Cartelle + ZIP | B-10, B-12, B-14, B-15 |
+| F34 | UI trasversale | P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 |
+| N01 | Marketing | B-01, M-01…M-04, E-05 |
+| N02 | Piattaforma, tenant, piani e moduli | P1-06, P1-09, P1-11, P2-06, P3-03, P3-08, S-01 |
+| N03 | Comunicazioni (account per ruolo) | P1-13, S-03, M-03 |
 
 ---
 
-## 8. Rischi principali
-
+## 8. Rischi
 | Rischio | Mitigazione |
 |---|---|
-| Ambito ampio (multi-tenant + estensioni CRM) allunga i tempi | Le estensioni (4.37) sono isolate in fondo alla Fase 4; il go-live di parità può precederle se serve. |
-| Divergenze di comportamento non notate | Ogni task parte dai `Fxx.md`; E2E di parità per ruolo; UAT con utenti reali (P8-01). |
-| Semantiche ambigue del legacy (pratiche private, stato cliente) | Decisioni D-04/D-05 esplicite prima dei task relativi; test dedicati. |
-| Qualità dati legacy (CF duplicati, username non univoci, `Area` libera) | Dry-run + report di riconciliazione; regole di pulizia documentate in `mapping.md`. |
-| Credenziali in chiaro nel legacy | Nessun segreto copiato; rotazione in P8-03; gitleaks in CI dal giorno 1. |
+| Ambito ampio | fasi con uscite verificabili; marketing ed estensioni CRM isolate |
+| Divergenze di comportamento non viste | `Fxx` come contratto, E2E di parità, UAT |
+| Invii marketing senza link di disiscrizione (D-24) | revoca consenso da parte dello staff; attivare la disiscrizione self-service prima di campagne verso grandi volumi |
+| Log su file senza pulizia interna | lifecycle policy sullo storage (H-03), come da D-17 |
+| Nessun job schedulato: attività periodiche dimenticate | registry dei job + pagina "Job" nella console con ultima esecuzione (`ops.job_runs`) |
+| Credenziali in chiaro nel legacy | mai copiate, rotazione in R-03, gitleaks in CI |
 
 ---
 
 ## 9. Registro sessioni
-
 | Data | Task | Esito | Note |
 |---|---|---|---|
-| 2026-09-29 | Analisi + piano | Completato | Letto tutto il legacy; creati `docs/PLAN.md`, `docs/parity/*`. |
+| 2026-09-29 | Analisi + piano v1 | Completato | Inventario F01–F34, anomalie Q01–Q60 |
+| 2026-09-29 | Decisioni + architettura v0.2 + piano v2 | Completato | D-04…D-20; console System, Messaging, Marketing, log su file per tenant |

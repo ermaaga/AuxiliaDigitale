@@ -1,6 +1,6 @@
 # F13 — Appointments
 
-Status: [ ] not started · Tasks: 4.24, 4.25 · Quirks: Q19, Q20, Q21, Q22
+Status: [ ] not started · Tasks: B-16, B-17 · Quirks: Q19, Q20, Q21, Q22
 
 ## Legacy behaviour
 Entity `Appointment`: ClientId, EmployeeId, ScheduledDate, DurationMinutes (60), Status string, Notes, CreatedAt, `ShowInGlobalCalendare` (true).

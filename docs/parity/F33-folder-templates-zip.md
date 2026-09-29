@@ -1,6 +1,6 @@
 # F33 — Service folder templates, case document folders, ZIP download
 
-Status: [ ] not started · Tasks: 4.18, 4.20, 4.22, 4.23 · **Not listed in the blueprint — added by the legacy analysis.**
+Status: [ ] not started · Tasks: B-10, B-12, B-14, B-15 · **Not listed in the blueprint — added by the legacy analysis.**
 
 ## Legacy behaviour
 - Entity `MembershipFolderTemplate` (MembershipId, Name, ParentId?, SortOrder, Children, Documents) — migration `20260602145759_AddMembershipFolderTemplate`; `UserDocument.FolderTemplateId` (FK SetNull).

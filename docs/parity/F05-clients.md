@@ -1,6 +1,6 @@
 # F05 — Client management
 
-Status: [ ] not started · Tasks: 4.07, 4.11, 4.16 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
+Status: [ ] not started · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
 
 ## Legacy behaviour
 **Lists**

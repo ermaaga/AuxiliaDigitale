@@ -1,6 +1,6 @@
 # F04 — User profile
 
-Status: [ ] not started · Tasks: 4.10, 4.12 · Quirks: Q35
+Status: [ ] not started · Tasks: B-03, B-05 · Quirks: Q35
 
 ## Legacy behaviour
 - `Components/Profile.razor` (`/profile`, any authenticated user; header menu "MyProfile").

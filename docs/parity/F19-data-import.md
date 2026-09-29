@@ -1,6 +1,8 @@
 # F19 — Data import
 
-Status: [ ] not started · Tasks: 4.31, 4.32 · Quirks: Q47, Q48
+Status: [ ] not started · Tasks: S-08 · Quirks: Q47, Q48
+
+> **Decision D-18:** imports are operated by the platform **System** role from the console.
 
 ## Legacy behaviour
 - **Import types** `/system/import-types` (SystemConfigurator): create with name (defaults to entity) and target entity: `Employee`, `Client`, `Membership`, `Subscription`; on selection shows importable fields (public writable properties minus exclusions and `[ImportIgnore]`) marking `[ImportRequired]` ones (User: Username, FullName, Surname, FiscalCode). List: name, entity, created by, created; actions: download Excel template (ClosedXML, header row, required columns red, others light grey), view fields modal, delete (confirm).

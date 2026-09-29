@@ -1,6 +1,8 @@
 # F20 — Custom fields
 
-Status: [ ] not started · Tasks: 4.05, 4.06, P3-06 · Quirks: Q41
+Status: [ ] not started · Tasks: S-04, P3-07 · Quirks: Q41
+
+> **Decision D-18:** custom field definitions are managed by **System** (platform console).
 
 ## Legacy behaviour
 - `BaseEntity.CustomFields` (jsonb) on every `BaseEntity` subclass; definitions in `EntityConfiguration` (unique per `EntityName`, JSON list of `{PropertyName, PropertyType: text|number|date|boolean, GroupName?, BadgeColor?, VisibleOnGrid}`).

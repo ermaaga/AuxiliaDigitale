@@ -1,6 +1,6 @@
 # F06 — Employee (operator) management
 
-Status: [ ] not started · Tasks: 4.08, 4.12 · Quirks: Q06, Q31, Q32, Q55
+Status: [ ] not started · Tasks: B-02, B-05 · Quirks: Q06, Q31, Q32, Q55
 
 ## Legacy behaviour
 - `Admin/Employees.razor` (`/admin/employees`, module `Employees`): create form (full name*, birth date*, e-mail*, phone, fiscal code; username = e-mail; active; password = `DefaultPassword`). Grid: photo, name, username, e-mail, phone, status (Active/Inactive + "Default" badge), specializations. Actions: set default employee, detail, toggle active, delete (confirm). PDF export exists but commented out.

@@ -1,0 +1,375 @@
+# AuxiliaDigitale — Architettura (v0.2)
+
+> Stato: **proposta da approvare** prima della Fase 0. Nessun codice scritto.
+> Fonti: blueprint, `data-model.md`, `decisions.md` del marketplace `auxilia-claude-skills`; analisi del legacy (`docs/parity/`); decisioni del progetto in [`docs/decisions.md`](../decisions.md) (D-01…D-20), che **prevalgono** sul marketplace.
+> Le voci ancora da chiarire sono in §16.
+
+---
+
+## 1. Perimetro del prodotto (D-13)
+
+Sistema multi-tenant per studi/uffici che gestiscono **clienti, pratiche, appuntamenti e campagne marketing**.
+
+| Area | Modulo | Note |
+|---|---|---|
+| Piattaforma | `Platform` (tenant, piani, moduli, console System), `Tenancy` | nuovo, ruolo System (D-18) |
+| Accesso | `Identity` | password oggi; metodi esterni pluggable (Google per clienti mobile, D-19) |
+| Anagrafiche | `Directory` | persone, clienti, operatori, assegnazioni, specializzazioni, tag, consensi, richieste di registrazione (**solo API**, D-14) |
+| Pratiche | `Cases` | catalogo servizi e categorie, pratiche, pagamenti, storico stati, checklist, cartelle per servizio |
+| Documenti | `Documents` | upload, cartelle, ZIP |
+| Agenda | `Scheduling` | appuntamenti |
+| Relazione | `Engagement` | richieste a thread, notifiche, timeline attività, task |
+| Comunicazioni | `Messaging` | **nuovo**: canali (email oggi, WhatsApp domani), N account per canale, regole di scelta, template, registro invii (D-16) |
+| Marketing | `Marketing` | **nuovo**: segmenti, liste, campagne email, disiscrizioni (D-20) |
+| Amministrazione tecnica | `Configuration`, `Localization`, `Imports` | gestite dal System (D-18) |
+| Trasversali | `Reporting`, `Audit` | export, storico modifiche |
+| ~~Training~~ | – | **rimosso** (D-09) |
+
+---
+
+## 2. Principi
+1. Il codice legacy è la fonte di verità funzionale; nessuna funzionalità persa se non per decisione esplicita (registro in `docs/decisions.md`).
+2. Modular monolith + Clean Architecture; moduli con confini verificati da test.
+3. Tutto è tenant-aware (dati, cache, file, code, log, realtime, lock, rate limit).
+4. Integrazioni esterne come **plug-in** (porta + adapter scelti da configurazione).
+5. Configurazione **nel DB**, tipizzata, servita da memoria + Redis; `appsettings` solo per l'infrastruttura.
+6. Ogni errore ha un codice `AUX-NNNNN` visibile in log, API e UI.
+7. Minimo privilegio: ogni endpoint ha un permesso; il System gestisce la tecnica, non legge i dati di business (§4.3).
+8. Nessun job schedulato (D-15): il lavoro asincrono passa solo da code.
+9. API-first: ogni funzionalità è un'API documentata (OpenAPI) utilizzabile da web, futura app mobile e client esterni; le pagine web sono un client come gli altri.
+
+---
+
+## 3. Deployable e repository
+
+| Deployable | Ruolo |
+|---|---|
+| `Auxilia.Api` | API REST `/api/v1` (tenant) + `/api/v1/platform` (System), hub SignalR |
+| `Auxilia.Worker` | consumer delle code Rebus/RabbitMQ (email, documenti, import, export, campagne) — **nessun timer** |
+| `Auxilia.MigrationRunner` (`auxctl`) | migrazioni, provisioning tenant, import legacy, esecuzione manuale dei job, utility |
+| `frontend/apps/web` | Next.js: app del tenant (`/{tenant}/…`) + console di piattaforma (`/platform/…`), ciascuna col suo BFF/sessione |
+
+```
+AuxiliaDigitale/
+├── backend/src/
+│   ├── Auxilia.AppHost · Auxilia.ServiceDefaults
+│   ├── Auxilia.SharedKernel · Auxilia.Diagnostics
+│   ├── Auxilia.Domain/<Module>/
+│   ├── Auxilia.Application/Abstractions/{Messaging(CQRS),Caching,Settings,Modules,Channels,Storage,Auth,Jobs,…}
+│   │                     /<Module>/<UseCase>/  ·  /<Module>/Public/I<Module>Api.cs
+│   ├── Auxilia.Contracts/<Module>/  ·  Messages/v1/
+│   ├── Auxilia.Infrastructure/Adapters/<Capability>/<Provider>/  ·  Logging/  ·  Caching/  ·  Settings/
+│   ├── Auxilia.Persistence.Catalog/  ·  Auxilia.Persistence.Tenant/Configurations/<Module>/
+│   ├── Auxilia.Api/Endpoints/<Module>/  ·  Endpoints/Platform/  ·  Hubs/  ·  Modules/
+│   ├── Auxilia.Worker/Handlers/<Module>/
+│   └── Auxilia.MigrationRunner/Commands/
+├── backend/tests/ (Domain, Application, Api.Integration, Worker.Integration, Persistence, Architecture, LegacyImport, Tests.Common)
+├── frontend/apps/web/src/
+│   ├── app/[tenant]/(public)/  login · forgot-password · reset-password · activate
+│   ├── app/[tenant]/(app)/     dashboard · clients · cases · services · appointments · documents · requests · marketing · sessions · profile
+│   ├── app/platform/(public)/login  ·  app/platform/(console)/ tenants/[slug]/{overview,modules,settings,branding,messaging,grids,custom-fields,localization,permissions,specializations,imports,logs,jobs} · plans
+│   ├── app/api/auth/* · app/api/bff/[...path] · app/api/platform-auth/* · app/api/platform-bff/[...path]
+│   ├── features/<module>/ · components/ · lib/
+│   └── packages/ api-client · ui · config
+├── deploy/ · docs/ (PLAN, decisions, parity, requirements, architecture, adr, migration, log-event-registry.md) · .github/
+```
+
+**A-01 (da approvare)**: progetti per **layer** con cartelle per **modulo** (come prescrivono le skill), più descrittori di modulo (§5.1) e test di confine: un modulo non usa entità/handler interni di un altro; comunica tramite `I<Module>Api` pubbliche o eventi/messaggi. FK tra schemi ammesse, navigation property tra aggregati di moduli diversi no.
+
+---
+
+## 4. Ruoli e modello di accesso
+
+### 4.1 Ruoli
+| Ruolo | Livello | Dove vive | Cosa fa |
+|---|---|---|---|
+| **System** | piattaforma | `catalog.platform_users` | tenant, piani, moduli, configurazione tecnica di ogni tenant (D-18) |
+| Administrator | tenant | `identity.user_roles` | gestione funzionale dello studio: operatori, clienti, pratiche, servizi, richieste, sessioni, campagne |
+| Employee (Operatore) | tenant | idem | lavoro quotidiano su clienti assegnati, pratiche, documenti, appuntamenti, richieste |
+| Client | tenant | idem | propri dati, pratiche, appuntamenti, richieste (web oggi, app mobile domani) |
+
+Il legacy `SystemConfigurator` (ruolo del tenant) **sparisce**: tutto ciò che faceva passa al System. L'utente `system` seedato nel legacy non viene migrato.
+
+### 4.2 Come il System opera su un tenant
+1. Login sulla console `/platform` (credenziali di piattaforma, 2FA TOTP consigliata — §16).
+2. Sceglie un tenant → l'API emette un token con `scope=platform`, `role=System`, `tenant={slug}`, `act={platformUserId}` (breve durata).
+3. Gli endpoint tecnici del tenant accettano solo questo tipo di token; ogni modifica finisce nello storico (`audit.entity_changes` con `actor_type=Platform`) e nei log con codice `29xxx`.
+
+### 4.3 Perimetro del System (minimo privilegio)
+| Può | Non può (proposta, §16) |
+|---|---|
+| Creare, modificare, sospendere, riattivare, archiviare, eliminare tenant (eliminazione con doppia conferma + backup) | leggere/modificare clienti, pratiche, documenti, appuntamenti, richieste di un tenant |
+| Assegnare piano e abilitare/disabilitare moduli per tenant e per ruolo | fare login come un utente del tenant |
+| Impostazioni, branding, account di invio + regole per ruolo, griglie, etichette/traduzioni, campi custom, permessi dei ruoli, specializzazioni | |
+| Tipi di import ed esecuzione import (crea dati, ma è attività tecnica come nel legacy) | |
+| Consultare i log del tenant, eseguire a mano i job (es. scadenze pratiche) | |
+
+---
+
+## 5. Moduli pluggable e piani (pricing futuro)
+
+### 5.1 Descrittore di modulo
+```csharp
+public interface IModuleDescriptor
+{
+    string Code { get; }                                   // "cases", "marketing"
+    ModuleKind Kind { get; }                               // Core (sempre attivo) | Optional
+    int EventCodeRangeStart { get; }
+    IReadOnlyList<PermissionDefinition> Permissions { get; }
+    IReadOnlyList<SettingDefinition> Settings { get; }
+    IReadOnlyList<NavigationEntry> Navigation { get; }     // per ruolo, con permesso richiesto
+    IReadOnlyList<RecurringJobDefinition> Jobs { get; }    // §13, solo registrati
+    void AddServices(IServiceCollection services, IConfiguration configuration);
+    void MapEndpoints(IEndpointRouteBuilder app);          // gruppo con filtro "modulo attivo per tenant e ruolo"
+}
+```
+Aggiungere un modulo = un descrittore + le sue cartelle; il registry popola il catalogo moduli, i permessi, le impostazioni, la navigazione e i filtri degli endpoint.
+
+### 5.2 Modello di abilitazione (Catalog)
+```
+modules (catalogo generato dai descrittori)
+plans ─< plan_modules (piano, modulo, ruoli ammessi)
+tenants ─< tenant_plans (piano, valido dal/al)
+tenants ─< tenant_module_overrides (modulo, abilitato?, ruoli ammessi)   ← gestito solo dal System
+```
+**Modulo visibile al ruolo R nel tenant T** ⇔ modulo `Core` **oppure** (override del tenant se presente, altrimenti piano del tenant) include il modulo **per R** — **e** il ruolo ha i permessi del modulo.
+- Oggi: un solo piano `standard` con tutti i moduli; il System usa gli override. Il pricing si aggiunge creando piani, senza toccare il codice.
+- Modulo non visibile → endpoint `404` (non esiste per quel ruolo/tenant), assente da `/me/navigation`.
+- Il risultato è calcolato una volta e messo in cache (`t:{slug}:platform:modules`), invalidato a ogni modifica del System.
+- La tabella tenant `configuration.modules` del data-model v1 **non serve più** (vive nel Catalog).
+
+---
+
+## 6. Plug-in: porte e adapter
+```
+Application/Abstractions/<Capability>/I<Capability>.cs          ← porta
+Infrastructure/Adapters/<Capability>/<Provider>/…               ← adapter, uno per cartella, chiave univoca
+```
+Adapter registrati come *keyed services*; quale usare è un'impostazione (§7). Credenziali cifrate nel DB (Data Protection), mai in chiaro in cache o log.
+
+| Capability | Porta | Adapter ora | Predisposti / futuri |
+|---|---|---|---|
+| Metodi di login | `IAuthenticationMethod` | `password` | `google` (clienti mobile, D-19), `microsoft`, `oidc` |
+| Canali di invio | `IMessageChannel` | `email` → provider `smtp` (MailKit) | `whatsapp` → provider `http-gateway` (endpoint esterno, D-20), `sms` |
+| Storage file | `IFileStorage` | `local`, `ftp`, `azure-blob` | `s3` |
+| Storage log | (sink Serilog) | `local-file` (sviluppo), `azure-blob` | – |
+| Captcha (API pubbliche) | `ICaptchaVerifier` | `none`, `altcha` | – |
+| Antivirus | `IMalwareScanner` | `none` | `clamav` |
+| PDF / export | `IPdfRenderer`, `ITabularExporter` | `migradoc`, `csv`, `xlsx` | – |
+| Job periodici | `IRecurringJob` | esecuzione manuale | scheduler (disattivo, D-15) |
+
+---
+
+## 7. Configurazione: livelli, archiviazione, cache
+
+### 7.1 Livelli
+| Livello | Dove | Contenuto | Chi |
+|---|---|---|---|
+| 0 Infrastruttura | `appsettings` + env/secret store | connection string Catalog, Redis, RabbitMQ, storage dei log, chiavi JWT/Data Protection, URL pubblici | DevOps |
+| 1 Default codice | `SettingDefinition` | default sicuri | sviluppo |
+| 2 Piattaforma | `catalog.platform_settings` | default per tutti i tenant | System |
+| 3 Tenant | `configuration.*` nel tenant DB | impostazioni, branding, account di invio + regole, griglie, campi custom | System |
+| 4 Utente | `identity.user_preferences` | lingua, tema, viste salvate, preferenze notifiche | utente |
+
+Valore effettivo: utente → tenant → piattaforma → default (secondo gli scope dichiarati dalla definizione). Nessuna chiave libera: ogni impostazione è una `SettingDefinition<T>` (chiave, modulo, scope, default, segreta?, validazione, chiave di descrizione). L'editor generico del System elenca tutte le definizioni.
+
+### 7.2 Impostazioni legacy → nuove
+| Legacy | Nuovo |
+|---|---|
+| `RegistrationEnabled`, `SendRegistrationConfirmationEmail` | `registration.enabled` (default **false**, D-14), `registration.sendConfirmationEmail`, `registration.notifyAdmins` (default false: non c'è ancora una pagina di approvazione) |
+| `RegistrationLanguage` | `registration.defaultLanguage` (lingua delle email di conferma) |
+| `AutoSubscriptionExpiry`, `SubscriptionExpiringDays` | `cases.expiry.enabled`, `cases.expiry.expiringDays` (usati dal comando manuale) |
+| `UseAppName`, tema, sfondo | tabella `configuration.branding` |
+| `EmailConfiguration` | `configuration.messaging_accounts` (account `smtp` di default) |
+| `AppName` | `branding.app_name` |
+| `SessionTimeout` | `auth.session.idleMinutes` (120) + `auth.singleSession` (false, D-08) |
+| `DefaultPassword` | eliminato (D-06) |
+| storage documenti | `documents.storage.provider` + credenziali; `documents.maxUploadMb` (60) |
+| `ReCaptcha`, `UseLocalCache`, `UseQueueForDocuments`, `EnableSubscriptionExpiryService`, `InitDatabase`, `SaveLog`, `AuditLog` | eliminati |
+| `LogBlobStorage` | infrastruttura (livello 0) |
+
+### 7.3 Memoria + Redis
+```
+lettura  ─► L1 memoria (60 s) ─miss─► L2 Redis t:{slug}:configuration:snapshot (30 min) ─miss─► DB (tenant + catalog)
+scrittura─► commit ─► RemoveByTag t:{slug}:configuration ─► PUBLISH auxilia:invalidate {tag} ─► ogni nodo svuota il suo L1
+```
+Snapshot unico per tenant; stesso meccanismo (`ReferenceDataCache<T>`) per traduzioni, moduli effettivi, permessi, navigazione, branding, account di invio, lookup, definizioni campi custom. Segreti cifrati anche in cache. Redis giù → L1 + DB, warning `AUX-24xxx`. Invalidazione sempre dopo il commit.
+
+---
+
+## 8. Comunicazioni in uscita (`Messaging`, D-16)
+
+### 8.1 Account e regole
+- `configuration.messaging_accounts`: `id`, `channel` (`Email`, `WhatsApp`, `Sms`), `provider` (`smtp`, `http-gateway`…), `name`, `settings jsonb` (es. host, porta, sicurezza, mittente; per WhatsApp: URL endpoint, numero mittente), `secret_protected`, `is_default` (uno per canale), `is_active`.
+- `configuration.sender_rules`: `channel`, `purpose` (`Transactional`, `Notification`, `Marketing`), `role` (null = qualsiasi), `account_id`, `priority`.
+- **Risoluzione**: (canale, scopo, ruolo di chi causa l'invio) → (canale, scopo, qualsiasi ruolo) → default del canale. Invii senza utente (es. comando di sistema) usano ruolo nullo.
+- Il System gestisce account e regole dalla console, con **invio di prova** per account.
+
+### 8.2 Pipeline di invio
+`IMessageDispatcher.SendAsync(message)` → risolve account → scrive `messaging.outbound_messages` (stato `Queued`) → messaggio Rebus su `auxilia.messaging` (outbox) → Worker: adapter del canale → stato `Sent`/`Failed` (codice errore) → retry/second-level → `error`.
+- Template: `messaging.message_templates` (canale, codice, lingua, oggetto, corpo Liquid) per email transazionali (attivazione account, reset password, conferma richiesta di registrazione, avviso scadenza, risposta a richiesta…) e marketing.
+- Registro invii consultabile (chi, cosa, quando, esito) — risponde a "la mail è partita?".
+- **WhatsApp (predisposto)**: canale e tipo account esistono nel modello; l'adapter `http-gateway` (POST verso un endpoint esterno con token segreto, callback di stato su un endpoint webhook firmato) si implementa quando servirà.
+
+---
+
+## 9. Autenticazione pluggable
+
+- Identità: ASP.NET Identity nel tenant DB; l'API emette **sempre** i propri token (JWT ES256 10–15 min + refresh rotante; client app con `X-Client-Id`).
+- Metodi come plug-in `IAuthenticationMethod`; oggi solo `password`. `GET /api/v1/auth/methods` restituisce i metodi attivi del tenant (la pagina di login e l'app mobile li leggono).
+- Già pronti perché standard: tabella `identity.user_logins`; grant `external_code` progettato (flusso OAuth con PKCE, `state` cifrato con tenant e client, codice monouso scambiato dal BFF/app).
+- **Google (D-19)**: si attiva in futuro per i **clienti dall'app mobile** — aggiunta di `catalog.identity_providers` (credenziali di piattaforma), `configuration.auth_methods` (abilitazione per tenant, domini ammessi, politica di collegamento/auto-registrazione) e dell'adapter. Nessuna modifica ai moduli.
+- Attivazione account (D-06): token monouso via email → pagina `/{tenant}/activate` per scegliere la password. Reset password analogo.
+- Console System: autenticazione separata (utenti Catalog), token di piattaforma (§4.2).
+- Sessioni: `identity.refresh_sessions`; revoca + deny-list `jti` + push `ForceLogout`; sessione singola opzionale (D-08, default off).
+
+---
+
+## 10. Database
+
+### 10.1 Topologia
+Catalog DB (uno) + un DB per tenant, uno schema Postgres per modulo. Estensioni `citext`, `pg_trgm`, `unaccent`.
+
+### 10.2 Catalog (`catalog`)
+| Tabella | Contenuto |
+|---|---|
+| `tenants` | id, slug, nome, stato (`Provisioning, Active, Suspended, MigrationFailed, Archived, Deleting`), connection string cifrata, lingua e fuso di default, versioni schema/dati, [audit] |
+| `tenant_domains` | host → tenant |
+| `modules` | codice, tipo (Core/Optional), nome (chiave traduzione) — sincronizzata dai descrittori |
+| `plans`, `plan_modules` | piani e moduli inclusi **per ruolo** |
+| `tenant_plans` | piano del tenant con validità |
+| `tenant_module_overrides` | abilitazioni/disabilitazioni del System per tenant e ruolo |
+| `platform_users` (+ `platform_user_roles`) | utenti System, 2FA, lockout |
+| `platform_settings` | default di piattaforma |
+| `client_applications` | web BFF, console, mobile, integrazioni esterne (es. il futuro client di registrazione) |
+| `migration_runs` | migrazioni, provisioning, import, esecuzioni manuali dei job |
+| `data_protection_keys` | chiavi Data Protection |
+| *(futuro)* `identity_providers` | credenziali OAuth di piattaforma (Google…) |
+
+### 10.3 Tenant DB — schemi
+Base `data-model.md` v1 con queste modifiche:
+
+| Schema | Tabelle | Modifiche rispetto a v1 |
+|---|---|---|
+| `identity` | users, roles, user_roles, role_permissions, user_logins, user_claims, user_tokens, refresh_sessions, devices, **user_preferences** | ruoli: Administrator, Employee, Client (niente SystemConfigurator); `user_preferences` nuova |
+| `directory` | people, client_profiles, employee_profiles, assignments, specializations, person_specializations, registration_requests, **tags**, **person_tags**, **consents** | tag e consensi con storico (per canale e finalità) per il marketing |
+| `cases` | service_categories, services, **service_folders**, service_required_documents, cases, case_status_history, case_payments, case_document_requirements | `service_folders` per F33 |
+| `documents` | document_areas, document_types, documents | `documents.folder_id` → `service_folders` (SET NULL) |
+| `scheduling` | appointments, appointment_status_history | stati Pending/Approved/Rejected/Completed/Cancelled |
+| `engagement` | requests, request_messages, request_message_attachments, notifications, notification_preferences, activities, tasks | task senza promemoria automatici (D-15) |
+| **`messaging`** | **message_templates**, **outbound_messages** | nuovo (§8) |
+| **`marketing`** | **segments**, **static_lists**, **static_list_members**, **campaigns**, **campaign_recipients**, **suppressions** | nuovo (§11) |
+| `imports` | import_types, import_jobs, import_job_rows | invariato |
+| `configuration` | settings, branding, **messaging_accounts**, **sender_rules**, grid_layouts, user_saved_views, custom_field_definitions | − `modules` (nel Catalog), − `email_settings` (→ messaging_accounts); `custom_field_definitions` + `group_name`, `badge_color`, `visible_on_grid`, `dashboard_counter` |
+| `localization` | languages, resource_keys, resource_translations | invariato |
+| `audit` | **entity_changes** | − `app_logs` (log su file, D-17); `entity_changes` con `actor_type` (User/Platform/System) |
+| `ops` | data_migrations_history, outbox_messages, processed_messages, legacy_id_map, number_sequences, **job_runs** | `job_runs`: esecuzioni manuali dei job (chi, quando, esito) |
+| ~~`training`~~ | – | rimosso |
+
+### 10.4 Convenzioni
+uuid v7, `snake_case`, tabelle plurali, FK indicizzate; audit `created_*/updated_*`; `xmin` sugli aggregati; soft delete con indici univoci parziali `WHERE NOT is_deleted`; enum `varchar` + `CHECK`; `numeric(12,2)` + valuta; `date` vs `timestamptz` UTC; `citext`; `custom_fields jsonb` + GIN; trigram per ricerca; numerazioni da `ops.number_sequences`; modifiche di schema con migrazioni EF (expand/contract), dati di riferimento con `IDataMigration` idempotenti.
+
+### 10.5 GDPR e ciclo di vita dei dati
+Consensi con storico (obbligatori per il marketing); export dati di una persona e anonimizzazione (comando + azione Admin); nessuna retention automatica nel DB (D-15): gli storici crescono in modo contenuto; log e file temporanei gestiti con regole dello storage account (lifecycle policy), fuori dal sistema come da D-17.
+
+### 10.6 Backup
+Per tenant DB + Catalog + storage file/log con prefisso tenant; test di ripristino documentato (dettagli con D-12).
+
+---
+
+## 11. Marketing v1 (D-20)
+| Oggetto | Descrizione |
+|---|---|
+| Segmento dinamico | regola `jsonb` validata (stato cliente, tag, specializzazioni, servizi/stato pratiche, campi custom, età, città, date) tradotta in query sicura; anteprima con conteggio |
+| Lista statica | clienti scelti a mano (anche da selezione multipla nella tabella clienti) o importati |
+| Template | email (oggetto, corpo Liquid con segnaposto, lingua), anteprima e **invio di prova** |
+| Campagna | segmento o lista + template + account (da regole: scopo Marketing × ruolo di chi invia); stati `Draft → Sending → Sent` (+ `Cancelled`, `Failed`); `scheduled_at` presente ma non usato (D-15) |
+| Invio | "Invia ora" → messaggio in coda → Worker: snapshot destinatari (`campaign_recipients`), esclusione di chi non ha consenso email marketing valido o è in `suppressions`, invio a lotti via `Messaging`, stato per destinatario |
+| Disiscrizione | **rimandata (D-24)**; in v1 la revoca del consenso la fa lo staff; la tabella `suppressions` resta per esclusioni manuali |
+| Statistiche | destinatari, inviati, falliti, esclusi (niente aperture/click) |
+
+---
+
+## 12. Logging, audit, osservabilità (D-17)
+
+| Cosa | Dove |
+|---|---|
+| **Tutti i log Information+** (Debug solo per configurazione in sviluppo) | file **JSON-lines** giornalieri sullo storage account: `logs/tenants/{slug}/{yyyy}/{MM}/{dd}.jsonl` e `logs/platform/{yyyy}/{MM}/{dd}.jsonl` per eventi senza tenant; append blob scritti da Api, Worker e Runner |
+| Campi di ogni riga | timestamp UTC, livello, `EventCode AUX-NNNNN`, messaggio, eccezione, `TenantSlug`, `UserId` / `PlatformUserId`, `ClientId`, `TraceId`, `CorrelationId`, host, versione |
+| Console | JSON compatto (container / sviluppo) |
+| Pagina Log | console System → tenant → Log: legge i file per intervallo di date con filtri (livello, codice, traceId, utente, testo); nessuna copia nel DB |
+| Retention | fuori dal sistema, sullo storage account (D-17) |
+| Eventi di sicurezza | codici `29xxx` nei log |
+| Storico modifiche dati | `audit.entity_changes` (DB), mostrato come "cronologia" dei record |
+| Storici di business | stati pratiche/appuntamenti, timeline cliente, registro invii |
+| Tracce e metriche | OpenTelemetry pronto nel codice; esportazione verso un backend quando si decide D-12 |
+
+Implementazione: Serilog con instradamento per `TenantSlug` verso un writer per (tenant, giorno) sullo storage configurato (`local-file` in sviluppo, `azure-blob` in produzione), scrittura asincrona a lotti; codici evento da `Auxilia.Diagnostics` (`[LoggerMessage]` obbligatorio), range 19000–19999 → **Marketing**, 25000–25999 → **Messaging**; mascheramento di password, token, connection string, CF, contenuto documenti. Pacchetti da verificare con la dependency policy: `Serilog.Sinks.Map`, `Serilog.Sinks.AzureBlobStorage` (o sink custom sull'SDK `Azure.Storage.Blobs`).
+
+---
+
+## 13. Lavoro asincrono (D-15)
+
+| Coda | Uso |
+|---|---|
+| `auxilia.messaging` | email (e in futuro WhatsApp) |
+| `auxilia.documents` | post-elaborazione upload, ZIP grandi |
+| `auxilia.notifications` | notifiche in-app + push SignalR |
+| `auxilia.imports` | validazione e importazione |
+| `auxilia.reporting` | export grandi |
+| `auxilia.marketing` | espansione destinatari e invio campagne |
+| `auxilia.platform` | provisioning/eliminazione tenant, esecuzione manuale job |
+| `error` | messaggi falliti dopo i retry |
+
+**Job periodici predisposti ma non schedulati**: ogni modulo dichiara i suoi `RecurringJobDefinition` (codice, descrizione, frequenza suggerita, comando per tenant). Oggi si eseguono **a mano** dal System (console → tenant → Job, o `auxctl jobs run <job> --tenant <slug>`), con lock distribuito, idempotenza e registro in `ops.job_runs`. Uno scheduler futuro userà lo stesso registry senza modifiche ai moduli.
+Job registrati: `cases.expiry` (parità F11), `engagement.task-reminders` (futuro), `documents.staging-cleanup` (in alternativa lifecycle policy dello storage).
+
+---
+
+## 14. Frontend
+- Due aree con sessioni separate: **app del tenant** (`/{tenant}/…`, Admin/Employee/Client) e **console di piattaforma** (`/platform/…`, System).
+- BFF: il browser non vede mai i token.
+- Navigazione dall'API (`/me/navigation` rispetta piani, override e permessi); ogni `features/<module>` dichiara le sue route.
+- Pagine pubbliche del tenant: login, forgot/reset password, attivazione, disiscrizione. **Nessuna pagina di registrazione** (D-14).
+- Branding come design token, dark mode, WCAG 2.2 AA, tabelle server-side con viste salvate, traduzioni dall'API.
+
+---
+
+## 15. Checklist "nessun buco"
+
+| Aspetto | Dove |
+|---|---|
+| Isolamento tenant | risoluzione tenant, factory DbContext, prefissi cache/file/log/lock/code/SignalR, test obbligatori |
+| Ruoli e perimetri | §4; token di piattaforma distinti; test di autorizzazione per ogni endpoint |
+| Moduli e piani | §5; filtro endpoint + navigazione + cache |
+| Autenticazione | §9 |
+| Autorizzazione dati | permessi + policy resource-based (pratiche private, D-04) nelle query |
+| Configurazione | §7 |
+| Segreti | Data Protection nel DB, env/secret store per l'infrastruttura, gitleaks |
+| Comunicazioni | §8: account per ruolo, template localizzati, registro invii, retry |
+| Errori | `Result` + codici `AUX-`, ProblemDetails, UI con codice e riferimento traccia |
+| Log e audit | §12 |
+| Concorrenza / idempotenza | `xmin` + ETag/If-Match; `Idempotency-Key`; handler idempotenti |
+| Tempo | UTC nel DB, fuso del tenant nella presentazione e nelle regole di calendario |
+| Localizzazione | chiavi DB EN+IT, anche per email e PDF |
+| File | staging → commit, hash, magic bytes, antivirus pluggable, download autorizzato |
+| Privacy | consensi, disiscrizione, export/anonimizzazione |
+| Asincrono | §13, nessun timer |
+| Migrazioni | `auxctl`, expand/contract, data-migration idempotenti |
+| Backup | §10.6 |
+| API-first / client esterni | OpenAPI versionato, client app registrate, rate limit, captcha pluggable per le API pubbliche |
+| Migrazione dal legacy | `auxctl legacy import` con dry-run e riconciliazione |
+
+---
+
+## 16. Punti ancora da chiarire
+
+| ID | Domanda | Proposta |
+|---|---|---|
+| A-01 | Layout del codice | layer + cartelle per modulo + descrittori + test di confine |
+| Q-A | ✅ D-21 | Il System non vede i dati di business |
+| Q-B | ✅ D-22 | 2FA obbligatoria |
+| Q-C | ✅ D-23 | Consenso impostato a true in migrazione (fonte `LegacyMigration`) |
+| Q-D | ✅ D-24 | Disiscrizione rimandata |
+| Q-E | Specializzazioni: nel legacy le gestiva il SystemConfigurator (quindi ora il System); l'Administrator deve poterle gestire? | System (parità); assegnazione a operatori/clienti resta anche all'Admin/Operatore come oggi |
+| Q-F | ✅ D-25 | Solo archiviazione |

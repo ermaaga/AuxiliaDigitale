@@ -1,6 +1,8 @@
 # F21 — Grid configuration
 
-Status: [ ] not started · Tasks: 4.05, 4.06, P3-06
+Status: [ ] not started · Tasks: S-04, P3-07 
+
+> **Decision D-18:** grid layouts are managed by **System** (platform console).
 
 ## Legacy behaviour
 - `PageConfiguration` (unique `PageName`+`Role`, optional `ParentPageId`, `IsEnabled`, `ConfigurationGrid` JSON `[{Label, Property, FilterThisColumn, OrderThisColumn}]`). Pages read their grid config via `PageService.GetGridConfigurationAsync(page, role)` (5-min cache) and fall back to a hard-coded default.
@@ -9,7 +11,7 @@ Status: [ ] not started · Tasks: 4.05, 4.06, P3-06
 - `DataGrid`: label rendered as translation key; filter inputs for `FilterThisColumn`; clickable headers for `OrderThisColumn`; default page size 10; pager with ellipsis.
 
 ## Acceptance criteria
-- [ ] `grid_layouts` per grid key and role: columns (label key, field, filterable, sortable, visible, order); editor in `/settings/grids`.
+- [ ] `grid_layouts` per grid key and role: columns (label key, field, filterable, sortable, visible, order); editor in `/platform/tenants/{slug}/grids` (System console).
 - [ ] Every legacy grid key exists with the legacy default columns (seeded from current `PageConfiguration` rows for the migrated tenant).
 - [ ] Users can save personal views (columns, filters, sort) and pick a default.
 - [ ] Filters/sorts only on fields the API supports (validated server-side).

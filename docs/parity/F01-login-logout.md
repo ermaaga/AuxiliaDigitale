@@ -1,6 +1,8 @@
 # F01 — Login / logout
 
-Status: [ ] not started · Tasks: P2-01, P2-02, P2-06, P3-02, P3-05, P3-07 · Quirks: Q01, Q44, Q56, Q57, Q58
+Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Quirks: Q01, Q44, Q56, Q57, Q58
+
+> **Decisions:** D-05 (login access independent from client status), D-06 (activation link), D-08 (single session = tenant setting, default **off**; the "force logout of other sessions" criterion applies only when enabled). No `SystemConfigurator` redirect: System users log in to the platform console (D-18).
 
 ## Legacy behaviour
 - `Components/Login.razor` (`/login`, `EmptyLayout`): username + password + "Remember username" checkbox. Username lookup is case-insensitive; password verified with BCrypt (`UserService.AuthenticateAsync`).

@@ -1,6 +1,8 @@
 # F02 — Public registration
 
-Status: [ ] not started · Tasks: 4.13, 4.14 · Quirks: Q05, Q08, Q53, Q54, Q59
+Status: [ ] not started · Tasks: B-06 · Quirks: Q05, Q08, Q53, Q54, Q59
+
+> **Decision D-14:** API only, **no pages**. The submission endpoint is called by a registered external client application (captcha verifier pluggable per client app). `registration.enabled` defaults to **false**; admin notification is behind `registration.notifyAdmins` (default false) until an approval page exists. UI-related criteria (page, language forcing, closed message) apply to the API responses/e-mails only.
 
 ## Legacy behaviour
 - `Components/Register.razor` (`/register`, anonymous). If setting `RegistrationEnabled` (default `True`) is false → "RegisterNotAllowed / TemporaryUnabled" message, no form.
@@ -22,7 +24,7 @@ Status: [ ] not started · Tasks: 4.13, 4.14 · Quirks: Q05, Q08, Q53, Q54, Q59
 - [ ] Given `RegistrationLanguage=it`, then the page renders in Italian regardless of browser language (user can still switch).
 - [ ] Each validation rule above is enforced both client-side (zod) and server-side (FluentValidation) with localized messages.
 - [ ] Given a pending request for `a@b.it`, when a new request with `A@B.it ` arrives, then it is rejected with a clear message.
-- [ ] Given a valid submission, then every Administrator receives an in-app notification linking to `/registrations`.
+- [ ] Given a valid submission, then, when `registration.notifyAdmins` is on, every Administrator receives an in-app notification (no page yet, D-14).
 - [ ] Given `SendRegistrationConfirmationEmail=true`, then the applicant receives the confirmation e-mail (EN/IT template); failures are logged with an `AUX-25xxx` code and don't fail the request.
 - [ ] Privacy consent is mandatory and stored (timestamp + version).
 - [ ] Captcha (ALTCHA) verified server-side; rate limit per IP.
