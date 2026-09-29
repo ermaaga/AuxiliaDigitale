@@ -1,0 +1,18 @@
+# F33 — Service folder templates, case document folders, ZIP download
+
+Status: [ ] not started · Tasks: 4.18, 4.20, 4.22, 4.23 · **Not listed in the blueprint — added by the legacy analysis.**
+
+## Legacy behaviour
+- Entity `MembershipFolderTemplate` (MembershipId, Name, ParentId?, SortOrder, Children, Documents) — migration `20260602145759_AddMembershipFolderTemplate`; `UserDocument.FolderTemplateId` (FK SetNull).
+- `IMembershipFolderService`: list by membership (ordered parent, sort order, name), add (name, parent, sort order = number of siblings), rename/update sort order, reorder, **recursive delete** (children too).
+- **Template editor** (`Shared/FolderTree.razor` + `FolderTreeNode.razor` in edit mode) on `Admin/MembershipDetail`: "All documents" root, add root folder, add child, rename (Enter/Escape), delete with confirmation "DeleteFolderConfirm", expand/collapse.
+- **Case usage** (`SubscriptionDetail`, status InProgress, when the membership has folders): folder tree in browse mode; selecting a folder filters the document grid and shows the uploader targeting that folder (`DocumentUploader FolderTemplateId`); grid adds a "Folder" column; per-row "move to folder" select showing full paths "A / B / C" (or "all documents" = no folder) → `MoveDocumentToFolderAsync`.
+- **ZIP download** (download icon on root and on each folder, with confirmation "DownloadZipConfirm"): `DownloadFolderAsZipAsync(subscriptionId, rootFolderId?)` — includes documents of the subtree (or the whole case when root), preserves folder paths relative to the chosen folder, files without folder at zip root, duplicate names suffixed `_1`, `_2`…, skips files missing in storage; file named `{folder}.zip` or `{membership}.zip`; empty → "FileNotFound" toast.
+- Translation keys added by seed scripts `S_20260602_001`, `S_20260604_002`, `S_20260604_003`.
+
+## Acceptance criteria
+- [ ] Service detail: folder template editor (add root/child, rename, reorder, delete recursive with confirmation).
+- [ ] Case documents tab: tree navigation filters documents; upload into selected folder; move document between folders (or to none); folder column with full path.
+- [ ] ZIP download of the whole case or any folder subtree, same path and duplicate-name rules, streamed server-side, respects F10 visibility.
+- [ ] Template changes do not delete documents (documents of removed folders become "no folder").
+- [ ] Legacy folder templates and document-folder links migrated.
