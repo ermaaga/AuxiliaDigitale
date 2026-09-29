@@ -46,5 +46,8 @@ public sealed record Error
 
     public static Error Failure(int code, string description) => new(code, ErrorType.Failure, description, null);
 
+    public static Error PreconditionFailed(int code, string description) =>
+        new(code, ErrorType.PreconditionFailed, description, null);
+
     public override string ToString() => $"{DisplayCode} ({Type}): {Description}";
 }

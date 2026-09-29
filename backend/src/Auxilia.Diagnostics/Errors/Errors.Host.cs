@@ -12,6 +12,9 @@ public static partial class Errors
         public static Error ConcurrencyConflict() =>
             Error.Conflict(EventCodes.Host.ConcurrencyConflict, "The resource was modified by another request");
 
+        public static Error PreconditionFailed() =>
+            Error.PreconditionFailed(EventCodes.Host.PreconditionFailed, "The resource version does not match If-Match");
+
         public static Error IdempotencyKeyReused() =>
             Error.Conflict(EventCodes.Host.IdempotencyKeyReused, "The idempotency key was already used with a different payload");
 
