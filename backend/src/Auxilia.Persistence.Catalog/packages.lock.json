@@ -186,6 +186,7 @@
           "Auxilia.Domain": "[1.0.0, )",
           "Auxilia.SharedKernel": "[1.0.0, )",
           "FluentValidation": "[12.1.1, )",
+          "Microsoft.EntityFrameworkCore": "[10.0.12, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.12, )"
         }
       },

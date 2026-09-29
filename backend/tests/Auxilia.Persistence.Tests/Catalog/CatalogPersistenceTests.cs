@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
+using CatalogTenant = Auxilia.Domain.Platform.Tenant;
+
 namespace Auxilia.Persistence.Tests.Catalog;
 
 [Collection(CatalogDatabaseGroup.Name)]
@@ -142,6 +144,6 @@ public sealed class CatalogPersistenceTests(CatalogDatabaseFixture database)
         (await db.DataProtectionKeys.CountAsync(Ct)).ShouldBeGreaterThan(0);
     }
 
-    private static Tenant NewTenant(string? slug = null) =>
-        Tenant.Create(Guid.CreateVersion7(), slug ?? "t-" + Guid.NewGuid().ToString("N")[..10], "Acme", "it", "Europe/Rome").Value;
+    private static CatalogTenant NewTenant(string? slug = null) =>
+        CatalogTenant.Create(Guid.CreateVersion7(), slug ?? "t-" + Guid.NewGuid().ToString("N")[..10], "Acme", "it", "Europe/Rome").Value;
 }

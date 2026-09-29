@@ -325,6 +325,7 @@
           "Auxilia.Domain": "[1.0.0, )",
           "Auxilia.SharedKernel": "[1.0.0, )",
           "FluentValidation": "[12.1.1, )",
+          "Microsoft.EntityFrameworkCore": "[10.0.12, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.12, )"
         }
       },
@@ -366,7 +367,9 @@
         "type": "Project",
         "dependencies": {
           "Auxilia.Application": "[1.0.0, )",
-          "Auxilia.Domain": "[1.0.0, )"
+          "Auxilia.Domain": "[1.0.0, )",
+          "EFCore.NamingConventions": "[10.0.1, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.3, )"
         }
       },
       "auxilia.sharedkernel": {

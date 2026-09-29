@@ -9,6 +9,13 @@ public static partial class Errors
         public static Error CrossTenantAttempt() =>
             Error.Forbidden(EventCodes.Tenancy.CrossTenantAttempt, "The token does not belong to the requested tenant");
 
+        public static Error TenantRequired() =>
+            Error.Validation(EventCodes.Tenancy.TenantRequired, "The request does not identify a tenant",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["tenant"] = ["validation.tenant.required"] });
+
+        public static Error TenantNotFound() =>
+            Error.NotFound(EventCodes.Tenancy.TenantNotFound, "Tenant not found");
+
         public static Error TenantSlugInvalid() =>
             Error.Validation(EventCodes.Tenancy.TenantSlugInvalid, "The tenant slug is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["slug"] = ["validation.tenant.slug"] });
