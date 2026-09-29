@@ -28,7 +28,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 0 | 25001 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 0 | 26001 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
-| 28000–28999 | Runner | MigrationRunner / Legacy import | 0 | 28001 |
+| 28000–28999 | Runner | MigrationRunner / Legacy import | 2 | 28003 |
 | 29000–29999 | Security | Security events | 0 | 29001 |
 
 ## Codes
@@ -55,3 +55,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11009 | Tenancy.TenantNotFound | – | NotFound | – | – |
 | AUX-11010 | Tenancy.TenantUnavailable | – | – | – | – |
 | AUX-11011 | Tenancy.TenantSuspended | – | – | – | – |
+| AUX-28001 | Runner.DataMigrationApplied | Information | – | – | Data-migration {Key} applied in {DurationMs} ms: {Description} |
+| AUX-28002 | Runner.DataMigrationFailed | Error | – | – | Data-migration {Key} failed |
