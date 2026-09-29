@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Caching;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Diagnostics;
@@ -16,6 +17,7 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
     private readonly ITenantConnectionProtector protector;
     private readonly ICurrentUser currentUser;
     private readonly TimeProvider timeProvider;
+    private readonly IReferenceDataCache cache;
 
     public TenantLifecycleManager(
         IOperationRunner operations,
@@ -23,7 +25,8 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
         ITenantDatabaseAdmin databases,
         ITenantConnectionProtector protector,
         ICurrentUser currentUser,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IReferenceDataCache cache)
     {
         this.operations = operations;
         this.catalog = catalog;
@@ -31,6 +34,7 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
         this.protector = protector;
         this.currentUser = currentUser;
         this.timeProvider = timeProvider;
+        this.cache = cache;
     }
 
     public Task<Result<TenantInfo>> ProvisionAsync(ProvisionTenant request, CancellationToken cancellationToken)
@@ -58,6 +62,7 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
             }
 
             scope.SetEntity("Tenant", tenant.Id);
+            scope.OnCommitted(InvalidateTenantLookups);
             var run = new MigrationRun(Guid.CreateVersion7(), tenant.Id, MigrationRunKind.Provisioning, tenant.Slug, ActorDescription.Of(currentUser), timeProvider.GetUtcNow());
             catalog.Add(run);
             await catalog.SaveChangesAsync(cancellationToken);
@@ -129,10 +134,15 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
             if (result.IsSuccess)
             {
                 await catalog.SaveChangesAsync(cancellationToken);
+                scope.OnCommitted(InvalidateTenantLookups);
             }
 
             return result;
         }, cancellationToken);
+
+    /// <summary>Every node sees the new status at once (Api tenant resolution, ARCHITECTURE §7.3).</summary>
+    private Task InvalidateTenantLookups(CancellationToken cancellationToken) =>
+        cache.InvalidateAsync(CacheTags.CatalogTenants, cancellationToken);
 
     private async Task<string?> ConnectionStringAsync(Tenant tenant, ProvisionTenant request, CancellationToken cancellationToken)
     {

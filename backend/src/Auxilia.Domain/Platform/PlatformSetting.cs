@@ -1,6 +1,6 @@
 namespace Auxilia.Domain.Platform;
 
-/// <summary>A platform-level default (catalog <c>platform_settings</c>): key → JSON value. Typed access comes with <c>ISettingsProvider</c> (P1-10).</summary>
+/// <summary>A platform-level default (catalog <c>platform_settings</c>, level 2 of ARCHITECTURE §7.1): key → JSON value, read through <c>ISettingsProvider</c>.</summary>
 public sealed class PlatformSetting
 {
     public const int KeyMaxLength = 150;

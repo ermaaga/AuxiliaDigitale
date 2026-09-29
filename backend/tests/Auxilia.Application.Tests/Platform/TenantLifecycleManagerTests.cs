@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Caching;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Platform;
 using Auxilia.Diagnostics;
@@ -15,6 +16,7 @@ public sealed class TenantLifecycleManagerTests
     private readonly ICatalogStore catalog = Substitute.For<ICatalogStore>();
     private readonly ITenantDatabaseAdmin databases = Substitute.For<ITenantDatabaseAdmin>();
     private readonly ITenantConnectionProtector protector = Substitute.For<ITenantConnectionProtector>();
+    private readonly IReferenceDataCache cache = Substitute.For<IReferenceDataCache>();
     private readonly List<MigrationRun> runs = [];
     private readonly List<TenantPlan> plans = [];
     private readonly TenantLifecycleManager manager;
@@ -29,7 +31,7 @@ public sealed class TenantLifecycleManagerTests
         databases.CreateDatabaseAsync("acme", Arg.Any<CancellationToken>()).Returns(Plain);
         databases.MigrateAsync(Plain, true, Arg.Any<CancellationToken>()).Returns(new TenantDatabaseVersion("Tenant_Initial", null));
 
-        manager = new TenantLifecycleManager(ManagerHarness.Runner(), catalog, databases, protector, ManagerHarness.System(), TimeProvider.System);
+        manager = new TenantLifecycleManager(ManagerHarness.Runner(), catalog, databases, protector, ManagerHarness.System(), TimeProvider.System, cache);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -47,6 +49,7 @@ public sealed class TenantLifecycleManagerTests
         added.SchemaVersion.ShouldBe("Tenant_Initial");
         plans.ShouldHaveSingleItem().PlanId.ShouldBe(Plan.StandardId);
         runs.ShouldHaveSingleItem().Status.ShouldBe(MigrationRunStatus.Succeeded);
+        await cache.Received(1).InvalidateAsync(CacheTags.CatalogTenants, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -122,5 +125,8 @@ public sealed class TenantLifecycleManagerTests
         (await manager.ArchiveAsync("acme", Ct)).IsSuccess.ShouldBeTrue();
         tenant.Status.ShouldBe(TenantStatus.Archived);
         (await manager.SuspendAsync("unknown", Ct)).Error!.Code.ShouldBe(EventCodes.Tenancy.TenantNotFound);
+
+        // One invalidation of the tenant lookups per successful change, none for the refused ones.
+        await cache.Received(3).InvalidateAsync(CacheTags.CatalogTenants, Arg.Any<CancellationToken>());
     }
 }

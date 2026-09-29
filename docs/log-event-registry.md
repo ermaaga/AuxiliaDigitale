@@ -10,7 +10,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
-| 10000–10999 | Host | Host / Startup / Middleware | 12 | 10021 |
+| 10000–10999 | Host | Host / Startup / Middleware | 13 | 10022 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 15 | 11019 |
 | 12000–12999 | Identity | Identity / Auth | 0 | 12001 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
@@ -20,11 +20,11 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 0 | 18001 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
-| 20000–20999 | Configuration | Configuration | 0 | 20001 |
+| 20000–20999 | Configuration | Configuration | 6 | 20007 |
 | 21000–21999 | Localization | Localization | 0 | 21001 |
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 0 | 23001 |
-| 24000–24999 | Cache | Cache / Redis | 0 | 24001 |
+| 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 0 | 25001 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 3 | 26004 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
@@ -47,6 +47,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10018 | Host.MethodNotAllowed | – | – | – | – |
 | AUX-10019 | Host.RequestInvalid | – | – | – | – |
 | AUX-10020 | Host.ValidationFailed | – | Validation | – | – |
+| AUX-10021 | Host.PostCommitActionFailed | Warning | – | – | A post-commit action of operation {Operation} failed |
 | AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
 | AUX-11005 | Tenancy.TenantSlugInvalid | – | Validation | – | – |
 | AUX-11006 | Tenancy.TenantTransitionNotAllowed | – | Conflict | – | – |
@@ -62,6 +63,16 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11016 | Tenancy.TenantAlreadyExists | – | Conflict | – | – |
 | AUX-11017 | Tenancy.TenantSlugReserved | – | Validation | – | – |
 | AUX-11018 | Tenancy.TenantDatabaseInvalid | – | Failure | – | – |
+| AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
+| AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
+| AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |
+| AUX-20004 | Configuration.StoredSettingIgnored | Warning | – | – | Stored value of setting {SettingKey} at level {SettingLevel} is not valid and is ignored |
+| AUX-20005 | Configuration.SettingChanged | – | – | Configuration.SetSetting (success) | – |
+| AUX-20006 | Configuration.SettingReset | – | – | Configuration.ResetSetting (success) | – |
+| AUX-24001 | Cache.CacheBackendUnavailable | Warning | – | – | Redis cache unavailable; serving from memory and database for {BreakSeconds} s |
+| AUX-24002 | Cache.CacheBackendRecovered | Information | – | – | Redis cache available again |
+| AUX-24003 | Cache.InvalidationPublishFailed | Warning | – | – | Invalidation of cache tag {CacheTag} not published to the other nodes |
+| AUX-24004 | Cache.InvalidationSubscriptionFailed | Warning | – | – | Subscription to the cache invalidation channel failed |
 | AUX-26001 | Jobs.JobRunSucceeded | – | – | Jobs.RunJob (success) | – |
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |

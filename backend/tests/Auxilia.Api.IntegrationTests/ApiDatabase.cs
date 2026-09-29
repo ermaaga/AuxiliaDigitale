@@ -3,6 +3,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
+using Auxilia.Persistence.Tenant;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,6 +80,11 @@ public sealed class ApiDatabase : IAsyncLifetime
 
             var connectionString = new NpgsqlConnectionStringBuilder(CatalogConnectionString) { Database = database }.ConnectionString;
             tenant.SetConnectionSecret(protector.Protect(connectionString));
+
+            // Schema of a provisioned tenant, so endpoints can read tenant tables (e.g. configuration.settings).
+            await using var dataSource = NpgsqlDataSource.Create(connectionString);
+            await using var tenantDb = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
+            await tenantDb.Database.MigrateAsync();
         }
 
         lifecycle(tenant);

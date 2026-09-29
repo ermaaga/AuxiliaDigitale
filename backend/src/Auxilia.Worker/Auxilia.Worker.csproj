@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- Same secrets as the Api (ConnectionStrings:Catalog) -->
+    <UserSecretsId>auxilia-api</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

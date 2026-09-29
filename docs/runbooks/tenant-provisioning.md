@@ -7,6 +7,7 @@
 |---|---|
 | `ConnectionStrings__Catalog` | Catalog database (environment or user-secrets `auxilia-api`). Required. |
 | `Provisioning__AdminConnectionString` | Login with `CREATEDB` and `CREATEROLE` used to create tenant databases (D-02). Defaults to the Catalog login. |
+| `ConnectionStrings__Redis` | Optional (Development: `localhost:6379`). With the same Redis as Api and Worker, suspend/reactivate/archive/provision evict the tenant lookups of every node at once; without it the nodes see the change within 30 s. |
 | `AUXILIA_TENANT_CONNECTION` | Only with `--existing-database`: connection string of a database created by a DBA. Never pass it on the command line. |
 
 Logs go to the console and to the same daily files as Api and Worker (`logs/platform/…`, `logs/tenants/{slug}/…`).

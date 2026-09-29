@@ -4,6 +4,7 @@ using Auxilia.Api.Tenancy;
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Infrastructure;
+using Auxilia.Infrastructure.Caching;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults;
@@ -28,6 +29,13 @@ var catalogConnectionString = builder.Configuration.GetConnectionString("Catalog
     ?? throw new InvalidOperationException("ConnectionStrings:Catalog is not configured.");
 builder.Services.AddCatalogPersistence(catalogConnectionString);
 builder.Services.AddTenantPersistence();
+
+// Redis/Valkey is the L2 of the reference-data cache; without it each node caches in memory only.
+if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
+{
+    builder.Services.AddRedisCache(redis);
+}
+
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 
 // Modules and security are registered from task P1-08 onwards.

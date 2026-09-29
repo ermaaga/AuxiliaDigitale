@@ -31,7 +31,7 @@ public sealed class CatalogDatabaseFixture : IAsyncLifetime
     public async ValueTask DisposeAsync() => await container.DisposeAsync();
 
     /// <summary>A service provider as the hosts build it, with a platform user as the current actor.</summary>
-    public ServiceProvider CreateServices()
+    public ServiceProvider CreateServices(Action<IServiceCollection>? configure = null)
     {
         var user = Substitute.For<ICurrentUser>();
         user.ActorType.Returns(ActorType.Platform);
@@ -41,6 +41,7 @@ public sealed class CatalogDatabaseFixture : IAsyncLifetime
         services.AddLogging();
         services.AddScoped(_ => user);
         services.AddCatalogPersistence(ConnectionString);
+        configure?.Invoke(services);
         return services.BuildServiceProvider();
     }
 
