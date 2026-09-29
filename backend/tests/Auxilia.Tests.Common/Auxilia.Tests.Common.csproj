@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Auxilia.SharedKernel\Auxilia.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Domain\Auxilia.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Application\Auxilia.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" />
+  </ItemGroup>
+
+</Project>

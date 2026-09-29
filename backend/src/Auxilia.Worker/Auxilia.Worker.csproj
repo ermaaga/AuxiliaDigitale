@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Hosting, health endpoints and IHubContext (SignalR push through the Redis backplane) -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auxilia.Application\Auxilia.Application.csproj" />
+    <ProjectReference Include="..\Auxilia.Infrastructure\Auxilia.Infrastructure.csproj" />
+    <ProjectReference Include="..\Auxilia.Persistence.Catalog\Auxilia.Persistence.Catalog.csproj" />
+    <ProjectReference Include="..\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
+    <ProjectReference Include="..\Auxilia.ServiceDefaults\Auxilia.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

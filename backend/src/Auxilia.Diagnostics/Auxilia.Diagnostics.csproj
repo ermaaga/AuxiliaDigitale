@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auxilia.SharedKernel\Auxilia.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
