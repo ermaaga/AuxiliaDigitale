@@ -10,10 +10,12 @@ Multi-tenant platform for clients, cases, appointments and marketing campaigns: 
 - Backend (.NET SDK pinned in `backend/global.json`; on this Mac the arm64 SDK is in `~/.dotnet` → `export DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH`):
   - build: `dotnet build backend/Auxilia.slnx -c Release` (warnings are errors)
   - test: `dotnet test --solution backend/Auxilia.slnx -c Release --ignore-exit-code 8` (exit 8 = test project without tests; drop the flag once every project has tests)
-  - audit: `dotnet list backend/Auxilia.slnx package --vulnerable --include-transitive`
+  - restore is locked (`packages.lock.json`); after changing packages run `dotnet restore backend/Auxilia.slnx --force-evaluate` and commit the lock files
+  - audit: `dotnet list backend/Auxilia.slnx package --vulnerable --include-transitive`; licenses: `cd backend && dotnet tool restore && dotnet nuget-license -i Auxilia.slnx -t -a ../.github/license-allowlist.json -mapping ../.github/nuget-license-mappings.json -override ../.github/nuget-license-overrides.json`
 - Package versions only in `backend/Directory.Packages.props` (central package management); allowlist in the `auxilia-dependency-policy` skill.
 - Frontend (`frontend/`, pnpm workspace; Node 24 LTS per `.nvmrc` — on this Mac `export PATH=/opt/homebrew/opt/node@24/bin:$PATH`):
   - install: `pnpm install` · dev: `pnpm dev` · build: `pnpm build`
-  - checks: `pnpm lint && pnpm typecheck && pnpm format:check && pnpm audit --audit-level moderate`
+  - checks: `pnpm lint && pnpm typecheck && pnpm format:check && pnpm audit --audit-level moderate && pnpm licenses:check`
   - Next.js 16: read `frontend/apps/web/AGENTS.md` and the bundled docs in `node_modules/next/dist/docs/` before writing Next code.
   - shadcn components live in `frontend/packages/ui` (see its README: make imports relative after `shadcn add`).
+- CI (`.github/workflows/ci.yml`): backend, frontend, gitleaks CLI, osv-scanner CLI; license allowlist and per-package exceptions in `.github/` (ADR 0011).

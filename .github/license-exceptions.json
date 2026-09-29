@@ -1,0 +1,5 @@
+{
+  "_comment": "Licenses allowed only for the listed packages. Approved by the user on 2026-09-29, see docs/adr/0011-third-party-license-exceptions.md.",
+  "LGPL-3.0-or-later": ["@img/sharp-libvips-*"],
+  "CC-BY-4.0": ["caniuse-lite"]
+}
