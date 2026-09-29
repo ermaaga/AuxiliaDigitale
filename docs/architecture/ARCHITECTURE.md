@@ -53,7 +53,7 @@ Sistema multi-tenant per studi/uffici che gestiscono **clienti, pratiche, appunt
 ```
 AuxiliaDigitale/
 ├── backend/src/
-│   ├── Auxilia.AppHost · Auxilia.ServiceDefaults
+│   ├── Auxilia.ServiceDefaults (niente AppHost Aspire: ADR 0013, D-32)
 │   ├── Auxilia.SharedKernel · Auxilia.Diagnostics
 │   ├── Auxilia.Domain/<Module>/
 │   ├── Auxilia.Application/Abstractions/{Operations,Caching,Settings,Modules,Channels,Storage,Auth,Jobs,…}

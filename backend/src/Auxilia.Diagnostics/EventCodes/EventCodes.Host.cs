@@ -24,5 +24,11 @@ public static partial class EventCodes
 
         /// <summary>The client cancelled the request; not an error.</summary>
         public const int RequestCancelled = 10014;
+
+        /// <summary>The log file storage failed; events go to the console and the local buffer (written by the file sink).</summary>
+        public const int LogStorageUnavailable = 10015;
+
+        /// <summary>The log file storage works again after <see cref="LogStorageUnavailable"/> (written by the file sink).</summary>
+        public const int LogStorageRecovered = 10016;
     }
 }

@@ -20,6 +20,7 @@
     <Project Path="tests/Auxilia.Domain.Tests/Auxilia.Domain.Tests.csproj" />
     <Project Path="tests/Auxilia.LegacyImport.Tests/Auxilia.LegacyImport.Tests.csproj" />
     <Project Path="tests/Auxilia.Persistence.Tests/Auxilia.Persistence.Tests.csproj" />
+    <Project Path="tests/Auxilia.ServiceDefaults.Tests/Auxilia.ServiceDefaults.Tests.csproj" />
     <Project Path="tests/Auxilia.Tests.Common/Auxilia.Tests.Common.csproj" />
     <Project Path="tests/Auxilia.Worker.IntegrationTests/Auxilia.Worker.IntegrationTests.csproj" />
   </Folder>

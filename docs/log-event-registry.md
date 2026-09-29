@@ -10,7 +10,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
-| 10000–10999 | Host | Host / Startup / Middleware | 6 | 10015 |
+| 10000–10999 | Host | Host / Startup / Middleware | 8 | 10017 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 1 | 11005 |
 | 12000–12999 | Identity | Identity / Auth | 0 | 12001 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
@@ -41,4 +41,6 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10012 | Host.IdempotencyKeyReused | Warning | Conflict | Idempotency key reused with a different payload for {RequestMethod} {RequestPath} |
 | AUX-10013 | Host.DatabaseTimeout | Error | Failure | Database command timed out in operation {Operation} |
 | AUX-10014 | Host.RequestCancelled | Information | – | Request {RequestMethod} {RequestPath} cancelled by the client |
-| AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | Cross-tenant attempt: token tenant {TokenTenant}, requested tenant {RequestedTenant} |
+| AUX-10015 | Host.LogStorageUnavailable | – | – | – |
+| AUX-10016 | Host.LogStorageRecovered | – | – | – |
+| AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
