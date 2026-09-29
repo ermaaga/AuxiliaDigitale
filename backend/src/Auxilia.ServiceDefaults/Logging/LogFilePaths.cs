@@ -1,5 +1,6 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
+
+using Auxilia.SharedKernel.Tenancy;
 
 using Serilog.Events;
 
@@ -10,7 +11,7 @@ namespace Auxilia.ServiceDefaults.Logging;
 /// for events without a tenant. A tenant value that is not a valid slug goes to the platform file, so it can never
 /// escape the log folder.
 /// </summary>
-public static partial class LogFilePaths
+public static class LogFilePaths
 {
     public static string For(LogEvent logEvent)
     {
@@ -31,9 +32,5 @@ public static partial class LogFilePaths
         return string.Create(CultureInfo.InvariantCulture, $"{folder}/{day:yyyy}/{day:MM}/{day:dd}.jsonl");
     }
 
-    public static bool IsValidSlug(string tenantSlug) => SlugPattern().IsMatch(tenantSlug);
-
-    // Same rule as tenant provisioning: lowercase letters, digits and inner hyphens, 2–63 characters.
-    [GeneratedRegex("^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$", RegexOptions.CultureInvariant)]
-    private static partial Regex SlugPattern();
+    public static bool IsValidSlug(string tenantSlug) => TenantSlug.IsValid(tenantSlug);
 }

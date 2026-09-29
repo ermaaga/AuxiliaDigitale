@@ -10,4 +10,9 @@
     <ProjectReference Include="..\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- dotnet ef design-time services (migrations add/script); not shipped at runtime -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+  </ItemGroup>
+
 </Project>

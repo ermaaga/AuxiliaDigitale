@@ -29,6 +29,8 @@ public sealed class LogFilePathsTests
     [InlineData("acme/../../etc")]
     [InlineData("Acme")]
     [InlineData("a")]
+    [InlineData("ab")]
+    [InlineData("acme-")]
     [InlineData("-acme")]
     [InlineData("")]
     public void For_InvalidSlug_UsesPlatformFile(string tenant)
