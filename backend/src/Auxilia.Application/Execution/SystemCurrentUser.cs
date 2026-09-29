@@ -1,6 +1,6 @@
 using Auxilia.Application.Abstractions.Authorization;
 
-namespace Auxilia.Application.Operations;
+namespace Auxilia.Application.Execution;
 
 /// <summary>Default actor for hosts without a caller (Worker, auxctl); the Api replaces it with the authenticated user.</summary>
 internal sealed class SystemCurrentUser : ICurrentUser

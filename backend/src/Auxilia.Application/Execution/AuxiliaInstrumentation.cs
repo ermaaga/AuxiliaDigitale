@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 using Auxilia.Diagnostics;
 
-namespace Auxilia.Application.Operations;
+namespace Auxilia.Application.Execution;
 
 /// <summary>The Auxilia <see cref="ActivitySource"/> and operation metrics, exported by ServiceDefaults.</summary>
 internal static class AuxiliaInstrumentation

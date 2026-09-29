@@ -2,7 +2,7 @@ using System.Collections;
 
 using Microsoft.Extensions.Logging;
 
-namespace Auxilia.Application.Operations;
+namespace Auxilia.Application.Execution;
 
 /// <summary>
 /// Outcome log of <see cref="OperationRunner"/>. Its event code varies per operation (success code from the

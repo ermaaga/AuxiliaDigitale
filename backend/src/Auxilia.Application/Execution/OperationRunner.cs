@@ -9,7 +9,7 @@ using Auxilia.SharedKernel.Results;
 
 using Microsoft.Extensions.Logging;
 
-namespace Auxilia.Application.Operations;
+namespace Auxilia.Application.Execution;
 
 /// <inheritdoc cref="IOperationRunner"/>
 internal sealed class OperationRunner : IOperationRunner

@@ -30,7 +30,11 @@ public sealed class ProjectReferenceTests
             Solution.Application, Solution.Infrastructure,
             Solution.PersistenceCatalog, Solution.PersistenceTenant, Solution.ServiceDefaults,
         ],
-        [Solution.MigrationRunner] = [Solution.Infrastructure, Solution.PersistenceCatalog, Solution.PersistenceTenant],
+        // auxctl logs to the same per-tenant files as Api and Worker (F25), hence ServiceDefaults.
+        [Solution.MigrationRunner] =
+        [
+            Solution.Infrastructure, Solution.PersistenceCatalog, Solution.PersistenceTenant, Solution.ServiceDefaults,
+        ],
     };
 
     public static TheoryData<string> Projects() => new(Solution.ProductionProjects);

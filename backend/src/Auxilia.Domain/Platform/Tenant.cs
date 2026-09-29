@@ -15,6 +15,13 @@ public sealed class Tenant : AggregateRoot<Guid>
     public const int TimeZoneMaxLength = 64;
     public const int VersionMaxLength = 150;
 
+    /// <summary>Slugs that name platform hosts or paths and can never be a tenant (skill auxilia-tenant-provisioning).</summary>
+    public static readonly IReadOnlySet<string> ReservedSlugs = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "api", "app", "www", "platform", "admin", "system", "static", "assets", "health", "status", "docs", "mail",
+        "auth", "login", "logout", "support", "help", "cdn", "console", "public",
+    };
+
     private static readonly Dictionary<TenantStatus, TenantStatus[]> Transitions = new()
     {
         [TenantStatus.Provisioning] = [TenantStatus.Active, TenantStatus.MigrationFailed, TenantStatus.Archived],
@@ -63,6 +70,11 @@ public sealed class Tenant : AggregateRoot<Guid>
         if (!SharedKernel.Tenancy.TenantSlug.IsValid(slug))
         {
             return Errors.Tenancy.TenantSlugInvalid();
+        }
+
+        if (ReservedSlugs.Contains(slug))
+        {
+            return Errors.Tenancy.TenantSlugReserved();
         }
 
         if (string.IsNullOrWhiteSpace(displayName) || displayName.Length > DisplayNameMaxLength)

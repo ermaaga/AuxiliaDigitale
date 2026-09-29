@@ -28,5 +28,26 @@ public static partial class EventCodes
 
         /// <summary>The tenant is suspended (423).</summary>
         public const int TenantSuspended = 11011;
+
+        /// <summary>A tenant was provisioned and is active.</summary>
+        public const int TenantProvisioned = 11012;
+
+        /// <summary>A tenant was suspended by the platform.</summary>
+        public const int TenantWasSuspended = 11013;
+
+        /// <summary>A suspended tenant was reactivated.</summary>
+        public const int TenantWasReactivated = 11014;
+
+        /// <summary>A tenant was archived (never deleted, D-25).</summary>
+        public const int TenantWasArchived = 11015;
+
+        /// <summary>A tenant with this slug already exists and is not being provisioned (409).</summary>
+        public const int TenantAlreadyExists = 11016;
+
+        /// <summary>The slug is reserved for the platform (400).</summary>
+        public const int TenantSlugReserved = 11017;
+
+        /// <summary>The database provided for the tenant cannot be used (500).</summary>
+        public const int TenantDatabaseInvalid = 11018;
     }
 }

@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Auxilia.Persistence.Catalog\Auxilia.Persistence.Catalog.csproj" />
     <ProjectReference Include="..\..\src\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.MigrationRunner\Auxilia.MigrationRunner.csproj" />
     <ProjectReference Include="..\Auxilia.Tests.Common\Auxilia.Tests.Common.csproj" />
   </ItemGroup>
 

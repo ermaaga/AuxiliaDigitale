@@ -40,6 +40,8 @@ public static class CatalogPersistence
 
         services.AddMemoryCache();
         services.AddScoped<ITenantDirectory, CatalogTenantDirectory>();
+        services.AddScoped<ICatalogStore, CatalogStore>();
+        services.AddScoped<ICatalogMigrator, CatalogMigrator>();
         services.AddSingleton<ITenantConnectionProtector, TenantConnectionProtector>();
 
         return services;
