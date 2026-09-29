@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- dotnet user-secrets: ConnectionStrings:Catalog on developer machines (never committed) -->
+    <UserSecretsId>auxilia-api</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Auxilia.Application\Auxilia.Application.csproj" />
     <ProjectReference Include="..\Auxilia.Contracts\Auxilia.Contracts.csproj" />

@@ -1,5 +1,7 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Catalog.Interceptors;
+using Auxilia.Persistence.Catalog.Tenancy;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +37,10 @@ public static class CatalogPersistence
         services.AddDataProtection()
             .SetApplicationName(DataProtectionApplicationName)
             .PersistKeysToDbContext<CatalogDbContext>();
+
+        services.AddMemoryCache();
+        services.AddScoped<ITenantDirectory, CatalogTenantDirectory>();
+        services.AddSingleton<ITenantConnectionProtector, TenantConnectionProtector>();
 
         return services;
     }
