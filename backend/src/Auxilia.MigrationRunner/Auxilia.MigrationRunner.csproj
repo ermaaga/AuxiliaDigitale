@@ -2,17 +2,29 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <!-- Same user-secrets as the Api (ConnectionStrings:Catalog on developer machines, never committed) -->
+    <UserSecretsId>auxilia-api</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Auxilia.Infrastructure\Auxilia.Infrastructure.csproj" />
     <ProjectReference Include="..\Auxilia.Persistence.Catalog\Auxilia.Persistence.Catalog.csproj" />
     <ProjectReference Include="..\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
+    <ProjectReference Include="..\Auxilia.ServiceDefaults\Auxilia.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- dotnet ef design-time services (migrations add/script); not shipped at runtime -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Auxilia.Persistence.Tests" />
   </ItemGroup>
 
 </Project>

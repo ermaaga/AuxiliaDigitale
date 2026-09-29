@@ -10,5 +10,14 @@ public static partial class EventCodes
 
         /// <summary>A tenant data-migration failed; the run stops and the tenant keeps the previous data version.</summary>
         public const int DataMigrationFailed = 28002;
+
+        /// <summary>The Catalog schema was migrated.</summary>
+        public const int CatalogMigrated = 28003;
+
+        /// <summary>A tenant database was migrated (schema, then data-migrations).</summary>
+        public const int TenantMigrated = 28004;
+
+        /// <summary>A tenant migration failed; the tenant is marked MigrationFailed.</summary>
+        public const int TenantMigrationFailed = 28005;
     }
 }

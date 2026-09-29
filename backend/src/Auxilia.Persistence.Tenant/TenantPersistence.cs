@@ -1,5 +1,9 @@
+using Auxilia.Application.Abstractions.Jobs;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Persistence;
+using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Persistence.Tenant.Administration;
+using Auxilia.Persistence.Tenant.Jobs;
 using Auxilia.Persistence.Tenant.DataMigrations;
 using Auxilia.Persistence.Tenant.Seed;
 using Auxilia.Persistence.Tenant.Transactions;
@@ -31,6 +35,19 @@ public static class TenantPersistence
             provider.GetService<TimeProvider>() ?? TimeProvider.System,
             provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DataMigrationRunner>>()));
         services.AddSingleton<TenantInitialSeed>();
+        services.AddScoped<IJobRunStore, JobRunStore>();
+
+        return services;
+    }
+
+    /// <summary>Creation and migration of tenant databases (auxctl, provisioning handler): needs a CREATEDB/CREATEROLE login.</summary>
+    public static IServiceCollection AddTenantDatabaseAdministration(this IServiceCollection services, string adminConnectionString)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentException.ThrowIfNullOrWhiteSpace(adminConnectionString);
+
+        services.AddSingleton(new TenantDatabaseAdminOptions(adminConnectionString));
+        services.AddScoped<ITenantDatabaseAdmin, TenantDatabaseAdmin>();
 
         return services;
     }

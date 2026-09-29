@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace Auxilia.Application.Tests.Operations;
+namespace Auxilia.Application.Tests.Execution;
 
 /// <summary>Captures log entries and the scope state active when each entry was written.</summary>
 internal sealed class RecordingLogger<T> : ILogger<T>

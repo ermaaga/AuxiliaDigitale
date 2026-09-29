@@ -1,6 +1,6 @@
 using Auxilia.Application.Abstractions.Operations;
 
-namespace Auxilia.Application.Operations;
+namespace Auxilia.Application.Execution;
 
 /// <summary>Default until persistence exists (task P1-08 registers the EF Core transaction + outbox).</summary>
 internal sealed class NoOperationTransactionFactory : IOperationTransactionFactory

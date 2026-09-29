@@ -1,6 +1,8 @@
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Operations;
-using Auxilia.Application.Operations;
+using Auxilia.Application.Jobs;
+using Auxilia.Application.Execution;
+using Auxilia.Application.Platform;
 
 using FluentValidation;
 
@@ -24,8 +26,24 @@ public static class DependencyInjection
         services.TryAddScoped<ICurrentUser, SystemCurrentUser>();
         services.TryAddScoped<IOperationTransactionFactory, NoOperationTransactionFactory>();
         services.TryAddScoped<IOperationRunner, OperationRunner>();
+        services.TryAddScoped<IJobRunner, JobRunner>();
 
         services.AddValidatorsFrom(typeof(DependencyInjection).Assembly);
+
+        return services;
+    }
+
+    /// <summary>
+    /// Tenant lifecycle and migrations: only for hosts that administer databases (auxctl, later the Worker handling
+    /// provisioning messages), since they need <c>ITenantDatabaseAdmin</c> and a CREATEDB/CREATEROLE login. The Api
+    /// never creates databases.
+    /// </summary>
+    public static IServiceCollection AddTenantAdministration(this IServiceCollection services)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddScoped<ITenantLifecycleManager, TenantLifecycleManager>();
+        services.TryAddScoped<ITenantMigrationManager, TenantMigrationManager>();
 
         return services;
     }

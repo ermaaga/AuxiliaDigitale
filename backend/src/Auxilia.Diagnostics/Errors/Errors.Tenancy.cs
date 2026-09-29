@@ -16,6 +16,16 @@ public static partial class Errors
         public static Error TenantNotFound() =>
             Error.NotFound(EventCodes.Tenancy.TenantNotFound, "Tenant not found");
 
+        public static Error TenantAlreadyExists(string slug) =>
+            Error.Conflict(EventCodes.Tenancy.TenantAlreadyExists, $"Tenant {slug} already exists");
+
+        public static Error TenantSlugReserved() =>
+            Error.Validation(EventCodes.Tenancy.TenantSlugReserved, "The tenant slug is reserved",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["slug"] = ["validation.tenant.slugReserved"] });
+
+        public static Error TenantDatabaseInvalid() =>
+            Error.Failure(EventCodes.Tenancy.TenantDatabaseInvalid, "The tenant database cannot be used");
+
         public static Error TenantSlugInvalid() =>
             Error.Validation(EventCodes.Tenancy.TenantSlugInvalid, "The tenant slug is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["slug"] = ["validation.tenant.slug"] });

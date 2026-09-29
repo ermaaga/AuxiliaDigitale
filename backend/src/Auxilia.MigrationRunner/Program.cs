@@ -1,26 +1,27 @@
-// auxctl — migrations, tenant provisioning, legacy import, manual job runs (tasks P1-09, E-01…E-06).
-// Only `diagnostics registry` exists so far (P1-02); P1-09 introduces the full command set.
+// auxctl — migrations, tenant lifecycle, manual job runs, diagnostics (task P1-09; legacy import E-01…E-06).
 
-using Auxilia.Diagnostics;
+using Auxilia.MigrationRunner;
+using Auxilia.MigrationRunner.Cli;
 
-if (args is ["diagnostics", "registry", .. var options])
+using Microsoft.Extensions.Hosting;
+
+using var cancellation = new CancellationTokenSource();
+Console.CancelKeyPress += (_, eventArgs) =>
 {
-    var markdown = EventRegistry.RenderMarkdown();
+    eventArgs.Cancel = true;
+    cancellation.Cancel();
+};
 
-    if (options is [])
+// The host (and the Catalog connection) is built only by commands that need it: `diagnostics registry` works without.
+var host = new Lazy<IHost>(() => AuxctlHost.Build());
+try
+{
+    return await new AuxctlCli(() => host.Value.Services, Console.Out, Console.Error).RunAsync(args, cancellation.Token);
+}
+finally
+{
+    if (host.IsValueCreated)
     {
-        await Console.Out.WriteAsync(markdown);
-        return 0;
-    }
-
-    if (options is ["--output", var output])
-    {
-        await File.WriteAllTextAsync(output, markdown);
-        await Console.Out.WriteLineAsync($"auxctl: registry written to {output}");
-        return 0;
+        host.Value.Dispose();
     }
 }
-
-await Console.Error.WriteLineAsync("usage: auxctl diagnostics registry [--output <file>]");
-
-return 1;

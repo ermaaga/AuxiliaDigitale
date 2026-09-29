@@ -3,7 +3,7 @@ using System.Diagnostics.Metrics;
 
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Operations;
-using Auxilia.Application.Operations;
+using Auxilia.Application.Execution;
 using Auxilia.Diagnostics;
 using Auxilia.SharedKernel.Results;
 
@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-namespace Auxilia.Application.Tests.Operations;
+namespace Auxilia.Application.Tests.Execution;
 
 public sealed class OperationRunnerTests : IDisposable
 {
