@@ -1,6 +1,7 @@
 # AuxiliaDigitale — Architettura (v0.2)
 
 > Stato: **approvata** (2026-09-29). Nessun codice scritto.
+> Baseline legacy (D-30): `develop` @ `8fa6622` + branch `Security_Update` + `fix/zip-download-folder`.
 > Fonti: blueprint, `data-model.md`, `decisions.md` del marketplace `auxilia-claude-skills`; analisi del legacy (`docs/parity/`); decisioni del progetto in [`docs/decisions.md`](../decisions.md) (D-01…D-20), che **prevalgono** sul marketplace.
 > Le voci ancora da chiarire sono in §16.
 
@@ -191,7 +192,7 @@ Adapter registrati come *keyed services*; quale usare è un'impostazione (§7). 
 
 | Capability | Porta | Adapter ora | Predisposti / futuri |
 |---|---|---|---|
-| Metodi di login | `IAuthenticationMethod` | `password` | `google` (clienti mobile, D-19), `microsoft`, `oidc` |
+| Metodi di login | `IAuthenticationMethod` | `password`, `email-otp` (F35, attivabile per tenant) | `google` (clienti mobile, D-19), `microsoft`, `oidc` |
 | Canali di invio | `IMessageChannel` | `email` → provider `smtp` (MailKit) | `whatsapp` → provider `http-gateway` (endpoint esterno, D-20), `sms` |
 | Storage file | `IFileStorage` | `local`, `ftp`, `azure-blob` | `s3` |
 | Storage log | (sink Serilog) | `local-file` (sviluppo), `azure-blob` | – |
@@ -258,7 +259,8 @@ Snapshot unico per tenant; stesso meccanismo (`ReferenceDataCache<T>`) per tradu
 ## 9. Autenticazione pluggable
 
 - Identità: ASP.NET Identity nel tenant DB; l'API emette **sempre** i propri token (JWT ES256 10–15 min + refresh rotante; client app con `X-Client-Id`).
-- Metodi come plug-in `IAuthenticationMethod`; oggi solo `password`. `GET /api/v1/auth/methods` restituisce i metodi attivi del tenant (la pagina di login e l'app mobile li leggono).
+- Metodi come plug-in `IAuthenticationMethod`; oggi `password` e `email-otp` (codice a 6 cifre via email, 10 minuti, monouso — F35, default off).
+- Sicurezza account (F35, D-30): policy password da impostazioni, storico delle ultime N password, scadenza con cambio obbligatorio, reset via token monouso, ogni tentativo di accesso in `identity.login_attempts` + log `29xxx`; pagina "Audit accessi" per l'Administrator. `GET /api/v1/auth/methods` restituisce i metodi attivi del tenant (la pagina di login e l'app mobile li leggono).
 - Già pronti perché standard: tabella `identity.user_logins`; grant `external_code` progettato (flusso OAuth con PKCE, `state` cifrato con tenant e client, codice monouso scambiato dal BFF/app).
 - **Google (D-19)**: si attiva in futuro per i **clienti dall'app mobile** — aggiunta di `catalog.identity_providers` (credenziali di piattaforma), `configuration.auth_methods` (abilitazione per tenant, domini ammessi, politica di collegamento/auto-registrazione) e dell'adapter. Nessuna modifica ai moduli.
 - Attivazione account (D-06): token monouso via email → pagina `/{tenant}/activate` per scegliere la password. Reset password analogo.
@@ -293,7 +295,7 @@ Base `data-model.md` v1 con queste modifiche:
 
 | Schema | Tabelle | Modifiche rispetto a v1 |
 |---|---|---|
-| `identity` | users, roles, user_roles, role_permissions, user_logins, user_claims, user_tokens, refresh_sessions, devices, **user_preferences** | ruoli: Administrator, Employee, Client (niente SystemConfigurator); `user_preferences` nuova |
+| `identity` | users (+ `password_changed_at`), roles, user_roles, role_permissions, user_logins, user_claims, user_tokens, refresh_sessions, devices, **user_preferences**, **password_history**, **login_attempts** | ruoli: Administrator, Employee, Client (niente SystemConfigurator); storico password e tentativi di accesso da F35 |
 | `directory` | people, client_profiles, employee_profiles, assignments, specializations, person_specializations, registration_requests, **tags**, **person_tags**, **consents** | tag e consensi con storico (per canale e finalità) per il marketing |
 | `cases` | service_categories, services, **service_folders**, service_required_documents, cases, case_status_history, case_payments, case_document_requirements | `service_folders` per F33 |
 | `documents` | document_areas, document_types, documents | `documents.folder_id` → `service_folders` (SET NULL) |

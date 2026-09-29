@@ -7,14 +7,14 @@
 
 ## 1. Obiettivo e fonti
 
-Rifare **Auxilia** (Blazor Server, `../Auxilia`, HEAD `8fa6622`, tag `v.2.0.0`) come piattaforma multi-tenant per **clienti, pratiche, appuntamenti e campagne marketing**: API .NET 10 + Next.js (app tenant + console di piattaforma), Worker su code, configurazione nel DB servita da Redis.
+Rifare **Auxilia** (Blazor Server, `../Auxilia`; baseline D-30 = `develop` @ `8fa6622` + branch `Security_Update` + `fix/zip-download-folder`) come piattaforma multi-tenant per **clienti, pratiche, appuntamenti e campagne marketing**: API .NET 10 + Next.js (app tenant + console di piattaforma), Worker su code, configurazione nel DB servita da Redis.
 
 | Fonte | Decide | Dove |
 |---|---|---|
 | Codice legacy | comportamento funzionale | `../Auxilia` |
 | Decisioni del progetto | scelte con l'utente (prevalgono) | `docs/decisions.md` |
 | Architettura | struttura, DB, plug-in, config, log | `docs/architecture/ARCHITECTURE.md` |
-| Parità legacy | criteri di accettazione F01–F34 | `docs/parity/` |
+| Parità legacy | criteri di accettazione F01–F35 | `docs/parity/` |
 | Nuove funzionalità | criteri di accettazione N01–N03 | `docs/requirements/` |
 | Blueprint / data-model / skill | regole tecniche generali | marketplace `auxilia-claude-skills` |
 
@@ -34,8 +34,8 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ---
 
 ## 3. Stato corrente
-- Fase: **Fase 0 — non iniziata**
-- Prossimo task: **P0-01**
+- Fase: **Fase 0 — in corso** (P0-01 completato)
+- Prossimo task: **P0-02** (scheletro backend)
 - Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
 
 ---
@@ -58,7 +58,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 ### Fase 0 — Baseline e scheletro (≈ 4 gg)
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; conferma creazione remote GitHub (D-01); ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati, Manager + OperationRunner). | 0,5 | – | tutte | legacy-migration |
+| [x] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; conferma creazione remote GitHub (D-01); ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati, Manager + OperationRunner). | 0,5 | – | tutte | legacy-migration |
 | [ ] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
 | [ ] P0-03 | Workspace frontend pnpm: `apps/web`, `packages/{ui,api-client,config}`, Tailwind v4, shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
 | [ ] P0-04 | CI: build+test, NuGetAudit, licenze, `pnpm audit`, OSV-Scanner, gitleaks, Dependabot. | 1 | P0-03 | F32 | dependency-policy |
@@ -81,7 +81,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] P1-12 | Rebus + RabbitMQ: code, outbox, handler idempotenti, retry, `error`; Worker (solo code); registry `IRecurringJob` + esecuzione manuale con lock e `ops.job_runs` (nessuno scheduler). | 1,5 | P1-08 | F11 | messaging-rebus |
 | [ ] P1-13 | `Messaging`: `IMessageChannel`, `messaging_accounts`, `sender_rules` (scopo × ruolo), risoluzione account, adapter `smtp` (MailKit), template Liquid EN/IT, `outbound_messages`, invio di prova; canale WhatsApp solo nel modello. | 1,5 | P1-12, P1-10 | F23, N03 | messaging-rebus, localization |
 
-### Fase 2 — Identità e sicurezza (≈ 7,5 gg)
+### Fase 2 — Identità e sicurezza (≈ 9 gg)
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
 | [ ] P2-01 | Schema `identity` (+ `directory.people` minimo), Identity, hasher BCrypt legacy → rehash, lockout, policy; accesso ≠ stato cliente (D-05); ruoli Administrator/Employee/Client. | 1 | P1-09 | F01, F31 | security |
@@ -90,6 +90,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] P2-04 | Rate limiting, eventi sicurezza 29xxx, sessione singola come impostazione (default off, D-08). | 0,5 | P2-02 | F17, F34 | security |
 | [ ] P2-05 | SignalR `/hubs/notifications`, gruppi per tenant/utente/ruolo, backplane Redis, `ForceLogout`. | 1 | P2-02 | F16, F17 | security |
 | [ ] P2-06 | Identità di piattaforma: utenti System nel Catalog con 2FA TOTP obbligatoria (D-22), login console, scelta tenant → token di piattaforma (`act`), perimetro solo tecnico (D-21), audit. | 1,5 | P2-03 | N02 | security, multitenancy |
+| [ ] P2-08 | Sicurezza account (F35): policy password da impostazioni, storico password, scadenza con cambio obbligatorio, OTP via email come metodo `email-otp`, tabella `identity.login_attempts` per ogni tentativo. | 1,5 | P2-02, P1-13 | F35 | security |
 | [ ] P2-07 | Framework metodi di login (`IAuthenticationMethod`, `/auth/methods`, grant `external_code` progettato), `auxctl users reset-password`, test integrazione auth (login, refresh, riuso, cross-tenant, token di piattaforma). | 1 | P2-06 | F01, F31 | security, testing |
 
 ### Fase 3 — Fondamenta frontend + localizzazione (≈ 9 gg)
@@ -119,7 +120,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 
 > S-08 dipende dal modulo Pratiche: eseguirlo dopo B-08 anche se è nella console.
 
-### Fase 5 — Moduli di business, app tenant (≈ 31,5 gg)
+### Fase 5 — Moduli di business, app tenant (≈ 32,5 gg)
 
 **Anagrafiche (F04–F06)**
 | ID | Task | Stima | Dip. | F/N | Skill |
@@ -157,6 +158,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] B-19 | BE notifiche: persistenza, liste, letto/tutte, elimina, push, deep link per tipo e ruolo, preferenze. | 1 | P2-05 | F16 | backend-feature |
 | [ ] B-20 | BE sessioni attive (Admin): elenco + forza logout. | 0,5 | P2-05 | F17 | security |
 | [ ] B-21 | FE richieste, centro notifiche, sessioni, client SignalR. | 1,5 | B-18–B-20 | F15–F17, F34 | frontend-feature |
+| [ ] B-27 | Pagina Admin "Audit accessi" (filtri, ordinamento, export) + cambio password dal profilo e cambio forzato alla scadenza + login OTP nella pagina di login. BE query + FE. | 1 | P2-08, B-05 | F35 | frontend-feature |
 
 **Report, dashboard, estensioni**
 | ID | Task | Stima | Dip. | F/N | Skill |
@@ -179,7 +181,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
 | [ ] E-01 | `docs/migration/mapping.md` + read model legacy + `legacy_id_map`; esclusioni: `WorkoutPlans`, utente/ruolo SystemConfigurator, `UserSessions`, `AppLogs`. | 1 | Fase 6, D-11 | tutte | legacy-migration |
-| [ ] E-02 | Utenti → people/users (BCrypt) + profili + assegnazioni + ruoli + specializzazioni. | 1 | E-01 | F01, F05, F06, F12 | legacy-migration |
+| [ ] E-02 | Utenti → people/users (BCrypt) + profili + assegnazioni + ruoli + specializzazioni + storico password, `password_changed_at`, audit accessi (se il DB di produzione ha lo schema `Security_Update`). | 1 | E-01 | F01, F05, F06, F12, F35 | legacy-migration |
 | [ ] E-03 | Servizi, categorie, cartelle, pratiche (+ pagamento, storico). | 1 | E-02 | F08, F09, F33 | legacy-migration |
 | [ ] E-04 | Documenti (copia file con SHA-256), aree, cartelle. | 1 | E-03 | F14, F33 | legacy-migration |
 | [ ] E-05 | Appuntamenti, richieste → messaggi, notifiche, registrazioni, storico import; configurazione → Catalog/tenant (impostazioni, SMTP → account di default ricifrato, pagine/moduli → override e permessi, griglie, campi custom, traduzioni `is_customized`, branding); consenso marketing email = true con fonte `LegacyMigration` (D-23). | 1,5 | E-04 | F13, F15–F17, F19–F24, N01 | legacy-migration |
@@ -200,7 +202,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] R-02 | Prova di cutover, criteri di rollback, go-live. | 1 | R-01 | – | legacy-migration |
 | [ ] R-03 | Dismissione legacy: backup, archivio, rotazione credenziali (Postgres in `appsettings`/`docker-compose`, SMTP in `DataSeeder`, FTP/Azure/reCAPTCHA). | 0,5 | R-02 | F32 | security |
 
-**Totale ≈ 98 giornate** (F0 4 · F1 15 · F2 7,5 · F3 9 · F4 11 · F5 31,5 · F6 6 · F7 7 · F8 5 · F9 2,5). Le Fasi 4 e 5 si possono parallelizzare dopo B-01.
+**Totale ≈ 100,5 giornate** (F0 4 · F1 15 · F2 9 · F3 9 · F4 11 · F5 32,5 · F6 6 · F7 7 · F8 5 · F9 2,5). Le Fasi 4 e 5 si possono parallelizzare dopo B-01.
 
 ---
 
@@ -242,6 +244,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | F32 | Docker / Aspire | P0-02, P0-04, P1-03, H-03, R-03 |
 | F33 | Cartelle + ZIP | B-10, B-12, B-14, B-15 |
 | F34 | UI trasversale | P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 |
+| F35 | Sicurezza account (branch `Security_Update`) | P2-02, P2-08, B-27, E-02 |
 | N01 | Marketing | B-01, M-01…M-04, E-05 |
 | N02 | Piattaforma, tenant, piani e moduli | P1-06, P1-09, P1-11, P2-06, P3-03, P3-08, S-01 |
 | N03 | Comunicazioni (account per ruolo) | P1-13, S-03, M-03 |
@@ -266,3 +269,5 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | 2026-09-29 | Analisi + piano v1 | Completato | Inventario F01–F34, anomalie Q01–Q60 |
 | 2026-09-29 | Decisioni + architettura v0.2 + piano v2 | Completato | D-04…D-20; console System, Messaging, Marketing, log su file per tenant |
 | 2026-09-29 | Chiusura decisioni | Completato | D-21…D-29, default D-01/02/03/07; Manager + OperationRunner; architettura approvata |
+| 2026-09-29 | Skill marketplace | Completato | PR ermaaga/auxilia-claude-skills#2 (merge `3142d49`): skill allineate a D-01…D-29 |
+| 2026-09-29 | P0-01 | Completato | Tag locali sul legacy (`legacy-final-baseline` @ `8fa6622`, `legacy-baseline-security-update` @ `e314e9a`, `legacy-baseline-zip-fix` @ `abf49b0`); baseline D-30 con F35; D-31; ADR 0001–0010; remote `origin` verificato |

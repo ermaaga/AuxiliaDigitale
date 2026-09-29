@@ -1,6 +1,6 @@
 # Parity inventory (contract)
 
-Golden rule: **no legacy feature may be lost.** Each file lists the legacy behaviour (verified in `../Auxilia` at `8fa6622`), the business rules to keep and Given/When/Then acceptance criteria. Tick the criteria when the parity E2E passes; set `Status` to `[x] done` when all are ticked.
+Golden rule: **no legacy feature may be lost.** Each file lists the legacy behaviour (verified in `../Auxilia`; baseline = `develop` @ `8fa6622` + branches `Security_Update` and `fix/zip-download-folder`, decision D-30), the business rules to keep and Given/When/Then acceptance criteria. Tick the criteria when the parity E2E passes; set `Status` to `[x] done` when all are ticked.
 Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and tasks: [`../PLAN.md`](../PLAN.md).
 
 | F | Feature | Status |
@@ -39,6 +39,7 @@ Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and ta
 | [F32](F32-docker-aspire.md) | Docker / Aspire / config | ☐ |
 | [F33](F33-folder-templates-zip.md) | Folder templates + ZIP (new in inventory) | ☐ |
 | [F34](F34-cross-cutting-ui.md) | Cross-cutting UI behaviours (new in inventory) | ☐ |
+| [F35](F35-account-security.md) | Account security: password policy/history/expiry, reset, OTP, login audit (branch `Security_Update`, D-30) | ☐ |
 
 New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing, N02 Platform console / tenants / plans, N03 Outbound messaging.
 

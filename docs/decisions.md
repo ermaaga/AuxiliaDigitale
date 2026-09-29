@@ -4,7 +4,7 @@ Decisioni prese con l'utente. Estende `decisions.md` del marketplace `auxilia-cl
 
 | ID | Tema | Decisione | Data | Stato |
 |---|---|---|---|---|
-| D-01 | Remote GitHub | Repo **privato** `ermaaga/AuxiliaDigitale`, `main` protetto, squash merge (creazione del remote da confermare al momento di P0-02) | 2026-09-29 | Default confermato |
+| D-01 | Remote GitHub | Repo **privato** `ermaaga/AuxiliaDigitale` creato dall'utente (`origin` già configurato); `main` protetto e squash merge consigliati | 2026-09-29 | Confermata |
 | D-02 | Creazione DB tenant da `auxctl` | Sì, con utente Postgres `CREATEDB`/`CREATEROLE`; flag `--existing-database` per DB creati da un DBA | 2026-09-29 | Default confermato |
 | D-03 | "Token di sicurezza" | Refresh token rotante + credenziale client app (`X-Client-Id`, segreto solo per client confidenziali); API key per integrazioni: non ora | 2026-09-29 | Default confermato |
 | D-04 | Visibilità pratiche private | **Come il codice legacy**: pratica visibile se senza specializzazione, o con specializzazione non privata, o se l'operatore possiede la specializzazione. Administrator vede tutto | 2026-09-29 | Confermata |
@@ -34,3 +34,5 @@ Decisioni prese con l'utente. Estende `decisions.md` del marketplace `auxilia-cl
 | D-27 | Pagina di approvazione registrazioni | Consapevolmente **assente** finché non si riprende la registrazione esterna (conferma di D-14) | 2026-09-29 | Confermata |
 | D-28 | Livello di log per tenant | Il System può alzare **temporaneamente** il livello minimo di log (fino a Debug) per un singolo tenant dalla console, senza riavvio; scade da solo all'ora indicata | 2026-09-29 | Confermata |
 | D-29 | Specializzazioni (Q-E) | Gestite dal System (parità con SystemConfigurator); l'assegnazione a operatori/clienti resta ad Admin/Operatore come nel legacy | 2026-09-29 | Default confermato |
+| D-30 | Baseline funzionale del legacy | `develop` @ `8fa6622` **+** branch non uniti `Security_Update` (`e314e9a`: policy password, storico, scadenza, reset, OTP email, audit accessi → F35) **+** `fix/zip-download-folder` (`abf49b0`: percorsi ZIP corretti → F33) | 2026-09-29 | Confermata |
+| D-31 | SMTP e template per specializzazione (branch `NotificationImplementationForRoleSpecialization`) | **Escluso** dalla parità; restano gli account per scopo × ruolo (D-16) | 2026-09-29 | Confermata |
