@@ -34,8 +34,8 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ---
 
 ## 3. Stato corrente
-- Fase: **Fase 0 — in corso** (P0-01 completato)
-- Prossimo task: **P0-02** (scheletro backend)
+- Fase: **Fase 0 — in corso** (P0-01, P0-02 completati)
+- Prossimo task: **P0-03** (workspace frontend)
 - Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
 
 ---
@@ -59,7 +59,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
 | [x] P0-01 | Tag `legacy-final-baseline` su `../Auxilia`; conferma creazione remote GitHub (D-01); ADR iniziali in `docs/adr/` (monorepo, multi-tenant, ruolo System, config nel DB, log su file, niente job schedulati, Manager + OperationRunner). | 0,5 | – | tutte | legacy-migration |
-| [ ] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
+| [x] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
 | [ ] P0-03 | Workspace frontend pnpm: `apps/web`, `packages/{ui,api-client,config}`, Tailwind v4, shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
 | [ ] P0-04 | CI: build+test, NuGetAudit, licenze, `pnpm audit`, OSV-Scanner, gitleaks, Dependabot. | 1 | P0-03 | F32 | dependency-policy |
 | [ ] P0-05 | `Architecture.Tests`: layer, confini tra moduli, blocklist, naming. | 0,5 | P0-02 | – | testing |
@@ -271,3 +271,4 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | 2026-09-29 | Chiusura decisioni | Completato | D-21…D-29, default D-01/02/03/07; Manager + OperationRunner; architettura approvata |
 | 2026-09-29 | Skill marketplace | Completato | PR ermaaga/auxilia-claude-skills#2 (merge `3142d49`): skill allineate a D-01…D-29 |
 | 2026-09-29 | P0-01 | Completato | Tag locali sul legacy (`legacy-final-baseline` @ `8fa6622`, `legacy-baseline-security-update` @ `e314e9a`, `legacy-baseline-zip-fix` @ `abf49b0`); baseline D-30 con F35; D-31; ADR 0001–0010; remote `origin` verificato |
+| 2026-09-29 | P0-02 | Completato | Scheletro backend: `Auxilia.slnx` (12 progetti src + 8 test), `global.json` SDK 10.0.401, build con warning come errori e NuGetAudit, CPM, test xUnit v3 (Microsoft.Testing.Platform), `.editorconfig`, `.gitignore`, `.claude/settings.json`, `deploy/`. AppHost rimandato a P1-03. SDK arm64 installato in `~/.dotnet` |

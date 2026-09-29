@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Auxilia.SharedKernel\Auxilia.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Diagnostics\Auxilia.Diagnostics.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Domain\Auxilia.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Contracts\Auxilia.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Application\Auxilia.Application.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Infrastructure\Auxilia.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Persistence.Catalog\Auxilia.Persistence.Catalog.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Api\Auxilia.Api.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.Worker\Auxilia.Worker.csproj" />
+    <ProjectReference Include="..\..\src\Auxilia.MigrationRunner\Auxilia.MigrationRunner.csproj" />
+    <ProjectReference Include="..\Auxilia.Tests.Common\Auxilia.Tests.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auxilia.Application\Auxilia.Application.csproj" />
+    <ProjectReference Include="..\Auxilia.Domain\Auxilia.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

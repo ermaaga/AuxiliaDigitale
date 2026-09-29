@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auxilia.Infrastructure\Auxilia.Infrastructure.csproj" />
+    <ProjectReference Include="..\Auxilia.Persistence.Catalog\Auxilia.Persistence.Catalog.csproj" />
+    <ProjectReference Include="..\Auxilia.Persistence.Tenant\Auxilia.Persistence.Tenant.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auxilia.SharedKernel\Auxilia.SharedKernel.csproj" />
+    <ProjectReference Include="..\Auxilia.Diagnostics\Auxilia.Diagnostics.csproj" />
+    <ProjectReference Include="..\Auxilia.Domain\Auxilia.Domain.csproj" />
+    <ProjectReference Include="..\Auxilia.Contracts\Auxilia.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

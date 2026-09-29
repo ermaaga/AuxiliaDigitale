@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "auxilia-claude-skills": {
+      "source": { "source": "github", "repo": "ermaaga/auxilia-claude-skills" }
+    }
+  },
+  "enabledPlugins": {
+    "auxilia-dev@auxilia-claude-skills": true
+  }
+}

@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Auxilia.Api/Auxilia.Api.csproj" />
+    <Project Path="src/Auxilia.Application/Auxilia.Application.csproj" />
+    <Project Path="src/Auxilia.Contracts/Auxilia.Contracts.csproj" />
+    <Project Path="src/Auxilia.Diagnostics/Auxilia.Diagnostics.csproj" />
+    <Project Path="src/Auxilia.Domain/Auxilia.Domain.csproj" />
+    <Project Path="src/Auxilia.Infrastructure/Auxilia.Infrastructure.csproj" />
+    <Project Path="src/Auxilia.MigrationRunner/Auxilia.MigrationRunner.csproj" />
+    <Project Path="src/Auxilia.Persistence.Catalog/Auxilia.Persistence.Catalog.csproj" />
+    <Project Path="src/Auxilia.Persistence.Tenant/Auxilia.Persistence.Tenant.csproj" />
+    <Project Path="src/Auxilia.ServiceDefaults/Auxilia.ServiceDefaults.csproj" />
+    <Project Path="src/Auxilia.SharedKernel/Auxilia.SharedKernel.csproj" />
+    <Project Path="src/Auxilia.Worker/Auxilia.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Auxilia.Api.IntegrationTests/Auxilia.Api.IntegrationTests.csproj" />
+    <Project Path="tests/Auxilia.Application.Tests/Auxilia.Application.Tests.csproj" />
+    <Project Path="tests/Auxilia.Architecture.Tests/Auxilia.Architecture.Tests.csproj" />
+    <Project Path="tests/Auxilia.Domain.Tests/Auxilia.Domain.Tests.csproj" />
+    <Project Path="tests/Auxilia.LegacyImport.Tests/Auxilia.LegacyImport.Tests.csproj" />
+    <Project Path="tests/Auxilia.Persistence.Tests/Auxilia.Persistence.Tests.csproj" />
+    <Project Path="tests/Auxilia.Tests.Common/Auxilia.Tests.Common.csproj" />
+    <Project Path="tests/Auxilia.Worker.IntegrationTests/Auxilia.Worker.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

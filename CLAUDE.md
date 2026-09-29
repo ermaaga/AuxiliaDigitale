@@ -7,4 +7,9 @@ Multi-tenant platform for clients, cases, appointments and marketing campaigns: 
 - Architecture: `docs/architecture/ARCHITECTURE.md`.
 - Parity contract (no legacy feature may be lost): `docs/parity/` (F01–F35) and `docs/parity/legacy-quirks.md`; new features: `docs/requirements/` (N01–N03).
 - Before every task load the `auxilia-dev` skills: always `auxilia-architecture` + `auxilia-dependency-policy`; for a story `auxilia-story`; plus those listed in the task.
-- Build/test commands: to be added when the skeleton exists (task P0-02).
+- Backend (.NET SDK pinned in `backend/global.json`; on this Mac the arm64 SDK is in `~/.dotnet` → `export DOTNET_ROOT=$HOME/.dotnet PATH=$HOME/.dotnet:$PATH`):
+  - build: `dotnet build backend/Auxilia.slnx -c Release` (warnings are errors)
+  - test: `dotnet test --solution backend/Auxilia.slnx -c Release --ignore-exit-code 8` (exit 8 = test project without tests; drop the flag once every project has tests)
+  - audit: `dotnet list backend/Auxilia.slnx package --vulnerable --include-transitive`
+- Package versions only in `backend/Directory.Packages.props` (central package management); allowlist in the `auxilia-dependency-policy` skill.
+- Frontend commands: added in task P0-03.
