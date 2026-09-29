@@ -506,6 +506,8 @@ appsettings.*.local.json
 # Local runtime output
 logs/
 storage/
+# Log storage adapters of Auxilia.ServiceDefaults (source code, not data)
+!backend/src/Auxilia.ServiceDefaults/Logging/Storage/
 
 # OS / editors
 .DS_Store
