@@ -34,8 +34,8 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ---
 
 ## 3. Stato corrente
-- Fase: **Fase 0 — in corso** (P0-01…P0-04 completati)
-- Prossimo task: **P0-05** (Architecture.Tests)
+- Fase: **Fase 1 — in corso** (Fase 0 completata; P1-01 completato)
+- Prossimo task: **P1-02** (Diagnostics: codici evento)
 - Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
 
 ---
@@ -62,16 +62,16 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [x] P0-02 | Scheletro backend (`Auxilia.slnx`, `global.json`, `Directory.Build.props/Packages.props`, progetti §3 architettura, test), `deploy/`, `.editorconfig`, `.gitignore`, `.claude/settings.json` (marketplace), `CLAUDE.md` con comandi. | 1 | P0-01 | F32 | architecture |
 | [x] P0-03 | Workspace frontend pnpm: `apps/web`, `packages/{ui,api-client,config}`, Tailwind v4, shadcn/ui. | 1 | P0-02 | – | frontend-feature, ui-design |
 | [x] P0-04 | CI: build+test, NuGetAudit, licenze, `pnpm audit`, OSV-Scanner, gitleaks, Dependabot. | 1 | P0-03 | F32 | dependency-policy |
-| [ ] P0-05 | `Architecture.Tests`: layer, confini tra moduli, blocklist, naming. | 0,5 | P0-02 | – | testing |
+| [x] P0-05 | `Architecture.Tests`: layer, confini tra moduli, blocklist, naming. | 0,5 | P0-02 | – | testing |
 
 ### Fase 1 — Fondamenta backend (≈ 15 gg)
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
-| [ ] P1-01 | `SharedKernel`: Result, Error, Entity/AggregateRoot, eventi, guard, Guid v7 + test. | 1 | P0-05 | – | backend-feature |
+| [x] P1-01 | `SharedKernel`: Result, Error, Entity/AggregateRoot, eventi, guard, Guid v7 + test. | 1 | P0-05 | – | backend-feature |
 | [ ] P1-02 | `Diagnostics`: EventCodes (19000 Marketing, 25000 Messaging), `Log.*`, `Errors.*`, registro generato, test unicità/range. | 1 | P1-01 | F25 | log-codes |
 | [ ] P1-03 | `ServiceDefaults` + `AppHost`; Serilog: console JSON + **file giornalieri per tenant** (`logs/tenants/{slug}/…`, `logs/platform/…`) su storage `local-file`/`azure-blob`, Information+, mascheramento, **livello minimo per tenant a tempo** (D-28); OTel predisposto; health. | 1,5 | P1-02 | F25, F32 | log-codes, observability |
 | [ ] P1-04 | Host API: versioning, ProblemDetails+`errorCode`, `IExceptionHandler`, OpenAPI+Scalar, export OpenAPI in CI, header sicurezza. | 1 | P1-03 | F28, F29 | api-contract |
-| [ ] P1-05 | Base applicativa (D-26): convenzioni Manager/QueryService/Api pubblica, `IOperationRunner` (traccia, scope di log, transazione+outbox, metriche, log di esito con codice, mappatura eccezioni), catalogo `Operations.*`, `ICurrentUser`, validazione, contratto di paginazione, registrazione DI + test. | 1 | P1-04 | F28 | backend-feature, log-codes |
+| [ ] P1-05 | Base applicativa (D-26) + **gate di coverage ≥ 80% Domain/Application** (serve `Microsoft.Testing.Extensions.CodeCoverage`: `coverlet.collector` non funziona con Microsoft.Testing.Platform): convenzioni Manager/QueryService/Api pubblica, `IOperationRunner` (traccia, scope di log, transazione+outbox, metriche, log di esito con codice, mappatura eccezioni), catalogo `Operations.*`, `ICurrentUser`, validazione, contratto di paginazione, registrazione DI + test. | 1 | P1-04 | F28 | backend-feature, log-codes |
 | [ ] P1-06 | `Persistence.Catalog`: tenants, domini, **modules, plans, plan_modules, tenant_plans, tenant_module_overrides**, platform_users, platform_settings, client_applications, migration_runs, chiavi DP; seed piano `standard`. | 1,5 | P1-05 | F22, N02 | multitenancy, ef-migration |
 | [ ] P1-07 | Tenancy: `ITenantContext`, risoluzione (claim/header/host), 403 cross-tenant, `ITenantDbContextFactory`, test isolamento. | 1 | P1-06 | – | multitenancy |
 | [ ] P1-08 | `Persistence.Tenant` base: schemi, audit interceptor (`actor_type`), `xmin`, soft delete, `ops.*` (incl. `job_runs`), `IDataMigration` runner, Persistence.Tests. | 1,5 | P1-07 | F29, F30 | ef-migration, data-migration |
@@ -274,3 +274,5 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | 2026-09-29 | P0-02 | Completato | Scheletro backend: `Auxilia.slnx` (12 progetti src + 8 test), `global.json` SDK 10.0.401, build con warning come errori e NuGetAudit, CPM, test xUnit v3 (Microsoft.Testing.Platform), `.editorconfig`, `.gitignore`, `.claude/settings.json`, `deploy/`. AppHost rimandato a P1-03. SDK arm64 installato in `~/.dotnet` |
 | 2026-09-29 | P0-03 | Completato | Workspace pnpm: `apps/web` Next.js 16.3.7 (App Router, TS strict, Turbopack), `@auxilia/ui` (token chiaro/scuro, Tailwind v4, shadcn button), `@auxilia/api-client` (openapi-fetch, schema segnaposto), `@auxilia/config` (tsconfig, prettier); Node 24 LTS (`.nvmrc`, engine-strict); lint/typecheck/build/format/audit verdi. Licenze da decidere: LGPL-3.0 (`@img/sharp-libvips`, via next), CC-BY-4.0 (`caniuse-lite`), BlueOak/Python-2.0/CC0 (tool) |
 | 2026-09-29 | P0-04 | Completato | CI GitHub Actions (backend, frontend, gitleaks CLI, osv-scanner CLI), action fissate per SHA, Dependabot, lock file NuGet, gate licenze .NET/pnpm con eccezioni approvate (ADR 0011); prima esecuzione verde (PR #3) |
+| 2026-09-29 | P0-05 | Completato | 240 test di architettura: grafo dei riferimenti tra progetti, dipendenze tra layer (NetArchTest), confini tra moduli via `Public`, Manager/QueryService sealed e non pubblici, niente handler CQRS, niente BackgroundService nel Worker, pacchetti in blocklist nei lock file; verificato con 6 violazioni iniettate (tutte rilevate). Protezione di `main` non disponibile sul piano GitHub gratuito (repo privato): attivi solo squash merge e cancellazione branch |
+| 2026-09-29 | P1-01 | Completato | SharedKernel: `Error` (codice AUX, tipo, dettagli di validazione), `Result`/`Result<T>` (Match, Map, BindAsync), `Entity`, `AggregateRoot` con eventi di dominio, `IdGenerator` Guid v7 (anche da `TimeProvider`); guard = helper BCL (`ThrowIfNull`…); 27 test. CA1716 disattivata (solo C#) |

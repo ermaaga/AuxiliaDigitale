@@ -4,7 +4,7 @@ Decisioni prese con l'utente. Estende `decisions.md` del marketplace `auxilia-cl
 
 | ID | Tema | Decisione | Data | Stato |
 |---|---|---|---|---|
-| D-01 | Remote GitHub | Repo **privato** `ermaaga/AuxiliaDigitale` creato dall'utente (`origin` già configurato); `main` protetto e squash merge consigliati | 2026-09-29 | Confermata |
+| D-01 | Remote GitHub | Repo **privato** `ermaaga/AuxiliaDigitale` (`origin`). Solo squash merge, branch cancellati dopo il merge. **Branch protection/ruleset non disponibili** sul piano gratuito per repo privati: il flusso resta PR + CI verde per convenzione; attivarla se si passa a GitHub Pro | 2026-09-29 | Confermata |
 | D-02 | Creazione DB tenant da `auxctl` | Sì, con utente Postgres `CREATEDB`/`CREATEROLE`; flag `--existing-database` per DB creati da un DBA | 2026-09-29 | Default confermato |
 | D-03 | "Token di sicurezza" | Refresh token rotante + credenziale client app (`X-Client-Id`, segreto solo per client confidenziali); API key per integrazioni: non ora | 2026-09-29 | Default confermato |
 | D-04 | Visibilità pratiche private | **Come il codice legacy**: pratica visibile se senza specializzazione, o con specializzazione non privata, o se l'operatore possiede la specializzazione. Administrator vede tutto | 2026-09-29 | Confermata |
