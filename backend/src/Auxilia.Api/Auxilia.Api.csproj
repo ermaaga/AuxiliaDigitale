@@ -9,4 +9,14 @@
     <ProjectReference Include="..\Auxilia.ServiceDefaults\Auxilia.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Http" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Auxilia.Api.IntegrationTests" />
+  </ItemGroup>
+
 </Project>

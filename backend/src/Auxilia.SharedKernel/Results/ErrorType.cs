@@ -20,4 +20,7 @@ public enum ErrorType
 
     /// <summary>Unexpected failure (500).</summary>
     Failure,
+
+    /// <summary>The caller's version of the resource (<c>If-Match</c>) is not the current one (412).</summary>
+    PreconditionFailed,
 }

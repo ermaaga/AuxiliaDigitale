@@ -61,6 +61,14 @@
           "xunit.v3.mtp-v2": "[4.0.1]"
         }
       },
+      "Asp.Versioning.Abstractions": {
+        "type": "Transitive",
+        "resolved": "10.2.1",
+        "contentHash": "jMBztsVim+rYVrkNY23dMuOjTGXGQ9+je1xb3i17KgUof7OcBZtMMDduEWoCQ52SpTlYqKsuzgJyUMCMOFCBfg==",
+        "dependencies": {
+          "Microsoft.Extensions.Primitives": "10.0.0"
+        }
+      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.55.0",
@@ -384,6 +392,11 @@
         "resolved": "8.14.0",
         "contentHash": "iwbCpSjD3ehfTwBhtSNEtKPK0ICun6ov7Ibx6ISNA9bfwIyzI2Siwyi9eJFCJBwxowK9xcA1mj+jBWiigeqgcQ=="
       },
+      "Microsoft.OpenApi": {
+        "type": "Transitive",
+        "resolved": "2.12.0",
+        "contentHash": "0xB/be+f6qYOhvQPUrVsLrau+fkowYv6gt9RIkajMhwT7sZnqtcA797yW3bS5kgSje+AQW4xZgyLnW641YFioQ=="
+      },
       "Microsoft.Testing.Extensions.Telemetry": {
         "type": "Transitive",
         "resolved": "2.4.0",
@@ -671,12 +684,15 @@
       "auxilia.api": {
         "type": "Project",
         "dependencies": {
+          "Asp.Versioning.Http": "[10.2.3, )",
           "Auxilia.Application": "[1.0.0, )",
           "Auxilia.Contracts": "[1.0.0, )",
           "Auxilia.Infrastructure": "[1.0.0, )",
           "Auxilia.Persistence.Catalog": "[1.0.0, )",
           "Auxilia.Persistence.Tenant": "[1.0.0, )",
-          "Auxilia.ServiceDefaults": "[1.0.0, )"
+          "Auxilia.ServiceDefaults": "[1.0.0, )",
+          "Microsoft.AspNetCore.OpenApi": "[10.0.12, )",
+          "Scalar.AspNetCore": "[2.17.11, )"
         }
       },
       "auxilia.application": {
@@ -771,6 +787,15 @@
           "Auxilia.ServiceDefaults": "[1.0.0, )"
         }
       },
+      "Asp.Versioning.Http": {
+        "type": "CentralTransitive",
+        "requested": "[10.2.3, )",
+        "resolved": "10.2.3",
+        "contentHash": "tx/OIyp39OP2uM57MHn8GqRSCi7+XYFU3/KqcPeiqt8rQE+oiK4bRcMXZvShtiS+SbtifqXy4zg6vr5+LPubNQ==",
+        "dependencies": {
+          "Asp.Versioning.Abstractions": "10.2.1"
+        }
+      },
       "Azure.Storage.Blobs": {
         "type": "CentralTransitive",
         "requested": "[12.29.2, )",
@@ -786,6 +811,15 @@
         "requested": "[35.6.5, )",
         "resolved": "35.6.5",
         "contentHash": "2FGZn+aAVHjmCgClgmGkTDBVZk0zkLvAKGaxEf5JL6b3i9JbHTE4wnuY4vHCuzlCmJdU6VZjgDfHwmYkQF8VAA=="
+      },
+      "Microsoft.AspNetCore.OpenApi": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "7RnQ/UKn+kK3JDLmTpW+vVqNErWthGPAVAy1aIiBzv4ucQ6g9NFvOJUuT0PHcpvcJxGVxctMxj6t+NESWMrgHQ==",
+        "dependencies": {
+          "Microsoft.OpenApi": "[2.12.0, 3.0.0)"
+        }
       },
       "Microsoft.Extensions.Http.Resilience": {
         "type": "CentralTransitive",
@@ -854,6 +888,12 @@
         "dependencies": {
           "OpenTelemetry.Api": "[1.19.0, 2.0.0)"
         }
+      },
+      "Scalar.AspNetCore": {
+        "type": "CentralTransitive",
+        "requested": "[2.17.11, )",
+        "resolved": "2.17.11",
+        "contentHash": "aSDKZFaJQs/JKEhCwf9pzXz8eJ+mFSne1WWrtdr9bHnLmcfkZOPLtO5vJzMLYD3Z7nCT6R6t09ek5WrIoa6tKw=="
       },
       "Serilog.AspNetCore": {
         "type": "CentralTransitive",

@@ -13,6 +13,12 @@ public sealed class ErrorTests
         error.Type.ShouldBe(ErrorType.NotFound);
     }
 
+    [Fact]
+    public void PreconditionFailed_HasItsOwnType()
+    {
+        Error.PreconditionFailed(10011, "Version mismatch").Type.ShouldBe(ErrorType.PreconditionFailed);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]

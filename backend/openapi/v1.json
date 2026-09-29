@@ -1,0 +1,9 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Auxilia API",
+    "description": "Tenant and platform API of Auxilia. Errors are RFC 9457 ProblemDetails with errorCode (AUX-NNNNN) and traceId.",
+    "version": "v1"
+  },
+  "paths": {}
+}

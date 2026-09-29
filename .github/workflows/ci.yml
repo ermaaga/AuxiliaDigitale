@@ -70,6 +70,10 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: API client in sync with backend/openapi/v1.json
+        run: |
+          pnpm --filter @auxilia/api-client generate
+          git diff --exit-code -- packages/api-client/src/schema.d.ts
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm format:check

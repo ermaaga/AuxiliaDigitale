@@ -30,5 +30,14 @@ public static partial class EventCodes
 
         /// <summary>The log file storage works again after <see cref="LogStorageUnavailable"/> (written by the file sink).</summary>
         public const int LogStorageRecovered = 10016;
+
+        /// <summary>No endpoint matches the route (404).</summary>
+        public const int EndpointNotFound = 10017;
+
+        /// <summary>The route exists but not for this HTTP method (405).</summary>
+        public const int MethodNotAllowed = 10018;
+
+        /// <summary>The request body, route or query values cannot be read (400), e.g. malformed JSON.</summary>
+        public const int RequestInvalid = 10019;
     }
 }

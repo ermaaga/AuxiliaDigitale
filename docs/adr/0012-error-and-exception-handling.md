@@ -11,7 +11,7 @@ The legacy app swallowed exceptions (`catch { }`), mixed technical messages with
 ### 1. Three categories
 | Category | Examples | Mechanism |
 |---|---|---|
-| **Expected failure** (business rule, input, authorization, not found) | invalid fiscal code, case not found, transition not allowed, employee cannot see a private case | Returned as `Result.Failure(Error)` — never thrown. `Error` = `Code` (event code, shown as `AUX-NNNNN`), `ErrorType` (Validation, NotFound, Conflict, Forbidden, Unauthorized, Failure), technical English `Description`, `ValidationErrors` (field → translation keys). |
+| **Expected failure** (business rule, input, authorization, not found) | invalid fiscal code, case not found, transition not allowed, employee cannot see a private case | Returned as `Result.Failure(Error)` — never thrown. `Error` = `Code` (event code, shown as `AUX-NNNNN`), `ErrorType` (Validation, NotFound, Conflict, Forbidden, Unauthorized, Failure, PreconditionFailed — the last one added in P1-04 for `If-Match` mismatch, 412), technical English `Description`, `ValidationErrors` (field → translation keys). |
 | **Known technical exception** | `DbUpdateConcurrencyException`, `If-Match` mismatch, idempotency key reused, DB timeout, client cancellation | Converted to its dedicated code by `IOperationRunner` / the global handler: 409 `AUX-10010`, 412 `AUX-10011`, 409 `AUX-10012`, timeout code, client cancellation not logged as an error. |
 | **Unexpected exception** (bug) | unexpected null, invariant broken by a programming error | Not caught locally. Bubbles to the global `IExceptionHandler`: one Error log `AUX-10001` with exception and `TraceId`; generic 500 without internal details. |
 
