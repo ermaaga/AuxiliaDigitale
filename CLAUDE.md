@@ -12,4 +12,8 @@ Multi-tenant platform for clients, cases, appointments and marketing campaigns: 
   - test: `dotnet test --solution backend/Auxilia.slnx -c Release --ignore-exit-code 8` (exit 8 = test project without tests; drop the flag once every project has tests)
   - audit: `dotnet list backend/Auxilia.slnx package --vulnerable --include-transitive`
 - Package versions only in `backend/Directory.Packages.props` (central package management); allowlist in the `auxilia-dependency-policy` skill.
-- Frontend commands: added in task P0-03.
+- Frontend (`frontend/`, pnpm workspace; Node 24 LTS per `.nvmrc` — on this Mac `export PATH=/opt/homebrew/opt/node@24/bin:$PATH`):
+  - install: `pnpm install` · dev: `pnpm dev` · build: `pnpm build`
+  - checks: `pnpm lint && pnpm typecheck && pnpm format:check && pnpm audit --audit-level moderate`
+  - Next.js 16: read `frontend/apps/web/AGENTS.md` and the bundled docs in `node_modules/next/dist/docs/` before writing Next code.
+  - shadcn components live in `frontend/packages/ui` (see its README: make imports relative after `shadcn add`).

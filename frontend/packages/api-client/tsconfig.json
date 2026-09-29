@@ -1,0 +1,4 @@
+{
+  "extends": "@auxilia/config/tsconfig/library.json",
+  "include": ["src"]
+}

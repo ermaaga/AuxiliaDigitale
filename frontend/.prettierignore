@@ -1,0 +1,6 @@
+node_modules
+.next
+out
+coverage
+pnpm-lock.yaml
+packages/api-client/src/schema.d.ts

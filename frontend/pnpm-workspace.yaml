@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Native build scripts allowed to run on install (supply chain: explicit allowlist)
+onlyBuiltDependencies:
+  - sharp
+  - unrs-resolver
