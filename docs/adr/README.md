@@ -13,3 +13,4 @@
 | [0009](0009-outbound-messaging-with-n-accounts-chosen-by-purpose-and-sender-role.md) | Outbound messaging with N accounts chosen by purpose and sender role | Accepted | D-16, D-31 |
 | [0010](0010-legacy-parity-contract-and-baseline.md) | Legacy parity contract and baseline | Accepted | D-09, D-14, D-24, D-30 |
 | [0011](0011-third-party-license-exceptions.md) | Third-party license exceptions and supply-chain tooling | Accepted | dependency policy |
+| [0012](0012-error-and-exception-handling.md) | Error and exception handling | Accepted | ADR 0004, 0006, 0007 |
