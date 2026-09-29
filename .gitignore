@@ -510,3 +510,8 @@ storage/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# pnpm workspace packages (the .NET template above ignores any "packages/" folder)
+!frontend/packages/
+!frontend/packages/**
+frontend/packages/**/node_modules/
