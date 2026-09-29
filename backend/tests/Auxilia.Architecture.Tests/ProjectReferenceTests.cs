@@ -57,8 +57,13 @@ public sealed class ProjectReferenceTests
     [InlineData(Solution.Domain)]
     public void CoreProjects_HaveNoPackageReferences(string project)
     {
-        // Diagnostics may later reference Microsoft.Extensions.Logging.Abstractions only; Domain/SharedKernel/Contracts stay pure.
         ReadElements(project, "PackageReference").ShouldBeEmpty($"{project} must not reference NuGet packages");
+    }
+
+    [Fact]
+    public void Diagnostics_ReferencesOnlyLoggingAbstractions()
+    {
+        ReadElements(Solution.Diagnostics, "PackageReference").ShouldBe(["Microsoft.Extensions.Logging.Abstractions"]);
     }
 
     private static string[] ReadProjectReferences(string project) =>

@@ -34,8 +34,8 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ---
 
 ## 3. Stato corrente
-- Fase: **Fase 1 — in corso** (Fase 0 completata; P1-01 completato)
-- Prossimo task: **P1-02** (Diagnostics: codici evento)
+- Fase: **Fase 1 — in corso** (Fase 0 completata; P1-01, P1-02 completati)
+- Prossimo task: **P1-03** (ServiceDefaults + AppHost, Serilog su file giornalieri per tenant)
 - Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
 
 ---
@@ -68,7 +68,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | ID | Task | Stima | Dip. | F/N | Skill |
 |---|---|---|---|---|---|
 | [x] P1-01 | `SharedKernel`: Result, Error, Entity/AggregateRoot, eventi, guard, Guid v7 + test. | 1 | P0-05 | – | backend-feature |
-| [ ] P1-02 | `Diagnostics`: EventCodes (19000 Marketing, 25000 Messaging), `Log.*`, `Errors.*`, registro generato, test unicità/range. | 1 | P1-01 | F25 | log-codes |
+| [x] P1-02 | `Diagnostics`: EventCodes (19000 Marketing, 25000 Messaging), `Log.*`, `Errors.*`, registro generato, test unicità/range. | 1 | P1-01 | F25 | log-codes |
 | [ ] P1-03 | `ServiceDefaults` + `AppHost`; Serilog: console JSON + **file giornalieri per tenant** (`logs/tenants/{slug}/…`, `logs/platform/…`) su storage `local-file`/`azure-blob`, Information+, mascheramento, **livello minimo per tenant a tempo** (D-28); OTel predisposto; health. | 1,5 | P1-02 | F25, F32 | log-codes, observability |
 | [ ] P1-04 | Host API: versioning, ProblemDetails+`errorCode`, `IExceptionHandler`, OpenAPI+Scalar, export OpenAPI in CI, header sicurezza. | 1 | P1-03 | F28, F29 | api-contract |
 | [ ] P1-05 | Base applicativa (D-26) + **gate di coverage ≥ 80% Domain/Application** (serve `Microsoft.Testing.Extensions.CodeCoverage`: `coverlet.collector` non funziona con Microsoft.Testing.Platform): convenzioni Manager/QueryService/Api pubblica, `IOperationRunner` (traccia, scope di log, transazione+outbox, metriche, log di esito con codice, mappatura eccezioni), catalogo `Operations.*`, `ICurrentUser`, validazione, contratto di paginazione, registrazione DI + test. | 1 | P1-04 | F28 | backend-feature, log-codes |
@@ -276,3 +276,4 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | 2026-09-29 | P0-04 | Completato | CI GitHub Actions (backend, frontend, gitleaks CLI, osv-scanner CLI), action fissate per SHA, Dependabot, lock file NuGet, gate licenze .NET/pnpm con eccezioni approvate (ADR 0011); prima esecuzione verde (PR #3) |
 | 2026-09-29 | P0-05 | Completato | 240 test di architettura: grafo dei riferimenti tra progetti, dipendenze tra layer (NetArchTest), confini tra moduli via `Public`, Manager/QueryService sealed e non pubblici, niente handler CQRS, niente BackgroundService nel Worker, pacchetti in blocklist nei lock file; verificato con 6 violazioni iniettate (tutte rilevate). Protezione di `main` non disponibile sul piano GitHub gratuito (repo privato): attivi solo squash merge e cancellazione branch |
 | 2026-09-29 | P1-01 | Completato | SharedKernel: `Error` (codice AUX, tipo, dettagli di validazione), `Result`/`Result<T>` (Match, Map, BindAsync), `Entity`, `AggregateRoot` con eventi di dominio, `IdGenerator` Guid v7 (anche da `TimeProvider`); guard = helper BCL (`ThrowIfNull`…); 27 test. CA1716 disattivata (solo C#) |
+| 2026-09-29 | P1-02 | Completato | `Auxilia.Diagnostics`: 20 range `EventCodes` con `[EventCodeRange]` (Marketing 19000, Messaging 25000; bus Rebus 23000 = `Bus`), codici di base 10001, 10010–10014, 11004; `Log.*` con `[LoggerMessage]`, `Errors.*`; `EventRegistry` + `auxctl diagnostics registry` → `docs/log-event-registry.md`; 12 test in `EventCodeTests` (range fissi e allineati, unicità, codici nel range, `EventName`, un log per codice, factory nel proprio range, niente log a stringa, registro allineato), verificati con violazioni iniettate. I log a stringa sono bloccati anche in compilazione da CA1848. Rimandati: `Errors.Host.PreconditionFailed` (412, `ErrorType` non ha un tipo per 412: si decide in P1-04) e catalogo `Operations.*` (P1-05) |
