@@ -12,7 +12,8 @@ internal sealed class TestModule(
     string code,
     ModuleKind kind = ModuleKind.Optional,
     int rangeStart = 90000,
-    IReadOnlyList<NavigationEntry>? navigation = null) : IModuleDescriptor
+    IReadOnlyList<NavigationEntry>? navigation = null,
+    IReadOnlyList<PermissionDefinition>? permissions = null) : IModuleDescriptor
 {
     public string Code => code;
 
@@ -20,7 +21,7 @@ internal sealed class TestModule(
 
     public int EventCodeRangeStart => rangeStart;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = permissions ?? [];
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 

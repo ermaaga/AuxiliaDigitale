@@ -18,13 +18,13 @@ public sealed class DocumentsModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 16000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = DocumentsPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = DocumentsSettings.All;
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("documents", "/documents", "folder", 60, [TenantRole.Administrator, TenantRole.Employee]),
+        new("documents", "/documents", "folder", 60, [TenantRole.Administrator, TenantRole.Employee], DocumentsPermissions.ViewDocuments),
     ];
 
     public void AddServices(IServiceCollection services)

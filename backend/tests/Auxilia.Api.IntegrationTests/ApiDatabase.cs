@@ -1,13 +1,17 @@
 using Auxilia.Api.IntegrationTests;
+using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
+using Auxilia.Persistence.Tenant.Identity;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Npgsql;
 
@@ -96,6 +100,12 @@ public sealed class ApiDatabase : IAsyncLifetime
             await using var dataSource = NpgsqlDataSource.Create(connectionString);
             await using var tenantDb = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
             await tenantDb.Database.MigrateAsync();
+
+            // Default role permissions, as auxctl does after every tenant migration.
+            await using var application = new ServiceCollection().AddLogging().AddApplication().BuildServiceProvider();
+            var synchronizer = new PermissionSynchronizer(
+                application.GetRequiredService<IModuleRegistry>(), application.GetRequiredService<ILogger<PermissionSynchronizer>>());
+            await synchronizer.ApplyAsync(tenantDb, CancellationToken.None);
         }
 
         lifecycle(tenant);

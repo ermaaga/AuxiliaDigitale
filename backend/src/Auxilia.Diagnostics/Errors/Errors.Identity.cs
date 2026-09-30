@@ -43,6 +43,9 @@ public static partial class Errors
             Error.Validation(EventCodes.Identity.UserEmailMissing, "The user has no e-mail address",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["email"] = ["validation.user.emailMissing"] });
 
+        public static Error PermissionDenied() =>
+            Error.Forbidden(EventCodes.Identity.PermissionDenied, "The caller is not allowed to perform this operation");
+
         public static Error ClientIdTaken() =>
             Error.Conflict(EventCodes.Identity.ClientIdTaken, "A client application with this client id already exists");
     }

@@ -58,5 +58,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.SigningKeyRotated, EventName = "Security.SigningKeyRotated",
             Level = LogLevel.Information, Message = "Token signing key {KeyId} is now active")]
         public static partial void SigningKeyRotated(ILogger logger, string keyId);
+
+        [LoggerMessage(EventId = EventCodes.Security.PermissionDenied, EventName = "Security.PermissionDenied",
+            Level = LogLevel.Warning, Message = "User {UserId} denied {Permission} ({Reason})")]
+        public static partial void PermissionDenied(ILogger logger, Guid? userId, string permission, string reason);
     }
 }

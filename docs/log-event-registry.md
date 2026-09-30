@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 15 | 10024 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 27 | 12028 |
+| 12000–12999 | Identity | Identity / Auth | 29 | 12030 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 13 | 29014 |
+| 29000–29999 | Security | Security events | 14 | 29015 |
 
 ## Codes
 
@@ -93,6 +93,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12025 | Identity.UserEmailMissing | – | Validation | – | – |
 | AUX-12026 | Identity.ClientApplicationAdded | – | – | Identity.AddClientApplication (success) | – |
 | AUX-12027 | Identity.ClientIdTaken | – | Conflict | – | – |
+| AUX-12028 | Identity.PermissionDenied | – | Forbidden | – | – |
+| AUX-12029 | Identity.PermissionsSynchronized | Information | – | – | Permissions aligned with the modules: {Added} added, {Removed} removed, {Granted} default grants |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |
@@ -154,3 +156,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29011 | Security.AccountActivated | Information | – | – | User {UserId} activated the account |
 | AUX-29012 | Security.ClientRejected | Warning | – | – | Token request rejected for client {ClientId}: {Reason} |
 | AUX-29013 | Security.SigningKeyRotated | Information | – | – | Token signing key {KeyId} is now active |
+| AUX-29014 | Security.PermissionDenied | Warning | – | – | User {UserId} denied {Permission} ({Reason}) |

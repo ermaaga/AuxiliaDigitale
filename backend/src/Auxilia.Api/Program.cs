@@ -47,6 +47,7 @@ if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rab
 
 builder.Services.AddAuxiliaAuthentication(builder.Configuration);
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 

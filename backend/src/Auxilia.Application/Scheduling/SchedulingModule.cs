@@ -18,13 +18,13 @@ public sealed class SchedulingModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 15000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = SchedulingPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("appointments", "/appointments", "calendar", 50, [TenantRole.Employee, TenantRole.Client]),
+        new("appointments", "/appointments", "calendar", 50, [TenantRole.Employee, TenantRole.Client], SchedulingPermissions.ViewAppointments),
     ];
 
     public void AddServices(IServiceCollection services)

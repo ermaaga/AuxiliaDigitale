@@ -43,5 +43,8 @@ public static partial class EventCodes
 
         /// <summary>The token signing key was rotated.</summary>
         public const int SigningKeyRotated = 29013;
+
+        /// <summary>A tenant user was denied an operation for a missing permission or by a resource policy.</summary>
+        public const int PermissionDenied = 29014;
     }
 }

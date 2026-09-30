@@ -8,6 +8,9 @@ public interface IModuleRegistry
 {
     IReadOnlyList<IModuleDescriptor> All { get; }
 
+    /// <summary>Every declared permission code → its module code.</summary>
+    IReadOnlyDictionary<string, string> PermissionModules { get; }
+
     IModuleDescriptor? Find(string code);
 }
 

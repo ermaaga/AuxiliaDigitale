@@ -85,5 +85,11 @@ public static partial class EventCodes
 
         /// <summary>A client application with the same client id already exists (409).</summary>
         public const int ClientIdTaken = 12027;
+
+        /// <summary>The caller lacks the permission, or a resource policy denies the resource (403).</summary>
+        public const int PermissionDenied = 12028;
+
+        /// <summary>The tenant's permissions were aligned with the module descriptors (new ones granted to their default roles).</summary>
+        public const int PermissionsSynchronized = 12029;
     }
 }

@@ -37,8 +37,9 @@ public interface IModuleDescriptor
 }
 
 /// <summary>
-/// A permission of a module (<c>cases.manage</c>); <see cref="DefaultRoles"/> seeds <c>identity.role_permissions</c>
-/// (P2-03), which reproduces the legacy per-role pages (F22).
+/// A permission of a module (<c>&lt;module&gt;.&lt;area&gt;.&lt;action&gt;</c>, e.g. <c>cases.cases.manage</c>);
+/// <see cref="DefaultRoles"/> are granted in <c>identity.role_permissions</c> when a tenant first sees the permission
+/// (synchronised at every tenant migration), reproducing the legacy per-role pages (F22).
 /// </summary>
 public sealed record PermissionDefinition(string Code, IReadOnlyList<TenantRole> DefaultRoles)
 {
@@ -47,7 +48,7 @@ public sealed record PermissionDefinition(string Code, IReadOnlyList<TenantRole>
 
 /// <summary>
 /// A link of the tenant app menu (<c>/me/navigation</c>): shown to <see cref="Roles"/> when the module is visible to the
-/// role and, from P2-03, the user has <see cref="Permission"/>. <see cref="Route"/> is relative to <c>/{tenant}</c>.
+/// role and the user has <see cref="Permission"/> (declared by the same module). <see cref="Route"/> is relative to <c>/{tenant}</c>.
 /// </summary>
 public sealed record NavigationEntry(
     string Key,

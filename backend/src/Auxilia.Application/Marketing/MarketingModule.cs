@@ -18,13 +18,13 @@ public sealed class MarketingModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 19000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = MarketingPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("marketing", "/marketing", "megaphone", 80, [TenantRole.Administrator, TenantRole.Employee]),
+        new("marketing", "/marketing", "megaphone", 80, [TenantRole.Administrator, TenantRole.Employee], MarketingPermissions.ViewCampaigns),
     ];
 
     public void AddServices(IServiceCollection services)

@@ -52,4 +52,23 @@ public sealed class ModuleDescriptorTests
             module.Settings.Select(setting => setting.Module).ShouldAllBe(name => name == owner);
         }
     }
+
+    [Fact]
+    public void Permissions_AreModuleScopedGrantedToSomeRoleAndGuardEveryNavigationEntry()
+    {
+        foreach (var module in Modules)
+        {
+            module.Permissions.ShouldAllBe(permission => permission.Code.StartsWith(module.Code + ".", StringComparison.Ordinal) && permission.DefaultRoles.Count > 0);
+
+            // Every menu entry needs a permission its default roles hold, so the default menu equals the legacy one (F22).
+            foreach (var entry in module.Navigation)
+            {
+                var permission = module.Permissions.SingleOrDefault(item => item.Code == entry.Permission);
+                permission.ShouldNotBeNull($"navigation entry {entry.Key}");
+                entry.Roles.ShouldAllBe(role => permission.DefaultRoles.Contains(role), $"navigation entry {entry.Key}");
+            }
+        }
+
+        Modules.SelectMany(module => module.Permissions).Select(permission => permission.Code).ShouldBeUnique();
+    }
 }

@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Jobs;
@@ -52,6 +53,8 @@ public static class TenantPersistence
         services.AddScoped<IMessagingDataFactory, MessagingDataFactory>();
         services.AddScoped<IIdentityDataFactory, IdentityDataFactory>();
         services.AddScoped<ISessionDataFactory, SessionDataFactory>();
+        services.AddScoped<IRolePermissionReader, RolePermissionReader>();
+        services.AddSingleton<PermissionSynchronizer>();
 
         return services;
     }
