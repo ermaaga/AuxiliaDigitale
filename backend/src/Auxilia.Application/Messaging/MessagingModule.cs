@@ -1,8 +1,10 @@
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
+using Auxilia.Application.Messaging.Public;
 using Auxilia.Domain.Platform;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Messaging;
 
@@ -25,5 +27,11 @@ public sealed class MessagingModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddScoped<MessagingSnapshotCache>();
+        services.TryAddScoped<IMessagingAccountManager, MessagingAccountManager>();
+        services.TryAddScoped<IMessageDispatcher, MessageDispatcher>();
+        services.TryAddScoped<IOutboundMessageManager, OutboundMessageManager>();
     }
 }

@@ -24,6 +24,10 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.12" />
   </ItemGroup>
+  <ItemGroup Label="Outbound channels and templates">
+    <PackageVersion Include="Fluid.Core" Version="2.40.0" />
+    <PackageVersion Include="MailKit" Version="4.18.1" />
+  </ItemGroup>
   <ItemGroup Label="Messaging">
     <PackageVersion Include="Rebus" Version="8.9.5" />
     <PackageVersion Include="Rebus.PostgreSql" Version="9.1.1" />

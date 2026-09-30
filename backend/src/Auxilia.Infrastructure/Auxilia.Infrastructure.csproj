@@ -6,6 +6,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Fluid.Core" />
+    <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />

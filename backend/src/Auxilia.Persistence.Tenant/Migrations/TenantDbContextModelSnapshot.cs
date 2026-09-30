@@ -125,6 +125,344 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("user_settings", "configuration");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Messaging.MessageTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsCustomized")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_customized");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_system");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("language");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("subject");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_message_templates");
+
+                    b.HasIndex("Channel", "Code", "Language")
+                        .IsUnique()
+                        .HasDatabaseName("ix_message_templates_channel_code_language");
+
+                    b.ToTable("message_templates", "messaging");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Messaging.MessagingAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("SecretProtected")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("secret_protected");
+
+                    b.Property<string>("SettingsJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messaging_accounts");
+
+                    b.HasIndex("Channel")
+                        .IsUnique()
+                        .HasDatabaseName("ux_messaging_accounts_default_per_channel")
+                        .HasFilter("is_default");
+
+                    b.ToTable("messaging_accounts", "configuration");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Messaging.OutboundMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("error_code");
+
+                    b.Property<DateTimeOffset?>("FailedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("failed_at");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("language");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("purpose");
+
+                    b.Property<DateTimeOffset>("QueuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("queued_at");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("recipient");
+
+                    b.Property<Guid?>("RelatedEntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("related_entity_id");
+
+                    b.Property<string>("RelatedEntityType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("related_entity_type");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("subject");
+
+                    b.Property<string>("TemplateCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("template_code");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbound_messages");
+
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("ix_outbound_messages_account_id");
+
+                    b.HasIndex("QueuedAt")
+                        .HasDatabaseName("ix_outbound_messages_queued_at");
+
+                    b.HasIndex("Recipient")
+                        .HasDatabaseName("ix_outbound_messages_recipient");
+
+                    b.HasIndex("RelatedEntityType", "RelatedEntityId")
+                        .HasDatabaseName("ix_outbound_messages_related_entity_type_related_entity_id");
+
+                    b.HasIndex("Status", "QueuedAt")
+                        .HasDatabaseName("ix_outbound_messages_status_queued_at");
+
+                    b.ToTable("outbound_messages", "messaging");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Messaging.SenderRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("Role")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("role");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sender_rules");
+
+                    b.HasIndex("AccountId")
+                        .HasDatabaseName("ix_sender_rules_account_id");
+
+                    b.HasIndex("Channel", "Purpose")
+                        .HasDatabaseName("ix_sender_rules_channel_purpose");
+
+                    b.ToTable("sender_rules", "configuration");
+                });
+
             modelBuilder.Entity("Auxilia.Persistence.Tenant.Operations.DataMigrationHistoryEntry", b =>
                 {
                     b.Property<string>("Key")
@@ -385,6 +723,26 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasName("pk_processed_messages");
 
                     b.ToTable("processed_messages", "ops");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Messaging.OutboundMessage", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Messaging.MessagingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_outbound_messages_messaging_accounts_account_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Messaging.SenderRule", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Messaging.MessagingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_sender_rules_messaging_accounts_account_id");
                 });
 #pragma warning restore 612, 618
         }

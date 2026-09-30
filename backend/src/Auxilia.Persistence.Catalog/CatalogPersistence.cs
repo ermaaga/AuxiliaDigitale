@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
@@ -50,6 +51,7 @@ public static class CatalogPersistence
         services.AddScoped<IPlatformSettingStore, PlatformSettingStore>();
         services.AddScoped<IModuleCatalogReader, ModuleCatalogReader>();
         services.AddSingleton<ISettingSecretProtector, SettingSecretProtector>();
+        services.AddSingleton<IAccountSecretProtector, AccountSecretProtector>();
 
         return services;
     }
