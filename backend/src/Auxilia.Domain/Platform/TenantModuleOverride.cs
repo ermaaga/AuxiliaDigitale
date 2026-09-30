@@ -1,3 +1,5 @@
+using Auxilia.SharedKernel.Tenancy;
+
 namespace Auxilia.Domain.Platform;
 
 /// <summary>

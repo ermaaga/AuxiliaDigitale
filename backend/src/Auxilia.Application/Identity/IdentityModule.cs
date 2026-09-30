@@ -1,8 +1,10 @@
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Identity;
 
@@ -28,5 +30,9 @@ public sealed class IdentityModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddScoped<IUserAccountManager, UserAccountManager>();
+        services.TryAddScoped<IPasswordAuthenticator, PasswordAuthenticator>();
     }
 }

@@ -5,8 +5,8 @@ using System.Text.Json;
 using Auxilia.Api.Endpoints;
 using Auxilia.Api.IntegrationTests.Host;
 using Auxilia.Application.Abstractions.Caching;
-using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;

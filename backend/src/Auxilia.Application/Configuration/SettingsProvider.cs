@@ -5,6 +5,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace Auxilia.Application.Configuration;

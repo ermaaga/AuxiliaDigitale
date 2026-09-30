@@ -1,5 +1,6 @@
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Domain.Tests.Platform;
 

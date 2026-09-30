@@ -9,6 +9,7 @@ using Auxilia.Diagnostics;
 using Auxilia.Domain.Messaging;
 using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Results;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.Logging.Abstractions;
 

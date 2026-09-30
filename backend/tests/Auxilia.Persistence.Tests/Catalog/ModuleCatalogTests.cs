@@ -3,6 +3,7 @@ using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Domain.Platform;
 using Auxilia.Infrastructure;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

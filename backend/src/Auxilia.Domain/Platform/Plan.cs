@@ -1,6 +1,7 @@
 using Auxilia.Diagnostics;
 using Auxilia.SharedKernel.Domain;
 using Auxilia.SharedKernel.Results;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Domain.Platform;
 

@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Channels;
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Jobs;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Operations;
@@ -8,9 +9,10 @@ using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Tenant.Administration;
 using Auxilia.Persistence.Tenant.Bus;
 using Auxilia.Persistence.Tenant.Configuration;
+using Auxilia.Persistence.Tenant.DataMigrations;
+using Auxilia.Persistence.Tenant.Identity;
 using Auxilia.Persistence.Tenant.Jobs;
 using Auxilia.Persistence.Tenant.Messaging;
-using Auxilia.Persistence.Tenant.DataMigrations;
 using Auxilia.Persistence.Tenant.Seed;
 using Auxilia.Persistence.Tenant.Transactions;
 
@@ -48,6 +50,7 @@ public static class TenantPersistence
         services.AddScoped<IProcessedMessageStore, ProcessedMessageStore>();
         services.AddScoped<IJobLock, PostgresJobLock>();
         services.AddScoped<IMessagingDataFactory, MessagingDataFactory>();
+        services.AddScoped<IIdentityDataFactory, IdentityDataFactory>();
 
         return services;
     }

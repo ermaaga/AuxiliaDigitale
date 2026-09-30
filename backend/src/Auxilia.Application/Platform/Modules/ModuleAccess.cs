@@ -2,6 +2,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Caching;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Application.Platform.Modules;
 
@@ -28,7 +29,7 @@ internal sealed class TenantModulesCache : ReferenceDataCache<TenantModules>
     {
         if (tenant is null)
         {
-            return new TenantModules(new Dictionary<string, Domain.Platform.TenantRole[]>());
+            return new TenantModules(new Dictionary<string, TenantRole[]>());
         }
 
         var source = await catalog.GetSourceAsync(tenant.Id, timeProvider.GetUtcNow(), cancellationToken);

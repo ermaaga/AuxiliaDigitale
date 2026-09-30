@@ -1,5 +1,5 @@
 using Auxilia.Application.Abstractions.Modules;
-using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 

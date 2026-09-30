@@ -4,6 +4,7 @@ using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Application.Tests.Configuration;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using NSubstitute;
 

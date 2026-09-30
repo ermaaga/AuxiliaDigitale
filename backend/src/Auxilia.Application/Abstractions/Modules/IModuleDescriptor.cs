@@ -1,5 +1,6 @@
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
 

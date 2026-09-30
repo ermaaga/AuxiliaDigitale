@@ -331,6 +331,7 @@
         "dependencies": {
           "Auxilia.Application": "[1.0.0, )",
           "Auxilia.Domain": "[1.0.0, )",
+          "BCrypt.Net-Next": "[4.2.1, )",
           "Fluid.Core": "[2.40.0, )",
           "MailKit": "[4.18.1, )",
           "Microsoft.Extensions.Caching.Hybrid": "[10.10.0, )",
@@ -387,6 +388,12 @@
           "Azure.Core": "1.55.0",
           "Azure.Storage.Common": "12.28.0"
         }
+      },
+      "BCrypt.Net-Next": {
+        "type": "CentralTransitive",
+        "requested": "[4.2.1, )",
+        "resolved": "4.2.1",
+        "contentHash": "cJ1Zaad8sBSQJq3QBSPmFuLq0XDi9ys0Dk5S11gakZ2qdFWC1aaRLZ7sqOLQjGJYhgIK3LW3TixJswM6+CVbyw=="
       },
       "EFCore.NamingConventions": {
         "type": "CentralTransitive",
