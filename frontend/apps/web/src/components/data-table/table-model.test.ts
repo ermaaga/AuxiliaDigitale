@@ -7,6 +7,7 @@ import {
   customFieldColumns,
   nextSort,
   pageCount,
+  pageLocally,
   sortDirection,
   type DataTableColumn,
 } from "./table-model";
@@ -60,6 +61,40 @@ describe("server-side table model", () => {
       ["cf:size", "Size"],
     ]);
     expect(columns[1]!.cell({ name: "x", custom: { size: "XL" } })).toBe("XL");
+  });
+});
+
+describe("local paging", () => {
+  const rows = ["b10", "a", "B2", "c"].map((name) => ({ name }));
+  const options = { page: 1, pageSize: 2, sortValue: (row: { name: string }) => row.name };
+
+  it("sorts like the API (natural, case-insensitive) and pages", () => {
+    expect(pageLocally(rows, { ...options, sort: "name" })).toEqual({
+      rows: [{ name: "a" }, { name: "B2" }],
+      totalCount: 4,
+      page: 1,
+    });
+    expect(pageLocally(rows, { ...options, sort: "-name", page: 2 }).rows).toEqual([
+      { name: "B2" },
+      { name: "a" },
+    ]);
+    expect(pageLocally(rows, { ...options, sort: null }).rows).toEqual([
+      { name: "b10" },
+      { name: "a" },
+    ]);
+  });
+
+  it("shows the last page when the page is past the end (e.g. after filtering)", () => {
+    expect(pageLocally(rows, { ...options, sort: "name", page: 9 })).toEqual({
+      rows: [{ name: "b10" }, { name: "c" }],
+      totalCount: 4,
+      page: 2,
+    });
+    expect(pageLocally([], { ...options, sort: null })).toEqual({
+      rows: [],
+      totalCount: 0,
+      page: 1,
+    });
   });
 });
 

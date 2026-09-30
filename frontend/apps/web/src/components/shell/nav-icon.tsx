@@ -1,8 +1,10 @@
 import {
+  Building2Icon,
   BriefcaseIcon,
   CalendarIcon,
   CircleIcon,
   FolderIcon,
+  GaugeIcon,
   LayersIcon,
   LayoutDashboardIcon,
   MegaphoneIcon,
@@ -14,11 +16,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-/** Icons named by the module descriptors (`NavigationEntry.Icon`); unknown names get a neutral dot. */
+/** Icons named by the module descriptors (`NavigationEntry.Icon`) and the console; unknown names get a neutral dot. */
 const icons: Record<string, LucideIcon> = {
   briefcase: BriefcaseIcon,
+  building: Building2Icon,
   calendar: CalendarIcon,
   folder: FolderIcon,
+  gauge: GaugeIcon,
   layers: LayersIcon,
   "layout-dashboard": LayoutDashboardIcon,
   megaphone: MegaphoneIcon,

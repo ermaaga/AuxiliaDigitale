@@ -37,7 +37,7 @@ export function createBffClient(area: BffArea, options: BffClientOptions = {}): 
     credentials: "same-origin",
   });
   client.use({
-    onRequest({ request }) {
+    async onRequest({ request }) {
       const url = new URL(request.url, "http://relative.invalid");
       if (!url.pathname.startsWith(API_PREFIX)) {
         throw new Error(`Not an API path: ${url.pathname}`);
@@ -46,16 +46,25 @@ export function createBffClient(area: BffArea, options: BffClientOptions = {}): 
       const target = BFF_PREFIX[area] + url.pathname.slice(API_PREFIX.length) + url.search;
       const absolute =
         url.origin === "http://relative.invalid" ? target : new URL(target, url.origin).toString();
-      const rewritten = new Request(absolute, request);
-      if (!SAFE_METHODS.has(rewritten.method)) {
-        rewritten.headers.set(CSRF_HEADER, CSRF_HEADER_VALUE);
+      const safe = SAFE_METHODS.has(request.method);
+      const headers = new Headers(request.headers);
+      if (!safe) {
+        headers.set(CSRF_HEADER, CSRF_HEADER_VALUE);
       }
 
       if (options.tenant) {
-        rewritten.headers.set("x-tenant", options.tenant);
+        headers.set("x-tenant", options.tenant);
       }
 
-      return rewritten;
+      // The body is buffered, never passed on as the original request's stream: browsers send a stream body as a
+      // streaming upload, which needs HTTP/2 and fails over HTTP/1.1 (Chrome: ERR_ALPN_NEGOTIATION_FAILED).
+      return new Request(absolute, {
+        method: request.method,
+        headers,
+        body: safe ? undefined : await request.arrayBuffer(),
+        credentials: request.credentials,
+        signal: request.signal,
+      });
     },
     onError({ error }) {
       return networkError(error);

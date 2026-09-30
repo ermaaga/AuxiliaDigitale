@@ -55,6 +55,7 @@ describe("BFF client", () => {
     expect(requests[0]!.url).toBe(`${ORIGIN}/api/platform-bff/localization/keys`);
     expect(requests[0]!.method).toBe("POST");
     expect(requests[0]!.headers.get("x-requested-with")).toBe("auxilia");
+    expect(requests[0]!.headers.get("content-type")).toBe("application/json");
     expect(await requests[0]!.json()).toMatchObject({ key: "app.x" });
     expect(requests[1]!.url).toBe(
       `${ORIGIN}/api/platform-bff/localization/keys?search=save&page=2`,
