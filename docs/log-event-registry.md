@@ -11,7 +11,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 13 | 10022 |
-| 11000–11999 | Tenancy | Tenancy / Catalog | 15 | 11019 |
+| 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
 | 12000–12999 | Identity | Identity / Auth | 0 | 12001 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
@@ -63,6 +63,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11016 | Tenancy.TenantAlreadyExists | – | Conflict | – | – |
 | AUX-11017 | Tenancy.TenantSlugReserved | – | Validation | – | – |
 | AUX-11018 | Tenancy.TenantDatabaseInvalid | – | Failure | – | – |
+| AUX-11019 | Tenancy.ModulesSynchronized | – | – | Tenancy.SyncModules (success) | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |

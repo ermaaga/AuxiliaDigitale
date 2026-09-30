@@ -18,6 +18,14 @@ public interface ICatalogStore
 
     void Add(MigrationRun run);
 
+    /// <summary>Every module row, available or not (tracked).</summary>
+    Task<IReadOnlyList<PlatformModule>> ListModulesAsync(CancellationToken cancellationToken);
+
+    void Add(PlatformModule module);
+
+    /// <summary>A plan with its modules (tracked).</summary>
+    Task<Plan?> FindPlanAsync(Guid planId, CancellationToken cancellationToken);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
 

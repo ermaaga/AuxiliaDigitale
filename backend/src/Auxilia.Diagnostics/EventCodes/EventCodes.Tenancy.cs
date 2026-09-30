@@ -49,5 +49,8 @@ public static partial class EventCodes
 
         /// <summary>The database provided for the tenant cannot be used (500).</summary>
         public const int TenantDatabaseInvalid = 11018;
+
+        /// <summary>The module catalog was aligned with the module descriptors of this deployment.</summary>
+        public const int ModulesSynchronized = 11019;
     }
 }

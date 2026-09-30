@@ -27,6 +27,14 @@ internal sealed class CatalogStore : ICatalogStore
 
     public void Add(MigrationRun run) => catalog.MigrationRuns.Add(run);
 
+    public async Task<IReadOnlyList<PlatformModule>> ListModulesAsync(CancellationToken cancellationToken) =>
+        await catalog.Modules.ToListAsync(cancellationToken);
+
+    public void Add(PlatformModule module) => catalog.Modules.Add(module);
+
+    public Task<Plan?> FindPlanAsync(Guid planId, CancellationToken cancellationToken) =>
+        catalog.Plans.Include(plan => plan.Modules).SingleOrDefaultAsync(plan => plan.Id == planId, cancellationToken);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => catalog.SaveChangesAsync(cancellationToken);
 }
 
