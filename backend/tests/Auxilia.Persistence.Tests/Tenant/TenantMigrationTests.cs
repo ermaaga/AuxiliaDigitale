@@ -17,7 +17,7 @@ public sealed class TenantMigrationTests(TenantDatabaseFixture database)
         tables.ShouldBe(
         [
             "audit.entity_changes", "ops.__ef_migrations_history", "ops.data_migrations_history", "ops.job_runs",
-            "ops.legacy_id_map", "ops.number_sequences",
+            "ops.legacy_id_map", "ops.number_sequences", "ops.outbox_messages", "ops.processed_messages",
         ]);
     }
 

@@ -42,10 +42,7 @@ internal sealed class TenantDbContextFactory : ITenantDbContextFactory
 
     public async Task<ITenantDbContext> CreateAsync(CancellationToken cancellationToken)
     {
-        var tenant = tenantContext.Tenant;
-        var protectedConnectionString = await directory.GetProtectedConnectionStringAsync(tenant.Id, cancellationToken)
-            ?? throw new InvalidOperationException($"Tenant {tenant.Slug} has no database yet.");
-        var dataSource = dataSources.Get(tenant.Id, protector.Unprotect(protectedConnectionString));
+        var dataSource = await DataSourceAsync(cancellationToken);
         var audit = new TenantAuditInterceptor(currentUser, timeProvider);
 
         if (!transactions.IsActive)
@@ -58,6 +55,22 @@ internal sealed class TenantDbContextFactory : ITenantDbContextFactory
         var context = new TenantDbContext(TenantDbContextOptions.Create(connection, audit));
         await context.Database.UseTransactionAsync(transaction, cancellationToken);
         return context;
+    }
+
+    /// <summary>
+    /// A context on its own connection even inside a write operation: for records that must survive the operation's
+    /// rollback (job runs, sent outbox entries).
+    /// </summary>
+    public async Task<TenantDbContext> CreateOutsideOperationAsync(CancellationToken cancellationToken) =>
+        new(TenantDbContextOptions.Create(await DataSourceAsync(cancellationToken), new TenantAuditInterceptor(currentUser, timeProvider)));
+
+    /// <summary>The connection pool of the current tenant's database.</summary>
+    public async Task<NpgsqlDataSource> DataSourceAsync(CancellationToken cancellationToken)
+    {
+        var tenant = tenantContext.Tenant;
+        var protectedConnectionString = await directory.GetProtectedConnectionStringAsync(tenant.Id, cancellationToken)
+            ?? throw new InvalidOperationException($"Tenant {tenant.Slug} has no database yet.");
+        return dataSources.Get(tenant.Id, protector.Unprotect(protectedConnectionString));
     }
 }
 

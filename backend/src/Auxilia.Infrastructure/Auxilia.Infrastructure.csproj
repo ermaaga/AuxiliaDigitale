@@ -9,6 +9,10 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Rebus" />
+    <PackageReference Include="Rebus.PostgreSql" />
+    <PackageReference Include="Rebus.RabbitMq" />
+    <PackageReference Include="Rebus.ServiceProvider" />
   </ItemGroup>
 
   <ItemGroup>

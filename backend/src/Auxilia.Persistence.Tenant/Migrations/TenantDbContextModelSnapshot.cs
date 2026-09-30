@@ -325,6 +325,67 @@ namespace Auxilia.Persistence.Tenant.Migrations
 
                     b.ToTable("number_sequences", "ops");
                 });
+
+            modelBuilder.Entity("Auxilia.Persistence.Tenant.Operations.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DispatchedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dispatched_at");
+
+                    b.Property<string>("Headers")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("headers");
+
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("message_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_outbox_messages");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_outbox_messages_created_at")
+                        .HasFilter("dispatched_at IS NULL");
+
+                    b.ToTable("outbox_messages", "ops");
+                });
+
+            modelBuilder.Entity("Auxilia.Persistence.Tenant.Operations.ProcessedMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<string>("Handler")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("handler");
+
+                    b.Property<DateTimeOffset>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.HasKey("MessageId", "Handler")
+                        .HasName("pk_processed_messages");
+
+                    b.ToTable("processed_messages", "ops");
+                });
 #pragma warning restore 612, 618
         }
     }

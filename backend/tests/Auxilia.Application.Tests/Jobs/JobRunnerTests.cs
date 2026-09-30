@@ -15,13 +15,16 @@ public sealed class JobRunnerTests
 
     private readonly IJobRunStore store = Substitute.For<IJobRunStore>();
     private readonly IRecurringJob job = Substitute.For<IRecurringJob>();
+    private readonly IJobLock locks = Substitute.For<IJobLock>();
+    private readonly IAsyncDisposable held = Substitute.For<IAsyncDisposable>();
     private readonly JobRunner runner;
 
     public JobRunnerTests()
     {
         job.Code.Returns("cases.expiry");
         store.StartAsync("cases.expiry", Arg.Any<CancellationToken>()).Returns(RunId);
-        runner = new JobRunner([job], ManagerHarness.Runner(), store);
+        locks.TryAcquireAsync("cases.expiry", Arg.Any<CancellationToken>()).Returns(held);
+        runner = new JobRunner([job], ManagerHarness.Runner(), store, locks);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -66,5 +69,27 @@ public sealed class JobRunnerTests
         result.Error!.Code.ShouldBe(EventCodes.Jobs.JobNotFound);
         await store.DidNotReceive().StartAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
         runner.Jobs.ShouldHaveSingleItem().ShouldBe(job);
+    }
+
+    [Fact]
+    public async Task Run_LockHeldByAnotherRun_IsRefusedWithoutARunRecord()
+    {
+        locks.TryAcquireAsync("cases.expiry", Arg.Any<CancellationToken>()).Returns((IAsyncDisposable?)null);
+
+        var result = await runner.RunAsync("cases.expiry", Ct);
+
+        result.Error!.Code.ShouldBe(EventCodes.Jobs.JobAlreadyRunning);
+        await store.DidNotReceive().StartAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await job.DidNotReceive().RunAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Run_ReleasesTheLockAfterTheJob()
+    {
+        job.RunAsync(Arg.Any<CancellationToken>()).Returns(Result.Success("done"));
+
+        await runner.RunAsync("cases.expiry", Ct);
+
+        await held.Received(1).DisposeAsync();
     }
 }

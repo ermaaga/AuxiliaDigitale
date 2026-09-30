@@ -13,5 +13,8 @@ public static partial class EventCodes
 
         /// <summary>The job ran and reported a failure.</summary>
         public const int JobRunFailed = 26003;
+
+        /// <summary>The job is already running for this tenant (lock held): the run is skipped (409).</summary>
+        public const int JobAlreadyRunning = 26004;
     }
 }

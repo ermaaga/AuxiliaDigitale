@@ -23,10 +23,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 20000–20999 | Configuration | Configuration | 6 | 20007 |
 | 21000–21999 | Localization | Localization | 0 | 21001 |
 | 22000–22999 | Imports | Imports | 0 | 22001 |
-| 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 0 | 23001 |
+| 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 0 | 25001 |
-| 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 3 | 26004 |
+| 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
 | 29000–29999 | Security | Security events | 0 | 29001 |
@@ -70,6 +70,14 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-20004 | Configuration.StoredSettingIgnored | Warning | – | – | Stored value of setting {SettingKey} at level {SettingLevel} is not valid and is ignored |
 | AUX-20005 | Configuration.SettingChanged | – | – | Configuration.SetSetting (success) | – |
 | AUX-20006 | Configuration.SettingReset | – | – | Configuration.ResetSetting (success) | – |
+| AUX-23001 | Bus.MessageHandled | – | – | Bus.HandleMessage (success) | – |
+| AUX-23002 | Bus.DuplicateMessageSkipped | Information | – | – | Message {MessageId} already handled by {Handler}: skipped |
+| AUX-23003 | Bus.MessageTenantMissing | Error | Validation | – | Tenant message {MessageType} {MessageId} has no tenant header |
+| AUX-23004 | Bus.MessageTenantUnavailable | Warning | NotFound | – | Tenant {TenantSlug} of message {MessageType} {MessageId} is missing or not active |
+| AUX-23005 | Bus.MessageRejected | Warning | – | – | Message {MessageType} {MessageId} rejected by {Handler} with {ErrorCode}: not retried |
+| AUX-23006 | Bus.MessageRetryScheduled | Warning | – | – | Message {MessageType} {MessageId} failed; second-level retry {Attempt} in {DelaySeconds} s |
+| AUX-23007 | Bus.MessageDeadLettered | Error | – | – | Message {MessageType} {MessageId} moved to the error queue: {Reason} |
+| AUX-23008 | Bus.OutboxDispatchFailed | Warning | – | – | Outbox message {OutboxId} ({MessageType}) not sent; it stays pending |
 | AUX-24001 | Cache.CacheBackendUnavailable | Warning | – | – | Redis cache unavailable; serving from memory and database for {BreakSeconds} s |
 | AUX-24002 | Cache.CacheBackendRecovered | Information | – | – | Redis cache available again |
 | AUX-24003 | Cache.InvalidationPublishFailed | Warning | – | – | Invalidation of cache tag {CacheTag} not published to the other nodes |
@@ -77,6 +85,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-26001 | Jobs.JobRunSucceeded | – | – | Jobs.RunJob (success) | – |
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |
+| AUX-26004 | Jobs.JobAlreadyRunning | – | Conflict | – | – |
 | AUX-28001 | Runner.DataMigrationApplied | Information | – | – | Data-migration {Key} applied in {DurationMs} ms: {Description} |
 | AUX-28002 | Runner.DataMigrationFailed | Error | – | – | Data-migration {Key} failed |
 | AUX-28003 | Runner.CatalogMigrated | – | – | Runner.MigrateCatalog (success) | – |

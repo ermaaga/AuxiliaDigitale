@@ -10,11 +10,11 @@ namespace Auxilia.Persistence.Tenant.Jobs;
 /// <inheritdoc cref="IJobRunStore"/>
 internal sealed class JobRunStore : IJobRunStore
 {
-    private readonly ITenantDbContextFactory databases;
+    private readonly TenantDbContextFactory databases;
     private readonly ICurrentUser currentUser;
     private readonly TimeProvider timeProvider;
 
-    public JobRunStore(ITenantDbContextFactory databases, ICurrentUser currentUser, TimeProvider timeProvider)
+    public JobRunStore(TenantDbContextFactory databases, ICurrentUser currentUser, TimeProvider timeProvider)
     {
         this.databases = databases;
         this.currentUser = currentUser;
@@ -33,7 +33,7 @@ internal sealed class JobRunStore : IJobRunStore
             ActorId = currentUser.UserId,
         };
 
-        await using var db = await databases.CreateAsync(cancellationToken);
+        await using var db = await databases.CreateOutsideOperationAsync(cancellationToken);
         db.Set<JobRun>().Add(run);
         await db.SaveChangesAsync(cancellationToken);
         return run.Id;
@@ -41,7 +41,7 @@ internal sealed class JobRunStore : IJobRunStore
 
     public async Task FinishAsync(Guid runId, bool succeeded, string? errorCode, string? summary, CancellationToken cancellationToken)
     {
-        await using var db = await databases.CreateAsync(cancellationToken);
+        await using var db = await databases.CreateOutsideOperationAsync(cancellationToken);
         var run = await db.Set<JobRun>().SingleAsync(item => item.Id == runId, cancellationToken);
         run.Status = succeeded ? JobRunStatus.Succeeded : JobRunStatus.Failed;
         run.FinishedAt = timeProvider.GetUtcNow();

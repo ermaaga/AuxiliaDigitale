@@ -6,6 +6,7 @@ using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
+using Auxilia.Infrastructure.Messaging;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults;
@@ -35,6 +36,12 @@ builder.Services.AddTenantPersistence();
 if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
 {
     builder.Services.AddRedisCache(redis);
+}
+
+// RabbitMQ (send only): messages leave through the outbox; without it they stay pending in ops.outbox_messages.
+if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
+{
+    builder.Services.AddMessageBusClient(rabbitMq);
 }
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));

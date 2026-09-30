@@ -11,5 +11,8 @@ public static partial class Errors
 
         public static Error JobRunFailed(string code) =>
             Error.Failure(EventCodes.Jobs.JobRunFailed, $"The job {code} failed");
+
+        public static Error JobAlreadyRunning(string code) =>
+            Error.Conflict(EventCodes.Jobs.JobAlreadyRunning, $"The job {code} is already running");
     }
 }
