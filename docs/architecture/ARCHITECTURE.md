@@ -286,6 +286,7 @@ Implementazione (P1-10): `IReferenceDataCache` su `HybridCache`; L2 Redis/Valkey
 - Attivazione account (D-06): token monouso via email → pagina `/{tenant}/activate` per scegliere la password. Reset password analogo.
 - Console System: autenticazione separata (utenti Catalog), token di piattaforma (§4.2).
 - Sessioni: `identity.refresh_sessions`; revoca + deny-list `jti` + push `ForceLogout`; sessione singola opzionale (D-08, default off).
+- Rate limiting (P2-04): limiter di ASP.NET Core, in memoria per nodo, partizioni per tenant; globale = per chiamante (utente per tenant, altrimenti IP) in catena con un limite per client app; `POST /auth/token` e i link account (attivazione, password dimenticata, reset) hanno policy più strette per tenant e IP. Oltre il limite 429 `AUX-10024` con `Retry-After` ed evento `AUX-29016`; health esclusi. Limiti nella sezione `RateLimiting` (livello 0). Con più nodi il limite effettivo si moltiplica per il numero di nodi; dietro reverse proxy servono i forwarded headers (H-01).
 
 ---
 
@@ -369,7 +370,7 @@ Per tenant DB + Catalog + storage file/log con prefisso tenant; test di ripristi
 | Livello per tenant (D-28) | impostazione di piattaforma per tenant `logging.minimumLevel` + `logging.overrideUntil`: il filtro di Serilog legge il valore dalla cache del tenant (invalidata subito alla modifica) e torna al livello normale alla scadenza, senza job né riavvio; ogni modifica è auditata |
 | Pagina Log | console System → tenant → Log: legge i file per intervallo di date con filtri (livello, codice, traceId, utente, testo); nessuna copia nel DB |
 | Retention | fuori dal sistema, sullo storage account (D-17) |
-| Eventi di sicurezza | codici `29xxx` nei log |
+| Eventi di sicurezza | codici `29xxx` nei log (`Log.Security`): accesso fallito, blocco, aggiornamento hash legacy, cambio ruoli/password/attivazione, riuso refresh token, fine sessione, reset password richiesto/completato, attivazione account, client app rifiutata, rotazione chiave di firma, permesso negato, tentativo cross-tenant, rate limit superato; elenco completo in `docs/log-event-registry.md` |
 | Storico modifiche dati | `audit.entity_changes` (DB), mostrato come "cronologia" dei record |
 | Storici di business | stati pratiche/appuntamenti, timeline cliente, registro invii |
 | Tracce e metriche | OpenTelemetry pronto nel codice; esportazione verso un backend quando si decide D-12 |
