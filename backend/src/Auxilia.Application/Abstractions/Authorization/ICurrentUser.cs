@@ -1,4 +1,4 @@
-using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Application.Abstractions.Authorization;
 

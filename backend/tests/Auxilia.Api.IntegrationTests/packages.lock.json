@@ -207,6 +207,14 @@
         "resolved": "10.0.12",
         "contentHash": "6i8dT0QU94k6fPkxDAvOUETum2INkULnO60bHAUQU74S+FAq69IU/78HPsnfSV214nivwJuNuJf9R4cPd9K8Rg=="
       },
+      "Microsoft.AspNetCore.Cryptography.KeyDerivation": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "nlzGX5486fMAHH9nIoIQd6bFg1rITB+oks/Sm3E/J+906Gs3fWYcz0OG/7a6inuOuTNOrwpPjt0HFjgQS6L8nA==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Cryptography.Internal": "10.0.12"
+        }
+      },
       "Microsoft.AspNetCore.DataProtection": {
         "type": "Transitive",
         "resolved": "10.0.12",
@@ -1063,11 +1071,13 @@
         "dependencies": {
           "Auxilia.Application": "[1.0.0, )",
           "Auxilia.Domain": "[1.0.0, )",
+          "BCrypt.Net-Next": "[4.2.1, )",
           "Fluid.Core": "[2.40.0, )",
           "MailKit": "[4.18.1, )",
           "Microsoft.Extensions.Caching.Hybrid": "[10.10.0, )",
           "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.12, )",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "[10.0.12, )",
+          "Microsoft.Extensions.Identity.Core": "[10.0.12, )",
           "Rebus": "[8.9.5, )",
           "Rebus.PostgreSql": "[9.1.1, )",
           "Rebus.RabbitMq": "[10.1.1, )",
@@ -1138,6 +1148,12 @@
           "Azure.Core": "1.55.0",
           "Azure.Storage.Common": "12.28.0"
         }
+      },
+      "BCrypt.Net-Next": {
+        "type": "CentralTransitive",
+        "requested": "[4.2.1, )",
+        "resolved": "4.2.1",
+        "contentHash": "cJ1Zaad8sBSQJq3QBSPmFuLq0XDi9ys0Dk5S11gakZ2qdFWC1aaRLZ7sqOLQjGJYhgIK3LW3TixJswM6+CVbyw=="
       },
       "Bogus": {
         "type": "CentralTransitive",
@@ -1306,6 +1322,18 @@
           "Microsoft.Extensions.Http.Diagnostics": "10.10.0",
           "Microsoft.Extensions.ObjectPool": "10.0.12",
           "Microsoft.Extensions.Resilience": "10.10.0"
+        }
+      },
+      "Microsoft.Extensions.Identity.Core": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "LSAF4Wss2uRbS88TsmyyKw00NThc78RIJ6Y1FIU+Hmo7KOPxyBVg9nvFXErrm9vTFWdIIiLX16fmjM1lfdXCTw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Cryptography.KeyDerivation": "10.0.12",
+          "Microsoft.Extensions.Diagnostics": "10.0.12",
+          "Microsoft.Extensions.Logging": "10.0.12",
+          "Microsoft.Extensions.Options": "10.0.12"
         }
       },
       "Microsoft.Extensions.Logging.Abstractions": {

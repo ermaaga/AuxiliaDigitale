@@ -4,6 +4,9 @@ Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Qu
 
 > **Decisions:** D-05 (login access independent from client status), D-06 (activation link), D-08 (single session = tenant setting, default **off**; the "force logout of other sessions" criterion applies only when enabled). No `SystemConfigurator` redirect: System users log in to the platform console (D-18).
 
+## Status notes
+- P2-01: case-insensitive unique user names, legacy BCrypt verified and upgraded to the Identity (PBKDF2) format on first sign-in, generic failure `AUX-12002` (reason only in the security log `AUX-29001`), progressive lockout (`auth.lockout.*`, `AUX-12003`), sign-in access independent from client status (D-05), accounts without password until activation (D-06). Token endpoint, refresh, logout: P2-02; login page: P3-06.
+
 ## Legacy behaviour
 - `Components/Login.razor` (`/login`, `EmptyLayout`): username + password + "Remember username" checkbox. Username lookup is case-insensitive; password verified with BCrypt (`UserService.AuthenticateAsync`).
 - On success: `ForceLogout` pushed to every other connection of the same user (single session), session stored in cache (`SessionService`, cookie `AuxiliaSessionId`, 120 min), claims `NameIdentifier`, `Name`, `FullName`, `LanguageId`, roles.

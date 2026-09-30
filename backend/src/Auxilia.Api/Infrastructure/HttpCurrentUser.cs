@@ -1,7 +1,7 @@
 using System.Security.Claims;
 
 using Auxilia.Application.Abstractions.Authorization;
-using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Api.Infrastructure;
 

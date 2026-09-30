@@ -329,6 +329,11 @@ Base `data-model.md` v1 con queste modifiche:
 | `ops` | data_migrations_history, outbox_messages, processed_messages, legacy_id_map, number_sequences, **job_runs** | `job_runs`: esecuzioni manuali dei job (chi, quando, esito) |
 | ~~`training`~~ | – | rimosso |
 
+Implementazione di `identity` e `directory.people` (P2-01):
+- Tabelle: `identity.users`, `identity.roles` (dati di riferimento fissi: Administrator, Employee, Client) e `identity.user_roles`; `directory.people` è minimale, B-01 la completa. `users.user_name` è `citext` univoco (login case-insensitive, F01); un solo account per persona (FK `person_id`).
+- Non si usano gli store EF né lo `UserManager` di ASP.NET Identity, che non si adattano al database per tenant aperto da `ITenantDbContextFactory`. Il dominio `User` gestisce stato, lockout progressivo e security stamp. L'hashing usa il `PasswordHasher` di ASP.NET Identity (`Microsoft.Extensions.Identity.Core`, PBKDF2 V3) dentro un hasher composito che verifica anche i BCrypt del legacy (`password_format = LegacyBcrypt`) e li rehasha al primo login.
+- `TenantRole` è in `SharedKernel.Tenancy`: lo usano Identity, Platform (piani e override) e l'autorizzazione.
+
 ### 10.4 Convenzioni
 uuid v7, `snake_case`, tabelle plurali, FK indicizzate; audit `created_*/updated_*`; `xmin` sugli aggregati; soft delete con indici univoci parziali `WHERE NOT is_deleted`; enum `varchar` + `CHECK`; `numeric(12,2)` + valuta; `date` vs `timestamptz` UTC; `citext`; `custom_fields jsonb` + GIN; trigram per ricerca; numerazioni da `ops.number_sequences`; modifiche di schema con migrazioni EF (expand/contract), dati di riferimento con `IDataMigration` idempotenti.
 

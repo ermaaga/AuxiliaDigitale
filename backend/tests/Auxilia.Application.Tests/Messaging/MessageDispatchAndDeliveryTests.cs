@@ -4,7 +4,7 @@ using Auxilia.Application.Messaging.Public;
 using Auxilia.Contracts.Messages.V1.Messaging;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Messaging;
-using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using NSubstitute;
 

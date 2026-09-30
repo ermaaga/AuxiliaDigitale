@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 13 | 10022 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 0 | 12001 |
+| 12000–12999 | Identity | Identity / Auth | 12 | 12013 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 0 | 29001 |
+| 29000–29999 | Security | Security events | 6 | 29007 |
 
 ## Codes
 
@@ -64,6 +64,18 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11017 | Tenancy.TenantSlugReserved | – | Validation | – | – |
 | AUX-11018 | Tenancy.TenantDatabaseInvalid | – | Failure | – | – |
 | AUX-11019 | Tenancy.ModulesSynchronized | – | – | Tenancy.SyncModules (success) | – |
+| AUX-12001 | Identity.UserCreated | – | – | Identity.CreateUser (success) | – |
+| AUX-12002 | Identity.InvalidCredentials | – | Unauthorized | – | – |
+| AUX-12003 | Identity.AccountLocked | – | Forbidden | – | – |
+| AUX-12004 | Identity.UserNameTaken | – | Conflict | – | – |
+| AUX-12005 | Identity.PasswordTooWeak | – | Validation | – | – |
+| AUX-12006 | Identity.UserNotFound | – | NotFound | – | – |
+| AUX-12007 | Identity.PasswordChanged | – | – | Identity.SetPassword (success) | – |
+| AUX-12008 | Identity.UserActivationChanged | – | – | Identity.SetUserActive (success) | – |
+| AUX-12009 | Identity.UserRolesChanged | – | – | Identity.SetUserRoles (success) | – |
+| AUX-12010 | Identity.UserAuthenticated | – | – | Identity.AuthenticateUser (success) | – |
+| AUX-12011 | Identity.PersonNotFound | – | NotFound | – | – |
+| AUX-12012 | Identity.UserValueInvalid | – | Validation | – | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |
@@ -112,3 +124,9 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-28003 | Runner.CatalogMigrated | – | – | Runner.MigrateCatalog (success) | – |
 | AUX-28004 | Runner.TenantMigrated | – | – | Runner.MigrateTenant (success) | – |
 | AUX-28005 | Runner.TenantMigrationFailed | – | Failure | – | – |
+| AUX-29001 | Security.LoginFailed | Warning | – | – | Sign-in failed ({Reason}) for user {UserId} |
+| AUX-29002 | Security.AccountLockedOut | Warning | – | – | User {UserId} locked out until {LockoutEnd} after {FailedAttempts} failed sign-ins |
+| AUX-29003 | Security.LegacyPasswordUpgraded | Information | – | – | Legacy password of user {UserId} rehashed |
+| AUX-29004 | Security.RolesChanged | Information | – | – | Roles of user {UserId} changed to {Roles} |
+| AUX-29005 | Security.PasswordChanged | Information | – | – | Password of user {UserId} changed |
+| AUX-29006 | Security.AccountActivationChanged | Information | – | – | User {UserId} can sign in: {IsActive} |

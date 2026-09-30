@@ -1,4 +1,4 @@
-using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

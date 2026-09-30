@@ -1,10 +1,12 @@
-using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Abstractions.Channels;
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Messaging;
+using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Infrastructure.Adapters.Channels.Smtp;
 using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
+using Auxilia.Infrastructure.Security;
 using Auxilia.Infrastructure.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -31,6 +33,8 @@ public static class DependencyInjection
         // Outbound channel adapters (keyed by provider on the account) and the template engine (ARCHITECTURE §6, §8).
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IMessageChannel, SmtpEmailChannel>());
         services.TryAddSingleton<ITemplateRenderer, FluidTemplateRenderer>();
+
+        services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
         return services;
     }

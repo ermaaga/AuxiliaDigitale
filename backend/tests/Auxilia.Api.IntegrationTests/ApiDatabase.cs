@@ -4,6 +4,7 @@ using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

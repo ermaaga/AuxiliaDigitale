@@ -1,6 +1,7 @@
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using static Auxilia.Application.Tests.Platform.Modules.Roles;
 

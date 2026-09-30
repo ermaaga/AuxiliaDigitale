@@ -1,5 +1,6 @@
 using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;

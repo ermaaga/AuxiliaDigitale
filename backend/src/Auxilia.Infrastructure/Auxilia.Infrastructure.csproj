@@ -6,11 +6,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="Fluid.Core" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
     <PackageReference Include="Rebus" />
     <PackageReference Include="Rebus.PostgreSql" />
     <PackageReference Include="Rebus.RabbitMq" />
