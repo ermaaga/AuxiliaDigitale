@@ -262,6 +262,17 @@ Implementazione (P1-10): `IReferenceDataCache` su `HybridCache`; L2 Redis/Valkey
 - Registro invii consultabile (chi, cosa, quando, esito) — risponde a "la mail è partita?".
 - **WhatsApp (predisposto)**: canale e tipo account esistono nel modello; l'adapter `http-gateway` (POST verso un endpoint esterno con token segreto, callback di stato su un endpoint webhook firmato) si implementa quando servirà.
 
+### 8.3 Implementazione (P1-13)
+- **Modulo `Messaging`**: `Domain/Messaging` contiene `MessagingAccount`, `SenderRule`, `MessageTemplate` e `OutboundMessage` (Queued → Sent | Failed). Tabelle: `configuration.messaging_accounts` (un solo default per canale, indice univoco filtrato), `configuration.sender_rules`, `messaging.message_templates`, `messaging.outbound_messages`. Migrazione `Messaging_Initial`.
+- **`IMessagingAccountManager`** (System, S-03): crea/aggiorna gli account; il segreto è protetto con Data Protection (purpose `Auxilia.Messaging.AccountSecret.v1`) e mai restituito. Il primo account di un canale diventa il default; il default deve restare attivo (`AUX-25017`). Le regole di un canale si sostituiscono in blocco e vengono validate. L'**invio di prova** è sincrono e registrato nell'outbound log. Ogni modifica svuota lo snapshot `t:{slug}:messaging:accounts:current`, che non contiene segreti.
+- **`IMessageDispatcher`** (`Messaging/Public`, API pubblica per gli altri moduli):
+  - risolve l'account (§8.1) con i ruoli di chi invia;
+  - rende il template Liquid (Fluid, valori codificati HTML nel corpo) nella lingua del destinatario, con fallback su lingua del tenant e poi inglese;
+  - salva `OutboundMessage` Queued e accoda `DeliverOutboundMessageCommand` nell'outbox.
+- **Consegna**: `IOutboundMessageManager.DeliverAsync` (Worker, coda `auxilia.messaging`, handler non transazionale, idempotente sullo stato). Errore permanente (`ChannelPermanentException`: destinatario o credenziali rifiutati, 5xx SMTP) → Failed. Errore transitorio → tentativo registrato (`AUX-25018`) e retry del bus. Consegna at-least-once.
+- **Adapter**: `IMessageChannel` in `Infrastructure/Adapters/Channels/Smtp` (MailKit, sicurezza None/StartTls/SslOnConnect). Un account con provider senza adapter (es. `http-gateway` per WhatsApp) si può salvare, ma l'invio dà `AUX-25013`.
+- **Template di sistema** EN + IT: `account-activation`, `password-reset`, `registration-received`, `case-expiry-reminder`, `request-reply`, `account-test`. Seed con la data-migration `D_20260930_001`: idempotente, non sovrascrive i template personalizzati.
+
 ---
 
 ## 9. Autenticazione pluggable

@@ -25,7 +25,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
-| 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 0 | 25001 |
+| 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 21 | 25022 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
@@ -82,6 +82,27 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-24002 | Cache.CacheBackendRecovered | Information | – | – | Redis cache available again |
 | AUX-24003 | Cache.InvalidationPublishFailed | Warning | – | – | Invalidation of cache tag {CacheTag} not published to the other nodes |
 | AUX-24004 | Cache.InvalidationSubscriptionFailed | Warning | – | – | Subscription to the cache invalidation channel failed |
+| AUX-25001 | Messaging.AccountCreated | – | – | Messaging.CreateAccount (success) | – |
+| AUX-25002 | Messaging.AccountUpdated | – | – | Messaging.UpdateAccount (success) | – |
+| AUX-25003 | Messaging.DefaultAccountChanged | – | – | Messaging.SetDefaultAccount (success) | – |
+| AUX-25004 | Messaging.AccountActivationChanged | – | – | Messaging.SetAccountActive (success) | – |
+| AUX-25005 | Messaging.SenderRulesChanged | – | – | Messaging.SetSenderRules (success) | – |
+| AUX-25006 | Messaging.MessageQueued | – | – | Messaging.QueueMessage (success) | – |
+| AUX-25007 | Messaging.MessageSent | – | – | Messaging.DeliverMessage (success) | – |
+| AUX-25008 | Messaging.MessageFailed | Warning | – | – | Outbound message {OutboundMessageId} failed permanently with {ErrorCode} |
+| AUX-25009 | Messaging.TestMessageSent | – | – | Messaging.SendTestMessage (success) | – |
+| AUX-25010 | Messaging.AccountNotFound | – | NotFound | – | – |
+| AUX-25011 | Messaging.NoAccountForMessage | – | Failure | – | – |
+| AUX-25012 | Messaging.AccountSettingsInvalid | – | Validation | – | – |
+| AUX-25013 | Messaging.ChannelNotAvailable | – | Failure | – | – |
+| AUX-25014 | Messaging.TemplateNotFound | – | NotFound | – | – |
+| AUX-25015 | Messaging.TemplateInvalid | – | Validation | – | – |
+| AUX-25016 | Messaging.RecipientInvalid | – | Validation | – | – |
+| AUX-25017 | Messaging.DefaultAccountMustBeActive | – | Conflict | – | – |
+| AUX-25018 | Messaging.DeliveryAttemptFailed | Warning | – | – | Delivery attempt {Attempt} of outbound message {OutboundMessageId} failed; it will be retried |
+| AUX-25019 | Messaging.OutboundMessageNotFound | – | NotFound | – | – |
+| AUX-25020 | Messaging.SenderRuleInvalid | – | Validation | – | – |
+| AUX-25021 | Messaging.AccountAuthenticationFailed | – | Failure | – | – |
 | AUX-26001 | Jobs.JobRunSucceeded | – | – | Jobs.RunJob (success) | – |
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |
