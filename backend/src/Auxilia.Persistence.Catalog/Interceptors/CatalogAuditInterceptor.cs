@@ -52,7 +52,8 @@ internal sealed class CatalogAuditInterceptor : SaveChangesInterceptor
 
         foreach (var entry in context.ChangeTracker.Entries())
         {
-            if (entry.Metadata.FindProperty(CatalogConventions.CreatedAt) is null)
+            // Audited entities have the shadow audit columns; a domain CreatedAt alone (e.g. SigningKey) is not audit.
+            if (entry.Metadata.FindProperty(CatalogConventions.CreatedBy) is null)
             {
                 continue;
             }

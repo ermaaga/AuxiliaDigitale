@@ -41,6 +41,8 @@ public sealed class CatalogDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<MigrationRun> MigrationRuns => Set<MigrationRun>();
 
+    public DbSet<SigningKey> SigningKeys => Set<SigningKey>();
+
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

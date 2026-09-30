@@ -212,7 +212,7 @@ Adapter registrati come *keyed services*; quale usare è un'impostazione (§7). 
 ### 7.1 Livelli
 | Livello | Dove | Contenuto | Chi |
 |---|---|---|---|
-| 0 Infrastruttura | `appsettings` + env/secret store | connection string Catalog, Redis, RabbitMQ, storage dei log, chiavi JWT/Data Protection, URL pubblici | DevOps |
+| 0 Infrastruttura | `appsettings` + env/secret store | connection string Catalog, Redis, RabbitMQ, storage dei log, issuer/audience JWT (`Auth`), Data Protection (le chiavi di firma JWT stanno in `catalog.signing_keys`, cifrate), URL pubblici | DevOps |
 | 1 Default codice | `SettingDefinition` | default sicuri | sviluppo |
 | 2 Piattaforma | `catalog.platform_settings` | default per tutti i tenant | System |
 | 3 Tenant | `configuration.*` nel tenant DB | impostazioni, branding, account di invio + regole, griglie, campi custom | System |
@@ -277,7 +277,7 @@ Implementazione (P1-10): `IReferenceDataCache` su `HybridCache`; L2 Redis/Valkey
 
 ## 9. Autenticazione pluggable
 
-- Identità: ASP.NET Identity nel tenant DB; l'API emette **sempre** i propri token (JWT ES256 10–15 min + refresh rotante; client app con `X-Client-Id`).
+- Identità: ASP.NET Identity nel tenant DB; l'API emette **sempre** i propri token (JWT ES256 10–15 min + refresh rotante; client app con `X-Client-Id`). Chiavi ES256 in `catalog.signing_keys` (privata cifrata con Data Protection), JWKS su `/.well-known/jwks.json`, rotazione manuale `auxctl keys rotate`.
 - Metodi come plug-in `IAuthenticationMethod`; oggi `password` e `email-otp` (codice a 6 cifre via email, 10 minuti, monouso — F35, default off).
 - Sicurezza account (F35, D-30): policy password da impostazioni, storico delle ultime N password, scadenza con cambio obbligatorio, reset via token monouso, ogni tentativo di accesso in `identity.login_attempts` + log `29xxx`; pagina "Audit accessi" per l'Administrator. `GET /api/v1/auth/methods` restituisce i metodi attivi del tenant (la pagina di login e l'app mobile li leggono).
 - Già pronti perché standard: tabella `identity.user_logins`; grant `external_code` progettato (flusso OAuth con PKCE, `state` cifrato con tenant e client, codice monouso scambiato dal BFF/app).

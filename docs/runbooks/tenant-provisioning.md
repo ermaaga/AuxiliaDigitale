@@ -23,6 +23,9 @@ auxctl tenant suspend|reactivate|archive --slug acme
 auxctl tenant list
 auxctl jobs list
 auxctl jobs run <job-code> --tenant acme | --all          # manual run (D-15), recorded in ops.job_runs
+auxctl keys rotate                                       # new ES256 token signing key (see "Token signing keys")
+auxctl clients add --client-id web-bff --name "Tenant web" --type WebBff [--origin https://app.example.com]
+auxctl clients list
 auxctl diagnostics registry --output docs/log-event-registry.md
 ```
 Exit codes: `0` success, `1` usage error, `2` failure (message `error AUX-NNNNN: …`; details in the logs).
@@ -38,6 +41,24 @@ Exit codes: `0` success, `1` usage error, `2` failure (message `error AUX-NNNNN:
 If a step fails the tenant stays `Provisioning` (database step) or becomes `MigrationFailed` (migration step) and the run is `Failed` with a code. **Re-run the same command** to resume: an existing database is reused.
 
 Not yet: first Administrator and activation e-mail (Identity, P2), post-provisioning isolation probe via the API, provisioning from the System console (N02, through the Worker).
+
+## Client applications
+Every caller of `/api/v1/auth/token` identifies its application with header `X-Client-Id` (D-03); confidential clients
+(`WebBff`, `PlatformConsole`) also send `X-Client-Secret`. `auxctl clients add` prints the generated secret **once**
+(only its hash is stored): put it in the BFF's secret store right away. `Mobile` and `Integration` clients have no secret.
+A second client with the same id fails with `AUX-12027`.
+
+## Token signing keys
+Access tokens are JWT ES256; the key ring lives in `catalog.signing_keys` (private keys encrypted with Data Protection,
+the same key ring as the tenant connection strings). The first key is created by the API at the first token. Public keys
+are published at `GET /.well-known/jwks.json`.
+
+`auxctl keys rotate` retires the active key (still published and valid for 2 h, longer than any access token) and makes
+a new one active. API nodes pick it up within 5 minutes, or immediately when a token signed with it arrives. No
+scheduler (D-15): rotate on a calendar (e.g. every 90 days) or at once if a key may be compromised; after a compromise
+rotate twice two hours apart, so the compromised key leaves the JWKS.
+
+Settings `Auth:Issuer` / `Auth:Audience` (default `https://auxilia.app` / `auxilia-api`) must be the same on every API node.
 
 ## Failures
 | Code | Meaning | Action |

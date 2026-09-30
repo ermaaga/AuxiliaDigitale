@@ -7,8 +7,8 @@ namespace Auxilia.Api.Infrastructure;
 
 /// <summary>
 /// The caller of the current request, from the token claims (<c>sub</c>; <c>actor_type=platform</c> for System
-/// console users; every <c>role</c> claim of a tenant user as <see cref="Roles"/>). Tokens are issued by Identity (task
-/// P2-02); until then every caller is anonymous.
+/// console users; every <c>role</c> claim of a tenant user as <see cref="Roles"/>). Tokens are issued by Identity
+/// (<c>/api/v1/auth/token</c>); without a valid bearer token the caller is anonymous.
 /// </summary>
 internal sealed class HttpCurrentUser : ICurrentUser
 {

@@ -7,6 +7,7 @@ using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Security;
+using Auxilia.Infrastructure.Security.Tokens;
 using Auxilia.Infrastructure.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +36,15 @@ public static class DependencyInjection
         services.TryAddSingleton<ITemplateRenderer, FluidTemplateRenderer>();
 
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
+
+        // Tokens (skill auxilia-security): ES256 ring in the Catalog, JWT issuer, deny-list on the distributed cache
+        // (in memory until AddRedisCache replaces IDistributedCache).
+        services.AddOptions<TokenOptions>();
+        services.AddDistributedMemoryCache();
+        services.TryAddSingleton<SigningKeyRing>();
+        services.TryAddScoped<ISigningKeyFactory, SigningKeyFactory>();
+        services.TryAddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
+        services.TryAddSingleton<IAccessTokenDenyList, DistributedAccessTokenDenyList>();
 
         return services;
     }

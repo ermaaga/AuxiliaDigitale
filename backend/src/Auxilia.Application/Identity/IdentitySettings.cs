@@ -26,6 +26,30 @@ public static class IdentitySettings
     public static readonly SettingDefinition<int> LockoutMinutes = new(
         "auth.lockout.minutes", Module, 5, isValid: minutes => minutes is >= 1 and <= 1440);
 
+    /// <summary>Lifetime of access tokens (skill auxilia-security: 10–15 min).</summary>
+    public static readonly SettingDefinition<int> AccessTokenMinutes = new(
+        "auth.accessToken.minutes", Module, 10, isValid: minutes => minutes is >= 5 and <= 60);
+
+    /// <summary>Absolute lifetime of a sign-in session; the idle timeout is <see cref="SessionIdleMinutes"/>.</summary>
+    public static readonly SettingDefinition<int> SessionAbsoluteDays = new(
+        "auth.session.absoluteDays", Module, 14, isValid: days => days is >= 1 and <= 90);
+
+    /// <summary>Validity of account activation links (D-06).</summary>
+    public static readonly SettingDefinition<int> ActivationLinkHours = new(
+        "auth.activation.linkHours", Module, 72, isValid: hours => hours is >= 1 and <= 720);
+
+    /// <summary>Validity of password reset links (short, skill auxilia-security).</summary>
+    public static readonly SettingDefinition<int> PasswordResetLinkMinutes = new(
+        "auth.passwordReset.linkMinutes", Module, 60, isValid: minutes => minutes is >= 5 and <= 1440);
+
+    /// <summary>Public URL of the web app; links in e-mails are <c>{appBaseUrl}/{tenant}/…</c>.</summary>
+    public static readonly SettingDefinition<string> AppBaseUrl = new(
+        "auth.appBaseUrl", Module, "http://localhost:3000",
+        isValid: url => Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https" && !url.EndsWith('/'));
+
     public static IReadOnlyList<SettingDefinition> All { get; } =
-        [SessionIdleMinutes, SingleSession, PasswordMinLength, LockoutMaxFailedAttempts, LockoutMinutes];
+    [
+        SessionIdleMinutes, SingleSession, PasswordMinLength, LockoutMaxFailedAttempts, LockoutMinutes,
+        AccessTokenMinutes, SessionAbsoluteDays, ActivationLinkHours, PasswordResetLinkMinutes, AppBaseUrl,
+    ];
 }

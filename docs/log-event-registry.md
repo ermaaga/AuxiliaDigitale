@@ -10,9 +10,9 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
-| 10000–10999 | Host | Host / Startup / Middleware | 13 | 10022 |
+| 10000–10999 | Host | Host / Startup / Middleware | 15 | 10024 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 12 | 12013 |
+| 12000–12999 | Identity | Identity / Auth | 27 | 12028 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 6 | 29007 |
+| 29000–29999 | Security | Security events | 13 | 29014 |
 
 ## Codes
 
@@ -48,6 +48,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10019 | Host.RequestInvalid | – | – | – | – |
 | AUX-10020 | Host.ValidationFailed | – | Validation | – | – |
 | AUX-10021 | Host.PostCommitActionFailed | Warning | – | – | A post-commit action of operation {Operation} failed |
+| AUX-10022 | Host.AuthenticationRequired | – | – | – | – |
+| AUX-10023 | Host.AccessDenied | – | – | – | – |
 | AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
 | AUX-11005 | Tenancy.TenantSlugInvalid | – | Validation | – | – |
 | AUX-11006 | Tenancy.TenantTransitionNotAllowed | – | Conflict | – | – |
@@ -76,6 +78,21 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12010 | Identity.UserAuthenticated | – | – | Identity.AuthenticateUser (success) | – |
 | AUX-12011 | Identity.PersonNotFound | – | NotFound | – | – |
 | AUX-12012 | Identity.UserValueInvalid | – | Validation | – | – |
+| AUX-12013 | Identity.TokensIssued | – | – | Identity.SignIn (success) | – |
+| AUX-12014 | Identity.TokensRefreshed | – | – | Identity.RefreshTokens (success) | – |
+| AUX-12015 | Identity.RefreshTokenInvalid | – | Unauthorized | – | – |
+| AUX-12016 | Identity.ClientInvalid | – | Unauthorized | – | – |
+| AUX-12017 | Identity.SessionEnded | – | – | Identity.EndSession (success) | – |
+| AUX-12018 | Identity.UserTokenInvalid | – | Validation | – | – |
+| AUX-12019 | Identity.ActivationSent | – | – | Identity.SendActivation (success) | – |
+| AUX-12020 | Identity.AccountActivated | – | – | Identity.ActivateAccount (success) | – |
+| AUX-12021 | Identity.PasswordResetRequested | – | – | Identity.RequestPasswordReset (success) | – |
+| AUX-12022 | Identity.PasswordReset | – | – | Identity.ResetPassword (success) | – |
+| AUX-12023 | Identity.AccessTokenRevoked | – | – | – | – |
+| AUX-12024 | Identity.SigningKeyRotated | – | – | Identity.RotateSigningKey (success) | – |
+| AUX-12025 | Identity.UserEmailMissing | – | Validation | – | – |
+| AUX-12026 | Identity.ClientApplicationAdded | – | – | Identity.AddClientApplication (success) | – |
+| AUX-12027 | Identity.ClientIdTaken | – | Conflict | – | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |
@@ -130,3 +147,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29004 | Security.RolesChanged | Information | – | – | Roles of user {UserId} changed to {Roles} |
 | AUX-29005 | Security.PasswordChanged | Information | – | – | Password of user {UserId} changed |
 | AUX-29006 | Security.AccountActivationChanged | Information | – | – | User {UserId} can sign in: {IsActive} |
+| AUX-29007 | Security.RefreshTokenReuse | Warning | – | – | Refresh token reused in session {SessionId} of user {UserId}: session revoked |
+| AUX-29008 | Security.SessionEnded | Information | – | – | Session {SessionId} of user {UserId} ended: {Reason} |
+| AUX-29009 | Security.PasswordResetRequested | Information | – | – | Password reset requested for user {UserId} |
+| AUX-29010 | Security.PasswordResetCompleted | Information | – | – | Password of user {UserId} reset with a reset link |
+| AUX-29011 | Security.AccountActivated | Information | – | – | User {UserId} activated the account |
+| AUX-29012 | Security.ClientRejected | Warning | – | – | Token request rejected for client {ClientId}: {Reason} |
+| AUX-29013 | Security.SigningKeyRotated | Information | – | – | Token signing key {KeyId} is now active |

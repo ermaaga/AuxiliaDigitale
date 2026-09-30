@@ -160,6 +160,51 @@ public sealed class AuxctlTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task KeysRotate_RetiresTheActiveKeyAndKeepsItPublished()
+    {
+        var first = await RunAsync("keys", "rotate");
+        var second = await RunAsync("keys", "rotate");
+
+        first.ExitCode.ShouldBe(AuxctlCli.Success, first.Error);
+        second.ExitCode.ShouldBe(AuxctlCli.Success, second.Error);
+        await using var catalog = Catalog();
+        var keys = await catalog.SigningKeys.AsNoTracking().ToListAsync(Ct);
+        keys.Count.ShouldBe(2);
+        var active = keys.Where(key => key.RetiredAt == null).ShouldHaveSingleItem();
+        second.Output.ShouldContain(active.Id);
+        keys.Single(key => key.RetiredAt != null).PublishedUntil.ShouldNotBeNull();
+        keys.ShouldAllBe(key => !key.PrivateKeyProtected.Contains("PRIVATE", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Clients_AddPrintsTheSecretOnceAndStoresOnlyItsHash()
+    {
+        var added = await RunAsync("clients", "add", "--client-id", "web-bff", "--name", "Tenant web", "--type", "webbff", "--origin", "https://app.example.test/");
+        var mobile = await RunAsync("clients", "add", "--client-id", "mobile", "--name", "Mobile", "--type", "Mobile");
+        var duplicate = await RunAsync("clients", "add", "--client-id", "web-bff", "--name", "Again", "--type", "Mobile");
+        var badType = await RunAsync("clients", "add", "--client-id", "x", "--name", "X", "--type", "Robot");
+
+        added.ExitCode.ShouldBe(AuxctlCli.Success, added.Error);
+        var secret = added.Output.Split("(shown only now): ")[1].Trim();
+        mobile.Output.ShouldContain("public client");
+        duplicate.ExitCode.ShouldBe(AuxctlCli.Failure);
+        duplicate.Error.ShouldContain("AUX-12027");
+        badType.ExitCode.ShouldBe(AuxctlCli.UsageError);
+
+        await using (var catalog = Catalog())
+        {
+            var web = await catalog.ClientApplications.AsNoTracking().SingleAsync(client => client.ClientId == "web-bff", Ct);
+            web.SecretHash.ShouldNotBeNull().ShouldNotContain(secret);
+            web.AllowedOrigins.ShouldBe(["https://app.example.test"]);
+        }
+
+        var list = await RunAsync("clients", "list");
+        list.Output.ShouldContain("web-bff\tWebBff\tenabled\thttps://app.example.test\tTenant web");
+        list.Output.ShouldContain("mobile\tMobile\tenabled\t-\tMobile");
+        list.Output.ShouldNotContain(secret);
+    }
+
+    [Fact]
     public async Task UnknownCommand_PrintsUsage()
     {
         var run = await RunAsync("tenant", "delete", "--slug", "x");

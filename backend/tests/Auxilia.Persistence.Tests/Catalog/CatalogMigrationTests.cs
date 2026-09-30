@@ -30,7 +30,7 @@ public sealed class CatalogMigrationTests(CatalogDatabaseFixture database)
         tables.ShouldBe(
         [
             "__ef_migrations_history", "client_applications", "data_protection_keys", "migration_runs", "modules",
-            "plan_modules", "plans", "platform_settings", "platform_user_roles", "platform_users", "tenant_domains",
+            "plan_modules", "plans", "platform_settings", "platform_user_roles", "platform_users", "signing_keys", "tenant_domains",
             "tenant_module_overrides", "tenant_plans", "tenants",
         ]);
     }

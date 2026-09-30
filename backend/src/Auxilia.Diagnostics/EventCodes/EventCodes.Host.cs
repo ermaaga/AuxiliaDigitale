@@ -45,5 +45,11 @@ public static partial class EventCodes
 
         /// <summary>An action registered to run after an operation committed (e.g. cache invalidation) failed; the operation stays successful.</summary>
         public const int PostCommitActionFailed = 10021;
+
+        /// <summary>The endpoint needs a valid access token (401): missing, expired, badly signed or revoked.</summary>
+        public const int AuthenticationRequired = 10022;
+
+        /// <summary>The caller is authenticated but not allowed to use the endpoint (403).</summary>
+        public const int AccessDenied = 10023;
     }
 }

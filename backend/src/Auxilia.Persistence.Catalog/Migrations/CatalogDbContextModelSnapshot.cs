@@ -416,6 +416,59 @@ namespace Auxilia.Persistence.Catalog.Migrations
                     b.ToTable("platform_users", "catalog");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Platform.SigningKey", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Algorithm")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("algorithm");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("PrivateKeyProtected")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("private_key_protected");
+
+                    b.Property<string>("PublicJwk")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("public_jwk");
+
+                    b.Property<DateTimeOffset?>("PublishedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_until");
+
+                    b.Property<DateTimeOffset?>("RetiredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("retired_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_signing_keys");
+
+                    b.HasIndex("RetiredAt")
+                        .IsUnique()
+                        .HasDatabaseName("ux_signing_keys_active")
+                        .HasFilter("retired_at IS NULL");
+
+                    b.ToTable("signing_keys", "catalog");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Platform.Tenant", b =>
                 {
                     b.Property<Guid>("Id")

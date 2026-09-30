@@ -51,6 +51,7 @@ public static class TenantPersistence
         services.AddScoped<IJobLock, PostgresJobLock>();
         services.AddScoped<IMessagingDataFactory, MessagingDataFactory>();
         services.AddScoped<IIdentityDataFactory, IdentityDataFactory>();
+        services.AddScoped<ISessionDataFactory, SessionDataFactory>();
 
         return services;
     }

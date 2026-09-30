@@ -20,6 +20,8 @@ internal static class ProblemDetailsSetup
     private static readonly Dictionary<int, (int Code, string Title)> FrameworkErrors = new()
     {
         [StatusCodes.Status400BadRequest] = (EventCodes.Host.RequestInvalid, "The request could not be read"),
+        [StatusCodes.Status401Unauthorized] = (EventCodes.Host.AuthenticationRequired, "A valid access token is required"),
+        [StatusCodes.Status403Forbidden] = (EventCodes.Host.AccessDenied, "The caller is not allowed to use this endpoint"),
         [StatusCodes.Status404NotFound] = (EventCodes.Host.EndpointNotFound, "No endpoint matches the request"),
         [StatusCodes.Status405MethodNotAllowed] = (EventCodes.Host.MethodNotAllowed, "The endpoint does not support this HTTP method"),
         [StatusCodes.Status500InternalServerError] = (EventCodes.Host.UnhandledException, "An unexpected error occurred"),
