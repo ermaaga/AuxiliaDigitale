@@ -10,7 +10,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
-| 10000–10999 | Host | Host / Startup / Middleware | 15 | 10024 |
+| 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
 | 12000–12999 | Identity | Identity / Auth | 29 | 12030 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 14 | 29015 |
+| 29000–29999 | Security | Security events | 16 | 29017 |
 
 ## Codes
 
@@ -50,7 +50,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10021 | Host.PostCommitActionFailed | Warning | – | – | A post-commit action of operation {Operation} failed |
 | AUX-10022 | Host.AuthenticationRequired | – | – | – | – |
 | AUX-10023 | Host.AccessDenied | – | – | – | – |
-| AUX-11004 | Tenancy.CrossTenantAttempt | Warning | Forbidden | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
+| AUX-10024 | Host.TooManyRequests | – | – | – | – |
+| AUX-11004 | Tenancy.CrossTenantAttempt | – | Forbidden | – | – |
 | AUX-11005 | Tenancy.TenantSlugInvalid | – | Validation | – | – |
 | AUX-11006 | Tenancy.TenantTransitionNotAllowed | – | Conflict | – | – |
 | AUX-11007 | Tenancy.CatalogValueInvalid | – | Validation | – | – |
@@ -157,3 +158,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29012 | Security.ClientRejected | Warning | – | – | Token request rejected for client {ClientId}: {Reason} |
 | AUX-29013 | Security.SigningKeyRotated | Information | – | – | Token signing key {KeyId} is now active |
 | AUX-29014 | Security.PermissionDenied | Warning | – | – | User {UserId} denied {Permission} ({Reason}) |
+| AUX-29015 | Security.CrossTenantAttempt | Warning | – | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
+| AUX-29016 | Security.RateLimitExceeded | Warning | – | – | Rate limit {Policy} exceeded by {PartitionKind} on {RequestMethod} {RequestPath} |

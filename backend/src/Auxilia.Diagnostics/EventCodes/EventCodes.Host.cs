@@ -51,5 +51,8 @@ public static partial class EventCodes
 
         /// <summary>The caller is authenticated but not allowed to use the endpoint (403).</summary>
         public const int AccessDenied = 10023;
+
+        /// <summary>Too many requests for a rate-limit policy (429, with <c>Retry-After</c>).</summary>
+        public const int TooManyRequests = 10024;
     }
 }

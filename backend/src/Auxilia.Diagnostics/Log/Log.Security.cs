@@ -62,5 +62,13 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.PermissionDenied, EventName = "Security.PermissionDenied",
             Level = LogLevel.Warning, Message = "User {UserId} denied {Permission} ({Reason})")]
         public static partial void PermissionDenied(ILogger logger, Guid? userId, string permission, string reason);
+
+        [LoggerMessage(EventId = EventCodes.Security.CrossTenantAttempt, EventName = "Security.CrossTenantAttempt",
+            Level = LogLevel.Warning, Message = "Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant}")]
+        public static partial void CrossTenantAttempt(ILogger logger, string claimTenant, string requestedTenant);
+
+        [LoggerMessage(EventId = EventCodes.Security.RateLimitExceeded, EventName = "Security.RateLimitExceeded",
+            Level = LogLevel.Warning, Message = "Rate limit {Policy} exceeded by {PartitionKind} on {RequestMethod} {RequestPath}")]
+        public static partial void RateLimitExceeded(ILogger logger, string policy, string partitionKind, string requestMethod, string requestPath);
     }
 }

@@ -2,6 +2,7 @@ using Auxilia.Api.Endpoints;
 using Auxilia.Api.Endpoints.Identity;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Modules;
+using Auxilia.Api.RateLimiting;
 using Auxilia.Api.Tenancy;
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
@@ -46,6 +47,7 @@ if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rab
 }
 
 builder.Services.AddAuxiliaAuthentication(builder.Configuration);
+builder.Services.AddAuxiliaRateLimiting(builder.Configuration);
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 
@@ -67,6 +69,9 @@ app.UseAuxiliaSecurityHeaders();
 // Authentication goes before tenant resolution, so the token claim is authoritative.
 app.UseAuthentication();
 app.UseMiddleware<TenantResolutionMiddleware>();
+
+// After authentication and tenant resolution: partitions are per tenant and user.
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapDefaultEndpoints();

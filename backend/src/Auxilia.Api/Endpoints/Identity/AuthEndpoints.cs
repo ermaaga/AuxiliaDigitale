@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using Auxilia.Api.Infrastructure;
+using Auxilia.Api.RateLimiting;
 using Auxilia.Api.Tenancy;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Tenancy;
@@ -36,12 +37,14 @@ internal sealed class AuthEndpoints : IApiEndpoints
 
         auth.MapPost("/token", IssueTokensAsync)
             .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
             .WithName("IssueTokens")
             .WithSummary("Signs in with a password, or exchanges a refresh token for a new token pair")
             .Produces<TokenResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
-            .ProducesProblem(StatusCodes.Status403Forbidden);
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         auth.MapPost("/logout", LogoutAsync)
             .RequireAuthorization()
@@ -52,6 +55,8 @@ internal sealed class AuthEndpoints : IApiEndpoints
 
         auth.MapPost("/activate", ActivateAsync)
             .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.AccountLinksPolicy)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .WithName("ActivateAccount")
             .WithSummary("Activates an account with the token of the activation link and sets its password")
             .Produces(StatusCodes.Status204NoContent)
@@ -59,11 +64,15 @@ internal sealed class AuthEndpoints : IApiEndpoints
 
         auth.MapPost("/password/forgot", ForgotPasswordAsync)
             .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.AccountLinksPolicy)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .WithName("ForgotPassword")
             .WithSummary("Sends a password reset link when the user exists (always 202)");
 
         auth.MapPost("/password/reset", ResetPasswordAsync)
             .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.AccountLinksPolicy)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
             .WithName("ResetPassword")
             .WithSummary("Sets a new password with the token of a reset link and ends the user's sessions")
             .Produces(StatusCodes.Status204NoContent)

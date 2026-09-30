@@ -24,6 +24,7 @@ internal static class ProblemDetailsSetup
         [StatusCodes.Status403Forbidden] = (EventCodes.Host.AccessDenied, "The caller is not allowed to use this endpoint"),
         [StatusCodes.Status404NotFound] = (EventCodes.Host.EndpointNotFound, "No endpoint matches the request"),
         [StatusCodes.Status405MethodNotAllowed] = (EventCodes.Host.MethodNotAllowed, "The endpoint does not support this HTTP method"),
+        [StatusCodes.Status429TooManyRequests] = (EventCodes.Host.TooManyRequests, "Too many requests, retry later"),
         [StatusCodes.Status500InternalServerError] = (EventCodes.Host.UnhandledException, "An unexpected error occurred"),
     };
 

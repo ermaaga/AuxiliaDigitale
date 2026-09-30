@@ -48,7 +48,7 @@ internal sealed class TenantResolutionMiddleware
 
         if (claim is not null && requested is not null && !string.Equals(claim, requested, StringComparison.Ordinal))
         {
-            Log.Tenancy.CrossTenantAttempt(logger, claim, requested);
+            Log.Security.CrossTenantAttempt(logger, claim, requested);
             await WriteProblemAsync(context, Errors.Tenancy.CrossTenantAttempt().Code, StatusCodes.Status403Forbidden,
                 "The token does not belong to the requested tenant");
             return;

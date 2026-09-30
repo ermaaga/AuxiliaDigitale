@@ -46,5 +46,11 @@ public static partial class EventCodes
 
         /// <summary>A tenant user was denied an operation for a missing permission or by a resource policy.</summary>
         public const int PermissionDenied = 29014;
+
+        /// <summary>A token of one tenant was used against another tenant (the request gets 403 <c>AUX-11004</c>).</summary>
+        public const int CrossTenantAttempt = 29015;
+
+        /// <summary>A caller exceeded a rate-limit policy (the request gets 429 <c>AUX-10024</c>).</summary>
+        public const int RateLimitExceeded = 29016;
     }
 }

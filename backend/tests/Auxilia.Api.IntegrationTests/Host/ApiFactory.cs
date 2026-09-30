@@ -22,6 +22,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>Comma-separated tenant roles added as <c>role</c> claims (with <see cref="TestTenantClaimHeader"/>).</summary>
     public const string TestRolesHeader = "X-Test-Roles";
 
+    /// <summary>The <c>sub</c> claim of the test caller (default: a new id per request).</summary>
+    public const string TestUserHeader = "X-Test-User";
+
     public const string BaseDomain = "auxilia.test";
 
     protected virtual IApiEndpoints? Endpoints => null;
@@ -39,6 +42,9 @@ public class ApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:Catalog", ApiDatabase.Instance.CatalogConnectionString);
         builder.UseSetting("Tenancy:BaseDomains:0", BaseDomain);
         builder.UseSetting("ConnectionStrings:Redis", RedisConnectionString);
+
+        // Suites share one client IP (none, in the test server): rate limits are tested on their own (RateLimitingTests).
+        builder.UseSetting("RateLimiting:Enabled", "false");
 
         builder.ConfigureServices(services =>
         {
@@ -67,7 +73,7 @@ public class ApiFactory : WebApplicationFactory<Program>
                         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         .Select(role => new Claim("role", role));
                     context.User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim("sub", Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString()), .. roles], "Test"));
+                        [new Claim("sub", context.Request.Headers[TestUserHeader].FirstOrDefault() ?? Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString()), .. roles], "Test"));
                 }
 
                 return nextMiddleware(context);

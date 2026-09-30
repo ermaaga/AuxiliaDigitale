@@ -60,6 +60,21 @@ rotate twice two hours apart, so the compromised key leaves the JWKS.
 
 Settings `Auth:Issuer` / `Auth:Audience` (default `https://auxilia.app` / `auxilia-api`) must be the same on every API node.
 
+## Rate limits (API)
+Section `RateLimiting` of the API configuration (defaults in code, per node, in memory):
+
+| Rule | Default | Partition |
+|---|---|---|
+| `SignIn` (`POST /auth/token`) | 30 / 1 min | tenant + IP |
+| `AccountLinks` (activate, password forgot/reset) | 10 / 15 min | tenant + IP |
+| `User` (every request) | 600 / 1 min | tenant + user |
+| `Anonymous` (every request) | 300 / 1 min | IP |
+| `Client` (every request) | 5000 / 1 min | client application |
+
+Each rule is `PermitLimit` + `Window` (e.g. `RateLimiting__SignIn__PermitLimit=50`); `RateLimiting__Enabled=false` turns
+limiting off. A rejected request gets 429 `AUX-10024` with `Retry-After` and logs `AUX-29016`. Behind a reverse proxy
+configure the forwarded headers, otherwise every caller shares the proxy's IP.
+
 ## Failures
 | Code | Meaning | Action |
 |---|---|---|
