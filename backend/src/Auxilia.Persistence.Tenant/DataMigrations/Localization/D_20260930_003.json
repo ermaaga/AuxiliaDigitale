@@ -1,0 +1,3080 @@
+[
+ {
+  "key": "PrivacyConsent",
+  "category": "common",
+  "en": "By checking this button you agree to our Privacy Policy.",
+  "it": "Cliccando su 'Registrati', acconsenti al trattamento dei tuoi dati personali secondo quanto descritto nella nostra"
+ },
+ {
+  "key": "Login",
+  "category": "common",
+  "en": "Login",
+  "it": "Accedi"
+ },
+ {
+  "key": "Logout",
+  "category": "common",
+  "en": "Logout",
+  "it": "Esci"
+ },
+ {
+  "key": "Username",
+  "category": "common",
+  "en": "Username",
+  "it": "Nome Utente"
+ },
+ {
+  "key": "Password",
+  "category": "common",
+  "en": "Password",
+  "it": "Password"
+ },
+ {
+  "key": "Email",
+  "category": "common",
+  "en": "Email",
+  "it": "Email"
+ },
+ {
+  "key": "Phone",
+  "category": "common",
+  "en": "Phone",
+  "it": "Telefono"
+ },
+ {
+  "key": "FullName",
+  "category": "common",
+  "en": "Full Name",
+  "it": "Nome e Cognome"
+ },
+ {
+  "key": "Save",
+  "category": "common",
+  "en": "Save",
+  "it": "Salva"
+ },
+ {
+  "key": "Cancel",
+  "category": "common",
+  "en": "Cancel",
+  "it": "Annulla"
+ },
+ {
+  "key": "Delete",
+  "category": "common",
+  "en": "Delete",
+  "it": "Elimina"
+ },
+ {
+  "key": "Edit",
+  "category": "common",
+  "en": "Edit",
+  "it": "Modifica"
+ },
+ {
+  "key": "Create",
+  "category": "common",
+  "en": "Create",
+  "it": "Crea"
+ },
+ {
+  "key": "Search",
+  "category": "common",
+  "en": "Search",
+  "it": "Cerca"
+ },
+ {
+  "key": "Actions",
+  "category": "common",
+  "en": "Actions",
+  "it": "Azioni"
+ },
+ {
+  "key": "Active",
+  "category": "common",
+  "en": "Active",
+  "it": "Attivo"
+ },
+ {
+  "key": "Inactive",
+  "category": "common",
+  "en": "Inactive",
+  "it": "Inattivo"
+ },
+ {
+  "key": "Date",
+  "category": "common",
+  "en": "Date",
+  "it": "Data"
+ },
+ {
+  "key": "Time",
+  "category": "common",
+  "en": "Time",
+  "it": "Ora"
+ },
+ {
+  "key": "Description",
+  "category": "common",
+  "en": "Description",
+  "it": "Descrizione"
+ },
+ {
+  "key": "Profile",
+  "category": "common",
+  "en": "Profile",
+  "it": "Profilo"
+ },
+ {
+  "key": "Settings",
+  "category": "common",
+  "en": "Settings",
+  "it": "Impostazioni"
+ },
+ {
+  "key": "Language",
+  "category": "common",
+  "en": "Language",
+  "it": "Lingua"
+ },
+ {
+  "key": "English",
+  "category": "common",
+  "en": "English",
+  "it": "Inglese"
+ },
+ {
+  "key": "Italian",
+  "category": "common",
+  "en": "Italian",
+  "it": "Italiano"
+ },
+ {
+  "key": "Upload",
+  "category": "common",
+  "en": "Upload",
+  "it": "Carica"
+ },
+ {
+  "key": "ChangePassword",
+  "category": "common",
+  "en": "Change Password",
+  "it": "Cambia Password"
+ },
+ {
+  "key": "NewPassword",
+  "category": "common",
+  "en": "New Password",
+  "it": "Nuova Password"
+ },
+ {
+  "key": "LeaveEmptyToKeepCurrent",
+  "category": "common",
+  "en": "Leave empty to keep current",
+  "it": "Lasciare vuoto per mantenere la password attuale"
+ },
+ {
+  "key": "ConfirmPassword",
+  "category": "common",
+  "en": "Confirm Password",
+  "it": "Conferma Password"
+ },
+ {
+  "key": "AddUser",
+  "category": "common",
+  "en": "Add User",
+  "it": "Aggiungi Utente"
+ },
+ {
+  "key": "Welcome",
+  "category": "common",
+  "en": "Welcome",
+  "it": "Benvenuto"
+ },
+ {
+  "key": "Loading",
+  "category": "common",
+  "en": "Loading",
+  "it": "Caricamento"
+ },
+ {
+  "key": "NoData",
+  "category": "common",
+  "en": "No data available",
+  "it": "Nessun dato disponibile"
+ },
+ {
+  "key": "Confirm",
+  "category": "common",
+  "en": "Confirm",
+  "it": "Conferma"
+ },
+ {
+  "key": "Yes",
+  "category": "common",
+  "en": "Yes",
+  "it": "Sì"
+ },
+ {
+  "key": "No",
+  "category": "common",
+  "en": "No",
+  "it": "No"
+ },
+ {
+  "key": "Close",
+  "category": "common",
+  "en": "Close",
+  "it": "Chiudi"
+ },
+ {
+  "key": "View",
+  "category": "common",
+  "en": "View",
+  "it": "Visualizza"
+ },
+ {
+  "key": "Details",
+  "category": "common",
+  "en": "Details",
+  "it": "Dettagli"
+ },
+ {
+  "key": "ExportPDF",
+  "category": "common",
+  "en": "Export to PDF",
+  "it": "Esporta in PDF"
+ },
+ {
+  "key": "ExportExcel",
+  "category": "common",
+  "en": "Export to Excel",
+  "it": "Esporta in Excel"
+ },
+ {
+  "key": "ExcelFile",
+  "category": "common",
+  "en": "Excel File",
+  "it": "Foglio Excel"
+ },
+ {
+  "key": "AllStatus",
+  "category": "common",
+  "en": "All Status",
+  "it": "Tutti gli Stati"
+ },
+ {
+  "key": "AllEmployees",
+  "category": "common",
+  "en": "All Employees",
+  "it": "Tutti gli Operatori"
+ },
+ {
+  "key": "AllClients",
+  "category": "common",
+  "en": "All Clients",
+  "it": "Tutti i Clienti"
+ },
+ {
+  "key": "ClearFilters",
+  "category": "common",
+  "en": "Clear Filters",
+  "it": "Cancella Filtri"
+ },
+ {
+  "key": "AssignedEmployee",
+  "category": "common",
+  "en": "Assigned Employee",
+  "it": "Dipendente Assegnato"
+ },
+ {
+  "key": "BirthDate",
+  "category": "common",
+  "en": "Birth Date",
+  "it": "Data di Nascita"
+ },
+ {
+  "key": "FiscalCode",
+  "category": "common",
+  "en": "Fiscal Code",
+  "it": "Codice Fiscale"
+ },
+ {
+  "key": "MandatoryField",
+  "category": "common",
+  "en": "Compile Mandatory Fields",
+  "it": "Compila i campi obbligatori"
+ },
+ {
+  "key": "LanguageChanged",
+  "category": "common",
+  "en": "Language Changed Succesfully!",
+  "it": "Lingua Cambiata Correttamente!"
+ },
+ {
+  "key": "MyProfile",
+  "category": "common",
+  "en": "My Profile",
+  "it": "Profilo"
+ },
+ {
+  "key": "New",
+  "category": "common",
+  "en": "New",
+  "it": "New"
+ },
+ {
+  "key": "NoNotification",
+  "category": "common",
+  "en": "No Notification",
+  "it": "Nessuna notifica"
+ },
+ {
+  "key": "Status",
+  "category": "common",
+  "en": "Status",
+  "it": "Stato"
+ },
+ {
+  "key": "Processing",
+  "category": "common",
+  "en": "Processing the request",
+  "it": "Elaborazione della richiesta"
+ },
+ {
+  "key": "Request",
+  "category": "common",
+  "en": "Request",
+  "it": "Elenco Richieste"
+ },
+ {
+  "key": "Text",
+  "category": "common",
+  "en": "Text",
+  "it": "Testo"
+ },
+ {
+  "key": "Number",
+  "category": "common",
+  "en": "Number",
+  "it": "Numero"
+ },
+ {
+  "key": "Boolean",
+  "category": "common",
+  "en": "Boolean",
+  "it": "Vero/Falso"
+ },
+ {
+  "key": "ShowOnGrid",
+  "category": "common",
+  "en": "Show On Grid",
+  "it": "Mostra in griglia"
+ },
+ {
+  "key": "Group",
+  "category": "common",
+  "en": "Group",
+  "it": "Gruppo"
+ },
+ {
+  "key": "ColorChip",
+  "category": "common",
+  "en": "Color chip",
+  "it": "Colore Tag"
+ },
+ {
+  "key": "Specialization",
+  "category": "common",
+  "en": "Specialization",
+  "it": "Specializzazione"
+ },
+ {
+  "key": "None",
+  "category": "common",
+  "en": "None",
+  "it": "Nessuna"
+ },
+ {
+  "key": "Documents",
+  "category": "app",
+  "en": "Documents",
+  "it": "Fascicolo documenti"
+ },
+ {
+  "key": "DocumentsInFolder",
+  "category": "app",
+  "en": "Documents",
+  "it": "Documenti presenti nel fascicolo del cliente"
+ },
+ {
+  "key": "TotalDocuments",
+  "category": "app",
+  "en": "Total Documents of all clients",
+  "it": "Fascicolo documenti di tutti i clienti"
+ },
+ {
+  "key": "Document",
+  "category": "app",
+  "en": "Documents",
+  "it": "Documenti"
+ },
+ {
+  "key": "BackToClients",
+  "category": "app",
+  "en": "Back to Clients",
+  "it": "Torna ai clienti"
+ },
+ {
+  "key": "BackToDetail",
+  "category": "app",
+  "en": "Go to Detail",
+  "it": "Vai al dettaglio del cliente"
+ },
+ {
+  "key": "DocumentFor",
+  "category": "app",
+  "en": "Documents for",
+  "it": "Fascicolo di"
+ },
+ {
+  "key": "UploadDocument",
+  "category": "app",
+  "en": "Upload Document",
+  "it": "Carica un nuovo documento nel fascicolo"
+ },
+ {
+  "key": "UploadSingleDocument",
+  "category": "app",
+  "en": "Upload Document",
+  "it": "Carica Documento"
+ },
+ {
+  "key": "FilesSelected",
+  "category": "app",
+  "en": "file(s) selected",
+  "it": "documenti selezionti"
+ },
+ {
+  "key": "FileName",
+  "category": "app",
+  "en": "File Name",
+  "it": "Nome Documento"
+ },
+ {
+  "key": "Optional",
+  "category": "app",
+  "en": "Optional",
+  "it": "Opzionale"
+ },
+ {
+  "key": "SelectFiles",
+  "category": "app",
+  "en": "Select Files",
+  "it": "Seleziona Documenti"
+ },
+ {
+  "key": "SelectedDocuments",
+  "category": "app",
+  "en": "file(s) selected",
+  "it": "documenti selezionati"
+ },
+ {
+  "key": "Add",
+  "category": "app",
+  "en": "Add",
+  "it": "Aggiungi"
+ },
+ {
+  "key": "NoDocumentsFound",
+  "category": "app",
+  "en": "No documents found",
+  "it": "Nessun documento trovato"
+ },
+ {
+  "key": "UploadedBy",
+  "category": "app",
+  "en": "Uploaded By",
+  "it": "Caricato da"
+ },
+ {
+  "key": "UploadDate",
+  "category": "app",
+  "en": "Upload Date",
+  "it": "Data di Caricamento"
+ },
+ {
+  "key": "Download",
+  "category": "app",
+  "en": "Download",
+  "it": "Scarica"
+ },
+ {
+  "key": "AreYouSureToDeleteDocument",
+  "category": "app",
+  "en": "Are you sure you want to delete this document?",
+  "it": "Sei sicuro di voler eliminare questo documento?"
+ },
+ {
+  "key": "Home",
+  "category": "nav",
+  "en": "Home",
+  "it": "Home"
+ },
+ {
+  "key": "Employees",
+  "category": "nav",
+  "en": "Employees",
+  "it": "Operatori"
+ },
+ {
+  "key": "Notifications",
+  "category": "nav",
+  "en": "Notifications",
+  "it": "Notifiche"
+ },
+ {
+  "key": "ActiveSessions",
+  "category": "nav",
+  "en": "Active Sessions",
+  "it": "Sessioni Attive"
+ },
+ {
+  "key": "Dashboard",
+  "category": "nav",
+  "en": "Dashboard",
+  "it": "Pannello di Controllo"
+ },
+ {
+  "key": "ClientsOverview",
+  "category": "nav",
+  "en": "Clients Overview",
+  "it": "Panoramica Clienti"
+ },
+ {
+  "key": "Users",
+  "category": "nav",
+  "en": "Users",
+  "it": "Utenti"
+ },
+ {
+  "key": "Subscriptions",
+  "category": "nav",
+  "en": "Subscriptions",
+  "it": "Elenco Pratiche"
+ },
+ {
+  "key": "Subscription",
+  "category": "nav",
+  "en": "Subscription",
+  "it": "Pratiche"
+ },
+ {
+  "key": "Memberships",
+  "category": "nav",
+  "en": "Memberships",
+  "it": "Tipologie Pratiche"
+ },
+ {
+  "key": "Requests",
+  "category": "nav",
+  "en": "Requests",
+  "it": "Richieste Clienti"
+ },
+ {
+  "key": "MyClientRequests",
+  "category": "nav",
+  "en": "Requests",
+  "it": "Le richieste dei miei Clienti"
+ },
+ {
+  "key": "RegistrationRequests",
+  "category": "nav",
+  "en": "Registration Requests",
+  "it": "Richieste Nuovi Clienti"
+ },
+ {
+  "key": "Logs",
+  "category": "nav",
+  "en": "Logs",
+  "it": "Log di Errori"
+ },
+ {
+  "key": "Sessions",
+  "category": "nav",
+  "en": "Sessions",
+  "it": "Sessioni attive"
+ },
+ {
+  "key": "Clients",
+  "category": "nav",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "Appointments",
+  "category": "nav",
+  "en": "Appointments",
+  "it": "Appuntamenti"
+ },
+ {
+  "key": "Configurations",
+  "category": "nav",
+  "en": "Configurations",
+  "it": "Configurazioni"
+ },
+ {
+  "key": "NoActiveSessions",
+  "category": "nav",
+  "en": "No active sessions",
+  "it": "Non ci sono connessioni attive"
+ },
+ {
+  "key": "TotalSessions",
+  "category": "nav",
+  "en": "Total Sessions",
+  "it": "Sessioni Totali"
+ },
+ {
+  "key": "ActiveNow",
+  "category": "nav",
+  "en": "Active Now",
+  "it": "Attive Ora"
+ },
+ {
+  "key": "UniqueUsers",
+  "category": "nav",
+  "en": "Unique Users",
+  "it": "Utenti Unici"
+ },
+ {
+  "key": "Clear",
+  "category": "nav",
+  "en": "Clear",
+  "it": "Cancella"
+ },
+ {
+  "key": "RegisterNotAllowed",
+  "category": "app",
+  "en": "Registration is not allowed",
+  "it": "Registrazione Non Disponibile"
+ },
+ {
+  "key": "TemporaryUnabled",
+  "category": "app",
+  "en": "The registration is temporary unabled",
+  "it": "La registrazione è temporaneamente disabilitata."
+ },
+ {
+  "key": "JoinToUs",
+  "category": "app",
+  "en": "Join our community",
+  "it": "Unisciti alla nostra community"
+ },
+ {
+  "key": "CompileFields",
+  "category": "app",
+  "en": "Fill in the fields to get started",
+  "it": "Compila i campi per iniziare"
+ },
+ {
+  "key": "SignupQuickly",
+  "category": "app",
+  "en": "Sign Up Quickly",
+  "it": "Iscriviti Rapidamente"
+ },
+ {
+  "key": "Signup",
+  "category": "app",
+  "en": "Sign Up",
+  "it": "Registrati"
+ },
+ {
+  "key": "AdminDashboard",
+  "category": "app",
+  "en": "Administrator Dashboard",
+  "it": "Pannello Amministratore"
+ },
+ {
+  "key": "TotalClients",
+  "category": "app",
+  "en": "Total Clients",
+  "it": "Totale Clienti"
+ },
+ {
+  "key": "TotalEmployees",
+  "category": "app",
+  "en": "Total Employees",
+  "it": "Totale Operatori"
+ },
+ {
+  "key": "ActiveSubscriptions",
+  "category": "app",
+  "en": "Active Subscriptions",
+  "it": "Pratiche Attive"
+ },
+ {
+  "key": "PendingRequests",
+  "category": "app",
+  "en": "Pending Requests",
+  "it": "Richieste in Sospeso"
+ },
+ {
+  "key": "UserManagement",
+  "category": "app",
+  "en": "User Management",
+  "it": "Gestione Utenti"
+ },
+ {
+  "key": "EditUser",
+  "category": "app",
+  "en": "Edit User",
+  "it": "Modifica Utente"
+ },
+ {
+  "key": "DeleteUser",
+  "category": "app",
+  "en": "Delete User",
+  "it": "Elimina Utente"
+ },
+ {
+  "key": "ResetPassword",
+  "category": "app",
+  "en": "Reset Password",
+  "it": "Reimposta Password"
+ },
+ {
+  "key": "Role",
+  "category": "app",
+  "en": "Role",
+  "it": "Ruolo"
+ },
+ {
+  "key": "Administrator",
+  "category": "app",
+  "en": "Administrator",
+  "it": "Amministratore"
+ },
+ {
+  "key": "Employee",
+  "category": "app",
+  "en": "Employee",
+  "it": "Operatore"
+ },
+ {
+  "key": "Client",
+  "category": "app",
+  "en": "Client",
+  "it": "Cliente"
+ },
+ {
+  "key": "CreatedAt",
+  "category": "app",
+  "en": "Created At",
+  "it": "Creato il"
+ },
+ {
+  "key": "LastLogin",
+  "category": "app",
+  "en": "Last Login",
+  "it": "Ultimo Accesso"
+ },
+ {
+  "key": "Revenue",
+  "category": "app",
+  "en": "Revenue",
+  "it": "Entrate"
+ },
+ {
+  "key": "MonthlyRevenue",
+  "category": "app",
+  "en": "Monthly Revenue",
+  "it": "Entrate Mensili"
+ },
+ {
+  "key": "UserActivity",
+  "category": "app",
+  "en": "User Activity",
+  "it": "Attività Utenti"
+ },
+ {
+  "key": "User",
+  "category": "app",
+  "en": "User",
+  "it": "Utente"
+ },
+ {
+  "key": "EmployeeManagement",
+  "category": "app",
+  "en": "Employee Management",
+  "it": "Gestione Operatori"
+ },
+ {
+  "key": "CreateNewEmployee",
+  "category": "app",
+  "en": "Create New Employee",
+  "it": "Crea Un Nuovo Operatore"
+ },
+ {
+  "key": "ClientManagement",
+  "category": "app",
+  "en": "Client Management",
+  "it": "Gestione Clienti"
+ },
+ {
+  "key": "AddClient",
+  "category": "app",
+  "en": "Add Client",
+  "it": "Aggiungi Cliente"
+ },
+ {
+  "key": "UnableToEnableUser",
+  "category": "app",
+  "en": "Employee is not assigned, enable is not allowed",
+  "it": "Non è possibile abilitare il cliente, è necessario assegnare prima l'operatore"
+ },
+ {
+  "key": "SubscriptionsList",
+  "category": "app",
+  "en": "Subscriptions List",
+  "it": "Lista di tutte le pratiche"
+ },
+ {
+  "key": "NoActiveSubscriptions",
+  "category": "app",
+  "en": "No Active Subscriptions",
+  "it": "Non hai alcun cliente con queste pratiche"
+ },
+ {
+  "key": "MembershipInfo",
+  "category": "app",
+  "en": "Membership Info",
+  "it": "Informazioni Pratica"
+ },
+ {
+  "key": "EmployeeDashboard",
+  "category": "app",
+  "en": "Employee Dashboard",
+  "it": "Pannello Dipendente"
+ },
+ {
+  "key": "MyClients",
+  "category": "app",
+  "en": "My Clients",
+  "it": "Miei Clienti"
+ },
+ {
+  "key": "AssignedClients",
+  "category": "app",
+  "en": "Assigned Clients",
+  "it": "Clienti Assegnati"
+ },
+ {
+  "key": "ManageAppointments",
+  "category": "app",
+  "en": "Manage Appointments",
+  "it": "Gestisci Appuntamenti"
+ },
+ {
+  "key": "ApproveAppointment",
+  "category": "app",
+  "en": "Approve Appointment",
+  "it": "Approva Appuntamento"
+ },
+ {
+  "key": "RejectAppointment",
+  "category": "app",
+  "en": "Reject Appointment",
+  "it": "Rifiuta Appuntamento"
+ },
+ {
+  "key": "NoEmployeeAssigned",
+  "category": "app",
+  "en": "No employee assigned",
+  "it": "Nessun dipendete assegnato"
+ },
+ {
+  "key": "ClientDashboard",
+  "category": "app",
+  "en": "Client Dashboard",
+  "it": "Pannello Cliente"
+ },
+ {
+  "key": "MySubscription",
+  "category": "app",
+  "en": "My Subscription",
+  "it": "Mie Abbonamento"
+ },
+ {
+  "key": "MyAppointments",
+  "category": "app",
+  "en": "My Appointments",
+  "it": "Miei Appuntamenti"
+ },
+ {
+  "key": "RequestAppointment",
+  "category": "app",
+  "en": "Request Appointment",
+  "it": "Richiedi Appuntamento"
+ },
+ {
+  "key": "SendRequest",
+  "category": "app",
+  "en": "Send Request",
+  "it": "Invia Richiesta"
+ },
+ {
+  "key": "SubscriptionExpires",
+  "category": "app",
+  "en": "Subscription Expires",
+  "it": "Abbonamento Scade"
+ },
+ {
+  "key": "RenewSubscription",
+  "category": "app",
+  "en": "Renew Subscription",
+  "it": "Rinnova Abbonamento"
+ },
+ {
+  "key": "ClientName",
+  "category": "app",
+  "en": "Client Name",
+  "it": "Nome Cliente"
+ },
+ {
+  "key": "AppointmentDate",
+  "category": "app",
+  "en": "Appointment Date",
+  "it": "Data Appuntamento"
+ },
+ {
+  "key": "AppointmentTime",
+  "category": "app",
+  "en": "Appointment Time",
+  "it": "Ora Appuntamento"
+ },
+ {
+  "key": "AppointmentStatus",
+  "category": "app",
+  "en": "Appointment Status",
+  "it": "Stato Appuntamento"
+ },
+ {
+  "key": "Pending",
+  "category": "app",
+  "en": "Pending",
+  "it": "In Attesa"
+ },
+ {
+  "key": "Approved",
+  "category": "app",
+  "en": "Approved",
+  "it": "Approvato"
+ },
+ {
+  "key": "Rejected",
+  "category": "app",
+  "en": "Rejected",
+  "it": "Rifiutato"
+ },
+ {
+  "key": "Reject",
+  "category": "app",
+  "en": "Reject",
+  "it": "Rifiuta"
+ },
+ {
+  "key": "Completed",
+  "category": "app",
+  "en": "Completed",
+  "it": "Completato"
+ },
+ {
+  "key": "Cancelled",
+  "category": "app",
+  "en": "Cancelled",
+  "it": "Annullato"
+ },
+ {
+  "key": "SelectEmployee",
+  "category": "app",
+  "en": "Select Employee",
+  "it": "Seleziona Dipendente"
+ },
+ {
+  "key": "SelectClient",
+  "category": "app",
+  "en": "Select Client",
+  "it": "Seleziona Cliente"
+ },
+ {
+  "key": "SelectDate",
+  "category": "app",
+  "en": "Select Date",
+  "it": "Seleziona Data"
+ },
+ {
+  "key": "SelectTime",
+  "category": "app",
+  "en": "Select Time",
+  "it": "Seleziona Ora"
+ },
+ {
+  "key": "Running",
+  "category": "app",
+  "en": "Running",
+  "it": "In corso"
+ },
+ {
+  "key": "Concluded",
+  "category": "app",
+  "en": "Concluded",
+  "it": "Termianto"
+ },
+ {
+  "key": "Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallito"
+ },
+ {
+  "key": "Duration",
+  "category": "app",
+  "en": "Duration",
+  "it": "Durata"
+ },
+ {
+  "key": "StartDate",
+  "category": "app",
+  "en": "Start Date",
+  "it": "Data Inizio"
+ },
+ {
+  "key": "EndDate",
+  "category": "app",
+  "en": "End Date",
+  "it": "Data Fine"
+ },
+ {
+  "key": "RequestType",
+  "category": "app",
+  "en": "Request Type",
+  "it": "Tipo Richiesta"
+ },
+ {
+  "key": "RequestMessage",
+  "category": "app",
+  "en": "Request Message",
+  "it": "Messaggio Richiesta"
+ },
+ {
+  "key": "RequestResponse",
+  "category": "app",
+  "en": "Request Response",
+  "it": "Risposta Richiesta"
+ },
+ {
+  "key": "Sender",
+  "category": "app",
+  "en": "Sender",
+  "it": "Mittente"
+ },
+ {
+  "key": "Receiver",
+  "category": "app",
+  "en": "Receiver",
+  "it": "Destinatario"
+ },
+ {
+  "key": "SentDate",
+  "category": "app",
+  "en": "Sent Date",
+  "it": "Data Invio"
+ },
+ {
+  "key": "ResponseDate",
+  "category": "app",
+  "en": "Response Date",
+  "it": "Data Risposta"
+ },
+ {
+  "key": "Respond",
+  "category": "app",
+  "en": "Respond",
+  "it": "Rispondi"
+ },
+ {
+  "key": "LastActivity",
+  "category": "app",
+  "en": "Last Activity",
+  "it": "Ultima Attività"
+ },
+ {
+  "key": "LoginTime",
+  "category": "app",
+  "en": "Login Time",
+  "it": "Ora Accesso"
+ },
+ {
+  "key": "IPAddress",
+  "category": "app",
+  "en": "IP Address",
+  "it": "Indirizzo IP"
+ },
+ {
+  "key": "MembershipType",
+  "category": "app",
+  "en": "Membership Type",
+  "it": "Tipo Iscrizione"
+ },
+ {
+  "key": "SubscriptionStart",
+  "category": "app",
+  "en": "Subscription Start",
+  "it": "Inizio Pratica"
+ },
+ {
+  "key": "SubscriptionEnd",
+  "category": "app",
+  "en": "Subscription End",
+  "it": "Fine Pratica"
+ },
+ {
+  "key": "Price",
+  "category": "app",
+  "en": "Price",
+  "it": "Prezzo"
+ },
+ {
+  "key": "PaymentStatus",
+  "category": "app",
+  "en": "Payment Status",
+  "it": "Stato Pagamento"
+ },
+ {
+  "key": "Paid",
+  "category": "app",
+  "en": "Paid",
+  "it": "Pagato"
+ },
+ {
+  "key": "Unpaid",
+  "category": "app",
+  "en": "Unpaid",
+  "it": "Non Pagato"
+ },
+ {
+  "key": "Expired",
+  "category": "app",
+  "en": "Expired",
+  "it": "Scaduto"
+ },
+ {
+  "key": "Days",
+  "category": "app",
+  "en": "Days",
+  "it": "Giorni"
+ },
+ {
+  "key": "Tomorrow",
+  "category": "app",
+  "en": "Tomorrow",
+  "it": "Domani"
+ },
+ {
+  "key": "SubscriptionDetail",
+  "category": "app",
+  "en": "Subscription Detail",
+  "it": "Dettaglio Pratica"
+ },
+ {
+  "key": "ClientInformation",
+  "category": "app",
+  "en": "ClientIn formation",
+  "it": "Informazioni Cliente"
+ },
+ {
+  "key": "ViewClientProfile",
+  "category": "app",
+  "en": "View Client Profile",
+  "it": "Visualizza Profilo Cliente"
+ },
+ {
+  "key": "MembershipDetails",
+  "category": "app",
+  "en": "Membership Details",
+  "it": "Dettaglio Pratica"
+ },
+ {
+  "key": "ViewMembershipDetails",
+  "category": "app",
+  "en": "View Membership Details",
+  "it": "Visualizza Dettaglio Pratica"
+ },
+ {
+  "key": "ImportDetails",
+  "category": "app",
+  "en": "Import Details",
+  "it": "Dettaglio Importazione"
+ },
+ {
+  "key": "ImportInformation",
+  "category": "app",
+  "en": "Import Information",
+  "it": "Informazione Importazione"
+ },
+ {
+  "key": "ConcludedImportMessage",
+  "category": "app",
+  "en": "This import has been concluded. No further actions are available except deletion.",
+  "it": "Questa importazione è stata completata. Non sono disponibili ulteriori azioni se non la cancellazione."
+ },
+ {
+  "key": "ImportModule",
+  "category": "app",
+  "en": "Import Module",
+  "it": "Modulo Importazione"
+ },
+ {
+  "key": "NewImport",
+  "category": "app",
+  "en": "New Import",
+  "it": "Nuovo Import"
+ },
+ {
+  "key": "ImportName",
+  "category": "app",
+  "en": "Import Name",
+  "it": "Nome Import"
+ },
+ {
+  "key": "ImportType",
+  "category": "app",
+  "en": "Import Type",
+  "it": "Tipologia Import"
+ },
+ {
+  "key": "ImportTypes",
+  "category": "app",
+  "en": "Import Types",
+  "it": "Tipologie di Import"
+ },
+ {
+  "key": "SelectImportType",
+  "category": "app",
+  "en": "Select type...",
+  "it": "Selezione tipologia..."
+ },
+ {
+  "key": "NoImportTypeAvailable",
+  "category": "app",
+  "en": "No import types available - create one first",
+  "it": "Non ci sono tipologie disponibile - creane una prima"
+ },
+ {
+  "key": "CreateImportType",
+  "category": "app",
+  "en": "Create Import Type",
+  "it": "Crea tipologia di import"
+ },
+ {
+  "key": "SelectEntity",
+  "category": "app",
+  "en": "Select entity...",
+  "it": "Seleziona entità..."
+ },
+ {
+  "key": "TargetEntity",
+  "category": "app",
+  "en": "Target Entity",
+  "it": "Entità di riferimento"
+ },
+ {
+  "key": "ImportSuggestion",
+  "category": "app",
+  "en": "Excel columns must match these field names exactly.",
+  "it": "Le colonne di Excel devono corrispondere esattamente a questi nomi di campo."
+ },
+ {
+  "key": "Template",
+  "category": "app",
+  "en": "Template",
+  "it": "Modello"
+ },
+ {
+  "key": "Fields",
+  "category": "app",
+  "en": "Fields",
+  "it": "Campi"
+ },
+ {
+  "key": "AvailableFields",
+  "category": "app",
+  "en": "Available Fields",
+  "it": "Campi Disponibili"
+ },
+ {
+  "key": "ImportSuggestion2",
+  "category": "app",
+  "en": "Excel columns must match these field names",
+  "it": "Le colonne di Excel devono corrispondere a questi nomi di campo"
+ },
+ {
+  "key": "ReferenceYear",
+  "category": "app",
+  "en": "Reference Year",
+  "it": "Anno di competenza"
+ },
+ {
+  "key": "Area",
+  "category": "app",
+  "en": "Area",
+  "it": "Area"
+ },
+ {
+  "key": "CreatedByUser",
+  "category": "app",
+  "en": "Created By User",
+  "it": "Creata dall'utente"
+ },
+ {
+  "key": "LoginSuccess",
+  "category": "common",
+  "en": "Login successful",
+  "it": "Accesso effettuato"
+ },
+ {
+  "key": "LoginFailed",
+  "category": "common",
+  "en": "Invalid username or password",
+  "it": "Nome utente o password non validi"
+ },
+ {
+  "key": "SaveSuccess",
+  "category": "common",
+  "en": "Saved successfully",
+  "it": "Salvato con successo"
+ },
+ {
+  "key": "SaveFailed",
+  "category": "common",
+  "en": "Failed to save",
+  "it": "Salvataggio fallito"
+ },
+ {
+  "key": "DeleteSuccess",
+  "category": "common",
+  "en": "Deleted successfully",
+  "it": "Eliminato con successo"
+ },
+ {
+  "key": "DeleteFailed",
+  "category": "common",
+  "en": "Failed to delete",
+  "it": "Eliminazione fallita"
+ },
+ {
+  "key": "DeleteConfirm",
+  "category": "common",
+  "en": "Are you sure you want to delete?",
+  "it": "Sei sicuro di voler eliminare?"
+ },
+ {
+  "key": "NoPermission",
+  "category": "common",
+  "en": "You don't have permission",
+  "it": "Non hai i permessi"
+ },
+ {
+  "key": "ErrorOccurred",
+  "category": "common",
+  "en": "An error occurred",
+  "it": "Si è verificato un errore"
+ },
+ {
+  "key": "FieldRequired",
+  "category": "common",
+  "en": "This field is required",
+  "it": "Questo campo è obbligatorio"
+ },
+ {
+  "key": "Required",
+  "category": "common",
+  "en": "Required",
+  "it": "Obbligatorio"
+ },
+ {
+  "key": "InvalidEmail",
+  "category": "common",
+  "en": "Invalid email address",
+  "it": "Indirizzo email non valido"
+ },
+ {
+  "key": "PasswordTooShort",
+  "category": "common",
+  "en": "Password is too short",
+  "it": "Password troppo corta"
+ },
+ {
+  "key": "UsernameExists",
+  "category": "common",
+  "en": "Username already exists",
+  "it": "Nome utente già esistente"
+ },
+ {
+  "key": "EmailExists",
+  "category": "common",
+  "en": "Email already exists",
+  "it": "Email già esistente"
+ },
+ {
+  "key": "TotalUsers",
+  "category": "app",
+  "en": "Total Users",
+  "it": "Totale Utenti"
+ },
+ {
+  "key": "RecentActivity",
+  "category": "app",
+  "en": "Recent Activity",
+  "it": "Attività Recente"
+ },
+ {
+  "key": "QuickActions",
+  "category": "app",
+  "en": "Quick Actions",
+  "it": "Azioni Rapide"
+ },
+ {
+  "key": "Statistics",
+  "category": "app",
+  "en": "Statistics",
+  "it": "Statistiche"
+ },
+ {
+  "key": "Overview",
+  "category": "app",
+  "en": "Overview",
+  "it": "Panoramica"
+ },
+ {
+  "key": "Name",
+  "category": "common",
+  "en": "Name",
+  "it": "Nome"
+ },
+ {
+  "key": "Surname",
+  "category": "common",
+  "en": "Surname",
+  "it": "Cognome"
+ },
+ {
+  "key": "Type",
+  "category": "common",
+  "en": "Type",
+  "it": "Tipo"
+ },
+ {
+  "key": "Created",
+  "category": "common",
+  "en": "Created",
+  "it": "Creato"
+ },
+ {
+  "key": "CreatedBy",
+  "category": "common",
+  "en": "Created By",
+  "it": "Creato da"
+ },
+ {
+  "key": "Modified",
+  "category": "common",
+  "en": "Modified",
+  "it": "Modificato"
+ },
+ {
+  "key": "AssignedTo",
+  "category": "app",
+  "en": "Assigned To",
+  "it": "Assegnato a"
+ },
+ {
+  "key": "AllTime",
+  "category": "common",
+  "en": "All Time",
+  "it": "Tutto il Tempo"
+ },
+ {
+  "key": "ThisMonth",
+  "category": "common",
+  "en": "This Month",
+  "it": "Questo Mese"
+ },
+ {
+  "key": "ThisWeek",
+  "category": "common",
+  "en": "This Week",
+  "it": "Questa Settimana"
+ },
+ {
+  "key": "Today",
+  "category": "common",
+  "en": "Today",
+  "it": "Oggi"
+ },
+ {
+  "key": "MyAppointmentsList",
+  "category": "app",
+  "en": "My Appointments",
+  "it": "Miei Appuntamenti"
+ },
+ {
+  "key": "AppointmentsList",
+  "category": "app",
+  "en": "Appointments List",
+  "it": "Elenco Appuntamenti"
+ },
+ {
+  "key": "Trainer",
+  "category": "app",
+  "en": "Trainer",
+  "it": "Allenatore"
+ },
+ {
+  "key": "DateTime",
+  "category": "app",
+  "en": "Date & Time",
+  "it": "Data e Ora"
+ },
+ {
+  "key": "Notes",
+  "category": "app",
+  "en": "Notes",
+  "it": "Note"
+ },
+ {
+  "key": "PreferredDateTime",
+  "category": "app",
+  "en": "Preferred Date & Time",
+  "it": "Data e Ora Preferita"
+ },
+ {
+  "key": "DurationMinutes",
+  "category": "app",
+  "en": "Duration (minutes)",
+  "it": "Durata (minuti)"
+ },
+ {
+  "key": "ManageAppointment",
+  "category": "app",
+  "en": "Manage Appointment",
+  "it": "Gestisci Appuntamento"
+ },
+ {
+  "key": "Move",
+  "category": "app",
+  "en": "Move",
+  "it": "Sposta"
+ },
+ {
+  "key": "MoveToDate",
+  "category": "app",
+  "en": "Move to Date",
+  "it": "Sposta a Data"
+ },
+ {
+  "key": "CreateAppointment",
+  "category": "app",
+  "en": "Create Appointment",
+  "it": "Crea Appuntamento"
+ },
+ {
+  "key": "EditAppointment",
+  "category": "app",
+  "en": "Edit Appointment",
+  "it": "Modifica Appuntamento"
+ },
+ {
+  "key": "Complete",
+  "category": "app",
+  "en": "Complete",
+  "it": "Completa"
+ },
+ {
+  "key": "SelectClientDots",
+  "category": "app",
+  "en": "Select client...",
+  "it": "Seleziona cliente..."
+ },
+ {
+  "key": "SystemConfigurations",
+  "category": "app",
+  "en": "System Configurations",
+  "it": "Configurazioni Sistema"
+ },
+ {
+  "key": "Refresh",
+  "category": "app",
+  "en": "Refresh",
+  "it": "Aggiorna"
+ },
+ {
+  "key": "EmailConfiguration",
+  "category": "app",
+  "en": "Email Configuration",
+  "it": "Configurazione Email"
+ },
+ {
+  "key": "SMTPServer",
+  "category": "app",
+  "en": "SMTP Server",
+  "it": "Server SMTP"
+ },
+ {
+  "key": "SMTPPort",
+  "category": "app",
+  "en": "SMTP Port",
+  "it": "Porta SMTP"
+ },
+ {
+  "key": "EnableSSL",
+  "category": "app",
+  "en": "Enable SSL",
+  "it": "Abilita SSL"
+ },
+ {
+  "key": "FromEmail",
+  "category": "app",
+  "en": "From Email",
+  "it": "Email Mittente"
+ },
+ {
+  "key": "FromName",
+  "category": "app",
+  "en": "From Name",
+  "it": "Nome Mittente"
+ },
+ {
+  "key": "SaveEmailConfiguration",
+  "category": "app",
+  "en": "Save Email Configuration",
+  "it": "Salva Configurazione Email"
+ },
+ {
+  "key": "BackgroundConfiguration",
+  "category": "app",
+  "en": "Background Configuration",
+  "it": "Configurazione Sfondo"
+ },
+ {
+  "key": "BackgroundType",
+  "category": "app",
+  "en": "Background Type",
+  "it": "Tipo Sfondo"
+ },
+ {
+  "key": "Gradient",
+  "category": "app",
+  "en": "Gradient",
+  "it": "Gradiente"
+ },
+ {
+  "key": "SolidColor",
+  "category": "app",
+  "en": "Solid Color",
+  "it": "Colore Solido"
+ },
+ {
+  "key": "Image",
+  "category": "app",
+  "en": "Image",
+  "it": "Immagine"
+ },
+ {
+  "key": "StartColor",
+  "category": "app",
+  "en": "Start Color",
+  "it": "Colore Iniziale"
+ },
+ {
+  "key": "EndColor",
+  "category": "app",
+  "en": "End Color",
+  "it": "Colore Finale"
+ },
+ {
+  "key": "BackgroundColor",
+  "category": "app",
+  "en": "Background Color",
+  "it": "Colore Sfondo"
+ },
+ {
+  "key": "UploadImage",
+  "category": "app",
+  "en": "Upload Image",
+  "it": "Carica Immagine"
+ },
+ {
+  "key": "SaveBackground",
+  "category": "app",
+  "en": "Save Background",
+  "it": "Salva Sfondo"
+ },
+ {
+  "key": "Key",
+  "category": "app",
+  "en": "Key",
+  "it": "Chiave"
+ },
+ {
+  "key": "Value",
+  "category": "app",
+  "en": "Value",
+  "it": "Valore"
+ },
+ {
+  "key": "LastUpdate",
+  "category": "app",
+  "en": "Last Update",
+  "it": "Ultimo Aggiornamento"
+ },
+ {
+  "key": "NotAssigned",
+  "category": "app",
+  "en": "Not Assigned",
+  "it": "Non Assegnato"
+ },
+ {
+  "key": "SearchByName",
+  "category": "app",
+  "en": "Search by name...",
+  "it": "Cerca per nome..."
+ },
+ {
+  "key": "ExpiringSoon",
+  "category": "app",
+  "en": "Expiring Soon",
+  "it": "In Scadenza"
+ },
+ {
+  "key": "Level",
+  "category": "app",
+  "en": "Level",
+  "it": "Livello"
+ },
+ {
+  "key": "Message",
+  "category": "app",
+  "en": "Message",
+  "it": "Messaggio"
+ },
+ {
+  "key": "Source",
+  "category": "app",
+  "en": "Source",
+  "it": "Origine"
+ },
+ {
+  "key": "ClearAll",
+  "category": "app",
+  "en": "Clear All",
+  "it": "Cancella Tutto"
+ },
+ {
+  "key": "NoLogsFound",
+  "category": "app",
+  "en": "No logs found",
+  "it": "Nessun log trovato"
+ },
+ {
+  "key": "LogDetails",
+  "category": "app",
+  "en": "Log Details",
+  "it": "Dettagli Log"
+ },
+ {
+  "key": "StackTrace",
+  "category": "app",
+  "en": "Stack Trace",
+  "it": "Stack Trace"
+ },
+ {
+  "key": "Error",
+  "category": "app",
+  "en": "Error",
+  "it": "Errore"
+ },
+ {
+  "key": "Warning",
+  "category": "app",
+  "en": "Warning",
+  "it": "Avviso"
+ },
+ {
+  "key": "Info",
+  "category": "app",
+  "en": "Info",
+  "it": "Info"
+ },
+ {
+  "key": "ApplicationLogs",
+  "category": "app",
+  "en": "Application Logs",
+  "it": "Log Applicazione"
+ },
+ {
+  "key": "MembershipManagement",
+  "category": "app",
+  "en": "Membership Management",
+  "it": "Gestione Pratiche"
+ },
+ {
+  "key": "AddMembership",
+  "category": "app",
+  "en": "Add Membership",
+  "it": "Aggiungi Pratica"
+ },
+ {
+  "key": "EditMembership",
+  "category": "app",
+  "en": "Edit Membership",
+  "it": "Modifica Pratica"
+ },
+ {
+  "key": "DurationDays",
+  "category": "app",
+  "en": "Duration (Days)",
+  "it": "Durata (Giorni)"
+ },
+ {
+  "key": "Update",
+  "category": "app",
+  "en": "Update",
+  "it": "Aggiorna"
+ },
+ {
+  "key": "RequestsManagement",
+  "category": "app",
+  "en": "Requests Management",
+  "it": "Gestione Richieste"
+ },
+ {
+  "key": "From",
+  "category": "app",
+  "en": "From",
+  "it": "Da"
+ },
+ {
+  "key": "Subject",
+  "category": "app",
+  "en": "Subject",
+  "it": "Oggetto"
+ },
+ {
+  "key": "ViewRespond",
+  "category": "app",
+  "en": "View/Respond",
+  "it": "Visualizza/Rispondi"
+ },
+ {
+  "key": "RequestDetails",
+  "category": "app",
+  "en": "Request Details",
+  "it": "Dettagli Richiesta"
+ },
+ {
+  "key": "Response",
+  "category": "app",
+  "en": "Response",
+  "it": "Risposta"
+ },
+ {
+  "key": "YourResponse",
+  "category": "app",
+  "en": "Your Response",
+  "it": "La Tua Risposta"
+ },
+ {
+  "key": "SendResponse",
+  "category": "app",
+  "en": "Send Response",
+  "it": "Invia Risposta"
+ },
+ {
+  "key": "Responded",
+  "category": "app",
+  "en": "Responded",
+  "it": "Risposto"
+ },
+ {
+  "key": "NoEmployeesFound",
+  "category": "app",
+  "en": "No employees found",
+  "it": "Nessun dipendente trovato"
+ },
+ {
+  "key": "NoClientsFound",
+  "category": "app",
+  "en": "No clients found",
+  "it": "Nessun cliente trovato"
+ },
+ {
+  "key": "CurrentClients",
+  "category": "app",
+  "en": "Current Clients",
+  "it": "Clienti Attuali"
+ },
+ {
+  "key": "Remove",
+  "category": "app",
+  "en": "Remove",
+  "it": "Rimuovi"
+ },
+ {
+  "key": "NoClientsAssigned",
+  "category": "app",
+  "en": "No clients assigned",
+  "it": "Nessun cliente assegnato"
+ },
+ {
+  "key": "AssignNewClient",
+  "category": "app",
+  "en": "Assign New Client",
+  "it": "Assegna Nuovo Cliente"
+ },
+ {
+  "key": "SelectAClient",
+  "category": "app",
+  "en": "Select a client...",
+  "it": "Seleziona un cliente..."
+ },
+ {
+  "key": "ClientDetails",
+  "category": "app",
+  "en": "Client Details",
+  "it": "Dettagli Cliente"
+ },
+ {
+  "key": "ClientDetail",
+  "category": "app",
+  "en": "Client Detail",
+  "it": "Dettaglio Cliente"
+ },
+ {
+  "key": "AssignEmployee",
+  "category": "app",
+  "en": "Assign Employee",
+  "it": "Assegna Dipendente"
+ },
+ {
+  "key": "SaveAssignment",
+  "category": "app",
+  "en": "Save Assignment",
+  "it": "Salva Assegnazione"
+ },
+ {
+  "key": "AddSubscription",
+  "category": "app",
+  "en": "Add Subscription",
+  "it": "Aggiungi Nuova Pratica"
+ },
+ {
+  "key": "NoSubscriptionsFound",
+  "category": "app",
+  "en": "No subscriptions found",
+  "it": "Nessun pratica trovato"
+ },
+ {
+  "key": "Amount",
+  "category": "app",
+  "en": "Amount",
+  "it": "Importo"
+ },
+ {
+  "key": "AmountPaid",
+  "category": "app",
+  "en": "Amount Paid",
+  "it": "Importo Pagato"
+ },
+ {
+  "key": "SelectMembership",
+  "category": "app",
+  "en": "Select membership...",
+  "it": "Seleziona pratica..."
+ },
+ {
+  "key": "SelectUser",
+  "category": "app",
+  "en": "Select user...",
+  "it": "Seleziona utente..."
+ },
+ {
+  "key": "DefaultEmployee",
+  "category": "app",
+  "en": "Default Employee",
+  "it": "Operatore principale"
+ },
+ {
+  "key": "SubscriptionManagement",
+  "category": "app",
+  "en": "Subscription Management",
+  "it": "Gestione Pratiche"
+ },
+ {
+  "key": "EditSubscription",
+  "category": "app",
+  "en": "Edit Subscription",
+  "it": "Modifica Pratica"
+ },
+ {
+  "key": "Default",
+  "category": "app",
+  "en": "Default",
+  "it": "Predefinito"
+ },
+ {
+  "key": "ActiveSubscription",
+  "category": "app",
+  "en": "Active Subscription",
+  "it": "Pratica Attiva"
+ },
+ {
+  "key": "NoActiveSubscription",
+  "category": "app",
+  "en": "No active subscription",
+  "it": "Nessuna pratica attivo"
+ },
+ {
+  "key": "Expires",
+  "category": "app",
+  "en": "Expires",
+  "it": "Scade"
+ },
+ {
+  "key": "UpcomingAppointments",
+  "category": "app",
+  "en": "Upcoming Appointments",
+  "it": "Prossimi Appuntamenti"
+ },
+ {
+  "key": "NoAppointmentsScheduled",
+  "category": "app",
+  "en": "No appointments scheduled",
+  "it": "Nessun appuntamento programmato"
+ },
+ {
+  "key": "MyRequests",
+  "category": "app",
+  "en": "My Requests",
+  "it": "Le Mie Richieste Effettuate"
+ },
+ {
+  "key": "NewRequest",
+  "category": "app",
+  "en": "New Request",
+  "it": "Nuova Richiesta"
+ },
+ {
+  "key": "InformationRequest",
+  "category": "app",
+  "en": "Information Request",
+  "it": "Richiesta Informazioni"
+ },
+ {
+  "key": "GeneralInquiry",
+  "category": "app",
+  "en": "General Inquiry",
+  "it": "Richiesta Generale"
+ },
+ {
+  "key": "Support",
+  "category": "app",
+  "en": "Support",
+  "it": "Supporto"
+ },
+ {
+  "key": "SubmitRequest",
+  "category": "app",
+  "en": "Submit Request",
+  "it": "Invia Richiesta"
+ },
+ {
+  "key": "RespondedOn",
+  "category": "app",
+  "en": "Responded on",
+  "it": "Risposto il"
+ },
+ {
+  "key": "MySubscriptions",
+  "category": "app",
+  "en": "My Subscriptions",
+  "it": "Le Mie Pratiche"
+ },
+ {
+  "key": "Membership",
+  "category": "app",
+  "en": "Membership",
+  "it": "Pratica"
+ },
+ {
+  "key": "Period",
+  "category": "app",
+  "en": "Period",
+  "it": "Periodo"
+ },
+ {
+  "key": "DownloadPDF",
+  "category": "app",
+  "en": "Download PDF",
+  "it": "Scarica PDF"
+ },
+ {
+  "key": "AppointmentsStatus",
+  "category": "app",
+  "en": "Appointments Status",
+  "it": "Stato Appuntamenti"
+ },
+ {
+  "key": "Current",
+  "category": "app",
+  "en": "Current",
+  "it": "Corrente"
+ },
+ {
+  "key": "PastMonth",
+  "category": "app",
+  "en": "Past Month",
+  "it": "Mese Scorso"
+ },
+ {
+  "key": "Approve",
+  "category": "app",
+  "en": "Approve",
+  "it": "Approva"
+ },
+ {
+  "key": "RespondToRequest",
+  "category": "app",
+  "en": "Respond to Request",
+  "it": "Rispondi alla Richiesta"
+ },
+ {
+  "key": "Send",
+  "category": "app",
+  "en": "Send",
+  "it": "Invia"
+ },
+ {
+  "key": "Resolved",
+  "category": "app",
+  "en": "Resolved",
+  "it": "Risolto"
+ },
+ {
+  "key": "Start",
+  "category": "app",
+  "en": "Start",
+  "it": "Inizio"
+ },
+ {
+  "key": "End",
+  "category": "app",
+  "en": "End",
+  "it": "Fine"
+ },
+ {
+  "key": "ShowProcessed",
+  "category": "app",
+  "en": "Show processed",
+  "it": "Mostra processate"
+ },
+ {
+  "key": "NoPendingRequests",
+  "category": "app",
+  "en": "No pending registration requests.",
+  "it": "Nessuna richiesta di registrazione in sospeso."
+ },
+ {
+  "key": "FirstName",
+  "category": "app",
+  "en": "First Name",
+  "it": "Nome"
+ },
+ {
+  "key": "LastName",
+  "category": "app",
+  "en": "Last Name",
+  "it": "Cognome"
+ },
+ {
+  "key": "DateOfBirth",
+  "category": "app",
+  "en": "Date of Birth",
+  "it": "Data di Nascita"
+ },
+ {
+  "key": "RequestDate",
+  "category": "app",
+  "en": "Request Date",
+  "it": "Data Richiesta"
+ },
+ {
+  "key": "ProcessedBy",
+  "category": "app",
+  "en": "Processed by",
+  "it": "Processato da"
+ },
+ {
+  "key": "ProcessDate",
+  "category": "app",
+  "en": "Process Date",
+  "it": "Data Processo"
+ },
+ {
+  "key": "Sun",
+  "category": "app",
+  "en": "Sun",
+  "it": "Dom"
+ },
+ {
+  "key": "Mon",
+  "category": "app",
+  "en": "Mon",
+  "it": "Lun"
+ },
+ {
+  "key": "Tue",
+  "category": "app",
+  "en": "Tue",
+  "it": "Mar"
+ },
+ {
+  "key": "Wed",
+  "category": "app",
+  "en": "Wed",
+  "it": "Mer"
+ },
+ {
+  "key": "Thu",
+  "category": "app",
+  "en": "Thu",
+  "it": "Gio"
+ },
+ {
+  "key": "Fri",
+  "category": "app",
+  "en": "Fri",
+  "it": "Ven"
+ },
+ {
+  "key": "Sat",
+  "category": "app",
+  "en": "Sat",
+  "it": "Sab"
+ },
+ {
+  "key": "Back",
+  "category": "app",
+  "en": "Back",
+  "it": "Indietro"
+ },
+ {
+  "key": "AskToPersonalTrainer",
+  "category": "app",
+  "en": "Ask to your personal trainer",
+  "it": "Chiedi al tuo allenatore personale"
+ },
+ {
+  "key": "EmployeeNotSetted",
+  "category": "app",
+  "en": "Employee is not setted, after assign employee you can add new subscription",
+  "it": "Operatore non assegnato, assegnarlo prima di inserire un nuova pratica."
+ },
+ {
+  "key": "AssignClient",
+  "category": "app",
+  "en": "Select User to assign to Employee",
+  "it": "Seleziona il cliente da assegnare all'operatore"
+ },
+ {
+  "key": "Select",
+  "category": "app",
+  "en": "Select",
+  "it": "Seleziona"
+ },
+ {
+  "key": "SendByEmail",
+  "category": "app",
+  "en": "Send by Email",
+  "it": "Invia via Email"
+ },
+ {
+  "key": "DeleteMembership",
+  "category": "app",
+  "en": "Delete Membership permanently",
+  "it": "Elimina La tipologia di abbomnamento in modo permanente."
+ },
+ {
+  "key": "ThisSubscription",
+  "category": "app",
+  "en": "this subscription",
+  "it": "questa pratica"
+ },
+ {
+  "key": "DeleteSubscriptionLabel",
+  "category": "app",
+  "en": "Delete Subscription permanently",
+  "it": "Elimina la pratica in modo permanente"
+ },
+ {
+  "key": "ConfirmDeleteSubscription",
+  "category": "app",
+  "en": "Are you sure you want to delete subscription of {0}",
+  "it": "Sei sicuro di voler eliminare la pratica di {0}"
+ },
+ {
+  "key": "DeletedSubscriptionSuccesfully",
+  "category": "app",
+  "en": "Subscription of {0} is Deleted Succesfully.",
+  "it": "La pratica di {0} è stato eliminato correttamente."
+ },
+ {
+  "key": "ConfirmSendExpiryEmail",
+  "category": "app",
+  "en": "Are you sure you want to send the expiration notice by email?",
+  "it": "Sei sicuro di voler inviare l'avviso di scadenza via email?"
+ },
+ {
+  "key": "ConfirmSendExpiryEmailTitle",
+  "category": "app",
+  "en": "Confirm Send Expiry Notification",
+  "it": "Conferma Invio Notifica Scadenza"
+ },
+ {
+  "key": "EmailOk",
+  "category": "app",
+  "en": "Email sent successfully",
+  "it": "L'email è stata inviata correttamente"
+ },
+ {
+  "key": "EmailError",
+  "category": "app",
+  "en": "Error sending email",
+  "it": "Errore durante l'invio dell'email, riprovare in un secondo momento"
+ },
+ {
+  "key": "SendExpiryNotificationMail",
+  "category": "app",
+  "en": "Sent subscription expiry notification email",
+  "it": "Invia email di notifica scadenza pratica"
+ },
+ {
+  "key": "NavigateToDocuments",
+  "category": "app",
+  "en": "See al documents of this user",
+  "it": "Visualizza tutti i documenti del cliente"
+ },
+ {
+  "key": "DeleteUserLabel",
+  "category": "app",
+  "en": "Delete User permanently",
+  "it": "Elimina l'utente in modo permanente"
+ },
+ {
+  "key": "ToggleUserStatus",
+  "category": "app",
+  "en": "Toggle User Status",
+  "it": "Abilita o disabilita l'utente"
+ },
+ {
+  "key": "NavigateToDetail",
+  "category": "app",
+  "en": "Open Detail",
+  "it": "Apri il dettaglio"
+ },
+ {
+  "key": "SetDefaultEmployeeTitle",
+  "category": "app",
+  "en": "Make this operator the default",
+  "it": "Rendi principale questo operatore"
+ },
+ {
+  "key": "SetDefaultEmployee",
+  "category": "app",
+  "en": "The user has been set as the default operator",
+  "it": "L'utente è stato impostato come operatore di deafult"
+ },
+ {
+  "key": "ToggleUserStatusTrue",
+  "category": "app",
+  "en": "The employee has been disabled",
+  "it": "L'operatore è stato abilitato"
+ },
+ {
+  "key": "ToggleUserStatusFalse",
+  "category": "app",
+  "en": "The employee has been disabled",
+  "it": "L'operatore è stato disabilitato"
+ },
+ {
+  "key": "ConfirmDelete",
+  "category": "app",
+  "en": "Are you sure you want to delete {0}",
+  "it": "Sei sicuro di voler eliminare {0}"
+ },
+ {
+  "key": "ConfirmDeleteTitle",
+  "category": "app",
+  "en": "Confirm Deletion",
+  "it": "Conferma Eliminazione"
+ },
+ {
+  "key": "DeletedUserSuccesfully",
+  "category": "app",
+  "en": "User {0} is Deleted Succesfully.",
+  "it": "L'Utente {0} è stato eliminato correttamente."
+ },
+ {
+  "key": "SavedUserSuccesfully",
+  "category": "app",
+  "en": "User {0} is Saved Succesfully.",
+  "it": "L'Utente {0} è stato salvato correttamente."
+ },
+ {
+  "key": "DashBoardAppointments",
+  "category": "app",
+  "en": "DashBoard Appointments",
+  "it": "Bacheca Appuntamenti Globale"
+ },
+ {
+  "key": "TotalCaf",
+  "category": "app",
+  "en": "Total CAF",
+  "it": "Totale Clienti CAF"
+ },
+ {
+  "key": "TotalPatron",
+  "category": "app",
+  "en": "Total PATRONATO",
+  "it": "Totale Clienti PATRONATO"
+ },
+ {
+  "key": "IsCaf",
+  "category": "app",
+  "en": "CAF",
+  "it": "CAF"
+ },
+ {
+  "key": "IsPatron",
+  "category": "app",
+  "en": "PATRONATO",
+  "it": "PATRONATO"
+ },
+ {
+  "key": "Enrolled",
+  "category": "app",
+  "en": "Enrolled in",
+  "it": "Iscritto a"
+ },
+ {
+  "key": "InsertDate",
+  "category": "app",
+  "en": "Insert Date",
+  "it": "Data Inserimento"
+ },
+ {
+  "key": "SuccessfullyUpload",
+  "category": "app",
+  "en": "Successfully uploaded {0} records.",
+  "it": "Caricati con successo {0} record."
+ },
+ {
+  "key": "FailedUpload",
+  "category": "app",
+  "en": "Failed to upload ex:{0}.",
+  "it": "Caricamento fallito, errore: {0}"
+ },
+ {
+  "key": "ImportInProgress",
+  "category": "app",
+  "en": "An import is already in progress. Please wait until it is completed before starting a new one.",
+  "it": "Un'importazione è già in corso. Attendere il completamento prima di avviarne una nuova."
+ },
+ {
+  "key": "thisdocument",
+  "category": "app",
+  "en": "this document",
+  "it": "questo documento"
+ },
+ {
+  "key": "OperationSuccessfully",
+  "category": "app",
+  "en": "Operation Successfully",
+  "it": "Operazione avvenuta con successo"
+ },
+ {
+  "key": "OperationError",
+  "category": "app",
+  "en": "Error: {0}",
+  "it": "Errore: {0}"
+ },
+ {
+  "key": "SavedSuccesfully",
+  "category": "app",
+  "en": "Saved Succesfully.",
+  "it": "Salvataggio avvenuto con successo."
+ },
+ {
+  "key": "RememberUsername",
+  "category": "app",
+  "en": "Remember Username",
+  "it": "Ricorda Utente"
+ },
+ {
+  "key": "AccessDenied",
+  "category": "app",
+  "en": "Access Denied",
+  "it": "Accesso Negato"
+ },
+ {
+  "key": "AccessDeniedMessage",
+  "category": "app",
+  "en": "This module is currently disabled.",
+  "it": "Modulo Disabilitato, contattare l'amministratore per ulteriori aggiornamenti."
+ },
+ {
+  "key": "EntityConfigurations",
+  "category": "app",
+  "en": "Entity Configurations",
+  "it": "Configurazione Entità Custom"
+ },
+ {
+  "key": "NewConfiguration",
+  "category": "app",
+  "en": "New Configuration",
+  "it": "Nuova Configurazione"
+ },
+ {
+  "key": "EntityName",
+  "category": "app",
+  "en": "Entity Name",
+  "it": "Nome Entità"
+ },
+ {
+  "key": "CustomFields",
+  "category": "app",
+  "en": "Custom Fields",
+  "it": "Campi Custom"
+ },
+ {
+  "key": "AddField",
+  "category": "app",
+  "en": "Add Field",
+  "it": "Aggiungi Campo"
+ },
+ {
+  "key": "PropertyName",
+  "category": "app",
+  "en": "Property Name",
+  "it": "Nome Proprietà"
+ },
+ {
+  "key": "NoFieldsConfigured",
+  "category": "app",
+  "en": "No Fields Configured",
+  "it": "Nessun Campo Presente"
+ },
+ {
+  "key": "Appointment",
+  "category": "app",
+  "en": "Appointment",
+  "it": "Appuntamento"
+ },
+ {
+  "key": "ErrorOnDate",
+  "category": "app",
+  "en": "You can't create an appointment back to the future",
+  "it": "Impossibile Inserire un appuntamento nel passato!"
+ },
+ {
+  "key": "AppointmentUpdated",
+  "category": "app",
+  "en": "Appointment Updated",
+  "it": "Aggiornamento Appuntamento"
+ },
+ {
+  "key": "AppointmentUpdatedMessage",
+  "category": "app",
+  "en": "Your appointment has been updated to {0} :MMM dd, yyyy HH:mm",
+  "it": "Il tuo appuntamento è stato modificato il {0} :MMM dd, yyyy HH:mm"
+ },
+ {
+  "key": "AppointmentApproved",
+  "category": "app",
+  "en": "Appointment Approved",
+  "it": "Appuntamento Approvato"
+ },
+ {
+  "key": "AppointmentApprovedMessage",
+  "category": "app",
+  "en": "Your appointment on {0} has been approved.",
+  "it": "Il tuo appuntamnto il {0}:MMM dd, yyyy è stato approvato"
+ },
+ {
+  "key": "AppointmentRejected",
+  "category": "app",
+  "en": "Appointment Rejected",
+  "it": "Appuntamento Non è stato approvato"
+ },
+ {
+  "key": "AppointmentRejectedMessage",
+  "category": "app",
+  "en": "Your appointment on {0} has been rejected.",
+  "it": "Il tuo appuntamnto il {0}:MMM dd, yyyy è stato rigettato"
+ },
+ {
+  "key": "AppointmentNew",
+  "category": "app",
+  "en": "New Appointment",
+  "it": "New Appuntamento"
+ },
+ {
+  "key": "AppointmentNewdMessage",
+  "category": "app",
+  "en": "An appointment has been scheduled for {0}.",
+  "it": "Un nuovo appuntamento è stato inserito il {0}:MMM dd, yyyy HH:mm"
+ },
+ {
+  "key": "ShowInGlobalCalendar",
+  "category": "app",
+  "en": "Show In Global Calendar",
+  "it": "Mostra l'evento a tutti gli operatori"
+ },
+ {
+  "key": "Visibility",
+  "category": "app",
+  "en": "Visibility",
+  "it": "Visibilità dell'appuntamento"
+ },
+ {
+  "key": "EveryOneCanSeeAppointment",
+  "category": "app",
+  "en": "Everyone can see this appointment",
+  "it": "Tutti gli operatori possono vedere l'appuntamento"
+ },
+ {
+  "key": "OnlyYouAndAdmin",
+  "category": "app",
+  "en": "Only you and admin can see this appointment",
+  "it": "Solo tu e l'amministratore potete vedere questo appuntamento"
+ },
+ {
+  "key": "OperatorIdentificationError",
+  "category": "app",
+  "en": "Operator identification error. Reload the page.",
+  "it": "Errore identificazione operatore. Ricaricare la pagina."
+ },
+ {
+  "key": "ConfirmCompletation",
+  "category": "app",
+  "en": "Are you sure you want to mark this appointment as completed?",
+  "it": "Sei sicuro di voler segnare questo appuntamento come completato? nella griglia non verrà più visualizzato"
+ },
+ {
+  "key": "Inserted",
+  "category": "app",
+  "en": "Inserted",
+  "it": "Inserito"
+ },
+ {
+  "key": "InProgress",
+  "category": "app",
+  "en": "In Progress",
+  "it": "In Elaborazione"
+ },
+ {
+  "key": "Sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviata"
+ },
+ {
+  "key": "DocumentInfo",
+  "category": "app",
+  "en": "Document Info",
+  "it": "Dettaglio Documento"
+ },
+ {
+  "key": "ConfirmStatusChange",
+  "category": "app",
+  "en": "Are you sure you want to advance to the next status?",
+  "it": "Sei sicuro di voler avanzare allo stato successivo?"
+ },
+ {
+  "key": "ConfirmStatusChangeTitle",
+  "category": "app",
+  "en": "Confirm Status Change",
+  "it": "Conferma Cambio Stato"
+ },
+ {
+  "key": "SubscriptionCompletedSuccess",
+  "category": "app",
+  "en": "Subscription completed successfully!",
+  "it": "Sottoscrizione completata con successo!"
+ },
+ {
+  "key": "FileTooLarge",
+  "category": "app",
+  "en": "File {0} too large (max {1} MB)",
+  "it": "File {0} troppo grande (max {1} MB)"
+ },
+ {
+  "key": "FilesUploadedSuccess",
+  "category": "app",
+  "en": "Files uploaded successfully!",
+  "it": "File caricati con successo!"
+ },
+ {
+  "key": "SubscriptionRejected",
+  "category": "app",
+  "en": "Was the subscription rejected?",
+  "it": "La pratica è stata respinta? (spunta se è stata respinta)"
+ },
+ {
+  "key": "SubscriptionRejectedSuccess",
+  "category": "app",
+  "en": "Subscription rejected successfully!",
+  "it": "La pratica è stata respinta con successo!"
+ },
+ {
+  "key": "InvalidFiscalCode",
+  "category": "app",
+  "en": "Enter a valid Italian fiscal code (e.g. RSSMRA80A01H501U)",
+  "it": "Inserisci un codice fiscale valido (es. RSSMRA80A01H501U)"
+ },
+ {
+  "key": "InvalidPhone",
+  "category": "app",
+  "en": "Enter a valid phone number (10 digits)",
+  "it": "Inserisci un numero di telefono valido (10 cifre)"
+ },
+ {
+  "key": "FiscalCodeExists",
+  "category": "app",
+  "en": "A client with fiscal code {0} already exists",
+  "it": "Un cliente con il codice fiscale {0} esiste già"
+ },
+ {
+  "key": "ShowCompleted",
+  "category": "app",
+  "en": "Show completed",
+  "it": "Mostra concluse"
+ },
+ {
+  "key": "ShowAllPractices",
+  "category": "app",
+  "en": "Show all practices",
+  "it": "Mostra tutte le pratiche"
+ },
+ {
+  "key": "AreaSpecialization",
+  "category": "app",
+  "en": "Specialization Area",
+  "it": "Area Specializzazione"
+ },
+ {
+  "key": "AssignedOperator",
+  "category": "app",
+  "en": "Assigned Operator",
+  "it": "Operatore Assegnato"
+ },
+ {
+  "key": "FolderTemplate",
+  "category": "app",
+  "en": "Folder Structure",
+  "it": "Struttura Cartelle"
+ },
+ {
+  "key": "FolderTemplateDescription",
+  "category": "app",
+  "en": "Define the folder structure for this practice type. Subscribers will upload documents into these folders.",
+  "it": "Definisci la struttura delle cartelle per questa tipologia di pratica. I documenti verranno caricati all'interno di queste cartelle."
+ },
+ {
+  "key": "AddRootFolder",
+  "category": "app",
+  "en": "Add root folder",
+  "it": "Aggiungi cartella radice"
+ },
+ {
+  "key": "AddSubfolder",
+  "category": "app",
+  "en": "Add subfolder",
+  "it": "Aggiungi sottocartella"
+ },
+ {
+  "key": "FolderName",
+  "category": "app",
+  "en": "Folder name",
+  "it": "Nome cartella"
+ },
+ {
+  "key": "DeleteFolder",
+  "category": "app",
+  "en": "Delete folder",
+  "it": "Elimina cartella"
+ },
+ {
+  "key": "DeleteFolderConfirm",
+  "category": "app",
+  "en": "Are you sure you want to delete this folder and all its subfolders?",
+  "it": "Sei sicuro di voler eliminare questa cartella e tutte le sue sottocartelle?"
+ },
+ {
+  "key": "NoFoldersDefined",
+  "category": "app",
+  "en": "No folders defined yet. Add a root folder to start.",
+  "it": "Nessuna cartella definita. Aggiungi una cartella radice per iniziare."
+ },
+ {
+  "key": "AllDocuments",
+  "category": "app",
+  "en": "All documents",
+  "it": "Tutti i documenti"
+ },
+ {
+  "key": "SelectFolder",
+  "category": "app",
+  "en": "Select a folder to filter documents",
+  "it": "Seleziona una cartella per filtrare i documenti"
+ },
+ {
+  "key": "UploadToFolder",
+  "category": "app",
+  "en": "Upload to folder",
+  "it": "Carica nella cartella"
+ },
+ {
+  "key": "NoFolderStructure",
+  "category": "app",
+  "en": "No folder structure defined for this practice type.",
+  "it": "Nessuna struttura cartelle definita per questa tipologia di pratica."
+ },
+ {
+  "key": "FolderTemplateTitle",
+  "category": "app",
+  "en": "Document folders",
+  "it": "Cartelle documenti"
+ },
+ {
+  "key": "SaveFolderName",
+  "category": "app",
+  "en": "Save",
+  "it": "Salva"
+ },
+ {
+  "key": "EditFolderName",
+  "category": "app",
+  "en": "Edit name",
+  "it": "Modifica nome"
+ },
+ {
+  "key": "Folder",
+  "category": "app",
+  "en": "Folder",
+  "it": "Cartella"
+ },
+ {
+  "key": "FileNotFound",
+  "category": "app",
+  "en": "File not found or empty.",
+  "it": "File non trovato o vuoto."
+ },
+ {
+  "key": "DownloadZip",
+  "category": "app",
+  "en": "Download compressed folder",
+  "it": "Download cartella compressa"
+ },
+ {
+  "key": "DownloadZipConfirm",
+  "category": "app",
+  "en": "Are you sure you want to download the compressed folder maintaining the folder structure?",
+  "it": "Sei sicuro di voler scaricare la cartella compressa mantenendo la struttura?"
+ },
+ {
+  "key": "OtpLogin",
+  "category": "app",
+  "en": "Login with OTP",
+  "it": "Accedi con OTP"
+ },
+ {
+  "key": "SendOtp",
+  "category": "app",
+  "en": "Send OTP",
+  "it": "Invia OTP"
+ },
+ {
+  "key": "EnterOtp",
+  "category": "app",
+  "en": "Enter OTP code",
+  "it": "Inserisci codice OTP"
+ },
+ {
+  "key": "OtpSent",
+  "category": "app",
+  "en": "OTP code sent to your email",
+  "it": "Codice OTP inviato alla tua email"
+ },
+ {
+  "key": "OtpExpired",
+  "category": "app",
+  "en": "OTP code has expired",
+  "it": "Il codice OTP è scaduto"
+ },
+ {
+  "key": "OtpInvalid",
+  "category": "app",
+  "en": "Invalid OTP code",
+  "it": "Codice OTP non valido"
+ },
+ {
+  "key": "LoginWithPassword",
+  "category": "app",
+  "en": "Login with Password",
+  "it": "Accedi con Password"
+ },
+ {
+  "key": "ForgotPassword",
+  "category": "app",
+  "en": "Forgot Password?",
+  "it": "Password dimenticata?"
+ },
+ {
+  "key": "ForgotPasswordTitle",
+  "category": "app",
+  "en": "Reset your password",
+  "it": "Reimposta la tua password"
+ },
+ {
+  "key": "ResetPasswordSent",
+  "category": "app",
+  "en": "If an account exists, a reset link has been sent",
+  "it": "Se l'account esiste, è stato inviato un link di reimpostazione"
+ },
+ {
+  "key": "ResetPasswordTitle",
+  "category": "app",
+  "en": "Set new password",
+  "it": "Imposta nuova password"
+ },
+ {
+  "key": "PasswordExpired",
+  "category": "app",
+  "en": "Your password has expired",
+  "it": "La tua password è scaduta"
+ },
+ {
+  "key": "ChangePasswordRequired",
+  "category": "app",
+  "en": "You must change your password to continue",
+  "it": "Devi cambiare la tua password per continuare"
+ },
+ {
+  "key": "PasswordRequiresUppercase",
+  "category": "validation",
+  "en": "Password must contain at least one uppercase letter",
+  "it": "La password deve contenere almeno una lettera maiuscola"
+ },
+ {
+  "key": "PasswordRequiresLowercase",
+  "category": "validation",
+  "en": "Password must contain at least one lowercase letter",
+  "it": "La password deve contenere almeno una lettera minuscola"
+ },
+ {
+  "key": "PasswordRequiresDigit",
+  "category": "validation",
+  "en": "Password must contain at least one digit",
+  "it": "La password deve contenere almeno un numero"
+ },
+ {
+  "key": "PasswordRequiresSpecialChar",
+  "category": "validation",
+  "en": "Password must contain at least one special character",
+  "it": "La password deve contenere almeno un carattere speciale"
+ },
+ {
+  "key": "PasswordInHistory",
+  "category": "validation",
+  "en": "This password has been used recently. Choose a different one.",
+  "it": "Questa password è stata usata di recente. Sceglierne un'altra."
+ },
+ {
+  "key": "CurrentPassword",
+  "category": "app",
+  "en": "Current Password",
+  "it": "Password Attuale"
+ },
+ {
+  "key": "ConfirmNewPassword",
+  "category": "app",
+  "en": "Confirm New Password",
+  "it": "Conferma Nuova Password"
+ },
+ {
+  "key": "PasswordStrengthConfig",
+  "category": "app",
+  "en": "Password Strength Settings",
+  "it": "Impostazioni Forza Password"
+ },
+ {
+  "key": "PasswordExpiry",
+  "category": "app",
+  "en": "Password Expiry",
+  "it": "Scadenza Password"
+ },
+ {
+  "key": "PasswordHistory",
+  "category": "app",
+  "en": "Password History",
+  "it": "Storico Password"
+ },
+ {
+  "key": "SecuritySettings",
+  "category": "app",
+  "en": "Security Settings",
+  "it": "Impostazioni Sicurezza"
+ },
+ {
+  "key": "LoginAuditLog",
+  "category": "app",
+  "en": "Login Audit Log",
+  "it": "Log Accessi"
+ },
+ {
+  "key": "LoginType",
+  "category": "app",
+  "en": "Login Type",
+  "it": "Tipo Accesso"
+ },
+ {
+  "key": "LoginResult",
+  "category": "app",
+  "en": "Result",
+  "it": "Risultato"
+ },
+ {
+  "key": "FailureReason",
+  "category": "app",
+  "en": "Failure Reason",
+  "it": "Motivo Fallimento"
+ },
+ {
+  "key": "InvalidCredentials",
+  "category": "app",
+  "en": "Invalid credentials",
+  "it": "Credenziali non valide"
+ }
+]

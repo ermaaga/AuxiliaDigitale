@@ -1,0 +1,560 @@
+[
+ {
+  "key": "modules.identity.name",
+  "category": "app",
+  "en": "Users and access",
+  "it": "Utenti e accessi"
+ },
+ {
+  "key": "modules.configuration.name",
+  "category": "app",
+  "en": "Configuration",
+  "it": "Configurazione"
+ },
+ {
+  "key": "modules.localization.name",
+  "category": "app",
+  "en": "Translations",
+  "it": "Traduzioni"
+ },
+ {
+  "key": "modules.messaging.name",
+  "category": "app",
+  "en": "Communications",
+  "it": "Comunicazioni"
+ },
+ {
+  "key": "modules.directory.name",
+  "category": "app",
+  "en": "Clients and employees",
+  "it": "Clienti e operatori"
+ },
+ {
+  "key": "modules.cases.name",
+  "category": "app",
+  "en": "Cases",
+  "it": "Pratiche"
+ },
+ {
+  "key": "modules.scheduling.name",
+  "category": "app",
+  "en": "Appointments",
+  "it": "Appuntamenti"
+ },
+ {
+  "key": "modules.documents.name",
+  "category": "app",
+  "en": "Documents",
+  "it": "Documenti"
+ },
+ {
+  "key": "modules.engagement.name",
+  "category": "app",
+  "en": "Requests and notifications",
+  "it": "Richieste e notifiche"
+ },
+ {
+  "key": "modules.marketing.name",
+  "category": "app",
+  "en": "Marketing",
+  "it": "Marketing"
+ },
+ {
+  "key": "modules.reporting.name",
+  "category": "app",
+  "en": "Dashboard and reports",
+  "it": "Dashboard e report"
+ },
+ {
+  "key": "nav.dashboard",
+  "category": "nav",
+  "en": "Dashboard",
+  "it": "Dashboard"
+ },
+ {
+  "key": "nav.clients",
+  "category": "nav",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "nav.employees",
+  "category": "nav",
+  "en": "Employees",
+  "it": "Operatori"
+ },
+ {
+  "key": "nav.cases",
+  "category": "nav",
+  "en": "Cases",
+  "it": "Pratiche"
+ },
+ {
+  "key": "nav.services",
+  "category": "nav",
+  "en": "Services",
+  "it": "Servizi"
+ },
+ {
+  "key": "nav.appointments",
+  "category": "nav",
+  "en": "Appointments",
+  "it": "Appuntamenti"
+ },
+ {
+  "key": "nav.documents",
+  "category": "nav",
+  "en": "Documents",
+  "it": "Documenti"
+ },
+ {
+  "key": "nav.requests",
+  "category": "nav",
+  "en": "Requests",
+  "it": "Richieste"
+ },
+ {
+  "key": "nav.marketing",
+  "category": "nav",
+  "en": "Marketing",
+  "it": "Marketing"
+ },
+ {
+  "key": "nav.sessions",
+  "category": "nav",
+  "en": "Sessions",
+  "it": "Sessioni"
+ },
+ {
+  "key": "nav.loginAudit",
+  "category": "nav",
+  "en": "Login audit log",
+  "it": "Log accessi"
+ },
+ {
+  "key": "permissions.cases.cases.view.description",
+  "category": "app",
+  "en": "View cases",
+  "it": "Visualizzare le pratiche"
+ },
+ {
+  "key": "permissions.cases.cases.manage.description",
+  "category": "app",
+  "en": "Create and manage cases",
+  "it": "Creare e gestire le pratiche"
+ },
+ {
+  "key": "permissions.cases.services.manage.description",
+  "category": "app",
+  "en": "Manage services and categories",
+  "it": "Gestire servizi e categorie"
+ },
+ {
+  "key": "permissions.directory.clients.view.description",
+  "category": "app",
+  "en": "View clients",
+  "it": "Visualizzare i clienti"
+ },
+ {
+  "key": "permissions.directory.clients.manage.description",
+  "category": "app",
+  "en": "Create and manage clients",
+  "it": "Creare e gestire i clienti"
+ },
+ {
+  "key": "permissions.directory.employees.view.description",
+  "category": "app",
+  "en": "View employees",
+  "it": "Visualizzare gli operatori"
+ },
+ {
+  "key": "permissions.directory.employees.manage.description",
+  "category": "app",
+  "en": "Create and manage employees",
+  "it": "Creare e gestire gli operatori"
+ },
+ {
+  "key": "permissions.directory.registrations.review.description",
+  "category": "app",
+  "en": "Approve or reject registration requests",
+  "it": "Approvare o rifiutare le richieste di registrazione"
+ },
+ {
+  "key": "permissions.documents.files.view.description",
+  "category": "app",
+  "en": "View documents",
+  "it": "Visualizzare i documenti"
+ },
+ {
+  "key": "permissions.documents.files.manage.description",
+  "category": "app",
+  "en": "Upload and manage documents",
+  "it": "Caricare e gestire i documenti"
+ },
+ {
+  "key": "permissions.engagement.requests.view.description",
+  "category": "app",
+  "en": "View requests",
+  "it": "Visualizzare le richieste"
+ },
+ {
+  "key": "permissions.engagement.requests.manage.description",
+  "category": "app",
+  "en": "Create and answer requests",
+  "it": "Creare e rispondere alle richieste"
+ },
+ {
+  "key": "permissions.engagement.requests.delete.description",
+  "category": "app",
+  "en": "Delete requests",
+  "it": "Eliminare le richieste"
+ },
+ {
+  "key": "permissions.identity.loginAttempts.view.description",
+  "category": "app",
+  "en": "View the login audit log",
+  "it": "Visualizzare il log degli accessi"
+ },
+ {
+  "key": "permissions.identity.sessions.view.description",
+  "category": "app",
+  "en": "View user sessions",
+  "it": "Visualizzare le sessioni degli utenti"
+ },
+ {
+  "key": "permissions.identity.sessions.revoke.description",
+  "category": "app",
+  "en": "End user sessions",
+  "it": "Chiudere le sessioni degli utenti"
+ },
+ {
+  "key": "permissions.identity.users.manage.description",
+  "category": "app",
+  "en": "Manage user accounts",
+  "it": "Gestire gli account utente"
+ },
+ {
+  "key": "permissions.marketing.campaigns.view.description",
+  "category": "app",
+  "en": "View campaigns",
+  "it": "Visualizzare le campagne"
+ },
+ {
+  "key": "permissions.marketing.campaigns.manage.description",
+  "category": "app",
+  "en": "Create and send campaigns",
+  "it": "Creare e inviare le campagne"
+ },
+ {
+  "key": "permissions.reporting.dashboard.view.description",
+  "category": "app",
+  "en": "View the dashboard",
+  "it": "Visualizzare la dashboard"
+ },
+ {
+  "key": "permissions.scheduling.appointments.view.description",
+  "category": "app",
+  "en": "View appointments",
+  "it": "Visualizzare gli appuntamenti"
+ },
+ {
+  "key": "permissions.scheduling.appointments.manage.description",
+  "category": "app",
+  "en": "Create and manage appointments",
+  "it": "Creare e gestire gli appuntamenti"
+ },
+ {
+  "key": "validation.invalid",
+  "category": "validation",
+  "en": "The value is not valid",
+  "it": "Il valore non è valido"
+ },
+ {
+  "key": "validation.notEmpty",
+  "category": "validation",
+  "en": "This field is required",
+  "it": "Questo campo è obbligatorio"
+ },
+ {
+  "key": "validation.notNull",
+  "category": "validation",
+  "en": "This field is required",
+  "it": "Questo campo è obbligatorio"
+ },
+ {
+  "key": "validation.maximumLength",
+  "category": "validation",
+  "en": "The value is too long",
+  "it": "Il valore è troppo lungo"
+ },
+ {
+  "key": "validation.minimumLength",
+  "category": "validation",
+  "en": "The value is too short",
+  "it": "Il valore è troppo corto"
+ },
+ {
+  "key": "validation.email",
+  "category": "validation",
+  "en": "Enter a valid e-mail address",
+  "it": "Inserisci un indirizzo e-mail valido"
+ },
+ {
+  "key": "validation.auth.grantType",
+  "category": "validation",
+  "en": "The sign-in request is not valid",
+  "it": "La richiesta di accesso non è valida"
+ },
+ {
+  "key": "validation.auth.totpInvalid",
+  "category": "validation",
+  "en": "The authenticator code is not valid",
+  "it": "Il codice dell'app di autenticazione non è valido"
+ },
+ {
+  "key": "validation.auth.methodDisabled",
+  "category": "validation",
+  "en": "This sign-in method is not enabled",
+  "it": "Questo metodo di accesso non è abilitato"
+ },
+ {
+  "key": "validation.password.tooShort",
+  "category": "validation",
+  "en": "The password is too short",
+  "it": "La password è troppo corta"
+ },
+ {
+  "key": "validation.password.uppercase",
+  "category": "validation",
+  "en": "The password must contain at least one uppercase letter",
+  "it": "La password deve contenere almeno una lettera maiuscola"
+ },
+ {
+  "key": "validation.password.lowercase",
+  "category": "validation",
+  "en": "The password must contain at least one lowercase letter",
+  "it": "La password deve contenere almeno una lettera minuscola"
+ },
+ {
+  "key": "validation.password.digit",
+  "category": "validation",
+  "en": "The password must contain at least one digit",
+  "it": "La password deve contenere almeno un numero"
+ },
+ {
+  "key": "validation.password.special",
+  "category": "validation",
+  "en": "The password must contain at least one special character",
+  "it": "La password deve contenere almeno un carattere speciale"
+ },
+ {
+  "key": "validation.password.reused",
+  "category": "validation",
+  "en": "This password has been used recently. Choose a different one.",
+  "it": "Questa password è stata usata di recente. Scegline un'altra."
+ },
+ {
+  "key": "validation.password.currentInvalid",
+  "category": "validation",
+  "en": "The current password is not correct",
+  "it": "La password attuale non è corretta"
+ },
+ {
+  "key": "validation.user.linkInvalid",
+  "category": "validation",
+  "en": "The link is not valid or has expired",
+  "it": "Il link non è valido o è scaduto"
+ },
+ {
+  "key": "validation.user.emailMissing",
+  "category": "validation",
+  "en": "The user has no e-mail address",
+  "it": "L'utente non ha un indirizzo e-mail"
+ },
+ {
+  "key": "validation.fiscalCode.invalid",
+  "category": "validation",
+  "en": "Enter a valid Italian fiscal code",
+  "it": "Inserisci un codice fiscale valido"
+ },
+ {
+  "key": "validation.paging.page",
+  "category": "validation",
+  "en": "The page number is not valid",
+  "it": "Il numero di pagina non è valido"
+ },
+ {
+  "key": "validation.paging.pageSize",
+  "category": "validation",
+  "en": "The page size is not valid",
+  "it": "La dimensione della pagina non è valida"
+ },
+ {
+  "key": "validation.paging.sort",
+  "category": "validation",
+  "en": "The sort order is not valid",
+  "it": "L'ordinamento non è valido"
+ },
+ {
+  "key": "validation.paging.range",
+  "category": "validation",
+  "en": "The start of the range must precede its end",
+  "it": "L'inizio dell'intervallo deve precedere la fine"
+ },
+ {
+  "key": "validation.sort.unknownField",
+  "category": "validation",
+  "en": "The list cannot be sorted by this field",
+  "it": "L'elenco non può essere ordinato per questo campo"
+ },
+ {
+  "key": "validation.settings.valueInvalid",
+  "category": "validation",
+  "en": "The value of the setting is not valid",
+  "it": "Il valore dell'impostazione non è valido"
+ },
+ {
+  "key": "validation.settings.levelNotAllowed",
+  "category": "validation",
+  "en": "The setting cannot be changed at this level",
+  "it": "L'impostazione non può essere modificata a questo livello"
+ },
+ {
+  "key": "validation.messaging.accountInvalid",
+  "category": "validation",
+  "en": "The sending account is not valid",
+  "it": "L'account di invio non è valido"
+ },
+ {
+  "key": "validation.messaging.ruleInvalid",
+  "category": "validation",
+  "en": "The sending rule is not valid",
+  "it": "La regola di invio non è valida"
+ },
+ {
+  "key": "validation.messaging.recipientInvalid",
+  "category": "validation",
+  "en": "The recipient is not valid",
+  "it": "Il destinatario non è valido"
+ },
+ {
+  "key": "validation.messaging.templateInvalid",
+  "category": "validation",
+  "en": "The message template cannot be rendered",
+  "it": "Il modello del messaggio non può essere generato"
+ },
+ {
+  "key": "validation.tenant.required",
+  "category": "validation",
+  "en": "The tenant is required",
+  "it": "Il tenant è obbligatorio"
+ },
+ {
+  "key": "validation.tenant.slug",
+  "category": "validation",
+  "en": "The identifier is not valid: use lower-case letters, digits and hyphens",
+  "it": "L'identificativo non è valido: usa lettere minuscole, cifre e trattini"
+ },
+ {
+  "key": "validation.tenant.slugReserved",
+  "category": "validation",
+  "en": "This name is reserved",
+  "it": "Questo nome è riservato"
+ },
+ {
+  "key": "validation.tenant.displayName",
+  "category": "validation",
+  "en": "The name is not valid",
+  "it": "Il nome non è valido"
+ },
+ {
+  "key": "validation.tenant.defaultLanguage",
+  "category": "validation",
+  "en": "The language is not valid",
+  "it": "La lingua non è valida"
+ },
+ {
+  "key": "validation.tenant.timeZone",
+  "category": "validation",
+  "en": "The time zone is not valid",
+  "it": "Il fuso orario non è valido"
+ },
+ {
+  "key": "validation.plan.code",
+  "category": "validation",
+  "en": "The plan code is not valid",
+  "it": "Il codice del piano non è valido"
+ },
+ {
+  "key": "validation.plan.nameKey",
+  "category": "validation",
+  "en": "The plan name is not valid",
+  "it": "Il nome del piano non è valido"
+ },
+ {
+  "key": "validation.clientApplication.name",
+  "category": "validation",
+  "en": "The application name is not valid",
+  "it": "Il nome dell'applicazione non è valido"
+ },
+ {
+  "key": "validation.clientApplication.clientId",
+  "category": "validation",
+  "en": "The client id is not valid",
+  "it": "L'identificativo del client non è valido"
+ },
+ {
+  "key": "validation.bus.tenantMissing",
+  "category": "validation",
+  "en": "The message has no tenant",
+  "it": "Il messaggio non ha un tenant"
+ },
+ {
+  "key": "validation.localization.key",
+  "category": "validation",
+  "en": "Use letters, digits, dots, hyphens or underscores, starting with a letter (max 200)",
+  "it": "Usa lettere, cifre, punti, trattini o underscore, iniziando con una lettera (max 200)"
+ },
+ {
+  "key": "validation.localization.category",
+  "category": "validation",
+  "en": "Use lower camel case letters and digits (max 50)",
+  "it": "Usa lettere e cifre in lower camel case (max 50)"
+ },
+ {
+  "key": "validation.localization.description",
+  "category": "validation",
+  "en": "The description is too long (max 500)",
+  "it": "La descrizione è troppo lunga (max 500)"
+ },
+ {
+  "key": "validation.localization.value",
+  "category": "validation",
+  "en": "Enter a translation (max 4000 characters)",
+  "it": "Inserisci una traduzione (max 4000 caratteri)"
+ },
+ {
+  "key": "validation.localization.language",
+  "category": "validation",
+  "en": "The language code is not valid",
+  "it": "Il codice della lingua non è valido"
+ },
+ {
+  "key": "errors.generic",
+  "category": "errors",
+  "en": "Something went wrong. Try again; if it happens again, contact support with the error code.",
+  "it": "Si è verificato un errore. Riprova; se succede ancora, contatta l'assistenza indicando il codice di errore."
+ },
+ {
+  "key": "languages.en",
+  "category": "common",
+  "en": "English",
+  "it": "English"
+ },
+ {
+  "key": "languages.it",
+  "category": "common",
+  "en": "Italiano",
+  "it": "Italiano"
+ }
+]

@@ -17,7 +17,8 @@ public sealed class TenantInitialSeed
     {
         ArgumentNullException.ThrowIfNull(db);
 
-        // No reference data yet: roles, permissions, languages and translations arrive with P2-01 / P3-01.
+        // Reference data arrives with data-migrations that also run on new tenants (languages and translations:
+        // D_20260930_003/004); permissions are synchronised by the tenant migration.
         await dataMigrations.MarkCoveredBySeedAsync(db, cancellationToken);
         await dataMigrations.ApplyPendingAsync(db, cancellationToken);
     }

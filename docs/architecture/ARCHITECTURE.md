@@ -98,6 +98,8 @@ Il legacy `SystemConfigurator` (ruolo del tenant) **sparisce**: tutto ciò che f
 
 Implementazione (P2-06): utenti in `catalog.platform_users` con password + TOTP obbligatorio (RFC 6238 implementato in `Infrastructure/Security/Totp.cs`, segreto protetto con Data Protection, codice non riutilizzabile), creati con `auxctl platform users add` (token di attivazione monouso) e attivati dalla console (enrollment + attivazione). Login `POST /api/v1/platform/auth/token` con client `PlatformConsole` → sessione di console (`catalog.platform_sessions`, refresh rotante, 30 min inattività / 12 h). `POST /api/v1/platform/tenants/{slug}/token` → token di 10 minuti con `scope=platform`, `actor_type=platform`, `role=System`, `tenant`, `act`, `sid` della sessione di console (il logout revoca anche questi, deny-list nello spazio `platform`). Filtri `RequirePlatformUser()` (console) e `RequirePlatformTenant()` (tecnici del tenant, qualsiasi stato); i token di piattaforma non hanno permessi né moduli visibili (D-21).
 
+Endpoint tecnici dei tenant (P3-01): stanno sulla route del loro modulo (es. `/api/v1/localization/*`), non sotto `/platform/tenants/{slug}`; il tenant è quello del token di piattaforma (claim `tenant`), il filtro è `RequirePlatformTenant()` e il gruppo non usa `RequireTenant()` (qualsiasi stato del tenant). Le modifiche finiscono nello storico con `actor_type=Platform` tramite l'interceptor di audit.
+
 ### 4.3 Perimetro del System (minimo privilegio)
 | Può | Non può (proposta, §16) |
 |---|---|
@@ -329,7 +331,7 @@ Base `data-model.md` v1 con queste modifiche:
 | **`marketing`** | **segments**, **static_lists**, **static_list_members**, **campaigns**, **campaign_recipients**, **suppressions** | nuovo (§11) |
 | `imports` | import_types, import_jobs, import_job_rows | invariato |
 | `configuration` | settings, **user_settings**, branding, **messaging_accounts**, **sender_rules**, grid_layouts, user_saved_views, custom_field_definitions | − `modules` (nel Catalog), − `email_settings` (→ messaging_accounts); `custom_field_definitions` + `group_name`, `badge_color`, `visible_on_grid`, `dashboard_counter` |
-| `localization` | languages, resource_keys, resource_translations | invariato |
+| `localization` | languages, resource_keys, resource_translations | `resource_keys.is_system`, `resource_translations.is_customized`; traduzioni riferite per `language_code` (P3-01) |
 | `audit` | **entity_changes** | − `app_logs` (log su file, D-17); `entity_changes` con `actor_type` (User/Platform/System) |
 | `ops` | data_migrations_history, outbox_messages, processed_messages, legacy_id_map, number_sequences, **job_runs** | `job_runs`: esecuzioni manuali dei job (chi, quando, esito) |
 | ~~`training`~~ | – | rimosso |

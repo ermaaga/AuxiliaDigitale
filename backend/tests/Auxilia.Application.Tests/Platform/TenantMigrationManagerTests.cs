@@ -52,7 +52,7 @@ public sealed class TenantMigrationManagerTests
         tenant.Status.ShouldBe(TenantStatus.Active);
         tenant.SchemaVersion.ShouldBe("Tenant_Initial");
         runs.ShouldHaveSingleItem().Status.ShouldBe(MigrationRunStatus.Succeeded);
-        cache.Invalidated.ShouldBe(["t:acme:identity"]);
+        cache.Invalidated.ShouldBe(["t:acme:identity", "t:acme:localization"]);
     }
 
     [Fact]
