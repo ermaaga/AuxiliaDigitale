@@ -17,6 +17,7 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: #5a6fce; /* brand */
   --primary-foreground: #ffffff; /* brand */
+  --primary-hover: #4f62b5; /* brand */
   --primary-text: #5a6fce; /* brand */
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -61,6 +62,7 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: #5a6fce; /* brand */
   --primary-foreground: #ffffff; /* brand */
+  --primary-hover: #4f62b5; /* brand */
   --primary-text: #667eea; /* brand */
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);

@@ -121,6 +121,15 @@ function filled(color: Rgb): { background: Rgb; foreground: Rgb } {
   return { background: ensureContrast(color, WHITE, TEXT_CONTRAST), foreground: WHITE };
 }
 
+/**
+ * Hover shade of a filled colour: 12% towards black under light text, towards white under dark text, so hovering a
+ * button never lowers the contrast of its label (a translucent `bg-primary/90` would, e.g. 3.9:1 on the default brand).
+ */
+function hovered({ background, foreground }: { background: Rgb; foreground: Rgb }): Rgb {
+  const towards = relativeLuminance(foreground) > 0.5 ? { r: 0, g: 0, b: 0 } : WHITE;
+  return mix(background, towards, 0.12);
+}
+
 /** As {@link filled}, and still ≥ 3:1 against the dark page; otherwise a lighter shade with dark text. */
 function filledOnDark(color: Rgb): { background: Rgb; foreground: Rgb } {
   const candidate = filled(ensureContrast(color, DARK_BACKGROUND, UI_CONTRAST));
@@ -157,6 +166,7 @@ export function brandingTokens(branding: TenantBranding | null | undefined): Bra
     light: {
       "--primary": toHex(lightPrimary.background),
       "--primary-foreground": toHex(lightPrimary.foreground),
+      "--primary-hover": toHex(hovered(lightPrimary)),
       "--primary-text": toHex(ensureContrast(primary, WHITE, TEXT_CONTRAST)),
       "--ring": toHex(ensureContrast(primary, WHITE, UI_CONTRAST)),
       "--accent": toHex(lightAccent),
@@ -168,6 +178,7 @@ export function brandingTokens(branding: TenantBranding | null | undefined): Bra
     dark: {
       "--primary": toHex(darkPrimary.background),
       "--primary-foreground": toHex(darkPrimary.foreground),
+      "--primary-hover": toHex(hovered(darkPrimary)),
       "--primary-text": toHex(ensureContrast(primary, DARK_BACKGROUND, TEXT_CONTRAST)),
       "--ring": toHex(ensureContrast(primary, DARK_BACKGROUND, UI_CONTRAST)),
       "--accent": toHex(darkAccent),

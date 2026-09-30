@@ -1,4 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { HttpResponse } from "msw";
+import { beforeEach, describe, expect, it } from "vitest";
+
+import { TEST_API_URL, apiHandler, apiOk, apiProblem, mswServer, useMsw } from "@/test/msw";
 
 import { buildBundles } from "../../scripts/sync-messages.mjs";
 import enBundle from "../../messages/en.json";
@@ -83,6 +86,8 @@ describe("tenantFromPath", () => {
 });
 
 describe("tenant bundles", () => {
+  useMsw();
+
   let calls: Request[];
   let replies: Array<() => Response>;
 
@@ -90,24 +95,19 @@ describe("tenant bundles", () => {
     clearBundleCache();
     calls = [];
     replies = [];
-    vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
-      calls.push(new Request(url, init));
-      const next = replies.shift();
-      if (!next) {
-        throw new TypeError("fetch failed");
-      }
-
-      return next();
-    });
+    // Every call of the test gets the next prepared answer; none left → network failure.
+    const answer = ({ request }: { request: Request }) => {
+      calls.push(request.clone());
+      return replies.shift()?.() ?? HttpResponse.error();
+    };
+    mswServer.use(
+      apiHandler("get", "/api/v1/i18n/languages", answer),
+      apiHandler("get", "/api/v1/i18n/{language}", answer),
+    );
   });
 
-  afterEach(() => vi.unstubAllGlobals());
-
-  const bundle = (body: object, etag: string) => () =>
-    new Response(JSON.stringify(body), {
-      status: 200,
-      headers: { "content-type": "application/json", etag },
-    });
+  const bundle = (body: Record<string, string>, etag: string) => () =>
+    apiOk("get", "/api/v1/i18n/{language}", body, { headers: { etag } });
 
   it("loads anonymously with the tenant, then revalidates with the ETag", async () => {
     replies.push(
@@ -119,7 +119,7 @@ describe("tenant bundles", () => {
     expect(await tenantBundle("acme", "it", 0)).toEqual({ Save: "Salva" });
     expect(await tenantBundle("acme", "it", 5_000)).toEqual({ Save: "Salva" });
     expect(calls).toHaveLength(1);
-    expect(calls[0]!.url).toMatch(/\/api\/v1\/i18n\/it$/);
+    expect(calls[0]!.url).toBe(`${TEST_API_URL}/api/v1/i18n/it`);
     expect(calls[0]!.headers.get("x-tenant")).toBe("acme");
     expect(calls[0]!.headers.get("authorization")).toBeNull();
 
@@ -133,14 +133,16 @@ describe("tenant bundles", () => {
   it("keeps the last good bundle when the API fails and has none before the first success", async () => {
     expect(await tenantBundle("acme", "it", 0)).toBeUndefined();
 
-    replies.push(bundle({ Save: "Salva" }, '"v1"'), () => new Response("{}", { status: 500 }));
+    replies.push(bundle({ Save: "Salva" }, '"v1"'), () => apiProblem(500, "AUX-10001"));
     expect(await tenantBundle("acme", "it", 20_000)).toEqual({ Save: "Salva" });
     expect(await tenantBundle("acme", "it", 40_000)).toEqual({ Save: "Salva" });
     expect(await tenantBundle("acme", "it", 60_000)).toEqual({ Save: "Salva" });
   });
 
   it("caches the tenant languages for a minute", async () => {
-    replies.push(bundle([{ code: "it", name: "Italiano", isDefault: true }], '"l1"'));
+    replies.push(() =>
+      apiOk("get", "/api/v1/i18n/languages", [{ code: "it", name: "Italiano", isDefault: true }]),
+    );
 
     expect(await tenantLanguages("acme", 0)).toEqual([
       { code: "it", name: "Italiano", isDefault: true },

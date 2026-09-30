@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "i18n:sync": "node scripts/sync-messages.mjs"
+    "i18n:sync": "node scripts/sync-messages.mjs",
+    "e2e": "playwright test",
+    "e2e:prepare": "bash e2e/prepare.sh"
   },
   "dependencies": {
     "@auxilia/api-client": "workspace:*",
@@ -29,12 +31,15 @@
   },
   "devDependencies": {
     "@auxilia/config": "workspace:*",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.7",
+    "msw": "^3.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.3"

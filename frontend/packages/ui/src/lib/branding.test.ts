@@ -104,6 +104,11 @@ describe("tenant branding tokens", () => {
               contrastRatio(hex(theme["--primary"]), hex(theme["--primary-foreground"])),
             ).toBeGreaterThanOrEqual(TEXT_CONTRAST);
             expect(
+              contrastRatio(hex(theme["--primary-hover"]), hex(theme["--primary-foreground"])),
+            ).toBeGreaterThanOrEqual(
+              contrastRatio(hex(theme["--primary"]), hex(theme["--primary-foreground"])),
+            );
+            expect(
               contrastRatio(hex(theme["--accent"]), hex(theme["--accent-foreground"])),
             ).toBeGreaterThanOrEqual(TEXT_CONTRAST);
           }
