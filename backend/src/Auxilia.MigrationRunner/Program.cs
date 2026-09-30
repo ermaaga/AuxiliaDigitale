@@ -16,7 +16,7 @@ Console.CancelKeyPress += (_, eventArgs) =>
 var host = new Lazy<IHost>(() => AuxctlHost.Build());
 try
 {
-    return await new AuxctlCli(() => host.Value.Services, Console.Out, Console.Error).RunAsync(args, cancellation.Token);
+    return await new AuxctlCli(() => host.Value.Services, Console.Out, Console.Error, Console.In).RunAsync(args, cancellation.Token);
 }
 finally
 {

@@ -18,6 +18,7 @@ public interface IPasswordPolicy
     /// <summary>Rules and history (when <paramref name="user"/> is given): one validation error listing every broken rule.</summary>
     Task<Result> ValidateAsync(User? user, string password, CancellationToken cancellationToken);
 
+    /// <summary>A temporary password set by an operator, or (with expiry enabled) a password older than the limit.</summary>
     Task<bool> IsExpiredAsync(User user, DateTimeOffset now, CancellationToken cancellationToken);
 }
 
@@ -81,6 +82,11 @@ internal sealed class PasswordPolicy(ISettingsProvider settings, IPasswordHasher
     public async Task<bool> IsExpiredAsync(User user, DateTimeOffset now, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(user);
+
+        if (user.MustChangePassword && user.PasswordHash is not null)
+        {
+            return true;
+        }
 
         if (!await settings.GetAsync(IdentitySettings.PasswordExpiryEnabled, cancellationToken))
         {

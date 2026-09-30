@@ -1,8 +1,13 @@
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Domain.Directory;
+using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
 using Auxilia.MigrationRunner;
 using Auxilia.MigrationRunner.Cli;
 using Auxilia.Persistence.Catalog;
+using Auxilia.Persistence.Tenant;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -232,6 +237,50 @@ public sealed class AuxctlTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task UsersResetPassword_SetsATemporaryPasswordOrSendsALink()
+    {
+        (await RunAsync("tenant", "provision", "--slug", "users", "--name", "Users")).ExitCode.ShouldBe(AuxctlCli.Success);
+        var userId = await AddTenantUserAsync("users", "mario.rossi", "mario@example.test");
+
+        var temporary = await RunAsync("users", "reset-password", "--tenant", "users", "--user", "MARIO@example.test");
+        var link = await RunAsync("users", "reset-password", "--tenant", "users", "--user", "mario.rossi", "--send-link");
+        var unknown = await RunAsync("users", "reset-password", "--tenant", "users", "--user", "nobody");
+        var noTenant = await RunAsync("users", "reset-password", "--tenant", "missing", "--user", "mario.rossi");
+        var usage = await RunAsync("users", "reset-password", "--tenant", "users");
+
+        temporary.ExitCode.ShouldBe(AuxctlCli.Success, temporary.Error);
+        var password = temporary.Output.Split("sessions ended): ")[1].Trim();
+        password.Length.ShouldBeGreaterThanOrEqualTo(16);
+        // A new tenant has no e-mail account yet: the operator sees why the link was not sent (the success path is unit-tested).
+        link.ExitCode.ShouldBe(AuxctlCli.Failure);
+        link.Error.ShouldContain("AUX-25011");
+        unknown.Error.ShouldContain("AUX-12006");
+        noTenant.ExitCode.ShouldBe(AuxctlCli.Failure);
+        usage.ExitCode.ShouldBe(AuxctlCli.UsageError);
+
+        await using var dataSource = NpgsqlDataSource.Create(await TenantConnectionStringAsync("users"));
+        await using var db = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
+        var user = await db.Set<User>().SingleAsync(item => item.Id == userId, Ct);
+        user.MustChangePassword.ShouldBeTrue();
+        user.PasswordHash!.ShouldNotContain(password);
+        host.Services.GetRequiredService<IPasswordHasher>().Verify(user.PasswordHash!, user.PasswordFormat, password).ShouldNotBe(PasswordVerification.Failed);
+    }
+
+    [Fact]
+    public async Task UsersVerifyLegacyHash_ReadsHashAndPasswordFromStandardInput()
+    {
+        var hash = BCrypt.Net.BCrypt.HashPassword("legacy password", 4);
+
+        var match = await RunWithInputAsync($"{hash}\nlegacy password\n", "users", "verify-legacy-hash");
+        var noMatch = await RunWithInputAsync($"{hash}\nanother password\n", "users", "verify-legacy-hash");
+        var empty = await RunWithInputAsync(string.Empty, "users", "verify-legacy-hash");
+
+        (match.ExitCode, match.Output.Trim()).ShouldBe((AuxctlCli.Success, "match"));
+        (noMatch.ExitCode, noMatch.Output.Trim()).ShouldBe((AuxctlCli.Failure, "no match"));
+        empty.ExitCode.ShouldBe(AuxctlCli.UsageError);
+    }
+
+    [Fact]
     public async Task UnknownCommand_PrintsUsage()
     {
         var run = await RunAsync("tenant", "delete", "--slug", "x");
@@ -240,12 +289,28 @@ public sealed class AuxctlTests : IAsyncLifetime
         run.Error.ShouldContain("usage: auxctl");
     }
 
-    private async Task<(int ExitCode, string Output, string Error)> RunAsync(params string[] args)
+    private Task<(int ExitCode, string Output, string Error)> RunAsync(params string[] args) => RunWithInputAsync(string.Empty, args);
+
+    private async Task<(int ExitCode, string Output, string Error)> RunWithInputAsync(string input, params string[] args)
     {
         using var output = new StringWriter();
         using var error = new StringWriter();
-        var exitCode = await new AuxctlCli(() => host.Services, output, error).RunAsync(args, Ct);
+        using var reader = new StringReader(input);
+        var exitCode = await new AuxctlCli(() => host.Services, output, error, reader).RunAsync(args, Ct);
         return (exitCode, output.ToString(), error.ToString());
+    }
+
+    private async Task<Guid> AddTenantUserAsync(string slug, string userName, string email)
+    {
+        await using var dataSource = NpgsqlDataSource.Create(await TenantConnectionStringAsync(slug));
+        await using var db = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
+        var person = new Person(Guid.CreateVersion7(), "Mario", "Rossi", null);
+        var user = User.Create(Guid.CreateVersion7(), person.Id, userName, email, "it", [TenantRole.Client], isActive: true).Value;
+        user.SetPassword(host.Services.GetRequiredService<IPasswordHasher>().Hash("Old!Password123"), PasswordFormat.Identity, DateTimeOffset.UtcNow);
+        db.Set<Person>().Add(person);
+        db.Set<User>().Add(user);
+        await db.SaveChangesAsync(Ct);
+        return user.Id;
     }
 
     private CatalogDbContext Catalog()

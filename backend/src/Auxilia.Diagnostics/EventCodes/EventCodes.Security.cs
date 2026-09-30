@@ -70,5 +70,8 @@ public static partial class EventCodes
 
         /// <summary>A one-time sign-in code was e-mailed to a user (F35).</summary>
         public const int LoginOtpSent = 29022;
+
+        /// <summary>An operator reset a user's password with auxctl (F31): temporary password or reset link.</summary>
+        public const int PasswordResetByOperator = 29023;
     }
 }

@@ -94,5 +94,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.LoginOtpSent, EventName = "Security.LoginOtpSent",
             Level = LogLevel.Information, Message = "Sign-in code e-mailed to user {UserId}")]
         public static partial void LoginOtpSent(ILogger logger, Guid userId);
+
+        [LoggerMessage(EventId = EventCodes.Security.PasswordResetByOperator, EventName = "Security.PasswordResetByOperator",
+            Level = LogLevel.Warning, Message = "Password of user {UserId} reset by an operator ({Mode})")]
+        public static partial void PasswordResetByOperator(ILogger logger, Guid userId, string mode);
     }
 }

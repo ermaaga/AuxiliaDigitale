@@ -76,6 +76,9 @@ public static partial class Errors
             Error.Validation(EventCodes.Identity.TwoFactorCodeInvalid, "The authenticator code is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["code"] = ["validation.auth.totpInvalid"] });
 
+        public static Error UserAmbiguous() =>
+            Error.Conflict(EventCodes.Identity.UserAmbiguous, "Several users have this e-mail address: use the user name");
+
         public static Error ClientIdTaken() =>
             Error.Conflict(EventCodes.Identity.ClientIdTaken, "A client application with this client id already exists");
     }

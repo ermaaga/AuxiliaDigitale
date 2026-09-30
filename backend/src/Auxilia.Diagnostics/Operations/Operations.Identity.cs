@@ -56,6 +56,8 @@ public static partial class Operations
         /// <summary>Not transactional: a wrong current password counts toward the lockout and must be saved.</summary>
         public static readonly OperationDescriptor ChangePassword = new("Identity.ChangePassword", EventCodes.Identity.PasswordChangedByUser, isWrite: false);
 
+        public static readonly OperationDescriptor ResetPasswordByOperator = new("Identity.ResetPasswordByOperator", EventCodes.Identity.PasswordResetByOperator);
+
         public static readonly OperationDescriptor RequestLoginOtp = new("Identity.RequestLoginOtp", EventCodes.Identity.LoginOtpRequested);
 
         /// <summary>Not transactional: failed attempts, lockout and the attempt log must be saved even when the sign-in fails.</summary>

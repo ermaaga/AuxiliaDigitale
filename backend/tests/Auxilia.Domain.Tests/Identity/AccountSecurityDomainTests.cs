@@ -57,6 +57,18 @@ public sealed class AccountSecurityDomainTests
         Should.Throw<ArgumentException>(() => session.RenewSecurityStamp(""));
     }
 
+    [Fact]
+    public void TemporaryPassword_MustBeChanged_AndAnyNewPasswordClearsTheFlag()
+    {
+        var user = NewUser();
+
+        user.SetTemporaryPassword("temporary", PasswordFormat.Identity, Now);
+
+        (user.PasswordHash, user.MustChangePassword, user.PasswordHistory.Count).ShouldBe(("temporary", true, 1));
+        user.SetPassword("chosen", PasswordFormat.Identity, Now.AddMinutes(1));
+        user.MustChangePassword.ShouldBeFalse();
+    }
+
     private static User NewUser() =>
         User.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "mario.rossi", null, "it", [TenantRole.Client], isActive: true).Value;
 }
