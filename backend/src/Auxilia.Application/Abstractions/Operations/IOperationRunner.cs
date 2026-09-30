@@ -31,4 +31,11 @@ public interface IOperationScope
 
     /// <summary>Adds the affected entity (e.g. <c>SetEntity("Case", id)</c> → <c>CaseId</c>) to the log scope and the trace.</summary>
     void SetEntity(string entityType, Guid id);
+
+    /// <summary>
+    /// Runs <paramref name="action"/> once the outermost operation of the scope has succeeded and committed (e.g. cache
+    /// invalidation, skill auxilia-caching); discarded when it fails. A failing action is logged (<c>AUX-10021</c>) and
+    /// does not change the result.
+    /// </summary>
+    void OnCommitted(Func<CancellationToken, Task> action);
 }

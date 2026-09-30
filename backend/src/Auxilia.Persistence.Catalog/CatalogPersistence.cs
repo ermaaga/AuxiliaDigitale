@@ -1,5 +1,7 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Persistence.Catalog.Configuration;
 using Auxilia.Persistence.Catalog.Interceptors;
 using Auxilia.Persistence.Catalog.Tenancy;
 
@@ -18,7 +20,8 @@ public static class CatalogPersistence
 
     /// <summary>
     /// <see cref="CatalogDbContext"/> on PostgreSQL (snake_case names, schema <c>catalog</c>) and the Data Protection
-    /// key ring persisted in <c>catalog.data_protection_keys</c>. Protecting the keys at rest with a certificate is
+    /// key ring persisted in <c>catalog.data_protection_keys</c>, platform settings and the protector of secret settings.
+    /// Needs <c>IReferenceDataCache</c> (<c>AddInfrastructure</c>) for the tenant lookups. Protecting the keys at rest with a certificate is
     /// configured by the host from its secret store (H-03).
     /// </summary>
     public static IServiceCollection AddCatalogPersistence(this IServiceCollection services, string connectionString)
@@ -38,11 +41,12 @@ public static class CatalogPersistence
             .SetApplicationName(DataProtectionApplicationName)
             .PersistKeysToDbContext<CatalogDbContext>();
 
-        services.AddMemoryCache();
         services.AddScoped<ITenantDirectory, CatalogTenantDirectory>();
         services.AddScoped<ICatalogStore, CatalogStore>();
         services.AddScoped<ICatalogMigrator, CatalogMigrator>();
         services.AddSingleton<ITenantConnectionProtector, TenantConnectionProtector>();
+        services.AddScoped<IPlatformSettingStore, PlatformSettingStore>();
+        services.AddSingleton<ISettingSecretProtector, SettingSecretProtector>();
 
         return services;
     }

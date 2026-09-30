@@ -194,6 +194,74 @@ public sealed class OperationRunnerTests : IDisposable
         outcomes.ShouldContain("success");
     }
 
+    [Fact]
+    public async Task OnCommitted_RunsAfterTheCommitOfASuccessfulOperation()
+    {
+        var order = new List<string>();
+        transaction.When(item => item.CommitAsync(Arg.Any<CancellationToken>())).Do(_ => order.Add("commit"));
+
+        await runner.RunAsync(Write, null, scope =>
+        {
+            scope.OnCommitted(_ => { order.Add("action"); return Task.CompletedTask; });
+            return Task.FromResult(Result.Success());
+        }, TestContext.Current.CancellationToken);
+
+        order.ShouldBe(["commit", "action"]);
+    }
+
+    [Fact]
+    public async Task OnCommitted_IsDiscardedWhenTheOperationFails()
+    {
+        var ran = false;
+
+        await runner.RunAsync(Write, null, scope =>
+        {
+            scope.OnCommitted(_ => { ran = true; return Task.CompletedTask; });
+            return Task.FromResult(Result.Failure(Expected));
+        }, TestContext.Current.CancellationToken);
+
+        // A later successful operation of the same scope does not run the discarded action.
+        await runner.RunAsync(Write, null, _ => Task.FromResult(Result.Success()), TestContext.Current.CancellationToken);
+
+        ran.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task OnCommitted_InNestedOperation_RunsOnceWhenTheOutermostSucceeds()
+    {
+        var runs = 0;
+        var ranBeforeOuterEnded = false;
+
+        await runner.RunAsync(Write, null, async _ =>
+        {
+            await runner.RunAsync(Write, null, inner =>
+            {
+                inner.OnCommitted(_ => { runs++; return Task.CompletedTask; });
+                return Task.FromResult(Result.Success());
+            }, TestContext.Current.CancellationToken);
+
+            ranBeforeOuterEnded = runs > 0;
+            return Result.Success();
+        }, TestContext.Current.CancellationToken);
+
+        ranBeforeOuterEnded.ShouldBeFalse();
+        runs.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task OnCommitted_FailingAction_IsLoggedAndTheResultStaysSuccessful()
+    {
+        var result = await runner.RunAsync(Write, null, scope =>
+        {
+            scope.OnCommitted(_ => throw new InvalidOperationException("cache down"));
+            return Task.FromResult(Result.Success());
+        }, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        logger.Entries.ShouldContain(entry => entry.EventId.Id == EventCodes.Host.PostCommitActionFailed && entry.Level == LogLevel.Warning);
+        logger.Entries.ShouldContain(entry => entry.EventId.Id == EventCodes.Host.LogStorageRecovered);
+    }
+
     public void Dispose() => listener.Dispose();
 }
 

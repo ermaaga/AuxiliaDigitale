@@ -42,5 +42,8 @@ public static partial class EventCodes
 
         /// <summary>The request fails validation (400); field errors are translation keys.</summary>
         public const int ValidationFailed = 10020;
+
+        /// <summary>An action registered to run after an operation committed (e.g. cache invalidation) failed; the operation stays successful.</summary>
+        public const int PostCommitActionFailed = 10021;
     }
 }

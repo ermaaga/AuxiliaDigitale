@@ -1,6 +1,8 @@
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Paging;
+using Auxilia.Application.Abstractions.Settings;
+using Auxilia.Application.Cases;
 
 using FluentValidation;
 
@@ -38,5 +40,24 @@ public sealed class DependencyInjectionTests
         using var provider = services.BuildServiceProvider();
         using var scope = provider.CreateScope();
         scope.ServiceProvider.GetRequiredService<ICurrentUser>().ShouldBeSameAs(hostUser);
+    }
+
+    [Fact]
+    public void AddApplication_RegistersTheCoreSettingDefinitionsOnce()
+    {
+        var services = new ServiceCollection();
+        services.AddApplication();
+        services.AddApplication();
+
+        using var provider = services.BuildServiceProvider();
+        var registry = provider.GetRequiredService<ISettingDefinitionRegistry>();
+
+        registry.Find("cases.expiry.expiringDays").ShouldBeSameAs(CasesSettings.ExpiryExpiringDays);
+        registry.All.Select(definition => definition.Key).ShouldBe(
+        [
+            "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled", "cases.expiry.expiringDays",
+            "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage", "registration.enabled",
+            "registration.notifyAdmins", "registration.sendConfirmationEmail",
+        ]);
     }
 }

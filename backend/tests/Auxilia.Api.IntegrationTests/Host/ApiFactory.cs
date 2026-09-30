@@ -23,12 +23,16 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     protected virtual IApiEndpoints? Endpoints => null;
 
+    /// <summary>Redis of the reference-data cache; none by default (in-memory cache only).</summary>
+    protected virtual string RedisConnectionString => string.Empty;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
         builder.UseSetting("AuxiliaLogging:Storage", "none");
         builder.UseSetting("ConnectionStrings:Catalog", ApiDatabase.Instance.CatalogConnectionString);
         builder.UseSetting("Tenancy:BaseDomains:0", BaseDomain);
+        builder.UseSetting("ConnectionStrings:Redis", RedisConnectionString);
 
         builder.ConfigureServices(services =>
         {

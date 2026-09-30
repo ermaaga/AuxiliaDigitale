@@ -18,6 +18,7 @@
     <Project Path="tests/Auxilia.Application.Tests/Auxilia.Application.Tests.csproj" />
     <Project Path="tests/Auxilia.Architecture.Tests/Auxilia.Architecture.Tests.csproj" />
     <Project Path="tests/Auxilia.Domain.Tests/Auxilia.Domain.Tests.csproj" />
+    <Project Path="tests/Auxilia.Infrastructure.Tests/Auxilia.Infrastructure.Tests.csproj" />
     <Project Path="tests/Auxilia.LegacyImport.Tests/Auxilia.LegacyImport.Tests.csproj" />
     <Project Path="tests/Auxilia.Persistence.Tests/Auxilia.Persistence.Tests.csproj" />
     <Project Path="tests/Auxilia.ServiceDefaults.Tests/Auxilia.ServiceDefaults.Tests.csproj" />

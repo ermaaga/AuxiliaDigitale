@@ -1,8 +1,10 @@
 using Auxilia.Application.Abstractions.Jobs;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Persistence;
+using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Tenant.Administration;
+using Auxilia.Persistence.Tenant.Configuration;
 using Auxilia.Persistence.Tenant.Jobs;
 using Auxilia.Persistence.Tenant.DataMigrations;
 using Auxilia.Persistence.Tenant.Seed;
@@ -36,6 +38,7 @@ public static class TenantPersistence
             provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DataMigrationRunner>>()));
         services.AddSingleton<TenantInitialSeed>();
         services.AddScoped<IJobRunStore, JobRunStore>();
+        services.AddScoped<ITenantSettingStore, TenantSettingStore>();
 
         return services;
     }

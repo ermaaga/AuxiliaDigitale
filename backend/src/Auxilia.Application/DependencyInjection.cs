@@ -1,8 +1,14 @@
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Operations;
+using Auxilia.Application.Abstractions.Settings;
+using Auxilia.Application.Cases;
+using Auxilia.Application.Configuration;
+using Auxilia.Application.Documents;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Execution;
+using Auxilia.Application.Directory;
 using Auxilia.Application.Platform;
+using Auxilia.Application.Identity;
 
 using FluentValidation;
 
@@ -28,6 +34,16 @@ public static class DependencyInjection
         services.TryAddScoped<IOperationRunner, OperationRunner>();
         services.TryAddScoped<IJobRunner, JobRunner>();
 
+        // Settings (ARCHITECTURE §7): the provider and manager need the Catalog (IPlatformSettingStore, secrets),
+        // the tenant databases and IReferenceDataCache, registered by persistence and infrastructure.
+        services.TryAddSingleton<ISettingDefinitionRegistry, SettingDefinitionRegistry>();
+        services.TryAddScoped<SettingsSnapshotCache>();
+        services.TryAddScoped<ISettingsProvider, SettingsProvider>();
+        services.TryAddScoped<ISettingsManager, SettingsManager>();
+
+        // Until module descriptors own their settings (P1-11).
+        services.AddSettingDefinitions([.. DirectorySettings.All, .. CasesSettings.All, .. IdentitySettings.All, .. DocumentsSettings.All]);
+
         services.AddValidatorsFrom(typeof(DependencyInjection).Assembly);
 
         return services;
@@ -44,6 +60,24 @@ public static class DependencyInjection
 
         services.TryAddScoped<ITenantLifecycleManager, TenantLifecycleManager>();
         services.TryAddScoped<ITenantMigrationManager, TenantMigrationManager>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Adds setting definitions to the registry; the same instance added twice is kept once, two definitions with the
+    /// same key fail when the registry is built.
+    /// </summary>
+    public static IServiceCollection AddSettingDefinitions(this IServiceCollection services, IEnumerable<SettingDefinition> definitions)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(definitions);
+
+        foreach (var definition in definitions)
+        {
+            // Not TryAddEnumerable: it deduplicates by implementation type, and many definitions share SettingDefinition<bool>.
+            services.AddSingleton(definition);
+        }
 
         return services;
     }

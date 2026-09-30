@@ -212,9 +212,11 @@ Adapter registrati come *keyed services*; quale usare è un'impostazione (§7). 
 | 1 Default codice | `SettingDefinition` | default sicuri | sviluppo |
 | 2 Piattaforma | `catalog.platform_settings` | default per tutti i tenant | System |
 | 3 Tenant | `configuration.*` nel tenant DB | impostazioni, branding, account di invio + regole, griglie, campi custom | System |
-| 4 Utente | `identity.user_preferences` | lingua, tema, viste salvate, preferenze notifiche | utente |
+| 4 Utente | `configuration.user_settings` | valori delle impostazioni con scope utente (es. tema); i dati di profilo restano in `identity` (B-03) | utente |
 
 Valore effettivo: utente → tenant → piattaforma → default (secondo gli scope dichiarati dalla definizione). Nessuna chiave libera: ogni impostazione è una `SettingDefinition<T>` (chiave, modulo, scope, default, segreta?, validazione, chiave di descrizione). L'editor generico del System elenca tutte le definizioni.
+
+Implementazione (P1-10): `SettingDefinition<T>` / `SecretSettingDefinition` (`Application/Abstractions/Settings`), registrate dai moduli (`AddSettingDefinitions`, dal descrittore di modulo con P1-11); lettura con `ISettingsProvider` (un valore salvato non più valido per la definizione è ignorato con `AUX-20004` e vale il livello successivo); scrittura con `ISettingsManager` (`Configuration.SetSetting` / `ResetSetting`, codici `AUX-20001…20006`). Valori in JSON: `catalog.platform_settings`, `configuration.settings`, `configuration.user_settings`. I segreti sono cifrati con Data Protection (purpose `Auxilia.Configuration.SettingSecret.v1`) prima del salvataggio e decifrati solo da `GetSecretAsync`; i valori utente non vanno in cache.
 
 ### 7.2 Impostazioni legacy → nuove
 | Legacy | Nuovo |
@@ -237,6 +239,8 @@ lettura  ─► L1 memoria (60 s) ─miss─► L2 Redis t:{slug}:configuration:
 scrittura─► commit ─► RemoveByTag t:{slug}:configuration ─► PUBLISH auxilia:invalidate {tag} ─► ogni nodo svuota il suo L1
 ```
 Snapshot unico per tenant; stesso meccanismo (`ReferenceDataCache<T>`) per traduzioni, moduli effettivi, permessi, navigazione, branding, account di invio, lookup, definizioni campi custom. Segreti cifrati anche in cache. Redis giù → L1 + DB, warning `AUX-24xxx`. Invalidazione sempre dopo il commit.
+
+Implementazione (P1-10): `IReferenceDataCache` su `HybridCache`; L2 Redis/Valkey solo se `ConnectionStrings:Redis` è configurata, dietro un circuit breaker (primo errore → 30 s di sole L1 + DB, `AUX-24001` una volta, `AUX-24002` al ripristino); canale `auxilia:invalidate` per svuotare la L1 degli altri nodi; health check `redis` Degraded (non Unhealthy) se Redis è giù. Le entry dello snapshot hanno i tag `t:{slug}:{modulo}` e `platform:{modulo}`: una modifica di piattaforma invalida tutti i tenant. Le operazioni registrano l'invalidazione con `IOperationScope.OnCommitted`, eseguita dall'`IOperationRunner` dopo il commit dell'operazione più esterna (se fallisce: `AUX-10021`, l'esito resta positivo). Anche la risoluzione dei tenant (`catalog:tenant:…`, tag `catalog:tenants`, L1 30 s / L2 5 min) usa questa cache ed è invalidata dal ciclo di vita dei tenant.
 
 ---
 
@@ -304,7 +308,7 @@ Base `data-model.md` v1 con queste modifiche:
 | **`messaging`** | **message_templates**, **outbound_messages** | nuovo (§8) |
 | **`marketing`** | **segments**, **static_lists**, **static_list_members**, **campaigns**, **campaign_recipients**, **suppressions** | nuovo (§11) |
 | `imports` | import_types, import_jobs, import_job_rows | invariato |
-| `configuration` | settings, branding, **messaging_accounts**, **sender_rules**, grid_layouts, user_saved_views, custom_field_definitions | − `modules` (nel Catalog), − `email_settings` (→ messaging_accounts); `custom_field_definitions` + `group_name`, `badge_color`, `visible_on_grid`, `dashboard_counter` |
+| `configuration` | settings, **user_settings**, branding, **messaging_accounts**, **sender_rules**, grid_layouts, user_saved_views, custom_field_definitions | − `modules` (nel Catalog), − `email_settings` (→ messaging_accounts); `custom_field_definitions` + `group_name`, `badge_color`, `visible_on_grid`, `dashboard_counter` |
 | `localization` | languages, resource_keys, resource_translations | invariato |
 | `audit` | **entity_changes** | − `app_logs` (log su file, D-17); `entity_changes` con `actor_type` (User/Platform/System) |
 | `ops` | data_migrations_history, outbox_messages, processed_messages, legacy_id_map, number_sequences, **job_runs** | `job_runs`: esecuzioni manuali dei job (chi, quando, esito) |

@@ -21,6 +21,8 @@ internal sealed class OperationRunner : IOperationRunner
     private readonly IOperationTransactionFactory transactions;
     private readonly IEnumerable<IExceptionClassifier> classifiers;
     private readonly TimeProvider timeProvider;
+    private readonly List<Func<CancellationToken, Task>> committedActions = [];
+    private int depth;
 
     public OperationRunner(
         ILogger<OperationRunner> logger,
@@ -55,7 +57,7 @@ internal sealed class OperationRunner : IOperationRunner
         ArgumentNullException.ThrowIfNull(operation);
         ArgumentNullException.ThrowIfNull(work);
 
-        var scope = new Scope(operation);
+        var scope = new Scope(operation, committedActions);
         scope.Properties["Operation"] = operation.Name;
         scope.Properties["ActorType"] = currentUser.ActorType.ToString();
         if (currentUser.UserId is { } userId)
@@ -76,12 +78,18 @@ internal sealed class OperationRunner : IOperationRunner
 
         using var logScope = logger.BeginScope(scope.Properties);
         var started = timeProvider.GetTimestamp();
+        var isOutermost = depth++ == 0;
 
         try
         {
             var result = operation.IsWrite
                 ? await RunInTransactionAsync(scope, work, cancellationToken)
                 : await work(scope);
+
+            if (isOutermost && result.IsSuccess)
+            {
+                await RunCommittedActionsAsync(operation);
+            }
 
             var elapsed = timeProvider.GetElapsedTime(started);
             if (result.IsSuccess)
@@ -117,6 +125,30 @@ internal sealed class OperationRunner : IOperationRunner
             ExceptionLogging.MarkLogged(exception);
             Record(operation, OperationOutcome.Error, timeProvider.GetElapsedTime(started), activity, $"AUX-{code}");
             throw;
+        }
+        finally
+        {
+            depth--;
+            if (isOutermost)
+            {
+                committedActions.Clear();
+            }
+        }
+    }
+
+    /// <summary>The changes are committed: the actions run even if the caller has given up meanwhile.</summary>
+    private async Task RunCommittedActionsAsync(OperationDescriptor operation)
+    {
+        foreach (var action in committedActions.ToArray())
+        {
+            try
+            {
+                await action(CancellationToken.None);
+            }
+            catch (Exception exception)
+            {
+                Log.Host.PostCommitActionFailed(logger, exception, operation.Name);
+            }
         }
     }
 
@@ -203,7 +235,7 @@ internal sealed class OperationRunner : IOperationRunner
         }
     }
 
-    private sealed class Scope(OperationDescriptor operation) : IOperationScope
+    private sealed class Scope(OperationDescriptor operation, List<Func<CancellationToken, Task>> committedActions) : IOperationScope
     {
         public OperationDescriptor Operation { get; } = operation;
 
@@ -218,6 +250,12 @@ internal sealed class OperationRunner : IOperationRunner
 
             Properties[entityType + "Id"] = id;
             Activity?.SetTag($"auxilia.{entityType.ToLowerInvariant()}_id", id);
+        }
+
+        public void OnCommitted(Func<CancellationToken, Task> action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+            committedActions.Add(action);
         }
     }
 }

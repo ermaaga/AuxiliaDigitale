@@ -29,5 +29,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Host.RequestCancelled, EventName = "Host.RequestCancelled",
             Level = LogLevel.Information, Message = "Request {RequestMethod} {RequestPath} cancelled by the client")]
         public static partial void RequestCancelled(ILogger logger, string requestMethod, string requestPath);
+
+        [LoggerMessage(EventId = EventCodes.Host.PostCommitActionFailed, EventName = "Host.PostCommitActionFailed",
+            Level = LogLevel.Warning, Message = "A post-commit action of operation {Operation} failed")]
+        public static partial void PostCommitActionFailed(ILogger logger, Exception exception, string operation);
     }
 }
