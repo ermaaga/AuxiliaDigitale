@@ -24,6 +24,12 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.12" />
   </ItemGroup>
+  <ItemGroup Label="Messaging">
+    <PackageVersion Include="Rebus" Version="8.9.5" />
+    <PackageVersion Include="Rebus.PostgreSql" Version="9.1.1" />
+    <PackageVersion Include="Rebus.RabbitMq" Version="10.1.1" />
+    <PackageVersion Include="Rebus.ServiceProvider" Version="10.7.2" />
+  </ItemGroup>
   <ItemGroup Label="Persistence">
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.12" />
@@ -50,6 +56,7 @@
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.15.0" />
+    <PackageVersion Include="Testcontainers.RabbitMq" Version="4.15.0" />
     <PackageVersion Include="Testcontainers.Redis" Version="4.15.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
     <PackageVersion Include="xunit.v3" Version="4.0.1" />

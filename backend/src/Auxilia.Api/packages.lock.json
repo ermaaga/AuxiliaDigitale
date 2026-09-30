@@ -156,6 +156,11 @@
         "resolved": "2.12.0",
         "contentHash": "0xB/be+f6qYOhvQPUrVsLrau+fkowYv6gt9RIkajMhwT7sZnqtcA797yW3bS5kgSje+AQW4xZgyLnW641YFioQ=="
       },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.4",
+        "contentHash": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A=="
+      },
       "Npgsql": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -207,6 +212,11 @@
         "dependencies": {
           "Polly.Core": "8.4.2"
         }
+      },
+      "RabbitMQ.Client": {
+        "type": "Transitive",
+        "resolved": "7.1.2",
+        "contentHash": "y3c6ulgULScWthHw5PLM1ShHRLhxg0vCtzX/hh61gRgNecL3ZC3WoBW2HYHoXOVRqTl99Br9E7CZEytGZEsCyQ=="
       },
       "Serilog": {
         "type": "Transitive",
@@ -327,7 +337,11 @@
           "Auxilia.Application": "[1.0.0, )",
           "Auxilia.Domain": "[1.0.0, )",
           "Microsoft.Extensions.Caching.Hybrid": "[10.10.0, )",
-          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.12, )"
+          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.12, )",
+          "Rebus": "[8.9.5, )",
+          "Rebus.PostgreSql": "[9.1.1, )",
+          "Rebus.RabbitMq": "[10.1.1, )",
+          "Rebus.ServiceProvider": "[10.7.2, )"
         }
       },
       "auxilia.persistence.catalog": {
@@ -500,6 +514,44 @@
         "contentHash": "VIH2tQ2h31j4wQyZ9Utk8ZXIyj7Z1j0xIiyPRGjYu1MmZjJtpxRh0Y/NnB6fEBimNg/WrX0jDyfMeEjPQqmaMA==",
         "dependencies": {
           "OpenTelemetry.Api": "[1.19.0, 2.0.0)"
+        }
+      },
+      "Rebus": {
+        "type": "CentralTransitive",
+        "requested": "[8.9.5, )",
+        "resolved": "8.9.5",
+        "contentHash": "PfsmgENA9mrAnIAJEKh/Z7KiZay3cUXkHRxcfbkp+9//wnXEWOFoPAC9b2Y38kTYCFMc8eFiD3cXPERoS104cw==",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.4"
+        }
+      },
+      "Rebus.PostgreSql": {
+        "type": "CentralTransitive",
+        "requested": "[9.1.1, )",
+        "resolved": "9.1.1",
+        "contentHash": "JgDCZkxOG8yDT0AWFlElWnPs1tryvFqIRlbwkegxVyKgNbiICHN95HdNq8EqT8yudCo8tVK7BNxFi0gkKgUArg==",
+        "dependencies": {
+          "npgsql": "8.0.3",
+          "rebus": "8.4.2"
+        }
+      },
+      "Rebus.RabbitMq": {
+        "type": "CentralTransitive",
+        "requested": "[10.1.1, )",
+        "resolved": "10.1.1",
+        "contentHash": "66pUp4hfaYWfQEDOiVcuZQnPF4XFHyJ5KCfwCm18e3Dnr936Iog48KrN8Mp8QyRQ2tiNpzdjSATQLKEZpSk11A==",
+        "dependencies": {
+          "RabbitMq.Client": "7.1.2",
+          "rebus": "8.9.0"
+        }
+      },
+      "Rebus.ServiceProvider": {
+        "type": "CentralTransitive",
+        "requested": "[10.7.2, )",
+        "resolved": "10.7.2",
+        "contentHash": "Qa8sKt1i9Fy/zCw5GwAUsfT+lt4BvkIgYh8sRJ6fvqJWoedS//pfcyiKUUb0wL3C5Wrpi3U+vRud5DCbMHaFIw==",
+        "dependencies": {
+          "Rebus": "8.9.0"
         }
       },
       "Serilog.AspNetCore": {

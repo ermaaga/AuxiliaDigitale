@@ -102,7 +102,7 @@ public sealed class AuxctlTests : IAsyncLifetime
         again.ExitCode.ShouldBe(AuxctlCli.Failure);
         again.Error.ShouldContain("AUX-11016");
 
-        (await RunAsync("jobs", "list")).Output.ShouldContain("no recurring jobs registered");
+        (await RunAsync("jobs", "list")).Output.ShouldStartWith("bus.outbox");
         var unknownJob = await RunAsync("jobs", "run", "cases.expiry", "--tenant", "beta");
         unknownJob.ExitCode.ShouldBe(AuxctlCli.Failure);
         unknownJob.Error.ShouldContain("AUX-26002");

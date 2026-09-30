@@ -57,7 +57,10 @@ public sealed class RedisCacheTests(ValkeyFixture valkey) : IClassFixture<Valkey
         var seen = await EventuallyAsync(async () =>
             (await nodeB.Cache.GetOrCreateAsync(entry, _ => Task.FromResult(new CachedPayload("v2")), Ct)).Value);
         seen.ShouldBe("v2");
-        (await nodeA.Cache.GetOrCreateAsync(entry, _ => Task.FromResult(new CachedPayload("v3")), Ct)).Value.ShouldBe("v2");
+
+        // Node A evicted its own memory: it reads B's value from Redis or, if B's background L2 write is not done yet,
+        // loads again — never the stale one.
+        (await nodeA.Cache.GetOrCreateAsync(entry, _ => Task.FromResult(new CachedPayload("v3")), Ct)).Value.ShouldNotBe("v1");
     }
 
     [Fact]

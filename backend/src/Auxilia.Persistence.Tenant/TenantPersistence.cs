@@ -1,9 +1,11 @@
 using Auxilia.Application.Abstractions.Jobs;
+using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Persistence;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Tenant.Administration;
+using Auxilia.Persistence.Tenant.Bus;
 using Auxilia.Persistence.Tenant.Configuration;
 using Auxilia.Persistence.Tenant.Jobs;
 using Auxilia.Persistence.Tenant.DataMigrations;
@@ -28,7 +30,8 @@ public static class TenantPersistence
         services.AddSingleton<TenantDataSources>();
         services.AddScoped<TenantOperationTransactions>();
         services.Replace(ServiceDescriptor.Scoped<IOperationTransactionFactory>(provider => provider.GetRequiredService<TenantOperationTransactions>()));
-        services.AddScoped<ITenantDbContextFactory, TenantDbContextFactory>();
+        services.AddScoped<TenantDbContextFactory>();
+        services.AddScoped<ITenantDbContextFactory>(provider => provider.GetRequiredService<TenantDbContextFactory>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IExceptionClassifier, EfCoreExceptionClassifier>());
 
         services.AddSingleton(_ => DataMigrationRunner.Discover(typeof(TenantDbContext).Assembly));
@@ -39,6 +42,9 @@ public static class TenantPersistence
         services.AddSingleton<TenantInitialSeed>();
         services.AddScoped<IJobRunStore, JobRunStore>();
         services.AddScoped<ITenantSettingStore, TenantSettingStore>();
+        services.AddScoped<IOutboxStore, OutboxStore>();
+        services.AddScoped<IProcessedMessageStore, ProcessedMessageStore>();
+        services.AddScoped<IJobLock, PostgresJobLock>();
 
         return services;
     }

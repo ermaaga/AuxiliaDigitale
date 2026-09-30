@@ -90,3 +90,31 @@ public sealed class EntityChange
 
     public string? TraceId { get; init; }
 }
+
+/// <summary>A message produced by an operation, committed with its changes and sent after the commit (outbox).</summary>
+public sealed class OutboxMessage
+{
+    public Guid Id { get; init; }
+
+    public required string MessageType { get; init; }
+
+    /// <summary>JSON body.</summary>
+    public required string Body { get; init; }
+
+    /// <summary>JSON object of the transport headers captured when the message was produced.</summary>
+    public required string Headers { get; init; }
+
+    public DateTimeOffset CreatedAt { get; init; }
+
+    public DateTimeOffset? DispatchedAt { get; set; }
+}
+
+/// <summary>Idempotency record: <see cref="Handler"/> handled message <see cref="MessageId"/>.</summary>
+public sealed class ProcessedMessage
+{
+    public Guid MessageId { get; init; }
+
+    public required string Handler { get; init; }
+
+    public DateTimeOffset ProcessedAt { get; init; }
+}

@@ -377,6 +377,15 @@ Implementazione: Serilog con instradamento per `TenantSlug` verso un writer per 
 **Job periodici predisposti ma non schedulati**: ogni modulo dichiara i suoi `RecurringJobDefinition` (codice, descrizione, frequenza suggerita, comando per tenant). Oggi si eseguono **a mano** dal System (console → tenant → Job, o `auxctl jobs run <job> --tenant <slug>`), con lock distribuito, idempotenza e registro in `ops.job_runs`. Uno scheduler futuro userà lo stesso registry senza modifiche ai moduli.
 Job registrati: `cases.expiry` (parità F11), `engagement.task-reminders` (futuro), `documents.staging-cleanup` (in alternativa lifecycle policy dello storage).
 
+Implementazione (P1-12):
+- **Rebus su RabbitMQ**. Routing per convenzione: un messaggio in `Contracts/Messages/V<n>/<Modulo>/` va nella coda `auxilia.<modulo>` (`MessageRouting`). I messaggi per tenant implementano `ITenantMessage`. Api e auxctl hanno un bus solo invio (`AddMessageBusClient`); il Worker crea un bus per ogni coda che ha handler nel suo assembly (`AddMessageBusWorker`). Connessione in `ConnectionStrings:RabbitMq`: senza, i messaggi restano nell'outbox.
+- **Header** di ogni messaggio: `rbs2-msg-id` (chiave di idempotenza), `x-tenant-slug`, `x-correlation-id`, `x-user-id`, `x-actor-type`, `traceparent`. Vengono catturati quando il messaggio è prodotto.
+- **Outbox**: `IMessageOutbox.EnqueueAsync(scope, message)` scrive in `ops.outbox_messages` nella transazione dell'operazione e invia dopo il commit (`OnCommitted`). Nessun dispatcher in polling (D-15): se l'invio fallisce la riga resta pendente (`AUX-23008`) e la invia il job manuale `bus.outbox`. I messaggi di piattaforma senza DB tenant si inviano direttamente dopo il commit.
+- **Ricezione**: `IIncomingMessageProcessor` (Application), sotto l'operazione `Bus.HandleMessage` (`AUX-23001`). Tenant da `x-tenant-slug`: se manca → `23003`, se sconosciuto o non attivo → `23004`, in entrambi i casi coda `error` senza retry. Chiamante e correlazione dagli header; traccia unita al `traceparent`. Gli handler del Worker ereditano `MessageHandler<T>` e restano sottili.
+- **Idempotenza**: `ops.processed_messages (message_id, handler)`. Per gli handler transazionali il record è scritto nella stessa transazione delle modifiche; gli handler di job (non transazionali) lo scrivono dopo il successo e sono idempotenti per costruzione.
+- **Retry**: 5 tentativi immediati, poi retry di secondo livello con ritardi 10 s / 1 min / 5 min / 30 min (`AUX-23006`; deferral in `public.rebus_timeouts` del database Catalog, tabella creata da Rebus), poi coda `error` (`23007`). Un `Result` fallito dell'handler è permanente (`MessageRejectedException`, `23005`) e va subito in `error`.
+- **Job**: `RunRecurringJobCommand` → `auxilia.platform` → `IJobRunner`. Lock per tenant e job con advisory lock PostgreSQL nel database del tenant (`IJobLock`): funziona anche senza Redis; una seconda esecuzione concorrente è rifiutata con `AUX-26004`. `ops.job_runs` è scritto fuori dalla transazione, quindi sopravvive al rollback del messaggio.
+
 ---
 
 ## 14. Frontend

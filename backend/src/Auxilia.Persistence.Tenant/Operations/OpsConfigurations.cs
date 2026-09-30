@@ -71,3 +71,29 @@ internal sealed class EntityChangeConfiguration : IEntityTypeConfiguration<Entit
         builder.HasIndex(change => new { change.EntityType, change.EntityId, change.OccurredAt });
     }
 }
+
+internal sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage>
+{
+    public void Configure(EntityTypeBuilder<OutboxMessage> builder)
+    {
+        builder.ToTable("outbox_messages", TenantSchemas.Ops);
+        builder.HasKey(message => message.Id);
+        builder.Property(message => message.Id).ValueGeneratedNever();
+        builder.Property(message => message.MessageType).HasMaxLength(300);
+        builder.Property(message => message.Body).HasColumnType("jsonb");
+        builder.Property(message => message.Headers).HasColumnType("jsonb");
+
+        // Pending entries are read by creation time; sent ones are never read again.
+        builder.HasIndex(message => message.CreatedAt).HasFilter("dispatched_at IS NULL");
+    }
+}
+
+internal sealed class ProcessedMessageConfiguration : IEntityTypeConfiguration<ProcessedMessage>
+{
+    public void Configure(EntityTypeBuilder<ProcessedMessage> builder)
+    {
+        builder.ToTable("processed_messages", TenantSchemas.Ops);
+        builder.HasKey(message => new { message.MessageId, message.Handler });
+        builder.Property(message => message.Handler).HasMaxLength(200);
+    }
+}

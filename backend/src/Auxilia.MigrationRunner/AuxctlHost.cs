@@ -1,6 +1,7 @@
 using Auxilia.Application;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
+using Auxilia.Infrastructure.Messaging;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults.Logging;
@@ -41,6 +42,12 @@ internal static class AuxctlHost
         if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
         {
             builder.Services.AddRedisCache(redis);
+        }
+
+        // Jobs run here may produce messages (e.g. bus.outbox sends the pending outbox).
+        if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
+        {
+            builder.Services.AddMessageBusClient(rabbitMq);
         }
 
         return builder.Build();

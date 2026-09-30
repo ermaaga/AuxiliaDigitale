@@ -1,7 +1,10 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Jobs;
+using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Settings;
+using Auxilia.Application.Bus;
 using Auxilia.Application.Cases;
 using Auxilia.Application.Configuration;
 using Auxilia.Application.Directory;
@@ -41,6 +44,15 @@ public static class DependencyInjection
         services.TryAddScoped<IOperationTransactionFactory, NoOperationTransactionFactory>();
         services.TryAddScoped<IOperationRunner, OperationRunner>();
         services.TryAddScoped<IJobRunner, JobRunner>();
+
+        // Message bus (skill auxilia-messaging-rebus): outbox, incoming processing; transport in Infrastructure.
+        services.TryAddScoped<CorrelationContext>();
+        services.TryAddScoped<ICorrelationContext>(provider => provider.GetRequiredService<CorrelationContext>());
+        services.TryAddScoped<OutgoingMessageHeaders>();
+        services.TryAddScoped<OutboxDispatcher>();
+        services.TryAddScoped<IMessageOutbox, MessageOutbox>();
+        services.TryAddScoped<IIncomingMessageProcessor, IncomingMessageProcessor>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IRecurringJob, OutboxDispatchJob>());
 
         // Settings (ARCHITECTURE §7): the provider and manager need the Catalog (IPlatformSettingStore, secrets),
         // the tenant databases and IReferenceDataCache, registered by persistence and infrastructure.

@@ -26,3 +26,13 @@ public interface IJobRunStore
 
     Task FinishAsync(Guid runId, bool succeeded, string? errorCode, string? summary, CancellationToken cancellationToken);
 }
+
+/// <summary>
+/// Lock of a job run in the current tenant (skill auxilia-messaging-rebus): a second run of the same job while one is
+/// running is refused. Held until disposed.
+/// </summary>
+public interface IJobLock
+{
+    /// <returns>The held lock, or <c>null</c> when another run holds it.</returns>
+    Task<IAsyncDisposable?> TryAcquireAsync(string jobCode, CancellationToken cancellationToken);
+}
