@@ -34,7 +34,12 @@ function isAllowedPath(area: BffArea, path: string): boolean {
   }
 
   if (area === "tenant") {
-    return !path.startsWith("platform/") && path !== "auth/token" && path !== "auth/logout";
+    return (
+      !path.startsWith("platform/") &&
+      path !== "auth/token" &&
+      path !== "auth/logout" &&
+      path !== "auth/password/change"
+    );
   }
 
   return path !== "platform/auth/token" && path !== "platform/auth/logout";
@@ -109,6 +114,49 @@ export async function login(
   area: BffArea,
   context: BffContext = defaultContext(),
 ): Promise<Response> {
+  return issueSession(request, area, context, (input) => {
+    const grantType = input.grantType ?? "password";
+    if (grantType === "refresh_token" || typeof grantType !== "string") {
+      return undefined;
+    }
+
+    return {
+      path: area === "tenant" ? "auth/token" : "platform/auth/token",
+      body:
+        area === "tenant"
+          ? { grantType, userName: input.userName, password: input.password, code: input.code }
+          : { grantType, email: input.email, password: input.password, code: input.code },
+    };
+  });
+}
+
+/**
+ * Change of an expired password (`POST /api/auth/password/change`, F35): the API answers with a token pair, so it goes
+ * through the BFF like a sign-in and never through the proxy.
+ */
+export async function changeExpiredPassword(
+  request: Request,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  return issueSession(request, "tenant", context, (input) => ({
+    path: "auth/password/change",
+    body: {
+      userName: input.userName,
+      currentPassword: input.currentPassword,
+      newPassword: input.newPassword,
+    },
+  }));
+}
+
+/** Calls an API endpoint that issues tokens and turns the answer into a BFF session. */
+async function issueSession(
+  request: Request,
+  area: BffArea,
+  context: BffContext,
+  toApiCall: (
+    input: Record<string, unknown>,
+  ) => { path: string; body: Record<string, unknown> } | undefined,
+): Promise<Response> {
   if (csrfRefusal(request, context.config.publicOrigin)) {
     return Problems.csrf();
   }
@@ -125,15 +173,10 @@ export async function login(
     return Problems.badRequest();
   }
 
-  const grantType = input.grantType ?? "password";
-  if (grantType === "refresh_token" || typeof grantType !== "string") {
+  const call = toApiCall(input);
+  if (call === undefined) {
     return Problems.badRequest();
   }
-
-  const body =
-    area === "tenant"
-      ? { grantType, userName: input.userName, password: input.password, code: input.code }
-      : { grantType, email: input.email, password: input.password, code: input.code };
 
   return safeCall(async () => {
     const response = await callApi(
@@ -141,11 +184,11 @@ export async function login(
       area,
       {
         method: "POST",
-        path: area === "tenant" ? "auth/token" : "platform/auth/token",
+        path: call.path,
         tenant: tenant as string | undefined,
         withClientSecret: true,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(call.body),
       },
       request,
     );

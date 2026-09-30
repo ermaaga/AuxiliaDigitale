@@ -1,0 +1,254 @@
+[
+ {
+  "key": "errors.AUX-12002",
+  "category": "errors",
+  "en": "Wrong user name or password.",
+  "it": "Nome utente o password non corretti."
+ },
+ {
+  "key": "errors.AUX-12003",
+  "category": "errors",
+  "en": "Too many failed attempts: the account is locked for a few minutes. Try again later.",
+  "it": "Troppi tentativi non riusciti: l'account è bloccato per qualche minuto. Riprova più tardi."
+ },
+ {
+  "key": "errors.AUX-12005",
+  "category": "errors",
+  "en": "The password does not meet the requirements.",
+  "it": "La password non rispetta i requisiti."
+ },
+ {
+  "key": "errors.AUX-12018",
+  "category": "errors",
+  "en": "The link is not valid or has expired. Ask for a new one.",
+  "it": "Il link non è valido o è scaduto. Richiedine uno nuovo."
+ },
+ {
+  "key": "errors.AUX-12042",
+  "category": "errors",
+  "en": "This password has been used recently. Choose a different one.",
+  "it": "Questa password è stata usata di recente. Scegline un'altra."
+ },
+ {
+  "key": "errors.AUX-12043",
+  "category": "errors",
+  "en": "Your password has expired: choose a new one to continue.",
+  "it": "La password è scaduta: scegline una nuova per continuare."
+ },
+ {
+  "key": "errors.AUX-12044",
+  "category": "errors",
+  "en": "The current password is not correct.",
+  "it": "La password attuale non è corretta."
+ },
+ {
+  "key": "errors.AUX-12045",
+  "category": "errors",
+  "en": "This sign-in method is not enabled.",
+  "it": "Questo metodo di accesso non è abilitato."
+ },
+ {
+  "key": "errors.AUX-10020",
+  "category": "errors",
+  "en": "Some fields are not valid. Check them and try again.",
+  "it": "Alcuni campi non sono validi. Controllali e riprova."
+ },
+ {
+  "key": "errors.AUX-10024",
+  "category": "errors",
+  "en": "Too many requests. Wait a moment and try again.",
+  "it": "Troppe richieste. Attendi un momento e riprova."
+ },
+ {
+  "key": "errors.AUX-11009",
+  "category": "errors",
+  "en": "This workspace does not exist.",
+  "it": "Questo spazio di lavoro non esiste."
+ },
+ {
+  "key": "errors.AUX-11010",
+  "category": "errors",
+  "en": "This workspace is not available right now. Try again later.",
+  "it": "Questo spazio di lavoro non è disponibile in questo momento. Riprova più tardi."
+ },
+ {
+  "key": "errors.AUX-11011",
+  "category": "errors",
+  "en": "This workspace is suspended. Contact the administrator.",
+  "it": "Questo spazio di lavoro è sospeso. Contatta l'amministratore."
+ },
+ {
+  "key": "app.auth.login.title",
+  "category": "app",
+  "en": "Sign in",
+  "it": "Accedi"
+ },
+ {
+  "key": "app.auth.forgot.description",
+  "category": "app",
+  "en": "Enter your user name: if the account exists, you will receive an e-mail with a link to choose a new password.",
+  "it": "Inserisci il tuo nome utente: se l'account esiste riceverai un'e-mail con un link per scegliere una nuova password."
+ },
+ {
+  "key": "app.auth.forgot.submit",
+  "category": "app",
+  "en": "Send link",
+  "it": "Invia link"
+ },
+ {
+  "key": "app.auth.backToLogin",
+  "category": "app",
+  "en": "Back to sign in",
+  "it": "Torna all'accesso"
+ },
+ {
+  "key": "app.auth.reset.success",
+  "category": "app",
+  "en": "Your password has been changed. You can now sign in.",
+  "it": "La password è stata cambiata. Ora puoi accedere."
+ },
+ {
+  "key": "app.auth.activate.title",
+  "category": "app",
+  "en": "Activate your account",
+  "it": "Attiva il tuo account"
+ },
+ {
+  "key": "app.auth.activate.description",
+  "category": "app",
+  "en": "Choose the password you will use to sign in.",
+  "it": "Scegli la password che userai per accedere."
+ },
+ {
+  "key": "app.auth.activate.submit",
+  "category": "app",
+  "en": "Activate account",
+  "it": "Attiva account"
+ },
+ {
+  "key": "app.auth.activate.success",
+  "category": "app",
+  "en": "Your account is active. You can now sign in.",
+  "it": "Il tuo account è attivo. Ora puoi accedere."
+ },
+ {
+  "key": "app.auth.linkMissing",
+  "category": "app",
+  "en": "The link is incomplete. Open it again from the e-mail you received.",
+  "it": "Il link è incompleto. Aprilo di nuovo dall'e-mail che hai ricevuto."
+ },
+ {
+  "key": "app.auth.passwordMismatch",
+  "category": "app",
+  "en": "The passwords do not match.",
+  "it": "Le password non coincidono."
+ },
+ {
+  "key": "app.auth.otp.codeLabel",
+  "category": "app",
+  "en": "Sign-in code",
+  "it": "Codice di accesso"
+ },
+ {
+  "key": "app.auth.policy.title",
+  "category": "app",
+  "en": "The password must:",
+  "it": "La password deve:"
+ },
+ {
+  "key": "app.auth.policy.minLength",
+  "category": "app",
+  "en": "be at least {count} characters long",
+  "it": "essere lunga almeno {count} caratteri"
+ },
+ {
+  "key": "app.auth.policy.uppercase",
+  "category": "app",
+  "en": "contain an uppercase letter",
+  "it": "contenere una lettera maiuscola"
+ },
+ {
+  "key": "app.auth.policy.lowercase",
+  "category": "app",
+  "en": "contain a lowercase letter",
+  "it": "contenere una lettera minuscola"
+ },
+ {
+  "key": "app.auth.policy.digit",
+  "category": "app",
+  "en": "contain a digit",
+  "it": "contenere un numero"
+ },
+ {
+  "key": "app.auth.policy.special",
+  "category": "app",
+  "en": "contain a special character",
+  "it": "contenere un carattere speciale"
+ },
+ {
+  "key": "app.auth.policy.history",
+  "category": "app",
+  "en": "differ from your last {count} passwords",
+  "it": "essere diversa dalle ultime {count} password"
+ },
+ {
+  "key": "app.auth.showPassword",
+  "category": "app",
+  "en": "Show password",
+  "it": "Mostra password"
+ },
+ {
+  "key": "app.auth.hidePassword",
+  "category": "app",
+  "en": "Hide password",
+  "it": "Nascondi password"
+ },
+ {
+  "key": "app.shell.skipToContent",
+  "category": "app",
+  "en": "Skip to content",
+  "it": "Vai al contenuto"
+ },
+ {
+  "key": "app.shell.openMenu",
+  "category": "app",
+  "en": "Open menu",
+  "it": "Apri menu"
+ },
+ {
+  "key": "app.shell.navigation",
+  "category": "app",
+  "en": "Main navigation",
+  "it": "Navigazione principale"
+ },
+ {
+  "key": "app.shell.accountMenu",
+  "category": "app",
+  "en": "Account menu",
+  "it": "Menu dell'account"
+ },
+ {
+  "key": "app.shell.notificationsEmpty",
+  "category": "app",
+  "en": "No notifications yet.",
+  "it": "Nessuna notifica per ora."
+ },
+ {
+  "key": "app.shell.dashboardIntro",
+  "category": "app",
+  "en": "Your dashboard will appear here.",
+  "it": "Qui comparirà la tua dashboard."
+ },
+ {
+  "key": "app.shell.notFound.title",
+  "category": "app",
+  "en": "Page not found",
+  "it": "Pagina non trovata"
+ },
+ {
+  "key": "app.shell.notFound.description",
+  "category": "app",
+  "en": "The page you are looking for does not exist or you cannot open it.",
+  "it": "La pagina che cerchi non esiste oppure non puoi aprirla."
+ }
+]
