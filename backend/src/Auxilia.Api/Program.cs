@@ -1,5 +1,6 @@
 using Auxilia.Api.Endpoints;
 using Auxilia.Api.Infrastructure;
+using Auxilia.Api.Modules;
 using Auxilia.Api.Tenancy;
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
@@ -38,7 +39,7 @@ if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 
-// Modules and security are registered from task P1-08 onwards.
+// Module descriptors are registered by AddApplication; their endpoints are IModuleEndpoints (MapModules below).
 
 var app = builder.Build();
 
@@ -62,5 +63,7 @@ foreach (var endpoints in app.Services.GetServices<IApiEndpoints>())
 {
     endpoints.Map(api);
 }
+
+api.MapModules(app.Services);
 
 await app.RunAsync();

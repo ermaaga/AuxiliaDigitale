@@ -1,14 +1,22 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Cases;
 using Auxilia.Application.Configuration;
-using Auxilia.Application.Documents;
-using Auxilia.Application.Jobs;
-using Auxilia.Application.Execution;
 using Auxilia.Application.Directory;
-using Auxilia.Application.Platform;
+using Auxilia.Application.Documents;
+using Auxilia.Application.Engagement;
+using Auxilia.Application.Execution;
 using Auxilia.Application.Identity;
+using Auxilia.Application.Jobs;
+using Auxilia.Application.Localization;
+using Auxilia.Application.Marketing;
+using Auxilia.Application.Messaging;
+using Auxilia.Application.Platform;
+using Auxilia.Application.Platform.Modules;
+using Auxilia.Application.Reporting;
+using Auxilia.Application.Scheduling;
 
 using FluentValidation;
 
@@ -41,8 +49,13 @@ public static class DependencyInjection
         services.TryAddScoped<ISettingsProvider, SettingsProvider>();
         services.TryAddScoped<ISettingsManager, SettingsManager>();
 
-        // Until module descriptors own their settings (P1-11).
-        services.AddSettingDefinitions([.. DirectorySettings.All, .. CasesSettings.All, .. IdentitySettings.All, .. DocumentsSettings.All]);
+        // Modules (ARCHITECTURE §5): registry, effective modules per tenant, navigation, catalog sync.
+        services.TryAddSingleton<IModuleRegistry, ModuleRegistry>();
+        services.TryAddScoped<TenantModulesCache>();
+        services.TryAddScoped<IModuleAccess, ModuleAccess>();
+        services.TryAddScoped<INavigationQueryService, NavigationQueryService>();
+        services.TryAddScoped<IModuleCatalogManager, ModuleCatalogManager>();
+        services.AddModules(Modules);
 
         services.AddValidatorsFrom(typeof(DependencyInjection).Assembly);
 
@@ -60,6 +73,38 @@ public static class DependencyInjection
 
         services.TryAddScoped<ITenantLifecycleManager, TenantLifecycleManager>();
         services.TryAddScoped<ITenantMigrationManager, TenantMigrationManager>();
+
+        return services;
+    }
+
+    /// <summary>The modules of this deployment; adding a module = adding its descriptor here.</summary>
+    public static IReadOnlyList<IModuleDescriptor> Modules { get; } =
+    [
+        new IdentityModule(), new ConfigurationModule(), new LocalizationModule(), new MessagingModule(),
+        new DirectoryModule(), new CasesModule(), new SchedulingModule(), new DocumentsModule(),
+        new EngagementModule(), new MarketingModule(), new ReportingModule(),
+    ];
+
+    /// <summary>
+    /// Registers module descriptors with their settings and services. The same instance added twice is kept once;
+    /// duplicate codes or event ranges fail when the registry is built.
+    /// </summary>
+    public static IServiceCollection AddModules(this IServiceCollection services, IEnumerable<IModuleDescriptor> modules)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(modules);
+
+        foreach (var module in modules)
+        {
+            if (services.Any(descriptor => ReferenceEquals(descriptor.ImplementationInstance, module)))
+            {
+                continue;
+            }
+
+            services.AddSingleton(module);
+            services.AddSettingDefinitions(module.Settings);
+            module.AddServices(services);
+        }
 
         return services;
     }

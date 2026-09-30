@@ -11,6 +11,9 @@ Status: [ ] not started · Tasks: P1-06, P1-11, P2-03, S-01 · Quirks: Q39, Q40
 - Sidebar shows each link only if the page is enabled for the role. SystemConfigurator menu: Role specializations, Configurations, Entity configurations, Page configurations, Resources, Import, Import types.
 - Both use only the first role claim (Q39).
 
+## Status notes
+- P1-11: module catalog from descriptors, effective modules per tenant and role (cached), hidden module → 404, navigation builder with per-role entries mirroring the legacy menus. Pending: `role_permissions` + `/me/navigation` (P2-03), System editing (S-01). The tenant table `configuration.modules` is replaced by the Catalog (ARCHITECTURE §5.2).
+
 ## Acceptance criteria
 - [ ] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`).
 - [ ] `GET /me/navigation` returns only allowed entries (union of roles); sidebar and mobile use it.

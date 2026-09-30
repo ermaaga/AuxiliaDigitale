@@ -168,6 +168,8 @@ public interface IModuleDescriptor
 ```
 Aggiungere un modulo = un descrittore + le sue cartelle; il registry popola il catalogo moduli, i permessi, le impostazioni, la navigazione e i filtri degli endpoint.
 
+Implementazione (P1-11): `IModuleDescriptor` è in `Application/Abstractions/Modules` **senza** `MapEndpoints` e senza `IConfiguration` (l'Application non conosce HTTP; le impostazioni sono dati): gli endpoint del modulo sono un `IModuleEndpoints` nell'Api con lo stesso `ModuleCode`, mappati da `MapModules` in un gruppo con filtro tenant attivo → filtro visibilità del modulo (404 `AUX-10017`, identico a una route inesistente). I job si registrano in `AddServices` come `IRecurringJob`. I descrittori sono elencati in `DependencyInjection.Modules` (`Application/<Modulo>/<Modulo>Module.cs`); Core: identity, configuration, localization, messaging; Optional: directory, cases, scheduling, documents, engagement, marketing, reporting (imports con S-08). Un test di architettura verifica registrazione, range dei codici evento, namespace, navigazione e impostazioni. La sincronizzazione di `catalog.modules` (`IModuleCatalogManager`, `Tenancy.SyncModules`, `AUX-11019`) gira dopo `auxctl migrate catalog`: inserisce i moduli nuovi e li aggiunge al piano di default per tutti i ruoli, aggiorna tipo e range, segna non disponibili i moduli non più presenti, non tocca le scelte del System sui moduli già noti.
+
 ### 5.2 Modello di abilitazione (Catalog)
 ```
 modules (catalogo generato dai descrittori)
@@ -180,6 +182,8 @@ tenants ─< tenant_module_overrides (modulo, abilitato?, ruoli ammessi)   ← g
 - Modulo non visibile → endpoint `404` (non esiste per quel ruolo/tenant), assente da `/me/navigation`.
 - Il risultato è calcolato una volta e messo in cache (`t:{slug}:platform:modules`), invalidato a ogni modifica del System.
 - La tabella tenant `configuration.modules` del data-model v1 **non serve più** (vive nel Catalog).
+- Il piano `standard` include ogni modulo **per tutti i ruoli** (N02): la visibilità per ruolo del legacy (menu e pagine di F22) si riproduce con la navigazione per ruolo dei descrittori e con i permessi di ruolo (`role_permissions`, P2-03), non togliendo moduli dal piano.
+- Implementazione (P1-11): `IModuleAccess` (moduli effettivi del tenant corrente in `ReferenceDataCache`, chiave `t:{slug}:platform:modules:current`, tag `t:{slug}:platform` e `platform:platform`; piano valido in quel momento, override prima del piano), ruoli dell'utente da tutte le claim `role` (non solo la prima, Q39); `INavigationQueryService` costruisce il menu (unione dei ruoli, ordinato) per `/me/navigation` (P2-03).
 
 ---
 

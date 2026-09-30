@@ -1,8 +1,10 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Catalog.Configuration;
 using Auxilia.Persistence.Catalog.Interceptors;
+using Auxilia.Persistence.Catalog.Modules;
 using Auxilia.Persistence.Catalog.Tenancy;
 
 using Microsoft.AspNetCore.DataProtection;
@@ -46,6 +48,7 @@ public static class CatalogPersistence
         services.AddScoped<ICatalogMigrator, CatalogMigrator>();
         services.AddSingleton<ITenantConnectionProtector, TenantConnectionProtector>();
         services.AddScoped<IPlatformSettingStore, PlatformSettingStore>();
+        services.AddScoped<IModuleCatalogReader, ModuleCatalogReader>();
         services.AddSingleton<ISettingSecretProtector, SettingSecretProtector>();
 
         return services;

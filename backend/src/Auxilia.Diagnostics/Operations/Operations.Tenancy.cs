@@ -10,6 +10,8 @@ public static partial class Operations
 
         public static readonly OperationDescriptor ReactivateTenant = new("Tenancy.ReactivateTenant", EventCodes.Tenancy.TenantWasReactivated);
 
+        public static readonly OperationDescriptor SyncModules = new("Tenancy.SyncModules", EventCodes.Tenancy.ModulesSynchronized);
+
         public static readonly OperationDescriptor ArchiveTenant = new("Tenancy.ArchiveTenant", EventCodes.Tenancy.TenantWasArchived);
     }
 }

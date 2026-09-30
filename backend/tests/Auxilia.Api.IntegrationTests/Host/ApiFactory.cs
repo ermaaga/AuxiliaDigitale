@@ -19,9 +19,15 @@ public class ApiFactory : WebApplicationFactory<Program>
 {
     public const string TestTenantClaimHeader = "X-Test-Tenant-Claim";
 
+    /// <summary>Comma-separated tenant roles added as <c>role</c> claims (with <see cref="TestTenantClaimHeader"/>).</summary>
+    public const string TestRolesHeader = "X-Test-Roles";
+
     public const string BaseDomain = "auxilia.test";
 
     protected virtual IApiEndpoints? Endpoints => null;
+
+    /// <summary>Module endpoints mapped through <c>MapModules</c> (tenant + module visibility filters).</summary>
+    protected virtual IReadOnlyList<IModuleEndpoints> ModuleEndpoints => [];
 
     /// <summary>Redis of the reference-data cache; none by default (in-memory cache only).</summary>
     protected virtual string RedisConnectionString => string.Empty;
@@ -41,6 +47,11 @@ public class ApiFactory : WebApplicationFactory<Program>
             {
                 services.AddSingleton(endpoints);
             }
+
+            foreach (var moduleEndpoints in ModuleEndpoints)
+            {
+                services.AddSingleton(moduleEndpoints);
+            }
         });
     }
 
@@ -52,8 +63,11 @@ public class ApiFactory : WebApplicationFactory<Program>
             {
                 if (context.Request.Headers.TryGetValue(TestTenantClaimHeader, out var tenant))
                 {
+                    var roles = context.Request.Headers[TestRolesHeader].ToString()
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(role => new Claim("role", role));
                     context.User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim("sub", Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString())], "Test"));
+                        [new Claim("sub", Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString()), .. roles], "Test"));
                 }
 
                 return nextMiddleware(context);

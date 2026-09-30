@@ -1,3 +1,5 @@
+using Auxilia.Domain.Platform;
+
 namespace Auxilia.Application.Abstractions.Authorization;
 
 /// <summary>Who runs the current operation. Permissions and tenant come with Identity (P2) and Tenancy (P1-07).</summary>
@@ -7,6 +9,9 @@ public interface ICurrentUser
 
     /// <summary>Tenant user or platform user id; null for anonymous callers and the system.</summary>
     Guid? UserId { get; }
+
+    /// <summary>Tenant roles of a tenant user (role claims of the token); empty for every other actor.</summary>
+    IReadOnlyCollection<TenantRole> Roles => [];
 
     bool IsAuthenticated => ActorType is ActorType.User or ActorType.Platform;
 }

@@ -1,6 +1,7 @@
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Platform;
+using Auxilia.Application.Platform.Modules;
 using Auxilia.Diagnostics;
 using Auxilia.SharedKernel.Results;
 
@@ -24,7 +25,7 @@ internal sealed class AuxctlCli
 
     public const string Usage = """
         usage: auxctl <command>
-          migrate catalog
+          migrate catalog                 (then aligns catalog.modules with the module descriptors)
           migrate tenants (--tenant <slug> | --all)
           tenant provision --slug <slug> --name <display name> [--language it] [--time-zone Europe/Rome] [--existing-database]
                            (--existing-database reads the connection string from AUXILIA_TENANT_CONNECTION)
@@ -54,7 +55,7 @@ internal sealed class AuxctlCli
             return command switch
             {
                 _ when command.Is("diagnostics", "registry") => await RegistryAsync(command),
-                _ when command.Is("migrate", "catalog") => await InScopeAsync(scope => MigrateCatalogAsync(scope, cancellationToken)),
+                _ when command.Is("migrate", "catalog") => await MigrateCatalogAsync(cancellationToken),
                 _ when command.Is("migrate", "tenants") => await MigrateTenantsAsync(command, cancellationToken),
                 _ when command.Is("tenant", "provision") => await InScopeAsync(scope => ProvisionAsync(scope, command, cancellationToken)),
                 _ when command.Is("tenant", "list") => await InScopeAsync(scope => ListTenantsAsync(scope, cancellationToken)),
@@ -94,10 +95,25 @@ internal sealed class AuxctlCli
         return Success;
     }
 
-    private async Task<int> MigrateCatalogAsync(IServiceProvider scope, CancellationToken cancellationToken)
+    private async Task<int> MigrateCatalogAsync(CancellationToken cancellationToken)
     {
-        var result = await scope.GetRequiredService<ITenantMigrationManager>().MigrateCatalogAsync(cancellationToken);
-        return await ReportAsync(result, applied => applied.Count == 0 ? "catalog: up to date" : "catalog: applied " + string.Join(", ", applied));
+        var migrated = await InScopeAsync(async scope =>
+        {
+            var result = await scope.GetRequiredService<ITenantMigrationManager>().MigrateCatalogAsync(cancellationToken);
+            return await ReportAsync(result, applied => applied.Count == 0 ? "catalog: up to date" : "catalog: applied " + string.Join(", ", applied));
+        });
+        if (migrated != Success)
+        {
+            return migrated;
+        }
+
+        return await InScopeAsync(async scope =>
+        {
+            var result = await scope.GetRequiredService<IModuleCatalogManager>().SyncAsync(cancellationToken);
+            return await ReportAsync(result, report =>
+                $"modules: {(report.Added.Count == 0 ? "no new modules" : "added " + string.Join(", ", report.Added))}"
+                + (report.Unavailable.Count == 0 ? string.Empty : "; no longer deployed " + string.Join(", ", report.Unavailable)));
+        });
     }
 
     private async Task<int> MigrateTenantsAsync(CommandLine command, CancellationToken cancellationToken)

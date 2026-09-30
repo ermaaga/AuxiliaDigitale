@@ -1,8 +1,11 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Paging;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Cases;
+using Auxilia.Application.Tests.Platform.Modules;
+using Auxilia.Domain.Platform;
 
 using FluentValidation;
 
@@ -59,5 +62,26 @@ public sealed class DependencyInjectionTests
             "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage", "registration.enabled",
             "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);
+    }
+
+    [Fact]
+    public void AddApplication_RegistersEveryModuleOnceWithItsServices()
+    {
+        var services = new ServiceCollection();
+        var extra = new TestModule("testing", rangeStart: 99000);
+        services.AddApplication();
+        services.AddModules([extra, extra]);
+
+        using var provider = services.BuildServiceProvider();
+        var registry = provider.GetRequiredService<IModuleRegistry>();
+
+        registry.All.Select(module => module.Code).ShouldBe(
+        [
+            "cases", "configuration", "directory", "documents", "engagement", "identity", "localization", "marketing",
+            "messaging", "reporting", "scheduling", "testing",
+        ]);
+        extra.ServicesAdded.ShouldBe(1);
+        registry.All.Where(module => module.Kind == ModuleKind.Core).Select(module => module.Code)
+            .ShouldBe(["configuration", "identity", "localization", "messaging"]);
     }
 }
