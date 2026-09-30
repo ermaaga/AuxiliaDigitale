@@ -58,11 +58,13 @@ public sealed class DependencyInjectionTests
         registry.Find("cases.expiry.expiringDays").ShouldBeSameAs(CasesSettings.ExpiryExpiringDays);
         registry.All.Select(definition => definition.Key).ShouldBe(
         [
-            "auth.accessToken.minutes", "auth.activation.linkHours", "auth.appBaseUrl",
-            "auth.lockout.maxFailedAttempts", "auth.lockout.minutes", "auth.password.minLength",
-            "auth.passwordReset.linkMinutes", "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled", "cases.expiry.expiringDays",
-            "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage", "registration.enabled",
-            "registration.notifyAdmins", "registration.sendConfirmationEmail",
+            "auth.accessToken.minutes", "auth.activation.linkHours", "auth.appBaseUrl", "auth.lockout.maxFailedAttempts",
+            "auth.lockout.minutes", "auth.otp.codeMinutes", "auth.otp.enabled", "auth.password.expiryEnabled",
+            "auth.password.expiryMonths", "auth.password.historyCount", "auth.password.minLength", "auth.password.requireDigit",
+            "auth.password.requireLowercase", "auth.password.requireSpecial", "auth.password.requireUppercase", "auth.passwordReset.linkMinutes",
+            "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled",
+            "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage",
+            "registration.enabled", "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);
     }
 

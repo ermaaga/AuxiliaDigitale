@@ -31,6 +31,8 @@ internal sealed class AuthEndpoints : IApiEndpoints
 
     public const string RefreshTokenGrant = "refresh_token";
 
+    public const string EmailOtpGrant = "email_otp";
+
     public void Map(RouteGroupBuilder api)
     {
         var auth = api.MapGroup("/auth").WithTags("Auth").RequireTenant();
@@ -39,7 +41,7 @@ internal sealed class AuthEndpoints : IApiEndpoints
             .AllowAnonymous()
             .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
             .WithName("IssueTokens")
-            .WithSummary("Signs in with a password, or exchanges a refresh token for a new token pair")
+            .WithSummary("Signs in with a password or an e-mailed code, or exchanges a refresh token for a new token pair")
             .Produces<TokenResponse>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -77,6 +79,42 @@ internal sealed class AuthEndpoints : IApiEndpoints
             .WithSummary("Sets a new password with the token of a reset link and ends the user's sessions")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesValidationProblem();
+
+        // Anonymous: the sign-in form needs it before anybody is signed in.
+        auth.MapGet("/methods", GetMethodsAsync)
+            .AllowAnonymous()
+            .WithName("GetLoginMethods")
+            .WithSummary("Sign-in methods enabled for the tenant (password, email-otp)")
+            .Produces<LoginMethodsResponse>();
+
+        // Anonymous: the activation, reset and expired-password forms show the rules.
+        auth.MapGet("/password-policy", GetPasswordPolicyAsync)
+            .AllowAnonymous()
+            .WithName("GetPasswordPolicy")
+            .WithSummary("The password rules of the tenant")
+            .Produces<PasswordPolicyResponse>();
+
+        // Anonymous: the first step of the e-mail code sign-in.
+        auth.MapPost("/otp", RequestOtpAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.AccountLinksPolicy)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests)
+            .WithName("RequestLoginOtp")
+            .WithSummary("E-mails a one-time sign-in code when the method is enabled (always 202 for any user name)")
+            .Produces(StatusCodes.Status202Accepted)
+            .ProducesValidationProblem();
+
+        // Anonymous: the user cannot sign in until the expired password is changed.
+        auth.MapPost("/password/change", ChangeExpiredPasswordAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("ChangeExpiredPassword")
+            .WithSummary("Changes an expired password with the current one and signs in")
+            .Produces<TokenResponse>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     private static async Task<IResult> IssueTokensAsync(
@@ -99,6 +137,8 @@ internal sealed class AuthEndpoints : IApiEndpoints
         {
             PasswordGrant when !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Password) =>
                 await sessions.SignInAsync(new PasswordSignIn(client, request.UserName, request.Password, ipAddress, userAgent), cancellationToken),
+            EmailOtpGrant when !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Code) =>
+                await sessions.SignInWithOtpAsync(new OtpSignIn(client, request.UserName, request.Code, ipAddress, userAgent), cancellationToken),
             RefreshTokenGrant when !string.IsNullOrEmpty(request.RefreshToken) =>
                 await sessions.RefreshAsync(new RefreshTokens(client, request.RefreshToken, ipAddress, userAgent), cancellationToken),
             _ => Errors.Host.ValidationFailed(new Dictionary<string, string[]>
@@ -106,6 +146,40 @@ internal sealed class AuthEndpoints : IApiEndpoints
                 ["grantType"] = ["validation.auth.grantType"],
             }),
         };
+
+        return result.ToHttpResult(pair =>
+        {
+            context.Response.Headers.CacheControl = "no-store";
+            var expiresIn = (int)Math.Max(0, (pair.AccessTokenExpiresAt - DateTimeOffset.UtcNow).TotalSeconds);
+            return TypedResults.Ok(new TokenResponse(pair.AccessToken, "Bearer", expiresIn, pair.RefreshToken));
+        });
+    }
+
+    private static async Task<IResult> GetMethodsAsync(ILoginAuditQueryService audit, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await audit.GetMethodsAsync(cancellationToken));
+
+    private static async Task<IResult> GetPasswordPolicyAsync(IPasswordPolicy policy, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await policy.GetAsync(cancellationToken));
+
+    private static async Task<IResult> RequestOtpAsync(LoginOtpRequest request, IAccountLinkManager links, CancellationToken cancellationToken) =>
+        (await links.SendLoginOtpAsync(request.UserName, cancellationToken)).ToHttpResult(() => TypedResults.Accepted((string?)null));
+
+    private static async Task<IResult> ChangeExpiredPasswordAsync(
+        ChangeExpiredPasswordRequest request, HttpContext context, ISessionManager sessions, CancellationToken cancellationToken)
+    {
+        var client = new ClientCredentials(
+            context.Request.Headers[ClientIdHeader].ToString(),
+            context.Request.Headers[ClientSecretHeader].FirstOrDefault());
+        if (string.IsNullOrWhiteSpace(client.ClientId))
+        {
+            return Errors.Identity.ClientInvalid().ToProblem();
+        }
+
+        var result = await sessions.ChangeExpiredPasswordAsync(
+            new ExpiredPasswordChange(
+                client, request.UserName, request.CurrentPassword, request.NewPassword,
+                context.Connection.RemoteIpAddress?.ToString(), Truncate(context.Request.Headers.UserAgent.ToString(), RefreshSession.UserAgentMaxLength)),
+            cancellationToken);
 
         return result.ToHttpResult(pair =>
         {

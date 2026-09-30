@@ -15,10 +15,14 @@ public static class IdentityPermissions
     /// <summary>End another user's session (F17).</summary>
     public const string RevokeSessions = "identity.sessions.revoke";
 
+    /// <summary>The login audit: every sign-in attempt (F35).</summary>
+    public const string ViewLoginAttempts = "identity.loginAttempts.view";
+
     public static IReadOnlyList<PermissionDefinition> All { get; } =
     [
         new(ManageUsers, [TenantRole.Administrator]),
         new(ViewSessions, [TenantRole.Administrator]),
         new(RevokeSessions, [TenantRole.Administrator]),
+        new(ViewLoginAttempts, [TenantRole.Administrator]),
     ];
 }

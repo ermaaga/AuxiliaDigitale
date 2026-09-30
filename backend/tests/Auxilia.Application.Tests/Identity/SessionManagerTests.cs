@@ -225,6 +225,6 @@ public sealed class SessionManagerTests : IAsyncDisposable
         var authenticator = new PasswordAuthenticator(runner, identity, hasher, settings, time, new RecordingLogger<PasswordAuthenticator>());
         return new SessionManager(
             runner, sessions, authenticator, new ClientApplicationValidator(clients, hasher, clientLog), issuer, denyList, settings,
-            SessionSettings.Tenant(), realtime, time, log);
+            SessionSettings.Tenant(), realtime, new PasswordPolicy(DefaultSettings.Create(), hasher), hasher, time, log);
     }
 }

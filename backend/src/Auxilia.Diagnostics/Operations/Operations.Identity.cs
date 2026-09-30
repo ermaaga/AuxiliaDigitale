@@ -53,6 +53,17 @@ public static partial class Operations
 
         public static readonly OperationDescriptor IssuePlatformTenantToken = new("Identity.IssuePlatformTenantToken", EventCodes.Identity.PlatformTenantTokenIssued, isWrite: false);
 
+        /// <summary>Not transactional: a wrong current password counts toward the lockout and must be saved.</summary>
+        public static readonly OperationDescriptor ChangePassword = new("Identity.ChangePassword", EventCodes.Identity.PasswordChangedByUser, isWrite: false);
+
+        public static readonly OperationDescriptor RequestLoginOtp = new("Identity.RequestLoginOtp", EventCodes.Identity.LoginOtpRequested);
+
+        /// <summary>Not transactional: failed attempts, lockout and the attempt log must be saved even when the sign-in fails.</summary>
+        public static readonly OperationDescriptor SignInWithOtp = new("Identity.SignInWithOtp", EventCodes.Identity.SignedInWithOtp, isWrite: false);
+
+        /// <summary>Not transactional as a whole: the failed attempt must be saved even when the change is refused.</summary>
+        public static readonly OperationDescriptor ChangeExpiredPassword = new("Identity.ChangeExpiredPassword", EventCodes.Identity.ExpiredPasswordChanged, isWrite: false);
+
         public static readonly OperationDescriptor AddClientApplication = new("Identity.AddClientApplication", EventCodes.Identity.ClientApplicationAdded);
     }
 }

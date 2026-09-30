@@ -31,7 +31,11 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
     /// <summary>Upper bound of a progressive lockout.</summary>
     public static readonly TimeSpan MaxLockout = TimeSpan.FromHours(24);
 
+    /// <summary>Password hashes kept for the history rule (the setting <c>auth.password.historyCount</c> is at most this).</summary>
+    public const int MaxPasswordHistory = 24;
+
     private readonly List<UserRole> roles = [];
+    private readonly List<PasswordHistoryEntry> passwordHistory = [];
 
     private User(Guid id, Guid personId, string userName, string? email, string languageCode, bool isActive)
         : base(id)
@@ -80,6 +84,9 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
 
     public IReadOnlyCollection<TenantRole> Roles => roles.Select(role => role.Role).Order().ToArray();
 
+    /// <summary>Hashes of the passwords set so far, newest first (the current one included), at most <see cref="MaxPasswordHistory"/> (F35).</summary>
+    public IReadOnlyList<PasswordHistoryEntry> PasswordHistory => passwordHistory.OrderByDescending(entry => entry.CreatedAt).ToArray();
+
     public static Result<User> Create(Guid id, Guid personId, string userName, string? email, string languageCode, IReadOnlyCollection<TenantRole> roles, bool isActive)
     {
         ArgumentNullException.ThrowIfNull(roles);
@@ -123,7 +130,17 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         LockoutCount = 0;
         LockoutEnd = null;
         SecurityStamp = NewStamp();
+
+        passwordHistory.Add(new PasswordHistoryEntry(Guid.CreateVersion7(), Id, passwordHash, format, at));
+        foreach (var old in passwordHistory.OrderByDescending(entry => entry.CreatedAt).Skip(MaxPasswordHistory).ToArray())
+        {
+            passwordHistory.Remove(old);
+        }
     }
+
+    /// <summary>F35: with expiry enabled, a password older than <paramref name="maxAge"/> must be changed before signing in.</summary>
+    public bool IsPasswordExpired(DateTimeOffset now, TimeSpan maxAge) =>
+        PasswordHash is not null && (PasswordChangedAt is not { } changed || changed + maxAge <= now);
 
     /// <summary>Replaces the hash after a successful verification with an outdated format (no new stamp: same password).</summary>
     public void UpgradePasswordHash(string passwordHash)
@@ -214,4 +231,32 @@ public sealed class UserRole
     public Guid UserId { get; private set; }
 
     public TenantRole Role { get; private set; }
+}
+
+/// <summary>A password hash the user had (<c>identity.password_history</c>): a new password may not match the last N (F35).</summary>
+public sealed class PasswordHistoryEntry
+{
+    internal PasswordHistoryEntry(Guid id, Guid userId, string passwordHash, PasswordFormat format, DateTimeOffset createdAt)
+    {
+        Id = id;
+        UserId = userId;
+        PasswordHash = passwordHash;
+        Format = format;
+        CreatedAt = createdAt;
+    }
+
+    private PasswordHistoryEntry()
+    {
+        PasswordHash = string.Empty;
+    }
+
+    public Guid Id { get; private set; }
+
+    public Guid UserId { get; private set; }
+
+    public string PasswordHash { get; private set; }
+
+    public PasswordFormat Format { get; private set; }
+
+    public DateTimeOffset CreatedAt { get; private set; }
 }

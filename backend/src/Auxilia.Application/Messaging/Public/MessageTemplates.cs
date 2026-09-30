@@ -5,6 +5,7 @@ public static class MessageTemplates
 {
     public const string AccountActivation = "account-activation";
     public const string PasswordReset = "password-reset";
+    public const string LoginOtp = "login-otp";
     public const string RegistrationReceived = "registration-received";
     public const string CaseExpiryReminder = "case-expiry-reminder";
     public const string RequestReply = "request-reply";

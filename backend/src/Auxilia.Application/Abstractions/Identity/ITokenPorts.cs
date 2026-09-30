@@ -91,6 +91,9 @@ public interface ISessionData : IAsyncDisposable
 
     void Add(UserToken token);
 
+    /// <summary>A sign-in attempt for the login audit (F35).</summary>
+    void Add(LoginAttempt attempt);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
 
@@ -157,4 +160,26 @@ public interface ITotpService
 
     /// <summary>The time step the code matches (current step ± 1 for clock drift), or null.</summary>
     long? Verify(string secret, string code, DateTimeOffset now);
+}
+
+/// <summary>
+/// A sign-in method of the tenant app (ARCHITECTURE §6: <c>password</c>, <c>email-otp</c>; future external providers).
+/// <c>GET /auth/methods</c> lists the enabled ones.
+/// </summary>
+public interface IAuthenticationMethod
+{
+    string Code { get; }
+
+    Task<bool> IsEnabledAsync(CancellationToken cancellationToken);
+}
+
+/// <summary>Filters, sort and page of the login audit (F35).</summary>
+/// <param name="Sort"><c>attemptedAt</c>, <c>-attemptedAt</c> (default), <c>userName</c>, <c>-userName</c>.</param>
+public sealed record LoginAttemptQuery(
+    string? UserName, string? Method, bool? Succeeded, DateTimeOffset? From, DateTimeOffset? To, string? Sort, int Page, int PageSize);
+
+/// <summary>Reads <c>identity.login_attempts</c> of the current tenant (untracked, paged in the database).</summary>
+public interface ILoginAttemptReader
+{
+    Task<(IReadOnlyList<LoginAttempt> Items, long TotalCount)> ListAsync(LoginAttemptQuery query, CancellationToken cancellationToken);
 }

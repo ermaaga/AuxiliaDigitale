@@ -54,6 +54,7 @@ public static class TenantPersistence
         services.AddScoped<IIdentityDataFactory, IdentityDataFactory>();
         services.AddScoped<ISessionDataFactory, SessionDataFactory>();
         services.AddScoped<IRolePermissionReader, RolePermissionReader>();
+        services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
         services.AddSingleton<PermissionSynchronizer>();
 
         return services;

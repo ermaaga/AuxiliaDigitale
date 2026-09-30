@@ -1,9 +1,15 @@
+using System.Security.Claims;
+
 using Auxilia.Api.Infrastructure;
+using Auxilia.Api.RateLimiting;
 using Auxilia.Api.Tenancy;
+using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Identity;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Contracts.Identity;
 using Auxilia.Contracts.Platform;
+using Auxilia.Diagnostics;
+using Auxilia.Infrastructure.Security.Tokens;
 
 namespace Auxilia.Api.Endpoints.Identity;
 
@@ -29,6 +35,29 @@ internal sealed class MeEndpoints : IApiEndpoints
             .WithSummary("Menu of the tenant app for the signed-in user (visible modules, roles and permissions)")
             .Produces<IReadOnlyList<NavigationItemResponse>>()
             .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        me.MapPost("/password", ChangePasswordAsync)
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("ChangeMyPassword")
+            .WithSummary("Changes the own password (current one required); the other sessions of the user end")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+    }
+
+    private static async Task<IResult> ChangePasswordAsync(
+        ChangePasswordRequest request, ICurrentUser currentUser, ClaimsPrincipal principal, ISessionManager sessions, CancellationToken cancellationToken)
+    {
+        if (currentUser.ActorType != ActorType.User || currentUser.UserId is not { } userId)
+        {
+            return Errors.Identity.UserNotFound().ToProblem();
+        }
+
+        Guid? sessionId = Guid.TryParse(principal.FindFirstValue(TokenClaims.Session), out var sid) ? sid : null;
+        return (await sessions.ChangePasswordAsync(userId, sessionId, request.CurrentPassword, request.NewPassword, cancellationToken))
+            .ToHttpResult(TypedResults.NoContent);
     }
 
     private static async Task<IResult> GetMeAsync(ICurrentUserQueryService users, CancellationToken cancellationToken) =>

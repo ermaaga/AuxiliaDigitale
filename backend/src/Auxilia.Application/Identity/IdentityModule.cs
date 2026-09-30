@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
@@ -27,12 +28,17 @@ public sealed class IdentityModule : IModuleDescriptor
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
         new("sessions", "/sessions", "monitor-smartphone", 90, [TenantRole.Administrator], IdentityPermissions.ViewSessions),
+        new("loginAudit", "/login-audit", "shield-check", 95, [TenantRole.Administrator], IdentityPermissions.ViewLoginAttempts),
     ];
 
     public void AddServices(IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        services.TryAddScoped<IPasswordPolicy, PasswordPolicy>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IAuthenticationMethod, PasswordAuthenticationMethod>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthenticationMethod, EmailOtpAuthenticationMethod>());
+        services.TryAddScoped<ILoginAuditQueryService, LoginAuditQueryService>();
         services.TryAddScoped<IUserAccountManager, UserAccountManager>();
         services.TryAddScoped<IPasswordAuthenticator, PasswordAuthenticator>();
         services.TryAddScoped<ClientApplicationValidator>();
