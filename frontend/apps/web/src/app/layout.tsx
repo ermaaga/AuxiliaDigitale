@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@auxilia/ui/components/theme-provider";
 import { Toaster } from "@auxilia/ui/components/sonner";
 import { TooltipProvider } from "@auxilia/ui/components/tooltip";
+import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 // Fonts are downloaded at build time and served by the app (self-hosted, no runtime calls to Google).
@@ -28,10 +29,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col font-sans">
         <ThemeProvider nonce={nonce}>
-          <TooltipProvider>
-            {children}
-            <Toaster richColors closeButton />
-          </TooltipProvider>
+          <QueryProvider>
+            <TooltipProvider>
+              {children}
+              <Toaster richColors closeButton />
+            </TooltipProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
