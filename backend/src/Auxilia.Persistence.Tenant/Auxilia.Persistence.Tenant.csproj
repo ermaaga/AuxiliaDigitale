@@ -14,4 +14,9 @@
     <InternalsVisibleTo Include="Auxilia.Persistence.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Shipped translations of the localization data-migrations (read by name, e.g. D_20260930_003.json). -->
+    <EmbeddedResource Include="DataMigrations/Localization/*.json" LogicalName="Localization/%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

@@ -21,7 +21,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 6 | 20007 |
-| 21000–21999 | Localization | Localization | 0 | 21001 |
+| 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
@@ -127,6 +127,17 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-20004 | Configuration.StoredSettingIgnored | Warning | – | – | Stored value of setting {SettingKey} at level {SettingLevel} is not valid and is ignored |
 | AUX-20005 | Configuration.SettingChanged | – | – | Configuration.SetSetting (success) | – |
 | AUX-20006 | Configuration.SettingReset | – | – | Configuration.ResetSetting (success) | – |
+| AUX-21001 | Localization.ResourceKeyNotFound | – | NotFound | – | – |
+| AUX-21002 | Localization.ResourceKeyExists | – | Conflict | – | – |
+| AUX-21003 | Localization.LanguageNotFound | – | NotFound | – | – |
+| AUX-21004 | Localization.ResourceValueInvalid | – | Validation | – | – |
+| AUX-21005 | Localization.ResourceKeyCreated | – | – | Localization.CreateKey (success) | – |
+| AUX-21006 | Localization.ResourceKeyUpdated | – | – | Localization.UpdateKey (success) | – |
+| AUX-21007 | Localization.ResourceKeyDeleted | – | – | Localization.DeleteKey (success) | – |
+| AUX-21008 | Localization.TranslationSet | – | – | Localization.SetTranslation (success) | – |
+| AUX-21009 | Localization.TranslationRemoved | – | – | Localization.RemoveTranslation (success) | – |
+| AUX-21010 | Localization.MissingKey | Warning | – | – | Translation key {ResourceKey} has no translation (language {LanguageCode}); the key is shown |
+| AUX-21011 | Localization.TranslationNotFound | – | NotFound | – | – |
 | AUX-23001 | Bus.MessageHandled | – | – | Bus.HandleMessage (success) | – |
 | AUX-23002 | Bus.DuplicateMessageSkipped | Information | – | – | Message {MessageId} already handled by {Handler}: skipped |
 | AUX-23003 | Bus.MessageTenantMissing | Error | Validation | – | Tenant message {MessageType} {MessageId} has no tenant header |

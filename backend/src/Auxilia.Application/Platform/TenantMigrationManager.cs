@@ -103,8 +103,10 @@ internal sealed class TenantMigrationManager : ITenantMigrationManager
             run.Succeed(timeProvider.GetUtcNow(), $"schema {version.SchemaVersion}, data {version.DataVersion ?? "-"}");
             await catalog.SaveChangesAsync(cancellationToken);
 
-            // The migration may have changed the tenant's permissions (new modules): the API nodes reload them.
+            // The migration may have changed the tenant's permissions (new modules) and translations (data-migrations):
+            // the API nodes reload them.
             scope.OnCommitted(ct => cache.InvalidateAsync(CacheTags.Tenant(slug, Identity.IdentityModule.ModuleCode), ct));
+            scope.OnCommitted(ct => cache.InvalidateAsync(CacheTags.Tenant(slug, Localization.LocalizationModule.ModuleCode), ct));
             return Result.Success(version);
         }, cancellationToken);
 

@@ -2,6 +2,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Jobs;
+using Auxilia.Application.Abstractions.Localization;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Persistence;
@@ -13,6 +14,7 @@ using Auxilia.Persistence.Tenant.Configuration;
 using Auxilia.Persistence.Tenant.DataMigrations;
 using Auxilia.Persistence.Tenant.Identity;
 using Auxilia.Persistence.Tenant.Jobs;
+using Auxilia.Persistence.Tenant.Localization;
 using Auxilia.Persistence.Tenant.Messaging;
 using Auxilia.Persistence.Tenant.Seed;
 using Auxilia.Persistence.Tenant.Transactions;
@@ -55,6 +57,8 @@ public static class TenantPersistence
         services.AddScoped<ISessionDataFactory, SessionDataFactory>();
         services.AddScoped<IRolePermissionReader, RolePermissionReader>();
         services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
+        services.AddScoped<ILocalizationDataFactory, LocalizationDataFactory>();
+        services.AddScoped<ILocalizationReader, LocalizationReader>();
         services.AddSingleton<PermissionSynchronizer>();
 
         return services;

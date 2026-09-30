@@ -232,7 +232,7 @@ public sealed class PlatformIdentityTests : IClassFixture<PlatformIdentityTests.
         (await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("errorCode").GetString();
 
     /// <summary>RFC 6238 code of the current time step plus <paramref name="stepOffset"/>.</summary>
-    private static string Code(string base32Secret, int stepOffset)
+    internal static string Code(string base32Secret, int stepOffset)
     {
         const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
         var key = new List<byte>();
