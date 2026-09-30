@@ -70,5 +70,25 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.RateLimitExceeded, EventName = "Security.RateLimitExceeded",
             Level = LogLevel.Warning, Message = "Rate limit {Policy} exceeded by {PartitionKind} on {RequestMethod} {RequestPath}")]
         public static partial void RateLimitExceeded(ILogger logger, string policy, string partitionKind, string requestMethod, string requestPath);
+
+        [LoggerMessage(EventId = EventCodes.Security.PlatformLoginFailed, EventName = "Security.PlatformLoginFailed",
+            Level = LogLevel.Warning, Message = "Platform sign-in failed ({Reason}) for platform user {PlatformUserId}")]
+        public static partial void PlatformLoginFailed(ILogger logger, string reason, Guid? platformUserId);
+
+        [LoggerMessage(EventId = EventCodes.Security.PlatformAccountLockedOut, EventName = "Security.PlatformAccountLockedOut",
+            Level = LogLevel.Warning, Message = "Platform user {PlatformUserId} locked out until {LockoutEnd}")]
+        public static partial void PlatformAccountLockedOut(ILogger logger, Guid platformUserId, DateTimeOffset lockoutEnd);
+
+        [LoggerMessage(EventId = EventCodes.Security.PlatformSignedIn, EventName = "Security.PlatformSignedIn",
+            Level = LogLevel.Information, Message = "Platform user {PlatformUserId} signed in (session {SessionId})")]
+        public static partial void PlatformSignedIn(ILogger logger, Guid platformUserId, Guid sessionId);
+
+        [LoggerMessage(EventId = EventCodes.Security.PlatformTenantAccess, EventName = "Security.PlatformTenantAccess",
+            Level = LogLevel.Information, Message = "Platform user {PlatformUserId} opened tenant {TenantSlug}")]
+        public static partial void PlatformTenantAccess(ILogger logger, Guid platformUserId, string tenantSlug);
+
+        [LoggerMessage(EventId = EventCodes.Security.PlatformCredentialsChanged, EventName = "Security.PlatformCredentialsChanged",
+            Level = LogLevel.Information, Message = "Credentials of platform user {PlatformUserId} {Change}")]
+        public static partial void PlatformCredentialsChanged(ILogger logger, Guid platformUserId, string change);
     }
 }

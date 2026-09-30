@@ -33,6 +33,26 @@ public static partial class Operations
 
         public static readonly OperationDescriptor RotateSigningKey = new("Identity.RotateSigningKey", EventCodes.Identity.SigningKeyRotated);
 
+        public static readonly OperationDescriptor CreatePlatformUser = new("Identity.CreatePlatformUser", EventCodes.Identity.PlatformUserCreated);
+
+        public static readonly OperationDescriptor ResetPlatformCredentials = new("Identity.ResetPlatformCredentials", EventCodes.Identity.PlatformCredentialsReset);
+
+        public static readonly OperationDescriptor SetPlatformUserActive = new("Identity.SetPlatformUserActive", EventCodes.Identity.PlatformUserActivationChanged);
+
+        public static readonly OperationDescriptor BeginPlatformEnrollment = new("Identity.BeginPlatformEnrollment", EventCodes.Identity.PlatformEnrollmentStarted);
+
+        public static readonly OperationDescriptor ActivatePlatformAccount = new("Identity.ActivatePlatformAccount", EventCodes.Identity.PlatformAccountActivated);
+
+        /// <summary>Not transactional: failed attempts and lockout must be saved even when the sign-in fails.</summary>
+        public static readonly OperationDescriptor PlatformSignIn = new("Identity.PlatformSignIn", EventCodes.Identity.PlatformTokensIssued, isWrite: false);
+
+        /// <summary>Not transactional: a detected reuse must revoke the session even though the refresh fails.</summary>
+        public static readonly OperationDescriptor PlatformRefreshTokens = new("Identity.PlatformRefreshTokens", EventCodes.Identity.PlatformTokensRefreshed, isWrite: false);
+
+        public static readonly OperationDescriptor EndPlatformSession = new("Identity.EndPlatformSession", EventCodes.Identity.PlatformSessionEnded);
+
+        public static readonly OperationDescriptor IssuePlatformTenantToken = new("Identity.IssuePlatformTenantToken", EventCodes.Identity.PlatformTenantTokenIssued, isWrite: false);
+
         public static readonly OperationDescriptor AddClientApplication = new("Identity.AddClientApplication", EventCodes.Identity.ClientApplicationAdded);
     }
 }

@@ -44,5 +44,9 @@ public sealed class IdentityModule : IModuleDescriptor
         services.TryAddScoped<IPermissionAccess, PermissionAccess>();
         services.TryAddScoped<IAccessGuard, AccessGuard>();
         services.TryAddScoped<ICurrentUserQueryService, CurrentUserQueryService>();
+        services.TryAddScoped<PlatformAuthManager>();
+        services.TryAddScoped<IPlatformAuthManager>(provider => provider.GetRequiredService<PlatformAuthManager>());
+        services.TryAddScoped<IPlatformSessionEnder>(provider => provider.GetRequiredService<PlatformAuthManager>());
+        services.TryAddScoped<IPlatformUserManager, PlatformUserManager>();
     }
 }

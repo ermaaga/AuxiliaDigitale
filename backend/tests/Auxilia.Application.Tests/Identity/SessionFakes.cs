@@ -77,6 +77,14 @@ internal sealed class FakeAccessTokenIssuer(TimeProvider timeProvider) : IAccess
         Requests.Add(request);
         return Task.FromResult(new IssuedAccessToken($"at:{request.SessionId}:{Requests.Count}", Guid.NewGuid().ToString("N"), timeProvider.GetUtcNow() + request.Lifetime));
     }
+
+    public List<PlatformAccessTokenRequest> PlatformRequests { get; } = [];
+
+    public Task<IssuedAccessToken> IssuePlatformAsync(PlatformAccessTokenRequest request, CancellationToken cancellationToken)
+    {
+        PlatformRequests.Add(request);
+        return Task.FromResult(new IssuedAccessToken($"pt:{request.SessionId}:{request.TenantSlug}", Guid.NewGuid().ToString("N"), timeProvider.GetUtcNow() + request.Lifetime));
+    }
 }
 
 internal sealed class InMemoryDenyList : IAccessTokenDenyList

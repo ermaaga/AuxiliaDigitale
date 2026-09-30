@@ -19,4 +19,15 @@ public static class TokenClaims
     public const string Role = "role";
     public const string Client = "client_id";
     public const string TokenId = "jti";
+
+    /// <summary><c>platform</c> on platform (System) tokens.</summary>
+    public const string Scope = "scope";
+
+    /// <summary><c>platform</c> on platform tokens (read by <c>HttpCurrentUser</c>).</summary>
+    public const string ActorType = "actor_type";
+
+    /// <summary>The acting platform user of a platform token (RFC 8693 actor).</summary>
+    public const string Actor = "act";
+
+    public const string PlatformScope = "platform";
 }

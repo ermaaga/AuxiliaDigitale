@@ -26,6 +26,10 @@ auxctl jobs run <job-code> --tenant acme | --all          # manual run (D-15), r
 auxctl keys rotate                                       # new ES256 token signing key (see "Token signing keys")
 auxctl clients add --client-id web-bff --name "Tenant web" --type WebBff [--origin https://app.example.com]
 auxctl clients list
+auxctl platform users add --email ops@example.com --name "Operations"   (prints a one-use activation token)
+auxctl platform users reset --email ops@example.com     (lost password or authenticator: new activation token)
+auxctl platform users enable|disable --email ops@example.com
+auxctl platform users list
 auxctl diagnostics registry --output docs/log-event-registry.md
 ```
 Exit codes: `0` success, `1` usage error, `2` failure (message `error AUX-NNNNN: …`; details in the logs).
@@ -59,6 +63,15 @@ scheduler (D-15): rotate on a calendar (e.g. every 90 days) or at once if a key 
 rotate twice two hours apart, so the compromised key leaves the JWKS.
 
 Settings `Auth:Issuer` / `Auth:Audience` (default `https://auxilia.app` / `auxilia-api`) must be the same on every API node.
+
+## Platform (System) users
+System users sign in to the console with password **and** an authenticator code (TOTP, D-22). `auxctl platform users
+add` prints an activation token once (valid 72 h, only its hash is stored): give it to the person, who enrols the
+authenticator (QR code from `POST /api/v1/platform/auth/enrollment`) and sets the password
+(`POST /api/v1/platform/auth/activate`). `reset` clears password and authenticator, ends every console session and
+prints a new token; `disable` ends the sessions and blocks sign-in. The console needs a client application of type
+`PlatformConsole` (`auxctl clients add --type PlatformConsole …`); tenant clients cannot sign in to the console and vice
+versa. Five wrong attempts lock the account for 15 minutes (doubling on repeat).
 
 ## Rate limits (API)
 Section `RateLimiting` of the API configuration (defaults in code, per node, in memory):

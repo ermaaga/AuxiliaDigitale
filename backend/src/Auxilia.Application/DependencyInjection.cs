@@ -66,6 +66,7 @@ public static class DependencyInjection
         services.TryAddScoped<TenantModulesCache>();
         services.TryAddScoped<IModuleAccess, ModuleAccess>();
         services.TryAddScoped<INavigationQueryService, NavigationQueryService>();
+        services.TryAddScoped<IPlatformConsoleQueryService, PlatformConsoleQueryService>();
         services.TryAddScoped<IModuleCatalogManager, ModuleCatalogManager>();
         services.AddModules(Modules);
 

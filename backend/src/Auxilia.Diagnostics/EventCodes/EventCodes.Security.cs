@@ -52,5 +52,20 @@ public static partial class EventCodes
 
         /// <summary>A caller exceeded a rate-limit policy (the request gets 429 <c>AUX-10024</c>).</summary>
         public const int RateLimitExceeded = 29016;
+
+        /// <summary>A platform (System) sign-in failed (wrong password or TOTP code, locked, not enrolled, disabled).</summary>
+        public const int PlatformLoginFailed = 29017;
+
+        /// <summary>A platform user was locked out after repeated failures.</summary>
+        public const int PlatformAccountLockedOut = 29018;
+
+        /// <summary>A platform user signed in to the console.</summary>
+        public const int PlatformSignedIn = 29019;
+
+        /// <summary>A platform user opened a tenant: every technical change in that tenant follows with actor Platform.</summary>
+        public const int PlatformTenantAccess = 29020;
+
+        /// <summary>Password and TOTP of a platform user were set or reset.</summary>
+        public const int PlatformCredentialsChanged = 29021;
     }
 }

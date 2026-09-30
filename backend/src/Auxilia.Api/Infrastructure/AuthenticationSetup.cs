@@ -97,7 +97,10 @@ internal static class AuthenticationSetup
     private static async Task CheckDenyListAsync(TokenValidatedContext context)
     {
         var principal = context.Principal;
-        var tenant = principal?.FindFirst(TokenClaims.Tenant)?.Value;
+
+        // Platform tokens (console and tenant-scoped) are revoked through their console session, in the platform namespace.
+        var isPlatform = principal?.FindFirst(TokenClaims.Scope)?.Value == TokenClaims.PlatformScope;
+        var tenant = isPlatform ? IAccessTokenDenyList.PlatformNamespace : principal?.FindFirst(TokenClaims.Tenant)?.Value;
         var tokenId = principal?.FindFirst(TokenClaims.TokenId)?.Value;
         if (tenant is null || tokenId is null)
         {

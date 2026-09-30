@@ -1,0 +1,4 @@
+# False positives, one fingerprint per line (commit:file:rule:line); explain each one.
+# RFC 6238 appendix B public test seed (Base32 of "12345678901234567890") in the TOTP test vectors; the test now
+# derives it at runtime, this entry covers the commit where it was a literal.
+53e49baa0440301a14f5918ebf92282e8c469cb7:backend/tests/Auxilia.Infrastructure.Tests/Security/TotpTests.cs:generic-api-key:10

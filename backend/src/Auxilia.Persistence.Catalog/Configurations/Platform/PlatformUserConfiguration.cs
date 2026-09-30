@@ -17,6 +17,9 @@ internal sealed class PlatformUserConfiguration : IEntityTypeConfiguration<Platf
         builder.Property(user => user.DisplayName).HasMaxLength(PlatformUser.DisplayNameMaxLength);
         builder.Property(user => user.PasswordHash).HasMaxLength(500);
         builder.Property(user => user.TwoFactorSecret).HasMaxLength(1000);
+        builder.Property(user => user.PendingTwoFactorSecret).HasMaxLength(1000);
+        builder.Property(user => user.SecurityStamp).HasMaxLength(PlatformUser.SecurityStampLength);
+        builder.Ignore(user => user.IsEnrolled);
         builder.Ignore(user => user.DomainEvents);
         builder.HasAuditColumns();
         builder.HasXminVersion();

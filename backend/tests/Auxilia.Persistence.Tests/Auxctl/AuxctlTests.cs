@@ -205,6 +205,33 @@ public sealed class AuxctlTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task PlatformUsers_AddResetDisableAndList()
+    {
+        var added = await RunAsync("platform", "users", "add", "--email", "ops@example.test", "--name", "Operations");
+        var duplicate = await RunAsync("platform", "users", "add", "--email", "OPS@example.test", "--name", "Again");
+        var reset = await RunAsync("platform", "users", "reset", "--email", "ops@example.test");
+        var disabled = await RunAsync("platform", "users", "disable", "--email", "ops@example.test");
+        var list = await RunAsync("platform", "users", "list");
+        var missing = await RunAsync("platform", "users", "reset", "--email", "nobody@example.test");
+
+        added.ExitCode.ShouldBe(AuxctlCli.Success, added.Error);
+        var token = added.Output.Split("): ")[1].Trim();
+        token.Length.ShouldBeGreaterThan(30);
+        duplicate.ExitCode.ShouldBe(AuxctlCli.Failure);
+        duplicate.Error.ShouldContain("AUX-12039");
+        reset.ExitCode.ShouldBe(AuxctlCli.Success, reset.Error);
+        reset.Output.ShouldNotContain(token);
+        disabled.Output.ShouldContain("ops@example.test: disabled");
+        list.Output.ShouldContain("ops@example.test\tdisabled\tOperations");
+        missing.ExitCode.ShouldBe(AuxctlCli.Failure);
+
+        await using var catalog = Catalog();
+        (await catalog.PlatformUserTokens.CountAsync(Ct)).ShouldBe(2);
+        (await catalog.PlatformUserTokens.CountAsync(item => item.UsedAt == null, Ct)).ShouldBe(1);
+        (await catalog.PlatformUserTokens.AnyAsync(item => item.TokenHash.Contains(token), Ct)).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task UnknownCommand_PrintsUsage()
     {
         var run = await RunAsync("tenant", "delete", "--slug", "x");

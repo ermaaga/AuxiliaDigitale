@@ -96,6 +96,8 @@ Il legacy `SystemConfigurator` (ruolo del tenant) **sparisce**: tutto ciò che f
 2. Sceglie un tenant → l'API emette un token con `scope=platform`, `role=System`, `tenant={slug}`, `act={platformUserId}` (breve durata).
 3. Gli endpoint tecnici del tenant accettano solo questo tipo di token; ogni modifica finisce nello storico (`audit.entity_changes` con `actor_type=Platform`) e nei log con codice `29xxx`.
 
+Implementazione (P2-06): utenti in `catalog.platform_users` con password + TOTP obbligatorio (RFC 6238 implementato in `Infrastructure/Security/Totp.cs`, segreto protetto con Data Protection, codice non riutilizzabile), creati con `auxctl platform users add` (token di attivazione monouso) e attivati dalla console (enrollment + attivazione). Login `POST /api/v1/platform/auth/token` con client `PlatformConsole` → sessione di console (`catalog.platform_sessions`, refresh rotante, 30 min inattività / 12 h). `POST /api/v1/platform/tenants/{slug}/token` → token di 10 minuti con `scope=platform`, `actor_type=platform`, `role=System`, `tenant`, `act`, `sid` della sessione di console (il logout revoca anche questi, deny-list nello spazio `platform`). Filtri `RequirePlatformUser()` (console) e `RequirePlatformTenant()` (tecnici del tenant, qualsiasi stato); i token di piattaforma non hanno permessi né moduli visibili (D-21).
+
 ### 4.3 Perimetro del System (minimo privilegio)
 | Può | Non può (proposta, §16) |
 |---|---|
