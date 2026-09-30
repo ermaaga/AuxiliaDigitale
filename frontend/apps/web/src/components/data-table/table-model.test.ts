@@ -1,0 +1,82 @@
+import { ApiError } from "@auxilia/api-client";
+import { describe, expect, it, vi } from "vitest";
+
+import { applyApiErrors } from "@/components/forms/form";
+import {
+  applyLayout,
+  customFieldColumns,
+  nextSort,
+  pageCount,
+  sortDirection,
+  type DataTableColumn,
+} from "./table-model";
+
+type Row = { name: string; custom: Record<string, string> };
+
+const column = (id: string): DataTableColumn<Row> => ({ id, header: id, cell: (row) => row.name });
+
+describe("server-side table model", () => {
+  it("cycles a header sort through ascending, descending and none", () => {
+    expect(nextSort(null, "name")).toBe("name");
+    expect(nextSort("name", "name")).toBe("-name");
+    expect(nextSort("-name", "name")).toBeNull();
+    expect(nextSort("-date", "name")).toBe("name");
+    expect(sortDirection("name", "name")).toBe("asc");
+    expect(sortDirection("-name", "name")).toBe("desc");
+    expect(sortDirection("-date", "name")).toBeUndefined();
+  });
+
+  it("counts at least one page", () => {
+    expect(pageCount(0, 25)).toBe(1);
+    expect(pageCount(25, 25)).toBe(1);
+    expect(pageCount(26, 25)).toBe(2);
+    expect(pageCount(10, 0)).toBe(10);
+  });
+
+  it("orders and hides columns by the role grid layout, unknown columns last", () => {
+    const columns = ["a", "b", "c", "d"].map(column);
+    expect(applyLayout(columns, undefined).columns.map((c) => c.id)).toEqual(["a", "b", "c", "d"]);
+
+    const { columns: ordered, hidden } = applyLayout(columns, [
+      { key: "c", visible: true, order: 1 },
+      { key: "a", visible: false, order: 2 },
+      { key: "b", visible: true, order: 3 },
+    ]);
+    expect(ordered.map((c) => c.id)).toEqual(["c", "a", "b", "d"]);
+    expect(hidden).toEqual(["a"]);
+  });
+
+  it("adds the custom fields visible on grid, in their order", () => {
+    const columns = customFieldColumns<Row>(
+      [
+        { key: "size", label: "Size", visibleOnGrid: true, order: 2 },
+        { key: "secret", label: "Secret", visibleOnGrid: false, order: 0 },
+        { key: "colour", label: "Colour", visibleOnGrid: true, order: 1 },
+      ],
+      (row, key) => row.custom[key],
+    );
+    expect(columns.map((c) => [c.id, c.header])).toEqual([
+      ["cf:colour", "Colour"],
+      ["cf:size", "Size"],
+    ]);
+    expect(columns[1]!.cell({ name: "x", custom: { size: "XL" } })).toBe("XL");
+  });
+});
+
+describe("form kit", () => {
+  it("puts API validation errors on the known fields only", () => {
+    const setError = vi.fn();
+    const error = new ApiError(400, {
+      errorCode: "validation",
+      errors: { email: ["validation.email"], other: ["validation.required"] },
+    });
+
+    expect(applyApiErrors<{ email: string }>(error, setError, ["email"])).toBe(true);
+    expect(setError).toHaveBeenCalledExactlyOnceWith("email", {
+      type: "server",
+      message: "validation.email",
+    });
+    expect(applyApiErrors(new Error("boom"), setError, [])).toBe(false);
+    expect(applyApiErrors(new ApiError(409, undefined), setError, [])).toBe(false);
+  });
+});
