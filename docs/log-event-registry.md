@@ -18,7 +18,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
-| 18000–18999 | Notifications | Engagement: notifications / realtime | 0 | 18001 |
+| 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 6 | 20007 |
 | 21000–21999 | Localization | Localization | 0 | 21001 |
@@ -96,6 +96,9 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12027 | Identity.ClientIdTaken | – | Conflict | – | – |
 | AUX-12028 | Identity.PermissionDenied | – | Forbidden | – | – |
 | AUX-12029 | Identity.PermissionsSynchronized | Information | – | – | Permissions aligned with the modules: {Added} added, {Removed} removed, {Granted} default grants |
+| AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
+| AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
+| AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |

@@ -1,6 +1,7 @@
 using Auxilia.Api.Tenancy;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Diagnostics;
+using Auxilia.Infrastructure.Realtime;
 using Auxilia.Infrastructure.Security.Tokens;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -59,14 +60,26 @@ internal static class AuthenticationSetup
 
     private static async Task LoadKeysAsync(MessageReceivedContext context)
     {
+        string token;
         var header = context.Request.Headers.Authorization.ToString();
-        if (!header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        if (header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            token = header["Bearer ".Length..].Trim();
+        }
+        else if (context.Request.Path.StartsWithSegments(RealtimeRegistration.HubPath, StringComparison.OrdinalIgnoreCase)
+            && context.Request.Query["access_token"].FirstOrDefault() is { Length: > 0 } queryToken)
+        {
+            // Browsers cannot set headers on WebSocket/SSE requests: SignalR sends the token in the query string, only
+            // accepted on the hub path.
+            token = queryToken;
+            context.Token = token;
+        }
+        else
         {
             return;
         }
 
-        string? kid = null;
-        var token = header["Bearer ".Length..].Trim();
+        string? kid;
         try
         {
             kid = new JsonWebToken(token).Kid;

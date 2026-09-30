@@ -9,6 +9,9 @@ Entity `Notification`: UserId, Title, Message, Type (`Info`, `Request`, `Registr
 - `NotificationService` also drives UI modals (`NotificationModal`: success/error/warning/info) and toasts (`ToastContainer`).
 - SignalR hub `/sessionhub`: `ForceLogout`, `ReceiveNotification(type, message)` (documents).
 
+## Status notes
+- P2-05: hub `/hubs/notifications` (SignalR, JSON): a connection joins `t:{slug}`, `t:{slug}:u:{userId}`, `t:{slug}:role:{role}` (every role) and `t:{slug}:s:{sessionId}`; server-to-client only. `IRealtimeNotifier` (Application port) pushes to user, role, session or tenant of the current tenant, best effort (`AUX-18003` on failure). Redis backplane (`auxilia:signalr`) so every Api node and the Worker reach every connection. Event names in `Contracts.Realtime.RealtimeEvents` (`NotificationReceived`, `ForceLogout`). Still to do: notification entity, producers, center, preferences (B-19, B-21), client connection in the web app (P3).
+
 ## Acceptance criteria
 - [ ] Notification center: badge with unread count, list paged, mark one/all as read, delete, deep link per type **and role**.
 - [ ] Real-time delivery via SignalR `NotificationReceived` (no polling needed; fallback polling if disconnected).

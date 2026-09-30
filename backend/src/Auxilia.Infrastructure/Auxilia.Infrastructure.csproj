@@ -9,15 +9,19 @@
     <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="Fluid.Core" />
     <PackageReference Include="MailKit" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
     <PackageReference Include="Rebus" />
     <PackageReference Include="Rebus.PostgreSql" />
     <PackageReference Include="Rebus.RabbitMq" />
     <PackageReference Include="Rebus.ServiceProvider" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- SignalR hub type shared by Api (hosts it) and Worker (pushes through the Redis backplane). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

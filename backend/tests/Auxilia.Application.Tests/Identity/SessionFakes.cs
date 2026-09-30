@@ -145,3 +145,22 @@ internal static class SessionSettings
         return context;
     }
 }
+
+internal sealed class RecordingRealtimeNotifier : Auxilia.Application.Abstractions.Realtime.IRealtimeNotifier
+{
+    public List<(string Target, string EventName, object Payload)> Pushes { get; } = [];
+
+    public Task ToUserAsync(Guid userId, string eventName, object payload, CancellationToken cancellationToken) => Record($"user:{userId}", eventName, payload);
+
+    public Task ToRoleAsync(SharedKernel.Tenancy.TenantRole role, string eventName, object payload, CancellationToken cancellationToken) => Record($"role:{role}", eventName, payload);
+
+    public Task ToSessionAsync(Guid sessionId, string eventName, object payload, CancellationToken cancellationToken) => Record($"session:{sessionId}", eventName, payload);
+
+    public Task ToTenantAsync(string eventName, object payload, CancellationToken cancellationToken) => Record("tenant", eventName, payload);
+
+    private Task Record(string target, string eventName, object payload)
+    {
+        Pushes.Add((target, eventName, payload));
+        return Task.CompletedTask;
+    }
+}
