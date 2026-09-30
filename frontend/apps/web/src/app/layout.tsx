@@ -6,6 +6,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@auxilia/ui/components/theme-provider";
 import { Toaster } from "@auxilia/ui/components/sonner";
 import { TooltipProvider } from "@auxilia/ui/components/tooltip";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { ConfirmProvider } from "@/components/confirm/confirm-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
@@ -35,7 +37,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <NextIntlClientProvider>
             <QueryProvider>
               <TooltipProvider>
-                {children}
+                <NuqsAdapter>
+                  <ConfirmProvider>{children}</ConfirmProvider>
+                </NuqsAdapter>
                 <Toaster richColors closeButton />
               </TooltipProvider>
             </QueryProvider>

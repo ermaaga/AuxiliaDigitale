@@ -1,0 +1,164 @@
+[
+ {
+  "key": "common.table.columns",
+  "category": "common",
+  "en": "Columns",
+  "it": "Colonne"
+ },
+ {
+  "key": "common.table.export",
+  "category": "common",
+  "en": "Export",
+  "it": "Esporta"
+ },
+ {
+  "key": "common.table.rowsPerPage",
+  "category": "common",
+  "en": "Rows per page",
+  "it": "Righe per pagina"
+ },
+ {
+  "key": "common.table.pageOf",
+  "category": "common",
+  "en": "Page {page} of {pages}",
+  "it": "Pagina {page} di {pages}"
+ },
+ {
+  "key": "common.table.total",
+  "category": "common",
+  "en": "{count, plural, one {# result} other {# results}}",
+  "it": "{count, plural, one {# risultato} other {# risultati}}"
+ },
+ {
+  "key": "common.table.previousPage",
+  "category": "common",
+  "en": "Previous page",
+  "it": "Pagina precedente"
+ },
+ {
+  "key": "common.table.nextPage",
+  "category": "common",
+  "en": "Next page",
+  "it": "Pagina successiva"
+ },
+ {
+  "key": "common.table.empty",
+  "category": "common",
+  "en": "Nothing to show yet.",
+  "it": "Ancora niente da mostrare."
+ },
+ {
+  "key": "common.table.emptyFiltered",
+  "category": "common",
+  "en": "No results match the filters.",
+  "it": "Nessun risultato corrisponde ai filtri."
+ },
+ {
+  "key": "common.table.sortBy",
+  "category": "common",
+  "en": "Sort by {column}",
+  "it": "Ordina per {column}"
+ },
+ {
+  "key": "common.table.all",
+  "category": "common",
+  "en": "All",
+  "it": "Tutti"
+ },
+ {
+  "key": "common.table.from",
+  "category": "common",
+  "en": "From",
+  "it": "Dal"
+ },
+ {
+  "key": "common.table.to",
+  "category": "common",
+  "en": "To",
+  "it": "Al"
+ },
+ {
+  "key": "common.combobox.search",
+  "category": "common",
+  "en": "Type to search…",
+  "it": "Scrivi per cercare…"
+ },
+ {
+  "key": "common.combobox.empty",
+  "category": "common",
+  "en": "No matches.",
+  "it": "Nessuna corrispondenza."
+ },
+ {
+  "key": "common.confirm.title",
+  "category": "common",
+  "en": "Are you sure?",
+  "it": "Sei sicuro?"
+ },
+ {
+  "key": "app.identity.loginAttempts.ipAddress",
+  "category": "app",
+  "en": "IP address",
+  "it": "Indirizzo IP"
+ },
+ {
+  "key": "app.identity.loginAttempts.userAgent",
+  "category": "app",
+  "en": "Device",
+  "it": "Dispositivo"
+ },
+ {
+  "key": "app.identity.loginAttempts.succeeded",
+  "category": "app",
+  "en": "Succeeded",
+  "it": "Riuscito"
+ },
+ {
+  "key": "app.identity.loginAttempts.searchUser",
+  "category": "app",
+  "en": "Search by user name",
+  "it": "Cerca per nome utente"
+ },
+ {
+  "key": "app.identity.loginMethods.password",
+  "category": "app",
+  "en": "Password",
+  "it": "Password"
+ },
+ {
+  "key": "app.identity.loginMethods.email-otp",
+  "category": "app",
+  "en": "E-mail code",
+  "it": "Codice via e-mail"
+ },
+ {
+  "key": "app.identity.loginFailures.InvalidCredentials",
+  "category": "app",
+  "en": "Wrong credentials",
+  "it": "Credenziali errate"
+ },
+ {
+  "key": "app.identity.loginFailures.InvalidOtp",
+  "category": "app",
+  "en": "Wrong or expired code",
+  "it": "Codice errato o scaduto"
+ },
+ {
+  "key": "app.identity.loginFailures.LockedOut",
+  "category": "app",
+  "en": "Account locked",
+  "it": "Account bloccato"
+ },
+ {
+  "key": "app.identity.loginFailures.PasswordExpired",
+  "category": "app",
+  "en": "Password expired",
+  "it": "Password scaduta"
+ },
+ {
+  "key": "app.identity.loginFailures.ClientInvalid",
+  "category": "app",
+  "en": "Application not allowed",
+  "it": "Applicazione non autorizzata"
+ }
+]
