@@ -2,7 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { readBffConfig } from "./config";
 import { csrfRefusal } from "./csrf";
-import { login, logout, proxy, sessionInfo, type BffContext } from "./handlers";
+import {
+  changeExpiredPassword,
+  login,
+  logout,
+  proxy,
+  sessionInfo,
+  type BffContext,
+} from "./handlers";
 import { SESSION_COOKIE, type BffSession } from "./session";
 import { InMemorySessionStore } from "./session-store";
 import { withFreshAccessToken } from "./tokens";
@@ -267,6 +274,56 @@ describe("login and session", () => {
   });
 });
 
+describe("expired password", () => {
+  it("changes it through the BFF and opens a session with the new tokens", async () => {
+    replies.push(reply(200, tokens("9")));
+
+    const response = await changeExpiredPassword(
+      browser("/api/auth/password/change", {
+        method: "POST",
+        body: JSON.stringify({
+          tenant: "acme",
+          userName: "mario",
+          currentPassword: "old",
+          newPassword: "new one!",
+          extra: "x",
+        }),
+      }),
+      context,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("set-cookie")).toMatch(/^__Host-aux_sid=/);
+    expect(calls[0]!.url).toBe(`${API}/api/v1/auth/password/change`);
+    expect(calls[0]!.headers.get("x-client-secret")).toBe("web-secret");
+    expect(JSON.parse(calls[0]!.body!)).toEqual({
+      userName: "mario",
+      currentPassword: "old",
+      newPassword: "new one!",
+    });
+  });
+
+  it("passes the API refusal through without a session", async () => {
+    replies.push(reply(400, { errorCode: "AUX-12042" }));
+
+    const response = await changeExpiredPassword(
+      browser("/api/auth/password/change", {
+        method: "POST",
+        body: JSON.stringify({
+          tenant: "acme",
+          userName: "m",
+          currentPassword: "a",
+          newPassword: "b",
+        }),
+      }),
+      context,
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.headers.get("set-cookie")).toBeNull();
+  });
+});
+
 describe("proxy", () => {
   it("adds token, client and the session's tenant, forwards allowed headers only", async () => {
     const { cookie } = await signedIn();
@@ -318,6 +375,7 @@ describe("proxy", () => {
   it.each([
     ["tenant", ["auth", "token"]],
     ["tenant", ["auth", "logout"]],
+    ["tenant", ["auth", "password", "change"]],
     ["tenant", ["platform", "me"]],
     ["tenant", ["..", "health"]],
     ["tenant", ["a/b"]],

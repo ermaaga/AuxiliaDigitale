@@ -5,6 +5,7 @@ Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Qu
 > **Decisions:** D-05 (login access independent from client status), D-06 (activation link), D-08 (single session = tenant setting, default **off**; the "force logout of other sessions" criterion applies only when enabled). No `SystemConfigurator` redirect: System users log in to the platform console (D-18).
 
 ## Status notes
+- P3-06: pages `/{tenant}/login` (password or e-mailed code, remember username, generic error, expired password → change page), `forgot-password`, `reset-password`, `activate`; signed-in users skip the login; logout from the account menu. Logo/app name/background from branding: S-02.
 - P2-01: case-insensitive unique user names, legacy BCrypt verified and upgraded to the Identity (PBKDF2) format on first sign-in, generic failure `AUX-12002` (reason only in the security log `AUX-29001`), progressive lockout (`auth.lockout.*`, `AUX-12003`), sign-in access independent from client status (D-05), accounts without password until activation (D-06). Token endpoint, refresh, logout: P2-02; login page: P3-06.
 - P2-02: `POST /api/v1/auth/token` (grant `password` / `refresh_token`, client app in `X-Client-Id`/`X-Client-Secret`, `AUX-12016` for an unknown/disabled client or wrong secret), access token JWT ES256 (`auth.accessToken.minutes`, 10) with claims `sub`, `tenant`, `sid`, `role`, `client_id`, `jti`; rotating refresh token (reuse → whole session revoked, `AUX-29007`). `POST /auth/logout` revokes the token and its session (deny-list, `AUX-12023` afterwards). Activation (`POST /auth/activate`) and password reset (`POST /auth/password/forgot` always 202, `POST /auth/password/reset` ends every session) through one-use e-mail links (`auth.activation.linkHours` 72, `auth.passwordReset.linkMinutes` 60, `auth.appBaseUrl`). Pages: P3-06; "remember username" is a client concern (P3-06).
 - P2-08: password policy and history on every password change, expiry (403 `AUX-12043`, `POST /auth/password/change`), self-service change `POST /me/password`, e-mailed sign-in code (method `email-otp`, grant `email_otp`), every attempt in `identity.login_attempts` — details in F35.
@@ -31,10 +32,10 @@ Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Qu
 - [ ] Given username `MARIO.ROSSI`, when the stored username is `mario.rossi`, then login succeeds.
 - [ ] Given wrong credentials, then a generic error is shown (no user enumeration) and a failed-attempt counter increments; lockout after the configured threshold.
 - [ ] Given a user with roles Administrator + Employee, when it logs in, then it lands on the dashboard with administrator widgets.
-- [ ] Given "remember username" checked, when the user returns to the login page, then the username is prefilled; unchecked → cleared.
+- [x] Given "remember username" checked, when the user returns to the login page, then the username is prefilled; unchecked → cleared. *(P3-06, verified end-to-end.)*
 - [ ] Given single-session ON and a user logged in on browser A, when it logs in on browser B, then A receives `ForceLogout` and is sent to login.
-- [ ] Given an authenticated user, when it opens `/{tenant}/login`, then it is redirected to the dashboard.
-- [ ] Given logout, then the refresh session is revoked, the BFF cookie is cleared and the access token `jti` is deny-listed.
+- [x] Given an authenticated user, when it opens `/{tenant}/login`, then it is redirected to the dashboard. *(P3-06.)*
+- [x] Given logout, then the refresh session is revoked, the BFF cookie is cleared and the access token `jti` is deny-listed. *(P2-02 API + P3-03 BFF + P3-06 menu.)*
 - [ ] Login page shows logo or app name according to `UseAppName` and the tenant background.
 
 ## Improvements

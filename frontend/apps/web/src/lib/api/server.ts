@@ -38,3 +38,21 @@ export async function serverApi(
     incoming,
   );
 }
+
+/** The session of the area in this request, without its tokens (`undefined` when signed out). */
+export async function currentSession(area: BffArea): Promise<{ tenant?: string } | undefined> {
+  const id = (await cookies()).get(SESSION_COOKIE[area])?.value;
+  const session = id ? await sessionStore().get(id) : undefined;
+  return session?.area === area ? { tenant: session.tenant } : undefined;
+}
+
+/** Anonymous API call for the public pages of a tenant (never carries the session's token). */
+export async function publicApi(tenant: string, path: string): Promise<Response> {
+  const incoming = new Request("http://internal", { headers: await headers() });
+  return callApi(
+    readBffConfig(),
+    "tenant",
+    { method: "GET", path: path.replace(/^\/+/, ""), tenant },
+    incoming,
+  );
+}
