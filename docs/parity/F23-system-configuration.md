@@ -16,5 +16,5 @@ App-level config (appsettings): `AppName` ("Auxilia Digitale"), `DefaultPassword
 - [ ] `/platform/tenants/{slug}/settings`: all legacy keys with typed editors and descriptions; defaults seeded per tenant; generic list of other keys.
 - [ ] `/platform/tenants/{slug}/messaging`: N SMTP accounts (host/port/security/user/password encrypted and never returned in clear, from e-mail/name, active, default) + rules purpose × sender role (N03); "send test e-mail".
 - [ ] `/platform/tenants/{slug}/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
-- [ ] Branding applied to the whole UI and to the public login/register pages (public branding endpoint).
+- [ ] Branding applied to the whole UI and to the public login/register pages (public branding endpoint). *(P3-02: tokens + `<BrandingStyle>` with WCAG fallback ready; endpoint and pages in S-02 / P3-06.)*
 - [ ] Legacy values imported (SMTP password re-encrypted).

@@ -9,20 +9,25 @@
     "./components/*": "./src/components/*.tsx"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.48.0",
+    "next-themes": "^0.4.6",
     "radix-ui": "^1.6.7",
+    "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@auxilia/config": "workspace:*",
+    "@types/node": "^24.19.0",
     "@types/react": "^19.3.0",
     "react": "19.2.8",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
   },
   "peerDependencies": {
     "react": "^19",

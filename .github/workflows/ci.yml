@@ -85,6 +85,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm format:check
+      - run: pnpm test
       - run: pnpm build
       - name: Audit (moderate+)
         run: pnpm audit --audit-level moderate
