@@ -35,7 +35,17 @@ public interface IAccountLinkManager
     /// the user exists (no enumeration). A new code voids the previous ones.
     /// </summary>
     Task<Result> SendLoginOtpAsync(string userName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Operator reset (auxctl, F31) of the user found by user name or, failing that, by e-mail: either e-mails a reset
+    /// link, or sets a random temporary password (returned once) that must be changed at the next sign-in; the
+    /// temporary password ends every session of the user.
+    /// </summary>
+    Task<Result<OperatorPasswordReset>> ResetPasswordByOperatorAsync(string userNameOrEmail, bool sendLink, CancellationToken cancellationToken);
 }
+
+/// <param name="TemporaryPassword">Only without the link; shown once, never stored in clear.</param>
+public sealed record OperatorPasswordReset(Guid UserId, string UserName, string? TemporaryPassword);
 
 internal sealed class AccountLinkManager : IAccountLinkManager
 {
@@ -192,6 +202,69 @@ internal sealed class AccountLinkManager : IAccountLinkManager
             // A delivery problem is logged by the dispatcher; the caller sees success either way (no enumeration).
             Log.Security.LoginOtpSent(logger, user.Id);
             return Result.Success();
+        }, cancellationToken);
+
+    public Task<Result<OperatorPasswordReset>> ResetPasswordByOperatorAsync(string userNameOrEmail, bool sendLink, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Identity.ResetPasswordByOperator, new { SendLink = sendLink }, async scope =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var key = userNameOrEmail?.Trim() ?? string.Empty;
+            var user = key.Length == 0 ? null : await store.FindUserByUserNameAsync(key, cancellationToken);
+            if (user is null && key.Contains('@', StringComparison.Ordinal))
+            {
+                var matches = await store.FindUsersByEmailAsync(key, cancellationToken);
+                if (matches.Count > 1)
+                {
+                    return Errors.Identity.UserAmbiguous();
+                }
+
+                user = matches.SingleOrDefault();
+            }
+
+            if (user is null)
+            {
+                return Errors.Identity.UserNotFound();
+            }
+
+            scope.SetEntity("User", user.Id);
+            if (sendLink)
+            {
+                if (user.Email is null)
+                {
+                    return Errors.Identity.UserEmailMissing();
+                }
+
+                var minutes = await settings.GetAsync(IdentitySettings.PasswordResetLinkMinutes, cancellationToken);
+                var sent = await SendLinkAsync(store, user, UserTokenPurpose.PasswordReset, TimeSpan.FromMinutes(minutes), "reset-password", MessageTemplates.PasswordReset, cancellationToken);
+                if (sent.IsFailure)
+                {
+                    return Result.Failure<OperatorPasswordReset>(sent.Error!);
+                }
+
+                Log.Security.PasswordResetByOperator(logger, user.Id, "link");
+                return new OperatorPasswordReset(user.Id, user.UserName, null);
+            }
+
+            var password = TemporaryPassword.Generate(await passwordPolicy.GetAsync(cancellationToken));
+            var valid = await passwordPolicy.ValidateAsync(user, password, cancellationToken);
+            if (valid.IsFailure)
+            {
+                return Result.Failure<OperatorPasswordReset>(valid.Error!);
+            }
+
+            user.SetTemporaryPassword(hasher.Hash(password), PasswordFormat.Identity, timeProvider.GetUtcNow());
+            await store.SaveChangesAsync(cancellationToken);
+            foreach (var session in await store.OpenSessionsOfUserAsync(user.Id, cancellationToken))
+            {
+                var ended = await sessions.EndSessionAsync(session.Id, SessionEndReason.SecurityStampChanged, cancellationToken);
+                if (ended.IsFailure)
+                {
+                    return Result.Failure<OperatorPasswordReset>(ended.Error!);
+                }
+            }
+
+            Log.Security.PasswordResetByOperator(logger, user.Id, "temporary password");
+            return new OperatorPasswordReset(user.Id, user.UserName, password);
         }, cancellationToken);
 
     private async Task<Result> SendLinkAsync(

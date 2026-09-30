@@ -28,6 +28,9 @@ internal sealed class InMemorySessionData(InMemoryIdentityData identity) : ISess
     public Task<User?> FindUserByUserNameAsync(string userName, CancellationToken cancellationToken) =>
         identity.FindByUserNameAsync(userName, cancellationToken);
 
+    public Task<IReadOnlyList<User>> FindUsersByEmailAsync(string email, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<User>>(identity.Users.Where(user => string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase)).ToArray());
+
     public Task<RefreshToken?> FindRefreshTokenAsync(string tokenHash, CancellationToken cancellationToken) =>
         Task.FromResult(RefreshTokens.SingleOrDefault(token => token.TokenHash == tokenHash));
 

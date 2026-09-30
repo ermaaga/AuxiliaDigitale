@@ -71,6 +71,9 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
 
     public DateTimeOffset? PasswordChangedAt { get; private set; }
 
+    /// <summary>The password was set by an operator (auxctl, F31): it must be changed before signing in.</summary>
+    public bool MustChangePassword { get; private set; }
+
     public string SecurityStamp { get; private set; }
 
     public int AccessFailedCount { get; private set; }
@@ -126,6 +129,7 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         PasswordHash = passwordHash;
         PasswordFormat = format;
         PasswordChangedAt = at;
+        MustChangePassword = false;
         AccessFailedCount = 0;
         LockoutCount = 0;
         LockoutEnd = null;
@@ -136,6 +140,16 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         {
             passwordHistory.Remove(old);
         }
+    }
+
+    /// <summary>
+    /// A temporary password set by an operator (F31): like <see cref="SetPassword"/>, but the user must replace it before
+    /// signing in (same flow as an expired password).
+    /// </summary>
+    public void SetTemporaryPassword(string passwordHash, PasswordFormat format, DateTimeOffset at)
+    {
+        SetPassword(passwordHash, format, at);
+        MustChangePassword = true;
     }
 
     /// <summary>F35: with expiry enabled, a password older than <paramref name="maxAge"/> must be changed before signing in.</summary>

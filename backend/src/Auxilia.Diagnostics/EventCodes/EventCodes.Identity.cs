@@ -151,5 +151,11 @@ public static partial class EventCodes
 
         /// <summary>An expired password was changed and the user signed in.</summary>
         public const int ExpiredPasswordChanged = 12049;
+
+        /// <summary>An operator reset a user's password with auxctl (temporary password or reset link, F31).</summary>
+        public const int PasswordResetByOperator = 12050;
+
+        /// <summary>Several users share the e-mail address: the operator must use the user name (409).</summary>
+        public const int UserAmbiguous = 12051;
     }
 }

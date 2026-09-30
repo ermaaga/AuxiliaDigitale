@@ -21,6 +21,9 @@ internal sealed class SessionData(ITenantDbContext db) : ISessionData
     public Task<User?> FindUserByUserNameAsync(string userName, CancellationToken cancellationToken) =>
         db.Set<User>().SingleOrDefaultAsync(user => user.UserName == userName, cancellationToken);
 
+    public async Task<IReadOnlyList<User>> FindUsersByEmailAsync(string email, CancellationToken cancellationToken) =>
+        await db.Set<User>().Where(user => user.Email == email).OrderBy(user => user.UserName).ToListAsync(cancellationToken);
+
     public Task<RefreshToken?> FindRefreshTokenAsync(string tokenHash, CancellationToken cancellationToken) =>
         db.Set<RefreshToken>().SingleOrDefaultAsync(token => token.TokenHash == tokenHash, cancellationToken);
 

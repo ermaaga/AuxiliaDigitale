@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 49 | 12050 |
+| 12000–12999 | Identity | Identity / Auth | 51 | 12052 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 22 | 29023 |
+| 29000–29999 | Security | Security events | 23 | 29024 |
 
 ## Codes
 
@@ -116,6 +116,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12047 | Identity.PasswordChangedByUser | – | – | Identity.ChangePassword (success) | – |
 | AUX-12048 | Identity.SignedInWithOtp | – | – | Identity.SignInWithOtp (success) | – |
 | AUX-12049 | Identity.ExpiredPasswordChanged | – | – | Identity.ChangeExpiredPassword (success) | – |
+| AUX-12050 | Identity.PasswordResetByOperator | – | – | Identity.ResetPasswordByOperator (success) | – |
+| AUX-12051 | Identity.UserAmbiguous | – | Conflict | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
@@ -189,3 +191,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29020 | Security.PlatformTenantAccess | Information | – | – | Platform user {PlatformUserId} opened tenant {TenantSlug} |
 | AUX-29021 | Security.PlatformCredentialsChanged | Information | – | – | Credentials of platform user {PlatformUserId} {Change} |
 | AUX-29022 | Security.LoginOtpSent | Information | – | – | Sign-in code e-mailed to user {UserId} |
+| AUX-29023 | Security.PasswordResetByOperator | Warning | – | – | Password of user {UserId} reset by an operator ({Mode}) |

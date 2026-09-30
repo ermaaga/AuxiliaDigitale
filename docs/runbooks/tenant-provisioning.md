@@ -30,6 +30,8 @@ auxctl platform users add --email ops@example.com --name "Operations"   (prints 
 auxctl platform users reset --email ops@example.com     (lost password or authenticator: new activation token)
 auxctl platform users enable|disable --email ops@example.com
 auxctl platform users list
+auxctl users reset-password --tenant acme --user mario.rossi [--send-link]   (temporary password, or reset link)
+auxctl users verify-legacy-hash     (hash and password from standard input)
 auxctl diagnostics registry --output docs/log-event-registry.md
 ```
 Exit codes: `0` success, `1` usage error, `2` failure (message `error AUX-NNNNN: …`; details in the logs).
@@ -72,6 +74,14 @@ authenticator (QR code from `POST /api/v1/platform/auth/enrollment`) and sets th
 prints a new token; `disable` ends the sessions and blocks sign-in. The console needs a client application of type
 `PlatformConsole` (`auxctl clients add --type PlatformConsole …`); tenant clients cannot sign in to the console and vice
 versa. Five wrong attempts lock the account for 15 minutes (doubling on repeat).
+
+## Tenant users: password reset by an operator
+`auxctl users reset-password --tenant <slug> --user <user name | e-mail>` prints a temporary password once (never
+stored in clear): hand it to the person over a separate channel. Every session of the user ends and the next sign-in
+asks for a new password (403 `AUX-12043` → `POST /api/v1/auth/password/change`). With `--send-link` the user receives
+the normal reset e-mail instead (the tenant needs an e-mail account, N03). When several users share the e-mail, use the
+user name. Each reset is logged as security event `AUX-29023`. Support only: `auxctl users verify-legacy-hash` checks a
+password against a legacy BCrypt hash, e.g. `printf '%s\n%s\n' "$HASH" "$PASSWORD" | auxctl users verify-legacy-hash`.
 
 ## Rate limits (API)
 Section `RateLimiting` of the API configuration (defaults in code, per node, in memory):

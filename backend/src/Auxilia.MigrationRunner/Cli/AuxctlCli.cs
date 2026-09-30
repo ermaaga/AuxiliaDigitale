@@ -1,9 +1,11 @@
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Identity;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Platform;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Diagnostics;
+using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Results;
 
@@ -44,18 +46,25 @@ internal sealed class AuxctlCli
           platform users reset --email <email>     (clears password and TOTP, ends sessions, new activation token)
           platform users (enable | disable) --email <email>
           platform users list
+          users reset-password --tenant <slug> --user <user name | e-mail> [--send-link]
+                               (prints a one-use temporary password, to change at the next sign-in, and ends the
+                                sessions; --send-link e-mails a reset link instead)
+          users verify-legacy-hash         (reads a legacy BCrypt hash, then the password, from standard input)
           diagnostics registry [--output <file>]
         """;
 
     private readonly Func<IServiceProvider> services;
     private readonly TextWriter output;
     private readonly TextWriter error;
+    private readonly TextReader input;
 
-    public AuxctlCli(Func<IServiceProvider> services, TextWriter output, TextWriter error)
+    /// <param name="input">Secrets are read from here (standard input), never from the command line.</param>
+    public AuxctlCli(Func<IServiceProvider> services, TextWriter output, TextWriter error, TextReader? input = null)
     {
         this.services = services;
         this.output = output;
         this.error = error;
+        this.input = input ?? TextReader.Null;
     }
 
     public async Task<int> RunAsync(IReadOnlyList<string> args, CancellationToken cancellationToken)
@@ -77,6 +86,8 @@ internal sealed class AuxctlCli
                 _ when command.Is("clients", "list") => await InScopeAsync(scope => ListClientsAsync(scope, cancellationToken)),
                 _ when command.Is("platform", "users") && command.Word(2) is "add" or "reset" or "enable" or "disable" or "list" =>
                     await InScopeAsync(scope => PlatformUsersAsync(scope, command, cancellationToken)),
+                _ when command.Is("users", "reset-password") => await ResetUserPasswordAsync(command, cancellationToken),
+                _ when command.Is("users", "verify-legacy-hash") => await InScopeAsync(VerifyLegacyHashAsync),
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
                 _ => await UsageAsync(),
@@ -291,6 +302,44 @@ internal sealed class AuxctlCli
             $"{activation.User.Email}: activation token (shown only now, valid until {activation.ExpiresAt:u}): {activation.ActivationToken}";
     }
 
+    private async Task<int> ResetUserPasswordAsync(CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("tenant") is not { } slug || command.Option("user") is not { } user)
+        {
+            return await UsageAsync();
+        }
+
+        var sendLink = command.Flag("send-link");
+        return await InTenantAsync(slug, async scope =>
+        {
+            var result = await scope.GetRequiredService<IAccountLinkManager>().ResetPasswordByOperatorAsync(user, sendLink, cancellationToken);
+            return await ReportAsync(result, reset => reset.TemporaryPassword is { } password
+                ? $"{slug}/{reset.UserName}: temporary password (shown only now, to change at the next sign-in; sessions ended): {password}"
+                : $"{slug}/{reset.UserName}: reset link e-mailed");
+        }, cancellationToken);
+    }
+
+    private async Task<int> VerifyLegacyHashAsync(IServiceProvider scope)
+    {
+        var hash = (await input.ReadLineAsync())?.Trim();
+        var password = await input.ReadLineAsync();
+        if (string.IsNullOrEmpty(hash) || password is null)
+        {
+            await error.WriteLineAsync("verify-legacy-hash reads the BCrypt hash and then the password, one per line, from standard input");
+            return UsageError;
+        }
+
+        var verification = scope.GetRequiredService<IPasswordHasher>().Verify(hash, PasswordFormat.LegacyBcrypt, password);
+        if (verification == PasswordVerification.Failed)
+        {
+            await output.WriteLineAsync("no match");
+            return Failure;
+        }
+
+        await output.WriteLineAsync("match");
+        return Success;
+    }
+
     private async Task<int> ListJobsAsync(IServiceProvider scope)
     {
         var jobs = scope.GetRequiredService<IJobRunner>().Jobs;
@@ -334,22 +383,11 @@ internal sealed class AuxctlCli
         var failed = 0;
         foreach (var tenantSlug in slugs)
         {
-            // One scope per tenant: a scope never changes tenant.
-            var exitCode = await InScopeAsync(async scope =>
+            var exitCode = await InTenantAsync(tenantSlug, async scope =>
             {
-                var tenant = await scope.GetRequiredService<ITenantDirectory>().FindBySlugAsync(tenantSlug, cancellationToken);
-                if (tenant is null)
-                {
-                    return await ReportAsync(Result.Failure(Errors.Tenancy.TenantNotFound()), string.Empty);
-                }
-
-                scope.GetRequiredService<ITenantContextSetter>().Set(tenant);
-                using (Logger().BeginScope(new Dictionary<string, object?> { ["TenantSlug"] = tenant.Slug }))
-                {
-                    var result = await scope.GetRequiredService<IJobRunner>().RunAsync(code, cancellationToken);
-                    return await ReportAsync(result, summary => $"{tenantSlug}: {code} succeeded ({summary})");
-                }
-            });
+                var result = await scope.GetRequiredService<IJobRunner>().RunAsync(code, cancellationToken);
+                return await ReportAsync(result, summary => $"{tenantSlug}: {code} succeeded ({summary})");
+            }, cancellationToken);
             failed += exitCode == Success ? 0 : 1;
         }
 
@@ -382,6 +420,23 @@ internal sealed class AuxctlCli
         await using var scope = services().CreateAsyncScope();
         return await work(scope.ServiceProvider);
     }
+
+    /// <summary>One scope per tenant: a scope never changes tenant.</summary>
+    private Task<int> InTenantAsync(string slug, Func<IServiceProvider, Task<int>> work, CancellationToken cancellationToken) =>
+        InScopeAsync(async scope =>
+        {
+            var tenant = await scope.GetRequiredService<ITenantDirectory>().FindBySlugAsync(slug, cancellationToken);
+            if (tenant is null)
+            {
+                return await ReportAsync(Result.Failure(Errors.Tenancy.TenantNotFound()), string.Empty);
+            }
+
+            scope.GetRequiredService<ITenantContextSetter>().Set(tenant);
+            using (Logger().BeginScope(new Dictionary<string, object?> { ["TenantSlug"] = tenant.Slug }))
+            {
+                return await work(scope);
+            }
+        });
 
     private ILogger Logger() => services().GetRequiredService<ILoggerFactory>().CreateLogger("auxctl");
 }

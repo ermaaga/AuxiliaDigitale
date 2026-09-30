@@ -75,6 +75,9 @@ public interface ISessionData : IAsyncDisposable
 
     Task<User?> FindUserByUserNameAsync(string userName, CancellationToken cancellationToken);
 
+    /// <summary>Case-insensitive; e-mail addresses are not unique (F05), so several users may match.</summary>
+    Task<IReadOnlyList<User>> FindUsersByEmailAsync(string email, CancellationToken cancellationToken);
+
     Task<RefreshToken?> FindRefreshTokenAsync(string tokenHash, CancellationToken cancellationToken);
 
     Task<RefreshSession?> FindSessionAsync(Guid sessionId, CancellationToken cancellationToken);

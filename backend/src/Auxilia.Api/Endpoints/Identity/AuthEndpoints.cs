@@ -33,6 +33,12 @@ internal sealed class AuthEndpoints : IApiEndpoints
 
     public const string EmailOtpGrant = "email_otp";
 
+    /// <summary>
+    /// Designed, not enabled yet (D-19): the one-use code of an external provider's callback (OAuth with PKCE), redeemed
+    /// by the BFF or the mobile app. No external method is registered, so it answers AUX-12045.
+    /// </summary>
+    public const string ExternalCodeGrant = "external_code";
+
     public void Map(RouteGroupBuilder api)
     {
         var auth = api.MapGroup("/auth").WithTags("Auth").RequireTenant();
@@ -139,6 +145,7 @@ internal sealed class AuthEndpoints : IApiEndpoints
                 await sessions.SignInAsync(new PasswordSignIn(client, request.UserName, request.Password, ipAddress, userAgent), cancellationToken),
             EmailOtpGrant when !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Code) =>
                 await sessions.SignInWithOtpAsync(new OtpSignIn(client, request.UserName, request.Code, ipAddress, userAgent), cancellationToken),
+            ExternalCodeGrant => Errors.Identity.LoginMethodDisabled(ExternalCodeGrant),
             RefreshTokenGrant when !string.IsNullOrEmpty(request.RefreshToken) =>
                 await sessions.RefreshAsync(new RefreshTokens(client, request.RefreshToken, ipAddress, userAgent), cancellationToken),
             _ => Errors.Host.ValidationFailed(new Dictionary<string, string[]>
