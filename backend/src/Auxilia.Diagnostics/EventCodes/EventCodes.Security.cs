@@ -67,5 +67,8 @@ public static partial class EventCodes
 
         /// <summary>Password and TOTP of a platform user were set or reset.</summary>
         public const int PlatformCredentialsChanged = 29021;
+
+        /// <summary>A one-time sign-in code was e-mailed to a user (F35).</summary>
+        public const int LoginOtpSent = 29022;
     }
 }

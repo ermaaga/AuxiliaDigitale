@@ -59,9 +59,9 @@ public sealed class IdentityPersistenceTests(TenantDatabaseFixture database)
         var userId = (await accounts.CreateAsync(new CreateUser(personId, userName, userName, "it", [TenantRole.Client], IsActive: true), Ct)).Value;
         (await accounts.CreateAsync(new CreateUser(await AddPersonAsync(), userName.ToUpperInvariant(), null, "it", [TenantRole.Client], true), Ct))
             .Error!.Code.ShouldBe(Diagnostics.EventCodes.Identity.UserNameTaken);
-        (await accounts.SetPasswordAsync(userId, "a brand new password", Ct)).IsSuccess.ShouldBeTrue();
+        (await accounts.SetPasswordAsync(userId, "A brand new Passw0rd!", Ct)).IsSuccess.ShouldBeTrue();
 
-        (await scope.ServiceProvider.GetRequiredService<IPasswordAuthenticator>().AuthenticateAsync(userName, "a brand new password", Ct)).IsSuccess.ShouldBeTrue();
+        (await scope.ServiceProvider.GetRequiredService<IPasswordAuthenticator>().AuthenticateAsync(userName, "A brand new Passw0rd!", Ct)).IsSuccess.ShouldBeTrue();
     }
 
     [Fact]

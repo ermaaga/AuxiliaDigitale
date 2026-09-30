@@ -20,7 +20,7 @@ public sealed class IdentityServicesTests : IAsyncDisposable
     public IdentityServicesTests()
     {
         var settings = DefaultSettings.Create();
-        accounts = new UserAccountManager(Platform.ManagerHarness.Runner(), data, hasher, settings, TimeProvider.System, accountLog);
+        accounts = new UserAccountManager(Platform.ManagerHarness.Runner(), data, hasher, new PasswordPolicy(settings, hasher), TimeProvider.System, accountLog);
         authenticator = new PasswordAuthenticator(Platform.ManagerHarness.Runner(), data, hasher, settings, TimeProvider.System, authLog);
     }
 

@@ -33,6 +33,7 @@ Default grants (seed) — Administrator (A), Employee (E), Client (C):
 | `marketing.campaigns.view` / `.manage` | A, E | Marketing (N01) |
 | `identity.users.manage` | A | account management (F01, F05, F06) |
 | `identity.sessions.view` / `.revoke` | A | Sessions (F17) |
+| `identity.loginAttempts.view` | A | Login audit (F35) |
 
 The legacy seed disabled some pages (Q40, e.g. Employee Requests): new tenants follow the acceptance criteria above; migrated tenants get their effective legacy grants from the import mapping (Fase 7).
 

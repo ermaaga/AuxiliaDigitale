@@ -90,5 +90,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.PlatformCredentialsChanged, EventName = "Security.PlatformCredentialsChanged",
             Level = LogLevel.Information, Message = "Credentials of platform user {PlatformUserId} {Change}")]
         public static partial void PlatformCredentialsChanged(ILogger logger, Guid platformUserId, string change);
+
+        [LoggerMessage(EventId = EventCodes.Security.LoginOtpSent, EventName = "Security.LoginOtpSent",
+            Level = LogLevel.Information, Message = "Sign-in code e-mailed to user {UserId}")]
+        public static partial void LoginOtpSent(ILogger logger, Guid userId);
     }
 }

@@ -14,9 +14,39 @@ public static class IdentitySettings
     /// <summary>One active session per user (D-08, off by default).</summary>
     public static readonly SettingDefinition<bool> SingleSession = new("auth.singleSession", Module, false);
 
-    /// <summary>Minimum password length (skill auxilia-security: 12). The full policy (history, expiry) comes with F35 (P2-08).</summary>
+    /// <summary>Minimum password length (skill auxilia-security: 12; the legacy default was 8, F35).</summary>
     public static readonly SettingDefinition<int> PasswordMinLength = new(
         "auth.password.minLength", Module, 12, isValid: length => length is >= 8 and <= 128);
+
+    /// <summary>F35: at least one upper-case letter.</summary>
+    public static readonly SettingDefinition<bool> PasswordRequireUppercase = new("auth.password.requireUppercase", Module, true);
+
+    /// <summary>F35: at least one lower-case letter.</summary>
+    public static readonly SettingDefinition<bool> PasswordRequireLowercase = new("auth.password.requireLowercase", Module, true);
+
+    /// <summary>F35: at least one digit.</summary>
+    public static readonly SettingDefinition<bool> PasswordRequireDigit = new("auth.password.requireDigit", Module, true);
+
+    /// <summary>F35: at least one character that is neither a letter nor a digit.</summary>
+    public static readonly SettingDefinition<bool> PasswordRequireSpecial = new("auth.password.requireSpecial", Module, true);
+
+    /// <summary>F35: a new password may not match any of the last N (0 = no history rule).</summary>
+    public static readonly SettingDefinition<int> PasswordHistoryCount = new(
+        "auth.password.historyCount", Module, 3, isValid: count => count is >= 0 and <= Domain.Identity.User.MaxPasswordHistory);
+
+    /// <summary>F35: passwords expire (off by default); an expired password must be changed before signing in.</summary>
+    public static readonly SettingDefinition<bool> PasswordExpiryEnabled = new("auth.password.expiryEnabled", Module, false);
+
+    /// <summary>F35: age of an expired password, in months.</summary>
+    public static readonly SettingDefinition<int> PasswordExpiryMonths = new(
+        "auth.password.expiryMonths", Module, 6, isValid: months => months is >= 1 and <= 36);
+
+    /// <summary>F35: sign-in with a one-time code sent by e-mail (method <c>email-otp</c>), off by default.</summary>
+    public static readonly SettingDefinition<bool> OtpLoginEnabled = new("auth.otp.enabled", Module, false);
+
+    /// <summary>F35: validity of the e-mailed sign-in code.</summary>
+    public static readonly SettingDefinition<int> OtpCodeMinutes = new(
+        "auth.otp.codeMinutes", Module, 10, isValid: minutes => minutes is >= 1 and <= 60);
 
     /// <summary>Failed sign-ins that lock the account.</summary>
     public static readonly SettingDefinition<int> LockoutMaxFailedAttempts = new(
@@ -51,5 +81,7 @@ public static class IdentitySettings
     [
         SessionIdleMinutes, SingleSession, PasswordMinLength, LockoutMaxFailedAttempts, LockoutMinutes,
         AccessTokenMinutes, SessionAbsoluteDays, ActivationLinkHours, PasswordResetLinkMinutes, AppBaseUrl,
+        PasswordRequireUppercase, PasswordRequireLowercase, PasswordRequireDigit, PasswordRequireSpecial,
+        PasswordHistoryCount, PasswordExpiryEnabled, PasswordExpiryMonths, OtpLoginEnabled, OtpCodeMinutes,
     ];
 }

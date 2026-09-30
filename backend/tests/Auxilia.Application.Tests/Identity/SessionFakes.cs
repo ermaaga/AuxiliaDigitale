@@ -19,6 +19,8 @@ internal sealed class InMemorySessionData(InMemoryIdentityData identity) : ISess
 
     public List<UserToken> UserTokens { get; } = [];
 
+    public List<LoginAttempt> LoginAttempts { get; } = [];
+
     public Task<ISessionData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<ISessionData>(this);
 
     public Task<User?> FindUserAsync(Guid userId, CancellationToken cancellationToken) => identity.FindAsync(userId, cancellationToken);
@@ -46,6 +48,8 @@ internal sealed class InMemorySessionData(InMemoryIdentityData identity) : ISess
     public void Add(RefreshToken token) => RefreshTokens.Add(token);
 
     public void Add(UserToken token) => UserTokens.Add(token);
+
+    public void Add(LoginAttempt attempt) => LoginAttempts.Add(attempt);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
@@ -171,4 +175,17 @@ internal sealed class RecordingRealtimeNotifier : Auxilia.Application.Abstractio
         Pushes.Add((target, eventName, payload));
         return Task.CompletedTask;
     }
+}
+
+/// <summary>Every setting at its code default, except the overrides (key → value).</summary>
+internal sealed class ConfigurableSettings : Auxilia.Application.Abstractions.Settings.ISettingsProvider
+{
+    public Dictionary<string, object> Values { get; } = new(StringComparer.Ordinal);
+
+    public Task<T> GetAsync<T>(Auxilia.Application.Abstractions.Settings.SettingDefinition<T> definition, CancellationToken cancellationToken)
+        where T : notnull =>
+        Task.FromResult(Values.TryGetValue(definition.Key, out var value) ? (T)value : definition.Default);
+
+    public Task<string?> GetSecretAsync(Auxilia.Application.Abstractions.Settings.SecretSettingDefinition definition, CancellationToken cancellationToken) =>
+        Task.FromResult<string?>(null);
 }

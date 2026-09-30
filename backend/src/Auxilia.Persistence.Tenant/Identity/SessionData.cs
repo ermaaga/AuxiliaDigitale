@@ -42,6 +42,8 @@ internal sealed class SessionData(ITenantDbContext db) : ISessionData
 
     public void Add(UserToken token) => db.Set<UserToken>().Add(token);
 
+    public void Add(LoginAttempt attempt) => db.Set<LoginAttempt>().Add(attempt);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();

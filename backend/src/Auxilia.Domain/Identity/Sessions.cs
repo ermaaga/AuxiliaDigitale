@@ -94,6 +94,13 @@ public sealed class RefreshSession : AggregateRoot<Guid>
         IdleExpiresAt = idle < AbsoluteExpiresAt ? idle : AbsoluteExpiresAt;
     }
 
+    /// <summary>The user changed the password from this session: it stays valid under the new security stamp.</summary>
+    public void RenewSecurityStamp(string securityStamp)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(securityStamp);
+        SecurityStamp = securityStamp;
+    }
+
     public void End(DateTimeOffset at, SessionEndReason reason)
     {
         if (EndedAt is not null)
@@ -151,6 +158,9 @@ public enum UserTokenPurpose
     Activation,
 
     PasswordReset,
+
+    /// <summary>6-digit sign-in code sent by e-mail (method <c>email-otp</c>, F35).</summary>
+    LoginOtp,
 }
 
 /// <summary>A one-use token sent by e-mail (activation, password reset), stored as SHA-256 with a short lifetime.</summary>

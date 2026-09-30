@@ -1,6 +1,5 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Operations;
-using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.SharedKernel.Results;
@@ -37,7 +36,7 @@ internal sealed class UserAccountManager : IUserAccountManager
     private readonly IOperationRunner operations;
     private readonly IIdentityDataFactory data;
     private readonly IPasswordHasher hasher;
-    private readonly ISettingsProvider settings;
+    private readonly IPasswordPolicy passwordPolicy;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<UserAccountManager> logger;
 
@@ -45,14 +44,14 @@ internal sealed class UserAccountManager : IUserAccountManager
         IOperationRunner operations,
         IIdentityDataFactory data,
         IPasswordHasher hasher,
-        ISettingsProvider settings,
+        IPasswordPolicy passwordPolicy,
         TimeProvider timeProvider,
         ILogger<UserAccountManager> logger)
     {
         this.operations = operations;
         this.data = data;
         this.hasher = hasher;
-        this.settings = settings;
+        this.passwordPolicy = passwordPolicy;
         this.timeProvider = timeProvider;
         this.logger = logger;
     }
@@ -90,10 +89,11 @@ internal sealed class UserAccountManager : IUserAccountManager
     public Task<Result> SetPasswordAsync(Guid userId, string password, CancellationToken cancellationToken) =>
         ChangeAsync(Operations.Identity.SetPassword, userId, async user =>
         {
-            var minimumLength = await settings.GetAsync(IdentitySettings.PasswordMinLength, cancellationToken);
-            if (string.IsNullOrEmpty(password) || password.Length < minimumLength)
+            // Staff-set passwords follow the same policy and history (F35).
+            var valid = await passwordPolicy.ValidateAsync(user, password, cancellationToken);
+            if (valid.IsFailure)
             {
-                return Errors.Identity.PasswordTooWeak(minimumLength);
+                return valid;
             }
 
             user.SetPassword(hasher.Hash(password), PasswordFormat.Identity, timeProvider.GetUtcNow());

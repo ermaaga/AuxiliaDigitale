@@ -31,7 +31,7 @@ public sealed class AccountLinkManagerTests : IAsyncDisposable
         sessions = new InMemorySessionData(identity);
         sessionManager.EndSessionAsync(Arg.Any<Guid>(), Arg.Any<SessionEndReason>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
         links = new AccountLinkManager(
-            Platform.ManagerHarness.Runner(), sessions, hasher, dispatcher, sessionManager, SessionSettings.Create(), SessionSettings.Tenant(), time, log);
+            Platform.ManagerHarness.Runner(), sessions, hasher, dispatcher, sessionManager, SessionSettings.Create(), new PasswordPolicy(DefaultSettings.Create(), hasher), SessionSettings.Tenant(), time, log);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;

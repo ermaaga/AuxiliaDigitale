@@ -49,7 +49,7 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
     }
 
     [Theory]
-    [InlineData("Administrator", new[] { "cases", "services", "sessions" })]
+    [InlineData("Administrator", new[] { "cases", "services", "sessions", "loginAudit" })]
     [InlineData("Employee", new[] { "cases" })]
     [InlineData("Client", new string[0])]
     public async Task Navigation_FollowsModulesRolesAndPermissions(string role, string[] keys)

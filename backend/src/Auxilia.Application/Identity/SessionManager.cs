@@ -20,7 +20,20 @@ namespace Auxilia.Application.Identity;
 /// </summary>
 public interface ISessionManager
 {
+    /// <returns>403 <c>AUX-12043</c> when the password expired (change it with <see cref="ChangeExpiredPasswordAsync"/>).</returns>
     Task<Result<TokenPair>> SignInAsync(PasswordSignIn request, CancellationToken cancellationToken);
+
+    /// <summary>Sign-in with the code e-mailed by <c>IAccountLinkManager.SendLoginOtpAsync</c> (method <c>email-otp</c>, F35).</summary>
+    Task<Result<TokenPair>> SignInWithOtpAsync(OtpSignIn request, CancellationToken cancellationToken);
+
+    /// <summary>Changes an expired password with the current one, then signs in (F35).</summary>
+    Task<Result<TokenPair>> ChangeExpiredPasswordAsync(ExpiredPasswordChange request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The user changes their own password: the current one is required, the policy and history apply; the calling
+    /// session stays signed in, every other session of the user ends (F35).
+    /// </summary>
+    Task<Result> ChangePasswordAsync(Guid userId, Guid? currentSessionId, string currentPassword, string newPassword, CancellationToken cancellationToken);
 
     Task<Result<TokenPair>> RefreshAsync(RefreshTokens request, CancellationToken cancellationToken);
 
@@ -34,9 +47,20 @@ public sealed record PasswordSignIn(ClientCredentials Client, string UserName, s
 
 public sealed record RefreshTokens(ClientCredentials Client, string RefreshToken, string? IpAddress, string? UserAgent);
 
+public sealed record OtpSignIn(ClientCredentials Client, string UserName, string Code, string? IpAddress, string? UserAgent);
+
+public sealed record ExpiredPasswordChange(ClientCredentials Client, string UserName, string CurrentPassword, string NewPassword, string? IpAddress, string? UserAgent);
+
+/// <summary>Sign-in methods (<c>login_attempts.method</c>, <c>GET /auth/methods</c>).</summary>
+public static class LoginMethods
+{
+    public const string Password = "password";
+    public const string EmailOtp = "email-otp";
+}
+
 public sealed record TokenPair(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, Guid SessionId);
 
-internal sealed class SessionManager : ISessionManager
+internal sealed partial class SessionManager : ISessionManager
 {
     private readonly IOperationRunner operations;
     private readonly ISessionDataFactory data;
@@ -47,6 +71,8 @@ internal sealed class SessionManager : ISessionManager
     private readonly ISettingsProvider settings;
     private readonly ITenantContext tenantContext;
     private readonly IRealtimeNotifier realtime;
+    private readonly IPasswordPolicy passwordPolicy;
+    private readonly IPasswordHasher hasher;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<SessionManager> logger;
     private readonly List<(Guid SessionId, SessionEndReason Reason)> endedSessions = [];
@@ -61,6 +87,8 @@ internal sealed class SessionManager : ISessionManager
         ISettingsProvider settings,
         ITenantContext tenantContext,
         IRealtimeNotifier realtime,
+        IPasswordPolicy passwordPolicy,
+        IPasswordHasher hasher,
         TimeProvider timeProvider,
         ILogger<SessionManager> logger)
     {
@@ -73,6 +101,8 @@ internal sealed class SessionManager : ISessionManager
         this.settings = settings;
         this.tenantContext = tenantContext;
         this.realtime = realtime;
+        this.passwordPolicy = passwordPolicy;
+        this.hasher = hasher;
         this.timeProvider = timeProvider;
         this.logger = logger;
     }
@@ -83,40 +113,79 @@ internal sealed class SessionManager : ISessionManager
 
         return operations.RunAsync(Operations.Identity.SignIn, new { request.Client.ClientId }, async scope =>
         {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var attempt = new AttemptInfo(request.UserName, LoginMethods.Password, request.IpAddress, request.UserAgent);
             if (!await clients.ValidateAsync(request.Client, cancellationToken))
             {
-                return Errors.Identity.ClientInvalid();
+                return await FailAsync(store, attempt, null, "ClientInvalid", Errors.Identity.ClientInvalid(), cancellationToken);
             }
 
             var authenticated = await authenticator.AuthenticateAsync(request.UserName, request.Password, cancellationToken);
             if (authenticated.IsFailure)
             {
-                return Result.Failure<TokenPair>(authenticated.Error!);
+                var userId = string.IsNullOrWhiteSpace(request.UserName) ? null : (await store.FindUserByUserNameAsync(request.UserName.Trim(), cancellationToken))?.Id;
+                var reason = authenticated.Error!.Code == EventCodes.Identity.AccountLocked ? "LockedOut" : "InvalidCredentials";
+                return await FailAsync(store, attempt, userId, reason, authenticated.Error, cancellationToken);
             }
 
-            var user = authenticated.Value;
-            scope.SetEntity("User", user.UserId);
+            var user = await store.FindUserAsync(authenticated.Value.UserId, cancellationToken);
+            scope.SetEntity("User", authenticated.Value.UserId);
             var now = timeProvider.GetUtcNow();
-            await using var store = await data.OpenAsync(cancellationToken);
-
-            if (await settings.GetAsync(IdentitySettings.SingleSession, cancellationToken))
+            if (user is null)
             {
-                foreach (var other in await store.OpenSessionsOfUserAsync(user.UserId, cancellationToken))
-                {
-                    await EndAsync(other, SessionEndReason.SingleSession, now, cancellationToken);
-                }
+                return await FailAsync(store, attempt, null, "InvalidCredentials", Errors.Identity.InvalidCredentials(), cancellationToken);
             }
 
-            var idle = TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken));
-            var absolute = TimeSpan.FromDays(await settings.GetAsync(IdentitySettings.SessionAbsoluteDays, cancellationToken));
-            var session = new RefreshSession(Guid.CreateVersion7(), user.UserId, request.Client.ClientId, user.SecurityStamp, now, now + idle, now + absolute, request.IpAddress, request.UserAgent);
-            store.Add(session);
-            scope.SetEntity("Session", session.Id);
+            if (await passwordPolicy.IsExpiredAsync(user, now, cancellationToken))
+            {
+                Log.Security.LoginFailed(logger, "PasswordExpired", user.Id);
+                return await FailAsync(store, attempt, user.Id, "PasswordExpired", Errors.Identity.PasswordExpired(), cancellationToken);
+            }
 
-            var pair = await IssueAsync(store, session, user.UserId, user.Roles, now, cancellationToken);
-            await SaveAsync(store, cancellationToken);
-            return Result.Success(pair);
+            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, now, cancellationToken));
         }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Opens a session for an authenticated user (single session applied), records the successful attempt, issues the
+    /// token pair and saves.
+    /// </summary>
+    private async Task<TokenPair> OpenSessionAsync(
+        ISessionData store, IOperationScope scope, User user, ClientCredentials client, AttemptInfo attempt, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        if (await settings.GetAsync(IdentitySettings.SingleSession, cancellationToken))
+        {
+            foreach (var other in await store.OpenSessionsOfUserAsync(user.Id, cancellationToken))
+            {
+                await EndAsync(other, SessionEndReason.SingleSession, now, cancellationToken);
+            }
+        }
+
+        var idle = TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken));
+        var absolute = TimeSpan.FromDays(await settings.GetAsync(IdentitySettings.SessionAbsoluteDays, cancellationToken));
+        var session = new RefreshSession(Guid.CreateVersion7(), user.Id, client.ClientId, user.SecurityStamp, now, now + idle, now + absolute, attempt.IpAddress, attempt.UserAgent);
+        store.Add(session);
+        scope.SetEntity("Session", session.Id);
+        store.Add(attempt.ToEntity(user.Id, now, succeeded: true, failureReason: null));
+
+        var pair = await IssueAsync(store, session, user.Id, user.Roles, now, cancellationToken);
+        await SaveAsync(store, cancellationToken);
+        return pair;
+    }
+
+    /// <summary>Records the failed attempt (<c>identity.login_attempts</c>, F35) and returns the error.</summary>
+    private async Task<Result<TokenPair>> FailAsync(
+        ISessionData store, AttemptInfo attempt, Guid? userId, string reason, Error error, CancellationToken cancellationToken)
+    {
+        store.Add(attempt.ToEntity(userId, timeProvider.GetUtcNow(), succeeded: false, reason));
+        await SaveAsync(store, cancellationToken);
+        return Result.Failure<TokenPair>(error);
+    }
+
+    private sealed record AttemptInfo(string? UserName, string Method, string? IpAddress, string? UserAgent)
+    {
+        public LoginAttempt ToEntity(Guid? userId, DateTimeOffset at, bool succeeded, string? failureReason) =>
+            new(Guid.CreateVersion7(), userId, UserName ?? string.Empty, Method, at, succeeded, failureReason, IpAddress, UserAgent);
     }
 
     public Task<Result<TokenPair>> RefreshAsync(RefreshTokens request, CancellationToken cancellationToken)

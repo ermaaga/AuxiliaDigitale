@@ -35,7 +35,7 @@ namespace Auxilia.Api.IntegrationTests.Identity;
 public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factory>
 {
     public const string ClientId = "test-web";
-    private const string Password = "a long enough password";
+    private const string Password = "A long enough Passw0rd!";
 
     private readonly Factory factory;
 
@@ -182,13 +182,13 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factor
 
         using var weak = await PostAsync("/api/v1/auth/password/reset", new ResetPasswordRequest(token, "short"));
         weak.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        using var reset = await PostAsync("/api/v1/auth/password/reset", new ResetPasswordRequest(token, "a brand new long password"));
+        using var reset = await PostAsync("/api/v1/auth/password/reset", new ResetPasswordRequest(token, "A brand new long Passw0rd!"));
         reset.StatusCode.ShouldBe(HttpStatusCode.NoContent);
-        using var reused = await PostAsync("/api/v1/auth/password/reset", new ResetPasswordRequest(token, "another new long password"));
+        using var reused = await PostAsync("/api/v1/auth/password/reset", new ResetPasswordRequest(token, "Another new long Passw0rd!"));
         reused.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         (await ErrorCodeAsync(reused)).ShouldBe("AUX-12018");
 
-        (await SignInAsync(userName, "a brand new long password")).AccessToken.ShouldNotBeNullOrEmpty();
+        (await SignInAsync(userName, "A brand new long Passw0rd!")).AccessToken.ShouldNotBeNullOrEmpty();
         using var old = await GetMeAsync(before.AccessToken);
         old.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }

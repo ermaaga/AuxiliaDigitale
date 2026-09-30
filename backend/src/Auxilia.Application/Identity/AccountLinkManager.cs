@@ -29,6 +29,12 @@ public interface IAccountLinkManager
 
     /// <summary>Sets the new password and ends every session of the user.</summary>
     Task<Result> ResetPasswordAsync(string token, string password, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// E-mails a 6-digit sign-in code (method <c>email-otp</c>, F35) when the method is enabled; succeeds whether or not
+    /// the user exists (no enumeration). A new code voids the previous ones.
+    /// </summary>
+    Task<Result> SendLoginOtpAsync(string userName, CancellationToken cancellationToken);
 }
 
 internal sealed class AccountLinkManager : IAccountLinkManager
@@ -39,6 +45,7 @@ internal sealed class AccountLinkManager : IAccountLinkManager
     private readonly IMessageDispatcher messages;
     private readonly ISessionManager sessions;
     private readonly ISettingsProvider settings;
+    private readonly IPasswordPolicy passwordPolicy;
     private readonly ITenantContext tenantContext;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<AccountLinkManager> logger;
@@ -50,6 +57,7 @@ internal sealed class AccountLinkManager : IAccountLinkManager
         IMessageDispatcher messages,
         ISessionManager sessions,
         ISettingsProvider settings,
+        IPasswordPolicy passwordPolicy,
         ITenantContext tenantContext,
         TimeProvider timeProvider,
         ILogger<AccountLinkManager> logger)
@@ -60,6 +68,7 @@ internal sealed class AccountLinkManager : IAccountLinkManager
         this.messages = messages;
         this.sessions = sessions;
         this.settings = settings;
+        this.passwordPolicy = passwordPolicy;
         this.tenantContext = tenantContext;
         this.timeProvider = timeProvider;
         this.logger = logger;
@@ -138,6 +147,53 @@ internal sealed class AccountLinkManager : IAccountLinkManager
             return Result.Success();
         }, cancellationToken);
 
+    public Task<Result> SendLoginOtpAsync(string userName, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Identity.RequestLoginOtp, null, async scope =>
+        {
+            if (!await settings.GetAsync(IdentitySettings.OtpLoginEnabled, cancellationToken))
+            {
+                return Errors.Identity.LoginMethodDisabled(LoginMethods.EmailOtp);
+            }
+
+            await using var store = await data.OpenAsync(cancellationToken);
+            var now = timeProvider.GetUtcNow();
+            var user = string.IsNullOrWhiteSpace(userName) ? null : await store.FindUserByUserNameAsync(userName.Trim(), cancellationToken);
+            if (user is null || !user.IsActive || user.Email is null || user.IsLockedOut(now))
+            {
+                return Result.Success();
+            }
+
+            scope.SetEntity("User", user.Id);
+            foreach (var previous in await store.UnusedUserTokensAsync(user.Id, UserTokenPurpose.LoginOtp, cancellationToken))
+            {
+                previous.Use(now);
+            }
+
+            var code = System.Security.Cryptography.RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6", System.Globalization.CultureInfo.InvariantCulture);
+            var expiresAt = now + TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.OtpCodeMinutes, cancellationToken));
+            store.Add(new UserToken(Guid.CreateVersion7(), user.Id, UserTokenPurpose.LoginOtp, SessionManager.LoginOtpHash(user.Id, code), now, expiresAt));
+            await store.SaveChangesAsync(cancellationToken);
+
+            var tenant = tenantContext.Tenant;
+            _ = await messages.QueueAsync(
+                new OutboundMessageRequest(
+                    MessageChannel.Email, MessagePurpose.Transactional, user.Email, MessageTemplates.LoginOtp, user.LanguageCode,
+                    new Dictionary<string, object?>
+                    {
+                        ["name"] = user.UserName,
+                        ["appName"] = tenant.Slug,
+                        ["code"] = code,
+                        ["expiresAt"] = expiresAt.ToString("yyyy-MM-dd HH:mm 'UTC'", System.Globalization.CultureInfo.InvariantCulture),
+                    },
+                    nameof(User),
+                    user.Id),
+                cancellationToken);
+
+            // A delivery problem is logged by the dispatcher; the caller sees success either way (no enumeration).
+            Log.Security.LoginOtpSent(logger, user.Id);
+            return Result.Success();
+        }, cancellationToken);
+
     private async Task<Result> SendLinkAsync(
         ISessionData store, User user, UserTokenPurpose purpose, TimeSpan lifetime, string page, string template, CancellationToken cancellationToken)
     {
@@ -185,10 +241,10 @@ internal sealed class AccountLinkManager : IAccountLinkManager
         }
 
         scope.SetEntity("User", user.Id);
-        var minimumLength = await settings.GetAsync(IdentitySettings.PasswordMinLength, cancellationToken);
-        if (string.IsNullOrEmpty(password) || password.Length < minimumLength)
+        var valid = await passwordPolicy.ValidateAsync(user, password, cancellationToken);
+        if (valid.IsFailure)
         {
-            return Errors.Identity.PasswordTooWeak(minimumLength);
+            return Result.Failure<Guid>(valid.Error!);
         }
 
         user.SetPassword(hasher.Hash(password), PasswordFormat.Identity, now);

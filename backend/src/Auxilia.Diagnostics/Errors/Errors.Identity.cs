@@ -19,6 +19,26 @@ public static partial class Errors
             Error.Validation(EventCodes.Identity.PasswordTooWeak, $"The password must have at least {minimumLength} characters",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["password"] = ["validation.password.tooShort"] });
 
+        /// <param name="rules">Translation keys of the rules the password breaks (<c>validation.password.*</c>).</param>
+        public static Error PasswordPolicyViolated(IReadOnlyList<string> rules) =>
+            Error.Validation(EventCodes.Identity.PasswordTooWeak, "The password does not meet the password policy",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["password"] = [.. rules ?? []] });
+
+        public static Error PasswordReused(int historyCount) =>
+            Error.Validation(EventCodes.Identity.PasswordReused, $"The password was used among the last {historyCount}",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["password"] = ["validation.password.reused"] });
+
+        public static Error PasswordExpired() =>
+            Error.Forbidden(EventCodes.Identity.PasswordExpired, "The password expired and must be changed");
+
+        public static Error CurrentPasswordInvalid() =>
+            Error.Validation(EventCodes.Identity.CurrentPasswordInvalid, "The current password is not correct",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["currentPassword"] = ["validation.password.currentInvalid"] });
+
+        public static Error LoginMethodDisabled(string method) =>
+            Error.Validation(EventCodes.Identity.LoginMethodDisabled, $"The sign-in method {method} is not enabled",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["grantType"] = ["validation.auth.methodDisabled"] });
+
         public static Error UserNotFound() =>
             Error.NotFound(EventCodes.Identity.UserNotFound, "User not found");
 

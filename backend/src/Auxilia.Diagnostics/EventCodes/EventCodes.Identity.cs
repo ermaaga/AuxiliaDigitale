@@ -127,5 +127,29 @@ public static partial class EventCodes
 
         /// <summary>The TOTP code is not valid for the enrolment (400).</summary>
         public const int TwoFactorCodeInvalid = 12041;
+
+        /// <summary>The new password matches one of the last N passwords (400, F35).</summary>
+        public const int PasswordReused = 12042;
+
+        /// <summary>The password expired: it must be changed before signing in (403, F35).</summary>
+        public const int PasswordExpired = 12043;
+
+        /// <summary>The current password given to change it is wrong (400).</summary>
+        public const int CurrentPasswordInvalid = 12044;
+
+        /// <summary>The sign-in method is not enabled for the tenant (400).</summary>
+        public const int LoginMethodDisabled = 12045;
+
+        /// <summary>A sign-in code was requested by e-mail (method <c>email-otp</c>).</summary>
+        public const int LoginOtpRequested = 12046;
+
+        /// <summary>A user changed their own password.</summary>
+        public const int PasswordChangedByUser = 12047;
+
+        /// <summary>Tokens were issued for a sign-in with an e-mailed code.</summary>
+        public const int SignedInWithOtp = 12048;
+
+        /// <summary>An expired password was changed and the user signed in.</summary>
+        public const int ExpiredPasswordChanged = 12049;
     }
 }

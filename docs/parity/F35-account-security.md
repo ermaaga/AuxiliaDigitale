@@ -1,6 +1,6 @@
 # F35 — Account security: password policy, reset, expiry, history, OTP login, login audit
 
-Status: [ ] not started · Tasks: P2-02, P2-08, B-27 · Decision D-30 · **Source: legacy branch `Security_Update` (`e314e9a`, 2026-06-23), not merged into `develop` but part of the parity baseline.**
+Status: [~] backend done (P2-08), UI B-27, legacy data E-02 · Tasks: P2-02, P2-08, B-27 · Decision D-30 · **Source: legacy branch `Security_Update` (`e314e9a`, 2026-06-23), not merged into `develop` but part of the parity baseline.**
 
 ## Legacy behaviour (branch `Security_Update`)
 - **Settings** (seed `S_20260623_002`): `PasswordMinLength` 8, `PasswordRequireUppercase`/`Lowercase`/`Digit`/`SpecialChar` true, `PasswordHistoryCount` 3, `PasswordExpiryEnabled` false, `PasswordExpiryMonths` 6, `EnableOtpLogin` false. Edited in a new `PasswordSecurityConfigSection` of `/system/configurations`.
@@ -14,11 +14,19 @@ Status: [ ] not started · Tasks: P2-02, P2-08, B-27 · Decision D-30 · **Sourc
 
 ## Acceptance criteria
 - [ ] Password policy settings (tenant, edited by System — D-18) with the same defaults; server-side validation returns localized messages per rule; applied on activation, change, reset, admin-set password and import.
-- [ ] Password history of N previous hashes enforced (Identity hashes; migrated BCrypt history kept as `LegacyBcrypt`).
+- [x] Password history of N previous hashes enforced (Identity hashes; migrated BCrypt history kept as `LegacyBcrypt`).
 - [ ] Change password (current password required) from the profile; forced change when expired (login returns a "password change required" state; the UI routes to the change form before anything else).
-- [ ] Password expiry per settings; `password_changed_at` migrated.
+- [x] Password expiry per settings; `password_changed_at` migrated.
 - [ ] Forgot/reset password: no user enumeration, single-use token with configurable TTL (default 24 h), link to `/{tenant}/reset-password`, policy + history enforced, all sessions revoked after reset.
-- [ ] OTP by e-mail as a pluggable login method (`email-otp`, `IAuthenticationMethod`), enabled by tenant setting (default off): 6-digit code, 10-minute TTL, single use, attempt limit + rate limit; appears in `GET /auth/methods`.
-- [ ] Every login attempt (password, OTP, future external methods) stored in `identity.login_attempts` (user, username, time, IP, user agent, method, success, failure reason) and logged `29xxx`.
+- [x] OTP by e-mail as a pluggable login method (`email-otp`, `IAuthenticationMethod`), enabled by tenant setting (default off): 6-digit code, 10-minute TTL, single use, attempt limit + rate limit; appears in `GET /auth/methods`.
+- [x] Every login attempt (password, OTP, future external methods) stored in `identity.login_attempts` (user, username, time, IP, user agent, method, success, failure reason) and logged `29xxx`.
 - [ ] Administrator page "Login audit" in the tenant app: filters username, method, result, date range; sort by username/date; export (F26).
 - [ ] Legacy data migrated: `LoginAuditLogs` → `login_attempts`, `PasswordHistories` → password history, `PasswordChangedAt`; unused reset tokens not migrated.
+
+## Status notes
+- P2-08 (backend): settings `auth.password.minLength` (12), `auth.password.requireUppercase`/`requireLowercase`/`requireDigit`/`requireSpecial` (true), `auth.password.historyCount` (3, max 24), `auth.password.expiryEnabled` (false), `auth.password.expiryMonths` (6), `auth.otp.enabled` (false), `auth.otp.codeMinutes` (10). `IPasswordPolicy` validates every rule at once (`AUX-12005` with one localization key per broken rule: `validation.password.tooShort|uppercase|lowercase|digit|special`) and the history (`AUX-12042`, Identity and `LegacyBcrypt` hashes, table `identity.password_history`, last 24 kept) on activation, reset, admin-set password, expired change and self-service change. `GET /auth/password-policy` (anonymous) exposes the rules to the forms.
+- Expiry: the password sign-in answers 403 `AUX-12043` when expired; `POST /auth/password/change` (user name + current + new password, client credentials) changes it and signs in. Self-service change `POST /me/password` (current password required, `AUX-12044`, counts toward the lockout): the calling session stays valid, the other sessions end (`ForceLogout`).
+- OTP: method `email-otp` (`IAuthenticationMethod`, listed by `GET /auth/methods` only when enabled, else `AUX-12045`); `POST /auth/otp` always 202 (rate limit `auth-links`), 6-digit code hashed with the user id in `identity.user_tokens` (single use, `auth.otp.codeMinutes`), template `login-otp` EN/IT; grant `email_otp` on `/auth/token`. A wrong code counts as a failed sign-in: the lockout is the attempt limit and voids the pending codes.
+- Audit: every attempt (password, OTP, expired change) in `identity.login_attempts` with method, result, reason (`InvalidCredentials`, `InvalidOtp`, `LockedOut`, `PasswordExpired`, `ClientInvalid`), IP and user agent; `GET /api/v1/identity/login-attempts` (permission `identity.loginAttempts.view`, Administrator) with `filter[userName|method|succeeded|from|to]`, sort `attemptedAt`/`userName`, paging. Export with the page (B-27, F26).
+- Deviations from the legacy defaults, kept on purpose: minimum length 12 (legacy 8) and reset link 60 minutes (`auth.passwordReset.linkMinutes`, legacy 24 h). Both are tenant settings and can be set back to the legacy values.
+- Open: pages (B-27: login audit, profile change, forced change, OTP on the login page), legacy data migration (E-02).
