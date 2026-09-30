@@ -1,6 +1,10 @@
 /*
- * Design tokens (auxilia-ui-design). Components use tokens only — never hard-coded colours or spacing.
- * Tenant branding overrides --primary / --primary-foreground / --accent at runtime (task P3-02).
+ * Design tokens (skill auxilia-ui-design). Components use tokens only — never hard-coded colours or spacing.
+ * Spacing and type scales are Tailwind's (`--spacing`, `--text-*`); fonts come from next/font (`--font-*-family`).
+ *
+ * Brand tokens (marked "brand") are the platform default = the legacy theme #667eea → #764ba2 made accessible, exactly
+ * what `brandingTokens(null)` in `lib/branding.ts` computes (a test keeps them in sync). A tenant brand overrides them
+ * at runtime with <BrandingStyle> (P3-02).
  */
 :root {
   --radius: 0.625rem;
@@ -11,14 +15,15 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #5a6fce; /* brand */
+  --primary-foreground: #ffffff; /* brand */
+  --primary-text: #5a6fce; /* brand */
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.5 0 0); /* ≥ 4.5:1 on --muted too (shadcn 0.556 gives 4.3:1) */
+  --accent: #efe9f4; /* brand */
+  --accent-foreground: #764ba2; /* brand */
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
   --success: oklch(0.527 0.154 150.069);
@@ -27,7 +32,24 @@
   --warning-foreground: oklch(0.205 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: #667eea; /* brand */
+  --brand-gradient: linear-gradient(135deg, #667eea, #764ba2); /* brand */
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: #5a6fce; /* brand */
+  --sidebar-primary-foreground: #ffffff; /* brand */
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Charts (recharts): distinguishable series; never the only carrier of meaning. */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
 }
 
 .dark {
@@ -37,14 +59,15 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: #5a6fce; /* brand */
+  --primary-foreground: #ffffff; /* brand */
+  --primary-text: #667eea; /* brand */
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: #251a30; /* brand */
+  --accent-foreground: #9a7aba; /* brand */
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.145 0 0);
   --success: oklch(0.696 0.17 162.48);
@@ -53,5 +76,21 @@
   --warning-foreground: oklch(0.145 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: #667eea; /* brand */
+  --brand-gradient: linear-gradient(135deg, #46559c, #50346d); /* brand */
+
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #5a6fce; /* brand */
+  --sidebar-primary-foreground: #ffffff; /* brand */
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
 }
