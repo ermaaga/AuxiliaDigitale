@@ -49,6 +49,7 @@ if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rab
     builder.Services.AddMessageBusClient(rabbitMq);
 }
 
+builder.Services.AddAuxiliaForwardedHeaders(builder.Configuration);
 builder.Services.AddAuxiliaAuthentication(builder.Configuration);
 builder.Services.AddAuxiliaRateLimiting(builder.Configuration);
 builder.Services.AddRealtime(builder.Configuration.GetConnectionString("Redis"));
@@ -64,6 +65,8 @@ builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(Tena
 
 var app = builder.Build();
 
+// First: every later component (rate limits, login audit, logs) sees the caller behind the BFF / reverse proxy.
+app.UseForwardedHeaders();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 if (!app.Environment.IsDevelopment())

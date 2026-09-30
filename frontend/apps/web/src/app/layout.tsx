@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@auxilia/ui/components/theme-provider";
 import { Toaster } from "@auxilia/ui/components/sonner";
@@ -13,7 +14,10 @@ export const metadata: Metadata = {
   title: "Auxilia",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Per-request CSP nonce from src/proxy.ts: pages are rendered dynamically so Next.js can stamp its scripts with it.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   // `lang` becomes the user's language when i18n is wired (task P3-05). next-themes sets the `dark` class on <html>
   // before hydration, hence suppressHydrationWarning. Tenant layouts add <BrandingStyle> for the tenant colours.
   return (
@@ -23,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col font-sans">
-        <ThemeProvider>
+        <ThemeProvider nonce={nonce}>
           <TooltipProvider>
             {children}
             <Toaster richColors closeButton />

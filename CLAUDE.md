@@ -34,4 +34,6 @@ Multi-tenant platform for clients, cases, appointments and marketing campaigns: 
   - checks: `pnpm lint && pnpm typecheck && pnpm format:check && pnpm audit --audit-level moderate && pnpm licenses:check`
   - Next.js 16: read `frontend/apps/web/AGENTS.md` and the bundled docs in `node_modules/next/dist/docs/` before writing Next code.
   - shadcn components live in `frontend/packages/ui` (see its README: make imports relative after `shadcn add`).
+  - tests: `pnpm test` (vitest in `packages/ui` and `apps/web`).
+  - BFF (`apps/web/src/lib/bff`, ARCHITECTURE §14): the browser never sees tokens; tenant app `/api/auth/*` + `/api/bff/[...path]`, console `/api/platform-auth/*` + `/api/platform-bff/[...path]` (send `X-Tenant` for a tenant's technical endpoints); mutating calls need `X-Requested-With: auxilia`; Server Components call the API with `serverApi()` (`lib/api/server.ts`); configuration in `apps/web/.env.example` (client apps from `auxctl clients add`); CSP nonce in `src/proxy.ts`.
 - CI (`.github/workflows/ci.yml`): backend, frontend, gitleaks CLI, osv-scanner CLI; license allowlist and per-package exceptions in `.github/` (ADR 0011).
