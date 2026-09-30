@@ -1,5 +1,6 @@
 using Auxilia.Api.Endpoints;
 using Auxilia.Api.Endpoints.Identity;
+using Auxilia.Api.Endpoints.Platform;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Modules;
 using Auxilia.Api.RateLimiting;
@@ -52,6 +53,7 @@ builder.Services.AddAuxiliaRateLimiting(builder.Configuration);
 builder.Services.AddRealtime(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 

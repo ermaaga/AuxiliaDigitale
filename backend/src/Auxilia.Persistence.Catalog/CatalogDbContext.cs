@@ -43,6 +43,12 @@ public sealed class CatalogDbContext : DbContext, IDataProtectionKeyContext
 
     public DbSet<SigningKey> SigningKeys => Set<SigningKey>();
 
+    public DbSet<Domain.Identity.RefreshSession> PlatformSessions => Set<Domain.Identity.RefreshSession>();
+
+    public DbSet<Domain.Identity.RefreshToken> PlatformRefreshTokens => Set<Domain.Identity.RefreshToken>();
+
+    public DbSet<Domain.Identity.UserToken> PlatformUserTokens => Set<Domain.Identity.UserToken>();
+
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

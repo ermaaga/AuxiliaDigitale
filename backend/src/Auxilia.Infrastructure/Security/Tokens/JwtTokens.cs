@@ -19,7 +19,6 @@ internal sealed class JwtAccessTokenIssuer(SigningKeyRing ring, IOptions<TokenOp
         ArgumentNullException.ThrowIfNull(request);
 
         var now = timeProvider.GetUtcNow();
-        var expiresAt = now + request.Lifetime;
         var tokenId = Guid.NewGuid().ToString("N");
         var claims = new List<Claim>
         {
@@ -30,7 +29,38 @@ internal sealed class JwtAccessTokenIssuer(SigningKeyRing ring, IOptions<TokenOp
             new(TokenClaims.TokenId, tokenId),
         };
         claims.AddRange(request.Roles.Select(role => new Claim(TokenClaims.Role, role.ToString())));
+        return await CreateAsync(claims, tokenId, now, request.Lifetime, cancellationToken);
+    }
 
+    public async Task<IssuedAccessToken> IssuePlatformAsync(PlatformAccessTokenRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var now = timeProvider.GetUtcNow();
+        var tokenId = Guid.NewGuid().ToString("N");
+        var userId = request.PlatformUserId.ToString();
+        var claims = new List<Claim>
+        {
+            new(TokenClaims.Subject, userId),
+            new(TokenClaims.Actor, userId),
+            new(TokenClaims.Scope, TokenClaims.PlatformScope),
+            new(TokenClaims.ActorType, TokenClaims.PlatformScope),
+            new(TokenClaims.Role, Domain.Platform.PlatformUser.SystemRole),
+            new(TokenClaims.Session, request.SessionId.ToString()),
+            new(TokenClaims.Client, request.ClientId),
+            new(TokenClaims.TokenId, tokenId),
+        };
+        if (request.TenantSlug is { } slug)
+        {
+            claims.Add(new Claim(TokenClaims.Tenant, slug));
+        }
+
+        return await CreateAsync(claims, tokenId, now, request.Lifetime, cancellationToken);
+    }
+
+    private async Task<IssuedAccessToken> CreateAsync(List<Claim> claims, string tokenId, DateTimeOffset now, TimeSpan lifetime, CancellationToken cancellationToken)
+    {
+        var expiresAt = now + lifetime;
         var token = Handler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = options.Value.Issuer,

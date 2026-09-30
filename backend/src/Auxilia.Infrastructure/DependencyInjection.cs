@@ -47,6 +47,7 @@ public static class DependencyInjection
         services.TryAddScoped<ISigningKeyFactory, SigningKeyFactory>();
         services.TryAddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.TryAddSingleton<IAccessTokenDenyList, DistributedAccessTokenDenyList>();
+        services.TryAddSingleton<ITotpService, TotpService>();
 
         // Replaced by AddRealtime in the Api and the Worker.
         services.TryAddScoped<IRealtimeNotifier, NullRealtimeNotifier>();

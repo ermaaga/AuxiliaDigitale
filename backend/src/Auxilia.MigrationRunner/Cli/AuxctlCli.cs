@@ -39,6 +39,11 @@ internal sealed class AuxctlCli
           clients add --client-id <id> --name <name> --type (WebBff | PlatformConsole | Mobile | Integration) [--origin <url>]
                       (a confidential client's secret is printed once)
           clients list
+          platform users add --email <email> --name <display name>
+                               (prints a one-use activation token: enrol TOTP and set the password in the console)
+          platform users reset --email <email>     (clears password and TOTP, ends sessions, new activation token)
+          platform users (enable | disable) --email <email>
+          platform users list
           diagnostics registry [--output <file>]
         """;
 
@@ -70,6 +75,8 @@ internal sealed class AuxctlCli
                 _ when command.Is("keys", "rotate") => await InScopeAsync(scope => RotateKeysAsync(scope, cancellationToken)),
                 _ when command.Is("clients", "add") => await InScopeAsync(scope => AddClientAsync(scope, command, cancellationToken)),
                 _ when command.Is("clients", "list") => await InScopeAsync(scope => ListClientsAsync(scope, cancellationToken)),
+                _ when command.Is("platform", "users") && command.Word(2) is "add" or "reset" or "enable" or "disable" or "list" =>
+                    await InScopeAsync(scope => PlatformUsersAsync(scope, command, cancellationToken)),
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
                 _ => await UsageAsync(),
@@ -246,6 +253,42 @@ internal sealed class AuxctlCli
         }
 
         return Success;
+    }
+
+    private async Task<int> PlatformUsersAsync(IServiceProvider scope, CommandLine command, CancellationToken cancellationToken)
+    {
+        var users = scope.GetRequiredService<IPlatformUserManager>();
+        var action = command.Word(2)!;
+        if (action == "list")
+        {
+            foreach (var user in await users.ListAsync(cancellationToken))
+            {
+                var state = !user.IsActive ? "disabled" : user.IsEnrolled ? "active" : "pending activation";
+                await output.WriteLineAsync($"{user.Email}\t{state}\t{user.DisplayName}\tlast sign-in {user.LastLoginAt?.ToString("u", System.Globalization.CultureInfo.InvariantCulture) ?? "-"}");
+            }
+
+            return Success;
+        }
+
+        if (command.Option("email") is not { } email)
+        {
+            return await UsageAsync();
+        }
+
+        switch (action)
+        {
+            case "add" when command.Option("name") is { } name:
+                return await ReportAsync(await users.AddAsync(email, name, cancellationToken), Describe);
+            case "reset":
+                return await ReportAsync(await users.ResetAsync(email, cancellationToken), Describe);
+            case "enable" or "disable":
+                return await ReportAsync(await users.SetActiveAsync(email, action == "enable", cancellationToken), $"{email}: {action}d");
+            default:
+                return await UsageAsync();
+        }
+
+        static string Describe(PlatformUserActivation activation) =>
+            $"{activation.User.Email}: activation token (shown only now, valid until {activation.ExpiresAt:u}): {activation.ActivationToken}";
     }
 
     private async Task<int> ListJobsAsync(IServiceProvider scope)

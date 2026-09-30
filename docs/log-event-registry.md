@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 29 | 12030 |
+| 12000–12999 | Identity | Identity / Auth | 41 | 12042 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 16 | 29017 |
+| 29000–29999 | Security | Security events | 21 | 29022 |
 
 ## Codes
 
@@ -96,6 +96,18 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12027 | Identity.ClientIdTaken | – | Conflict | – | – |
 | AUX-12028 | Identity.PermissionDenied | – | Forbidden | – | – |
 | AUX-12029 | Identity.PermissionsSynchronized | Information | – | – | Permissions aligned with the modules: {Added} added, {Removed} removed, {Granted} default grants |
+| AUX-12030 | Identity.PlatformUserCreated | – | – | Identity.CreatePlatformUser (success) | – |
+| AUX-12031 | Identity.PlatformCredentialsReset | – | – | Identity.ResetPlatformCredentials (success) | – |
+| AUX-12032 | Identity.PlatformUserActivationChanged | – | – | Identity.SetPlatformUserActive (success) | – |
+| AUX-12033 | Identity.PlatformEnrollmentStarted | – | – | Identity.BeginPlatformEnrollment (success) | – |
+| AUX-12034 | Identity.PlatformAccountActivated | – | – | Identity.ActivatePlatformAccount (success) | – |
+| AUX-12035 | Identity.PlatformTokensIssued | – | – | Identity.PlatformSignIn (success) | – |
+| AUX-12036 | Identity.PlatformTokensRefreshed | – | – | Identity.PlatformRefreshTokens (success) | – |
+| AUX-12037 | Identity.PlatformSessionEnded | – | – | Identity.EndPlatformSession (success) | – |
+| AUX-12038 | Identity.PlatformTenantTokenIssued | – | – | Identity.IssuePlatformTenantToken (success) | – |
+| AUX-12039 | Identity.PlatformUserEmailTaken | – | Conflict | – | – |
+| AUX-12040 | Identity.PlatformAccessRequired | – | Forbidden | – | – |
+| AUX-12041 | Identity.TwoFactorCodeInvalid | – | Validation | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
@@ -163,3 +175,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29014 | Security.PermissionDenied | Warning | – | – | User {UserId} denied {Permission} ({Reason}) |
 | AUX-29015 | Security.CrossTenantAttempt | Warning | – | – | Cross-tenant attempt: claim tenant {ClaimTenant}, requested tenant {RequestedTenant} |
 | AUX-29016 | Security.RateLimitExceeded | Warning | – | – | Rate limit {Policy} exceeded by {PartitionKind} on {RequestMethod} {RequestPath} |
+| AUX-29017 | Security.PlatformLoginFailed | Warning | – | – | Platform sign-in failed ({Reason}) for platform user {PlatformUserId} |
+| AUX-29018 | Security.PlatformAccountLockedOut | Warning | – | – | Platform user {PlatformUserId} locked out until {LockoutEnd} |
+| AUX-29019 | Security.PlatformSignedIn | Information | – | – | Platform user {PlatformUserId} signed in (session {SessionId}) |
+| AUX-29020 | Security.PlatformTenantAccess | Information | – | – | Platform user {PlatformUserId} opened tenant {TenantSlug} |
+| AUX-29021 | Security.PlatformCredentialsChanged | Information | – | – | Credentials of platform user {PlatformUserId} {Change} |

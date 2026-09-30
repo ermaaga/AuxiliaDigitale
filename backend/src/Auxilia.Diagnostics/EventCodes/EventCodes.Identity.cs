@@ -91,5 +91,41 @@ public static partial class EventCodes
 
         /// <summary>The tenant's permissions were aligned with the module descriptors (new ones granted to their default roles).</summary>
         public const int PermissionsSynchronized = 12029;
+
+        /// <summary>A platform (System) user was created (<c>auxctl platform users add</c>).</summary>
+        public const int PlatformUserCreated = 12030;
+
+        /// <summary>The credentials of a platform user were reset: a new activation token was issued.</summary>
+        public const int PlatformCredentialsReset = 12031;
+
+        /// <summary>A platform user was enabled or disabled.</summary>
+        public const int PlatformUserActivationChanged = 12032;
+
+        /// <summary>TOTP enrolment of a platform user started (secret shown once).</summary>
+        public const int PlatformEnrollmentStarted = 12033;
+
+        /// <summary>A platform user set password and TOTP with the activation token.</summary>
+        public const int PlatformAccountActivated = 12034;
+
+        /// <summary>A platform user signed in to the console (password + TOTP).</summary>
+        public const int PlatformTokensIssued = 12035;
+
+        /// <summary>A console session refreshed its tokens.</summary>
+        public const int PlatformTokensRefreshed = 12036;
+
+        /// <summary>A console session ended.</summary>
+        public const int PlatformSessionEnded = 12037;
+
+        /// <summary>A platform user opened a tenant (tenant-scoped platform token).</summary>
+        public const int PlatformTenantTokenIssued = 12038;
+
+        /// <summary>A platform user with the same e-mail already exists (409).</summary>
+        public const int PlatformUserEmailTaken = 12039;
+
+        /// <summary>The endpoint is for platform (System) users only, or needs a tenant-scoped platform token (403).</summary>
+        public const int PlatformAccessRequired = 12040;
+
+        /// <summary>The TOTP code is not valid for the enrolment (400).</summary>
+        public const int TwoFactorCodeInvalid = 12041;
     }
 }

@@ -1,5 +1,6 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Diagnostics;
+using Auxilia.Domain.Platform;
 
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,11 @@ internal sealed class ClientApplicationValidator
         this.logger = logger;
     }
 
-    public async Task<bool> ValidateAsync(ClientCredentials credentials, CancellationToken cancellationToken)
+    /// <param name="platform">
+    /// True for the console sign-in: only <see cref="ClientApplicationType.PlatformConsole"/> clients; tenant sign-ins
+    /// never accept that type (the two areas have separate sessions, N02).
+    /// </param>
+    public async Task<bool> ValidateAsync(ClientCredentials credentials, CancellationToken cancellationToken, bool platform = false)
     {
         ArgumentNullException.ThrowIfNull(credentials);
 
@@ -34,6 +39,11 @@ internal sealed class ClientApplicationValidator
         if (!client.IsEnabled)
         {
             return Reject(client.ClientId, "disabled");
+        }
+
+        if ((client.Type == ClientApplicationType.PlatformConsole) != platform)
+        {
+            return Reject(client.ClientId, "audience");
         }
 
         if (!client.IsConfidential)

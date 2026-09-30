@@ -46,6 +46,16 @@ public static partial class Errors
         public static Error PermissionDenied() =>
             Error.Forbidden(EventCodes.Identity.PermissionDenied, "The caller is not allowed to perform this operation");
 
+        public static Error PlatformUserEmailTaken() =>
+            Error.Conflict(EventCodes.Identity.PlatformUserEmailTaken, "A platform user with this e-mail already exists");
+
+        public static Error PlatformAccessRequired() =>
+            Error.Forbidden(EventCodes.Identity.PlatformAccessRequired, "The endpoint requires a platform (System) token of the right kind");
+
+        public static Error TwoFactorCodeInvalid() =>
+            Error.Validation(EventCodes.Identity.TwoFactorCodeInvalid, "The authenticator code is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["code"] = ["validation.auth.totpInvalid"] });
+
         public static Error ClientIdTaken() =>
             Error.Conflict(EventCodes.Identity.ClientIdTaken, "A client application with this client id already exists");
     }
