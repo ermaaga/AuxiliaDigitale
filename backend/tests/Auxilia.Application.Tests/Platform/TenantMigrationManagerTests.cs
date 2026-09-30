@@ -15,6 +15,7 @@ public sealed class TenantMigrationManagerTests
     private readonly ITenantDatabaseAdmin databases = Substitute.For<ITenantDatabaseAdmin>();
     private readonly ITenantConnectionProtector protector = Substitute.For<ITenantConnectionProtector>();
     private readonly List<MigrationRun> runs = [];
+    private readonly Configuration.FakeReferenceDataCache cache = new();
     private readonly TenantMigrationManager manager;
 
     public TenantMigrationManagerTests()
@@ -24,7 +25,7 @@ public sealed class TenantMigrationManagerTests
         databases.MigrateAsync("Host=db", false, Arg.Any<CancellationToken>()).Returns(new TenantDatabaseVersion("Tenant_Initial", "D_20260929_001"));
 
         manager = new TenantMigrationManager(
-            ManagerHarness.Runner(), catalog, catalogMigrator, databases, protector, ManagerHarness.System(), TimeProvider.System);
+            ManagerHarness.Runner(), catalog, catalogMigrator, databases, protector, ManagerHarness.System(), cache, TimeProvider.System);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -51,6 +52,7 @@ public sealed class TenantMigrationManagerTests
         tenant.Status.ShouldBe(TenantStatus.Active);
         tenant.SchemaVersion.ShouldBe("Tenant_Initial");
         runs.ShouldHaveSingleItem().Status.ShouldBe(MigrationRunStatus.Succeeded);
+        cache.Invalidated.ShouldBe(["t:acme:identity"]);
     }
 
     [Fact]

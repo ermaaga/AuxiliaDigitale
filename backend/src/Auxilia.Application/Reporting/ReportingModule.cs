@@ -18,13 +18,13 @@ public sealed class ReportingModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 27000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = ReportingPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("dashboard", "/dashboard", "layout-dashboard", 0, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
+        new("dashboard", "/dashboard", "layout-dashboard", 0, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client], ReportingPermissions.ViewDashboard),
     ];
 
     public void AddServices(IServiceCollection services)

@@ -18,14 +18,14 @@ public sealed class DirectoryModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 13000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = DirectoryPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = DirectorySettings.All;
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("clients", "/clients", "users", 10, [TenantRole.Administrator, TenantRole.Employee]),
-        new("employees", "/employees", "user-cog", 20, [TenantRole.Administrator]),
+        new("clients", "/clients", "users", 10, [TenantRole.Administrator, TenantRole.Employee], DirectoryPermissions.ViewClients),
+        new("employees", "/employees", "user-cog", 20, [TenantRole.Administrator], DirectoryPermissions.ViewEmployees),
     ];
 
     public void AddServices(IServiceCollection services)

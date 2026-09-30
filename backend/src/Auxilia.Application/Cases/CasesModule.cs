@@ -18,14 +18,14 @@ public sealed class CasesModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 14000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = CasesPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = CasesSettings.All;
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("cases", "/cases", "briefcase", 30, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
-        new("services", "/services", "layers", 40, [TenantRole.Administrator]),
+        new("cases", "/cases", "briefcase", 30, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client], CasesPermissions.ViewCases),
+        new("services", "/services", "layers", 40, [TenantRole.Administrator], CasesPermissions.ManageServices),
     ];
 
     public void AddServices(IServiceCollection services)

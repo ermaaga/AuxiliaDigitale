@@ -82,9 +82,9 @@ public sealed class ModuleAccessAndNavigationTests
             new TestModule("reporting", rangeStart: 27000, navigation: [new("dashboard", "/dashboard", "layout", 0, [Admin, Employee, Client])]),
         ]);
 
-        var employeeAndAdmin = await new NavigationQueryService(registry, Access(ActorType.User, Employee, Admin), user).GetAsync(Ct);
-        var client = await new NavigationQueryService(registry, Access(ActorType.User, Client), user).GetAsync(Ct);
-        var employee = await new NavigationQueryService(registry, Access(ActorType.User, Employee), user).GetAsync(Ct);
+        var employeeAndAdmin = await new NavigationQueryService(registry, Access(ActorType.User, Employee, Admin), user, AllGranted()).GetAsync(Ct);
+        var client = await new NavigationQueryService(registry, Access(ActorType.User, Client), user, AllGranted()).GetAsync(Ct);
+        var employee = await new NavigationQueryService(registry, Access(ActorType.User, Employee), user, AllGranted()).GetAsync(Ct);
 
         // reporting is not in the tenant's catalog; marketing is in the plan for Administrator only.
         employeeAndAdmin.Select(item => item.Key).ShouldBe(["cases", "services", "marketing", "sessions"]);
@@ -92,7 +92,14 @@ public sealed class ModuleAccessAndNavigationTests
         employee.Select(item => item.Key).ShouldBe(["cases"]);
         var cases = client[0];
         (cases.Module, cases.LabelKey, cases.Route, cases.Icon, cases.Order).ShouldBe(("cases", "nav.cases", "/cases", "briefcase", 30));
-        (await new NavigationQueryService(registry, Access(ActorType.Anonymous), user).GetAsync(Ct)).ShouldBeEmpty();
+        (await new NavigationQueryService(registry, Access(ActorType.Anonymous), user, AllGranted()).GetAsync(Ct)).ShouldBeEmpty();
+    }
+
+    private static IPermissionAccess AllGranted()
+    {
+        var permissions = Substitute.For<IPermissionAccess>();
+        permissions.GetGrantedAsync(Arg.Any<CancellationToken>()).Returns(new HashSet<string>(StringComparer.Ordinal));
+        return permissions;
     }
 
     private ModuleAccess Access(ActorType actor, params TenantRole[] roles)

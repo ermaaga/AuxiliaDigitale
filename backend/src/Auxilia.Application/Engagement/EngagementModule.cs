@@ -18,13 +18,13 @@ public sealed class EngagementModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 17000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = EngagementPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("requests", "/requests", "message-square", 70, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
+        new("requests", "/requests", "message-square", 70, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client], EngagementPermissions.ViewRequests),
     ];
 
     public void AddServices(IServiceCollection services)

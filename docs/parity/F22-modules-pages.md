@@ -1,6 +1,6 @@
 # F22 — Module and page enabling per role
 
-Status: [ ] not started · Tasks: P1-06, P1-11, P2-03, S-01 · Quirks: Q39, Q40
+Status: [~] in progress · Tasks: P1-06, P1-11, P2-03, S-01 · Quirks: Q39, Q40
 
 > **Decisions D-18:** only the platform **System** role enables/disables modules, per tenant **and per role**; model = plans (future pricing) + tenant overrides (ARCHITECTURE §5). The tenant `SystemConfigurator` role no longer exists.
 
@@ -13,6 +13,28 @@ Status: [ ] not started · Tasks: P1-06, P1-11, P2-03, S-01 · Quirks: Q39, Q40
 
 ## Status notes
 - P1-11: module catalog from descriptors, effective modules per tenant and role (cached), hidden module → 404, navigation builder with per-role entries mirroring the legacy menus. Pending: `role_permissions` + `/me/navigation` (P2-03), System editing (S-01). The tenant table `configuration.modules` is replaced by the Catalog (ARCHITECTURE §5.2).
+- P2-03: permissions declared by the module descriptors (`<module>.<area>.<action>`, `<Module>Permissions`), stored per tenant in `identity.permissions` + `identity.role_permissions` and synchronised at every tenant migration (a new permission is granted to its default roles once; grants of known permissions are never touched again, so the System's changes and the legacy import mapping stay; undeclared permissions are dropped). Effective permissions = union over **all** the user's roles (Q39) of the role grants whose module is visible to that role; grants cached per tenant (`t:{slug}:identity:role-permissions:current`), invalidated after `migrate tenants`. Endpoints use `RequirePermission(...)` (403 `AUX-12028`, security event `AUX-29014`) after the module filter (hidden module stays 404); Managers use `IAccessGuard` (permission, then every `IResourceAccessPolicy<T>` of the resource). `GET /me` (profile, roles, effective permissions) and `GET /me/navigation` (entries of visible modules for the user's roles **and** permissions). Pending: System editing of plans/overrides/role permissions (S-01), legacy import mapping of `ModuleConfiguration`/`PageConfiguration` rows (Fase 7), sidebar (P3).
+
+Default grants (seed) — Administrator (A), Employee (E), Client (C):
+
+| Permission | Roles | Legacy page / feature |
+|---|---|---|
+| `reporting.dashboard.view` | A, E, C | Dashboard (F27) |
+| `directory.clients.view` / `.manage` | A, E | Clients, AllClients (F05) |
+| `directory.employees.view` / `.manage` | A | Employees (F06) |
+| `directory.registrations.review` | A, E | RegistrationRequests (F03) |
+| `cases.cases.view` | A, E, C | Subscriptions / Subscription (F09; clients see their own) |
+| `cases.cases.manage` | A, E | Subscriptions (F09) |
+| `cases.services.manage` | A | Memberships (F08) |
+| `scheduling.appointments.view` / `.manage` | A, E, C | Appointments (F13) |
+| `documents.files.view` / `.manage` | A, E | Documents (F14) |
+| `engagement.requests.view` / `.manage` | A, E, C | Requests (F15) |
+| `engagement.requests.delete` | A | Requests (F15) |
+| `marketing.campaigns.view` / `.manage` | A, E | Marketing (N01) |
+| `identity.users.manage` | A | account management (F01, F05, F06) |
+| `identity.sessions.view` / `.revoke` | A | Sessions (F17) |
+
+The legacy seed disabled some pages (Q40, e.g. Employee Requests): new tenants follow the acceptance criteria above; migrated tenants get their effective legacy grants from the import mapping (Fase 7).
 
 ## Acceptance criteria
 - [ ] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`).

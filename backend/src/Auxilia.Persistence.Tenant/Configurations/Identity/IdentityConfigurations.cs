@@ -56,3 +56,29 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Navigation("roles").UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
+
+internal sealed class PermissionConfiguration : IEntityTypeConfiguration<PermissionEntry>
+{
+    public void Configure(EntityTypeBuilder<PermissionEntry> builder)
+    {
+        builder.ToTable("permissions", TenantSchemas.Identity);
+        builder.HasKey(permission => permission.Code);
+        builder.Property(permission => permission.Code).HasMaxLength(PermissionEntry.CodeMaxLength);
+        builder.Property(permission => permission.ModuleCode).HasMaxLength(PermissionEntry.ModuleCodeMaxLength);
+        builder.HasIndex(permission => permission.ModuleCode);
+    }
+}
+
+internal sealed class RolePermissionConfiguration : IEntityTypeConfiguration<RoleGrant>
+{
+    public void Configure(EntityTypeBuilder<RoleGrant> builder)
+    {
+        builder.ToTable("role_permissions", TenantSchemas.Identity);
+        builder.HasKey(grant => new { grant.Role, grant.PermissionCode });
+        builder.Property(grant => grant.Role).HasConversion<string>().HasMaxLength(30);
+        builder.Property(grant => grant.PermissionCode).HasMaxLength(PermissionEntry.CodeMaxLength);
+        builder.HasOne<IdentityRoleRow>().WithMany().HasForeignKey(grant => grant.Role).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne<PermissionEntry>().WithMany().HasForeignKey(grant => grant.PermissionCode).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(grant => grant.PermissionCode);
+    }
+}

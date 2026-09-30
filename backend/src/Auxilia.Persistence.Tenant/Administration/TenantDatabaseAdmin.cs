@@ -4,6 +4,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Tenant.DataMigrations;
 using Auxilia.Persistence.Tenant.Interceptors;
+using Auxilia.Persistence.Tenant.Identity;
 using Auxilia.Persistence.Tenant.Seed;
 
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ internal sealed class TenantDatabaseAdmin : ITenantDatabaseAdmin
     private readonly TenantDatabaseAdminOptions options;
     private readonly DataMigrationRunner dataMigrations;
     private readonly TenantInitialSeed initialSeed;
+    private readonly PermissionSynchronizer permissions;
     private readonly ICurrentUser currentUser;
     private readonly TimeProvider timeProvider;
 
@@ -29,12 +31,14 @@ internal sealed class TenantDatabaseAdmin : ITenantDatabaseAdmin
         TenantDatabaseAdminOptions options,
         DataMigrationRunner dataMigrations,
         TenantInitialSeed initialSeed,
+        PermissionSynchronizer permissions,
         ICurrentUser currentUser,
         TimeProvider timeProvider)
     {
         this.options = options;
         this.dataMigrations = dataMigrations;
         this.initialSeed = initialSeed;
+        this.permissions = permissions;
         this.currentUser = currentUser;
         this.timeProvider = timeProvider;
     }
@@ -104,6 +108,9 @@ internal sealed class TenantDatabaseAdmin : ITenantDatabaseAdmin
         {
             await dataMigrations.ApplyPendingAsync(db, cancellationToken);
         }
+
+        // Permissions follow the deployed modules (new tenants get the default grants).
+        await permissions.ApplyAsync(db, cancellationToken);
 
         var schemaVersion = (await db.Database.GetAppliedMigrationsAsync(cancellationToken)).LastOrDefault();
         return new TenantDatabaseVersion(schemaVersion, await DataMigrationRunner.CurrentVersionAsync(db, cancellationToken));

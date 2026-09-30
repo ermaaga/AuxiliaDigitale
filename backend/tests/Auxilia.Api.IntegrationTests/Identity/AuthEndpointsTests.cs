@@ -34,7 +34,7 @@ namespace Auxilia.Api.IntegrationTests.Identity;
 /// <summary>F01/F17 over HTTP: password sign-in, bearer access, refresh rotation and reuse, logout, account links, JWKS.</summary>
 public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factory>
 {
-    private const string ClientId = "test-web";
+    public const string ClientId = "test-web";
     private const string Password = "a long enough password";
 
     private readonly Factory factory;
@@ -269,34 +269,42 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factor
     private static async Task<string?> ErrorCodeAsync(HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("errorCode").GetString();
 
-    public sealed class Factory : ApiFactory, IAsyncLifetime
+    public class Factory : ApiFactory, IAsyncLifetime
     {
+        private static readonly SemaphoreSlim ClientLock = new(1, 1);
+
         private readonly RecordingDispatcher dispatcher = new();
 
-        public string ClientSecret { get; } = "test-web-secret-" + Guid.NewGuid().ToString("N");
+        /// <summary>The same for every factory: parallel test classes (re)register the same client.</summary>
+        public string ClientSecret { get; } = "integration-tests-client-credential";
 
         public IReadOnlyCollection<OutboundMessageRequest> Messages => dispatcher.Requests.ToArray();
 
         protected override IApiEndpoints? Endpoints { get; } = new MeEndpoints();
 
-        public async ValueTask InitializeAsync()
+        public virtual async ValueTask InitializeAsync()
         {
-            var hasher = Services.GetRequiredService<IPasswordHasher>();
-            var options = new DbContextOptionsBuilder<CatalogDbContext>();
-            CatalogPersistence.Configure(options, ApiDatabase.Instance.CatalogConnectionString);
-            await using var catalog = new CatalogDbContext(options.Options);
-            if (!await catalog.ClientApplications.AnyAsync(client => client.ClientId == ClientId))
+            // Test classes run in parallel and share the client row: register it one factory at a time.
+            await ClientLock.WaitAsync();
+            try
             {
-                var client = ClientApplication.Create(Guid.CreateVersion7(), ClientId, "Test web", ClientApplicationType.WebBff).Value;
+                var hasher = Services.GetRequiredService<IPasswordHasher>();
+                var options = new DbContextOptionsBuilder<CatalogDbContext>();
+                CatalogPersistence.Configure(options, ApiDatabase.Instance.CatalogConnectionString);
+                await using var catalog = new CatalogDbContext(options.Options);
+                var client = await catalog.ClientApplications.SingleOrDefaultAsync(item => item.ClientId == ClientId);
+                if (client is null)
+                {
+                    client = ClientApplication.Create(Guid.CreateVersion7(), ClientId, "Test web", ClientApplicationType.WebBff).Value;
+                    catalog.ClientApplications.Add(client);
+                }
+
                 client.SetSecretHash(hasher.Hash(ClientSecret));
-                catalog.ClientApplications.Add(client);
                 await catalog.SaveChangesAsync();
             }
-            else
+            finally
             {
-                var client = await catalog.ClientApplications.SingleAsync(item => item.ClientId == ClientId);
-                client.SetSecretHash(hasher.Hash(ClientSecret));
-                await catalog.SaveChangesAsync();
+                ClientLock.Release();
             }
         }
 
@@ -324,6 +332,22 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factor
         {
             base.ConfigureWebHost(builder);
             builder.ConfigureTestServices(services => services.AddSingleton<IMessageDispatcher>(dispatcher));
+        }
+
+        /// <summary>Signs in with the password grant and returns the access token.</summary>
+        public async Task<string> SignInAsync(string userName, string password, CancellationToken cancellationToken)
+        {
+            using var client = CreateClient();
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/token")
+            {
+                Content = JsonContent.Create(new TokenRequest("password", userName, password, null)),
+            };
+            request.Headers.Add("X-Tenant", ApiDatabase.TenantA);
+            request.Headers.Add("X-Client-Id", ClientId);
+            request.Headers.Add("X-Client-Secret", ClientSecret);
+            using var response = await client.SendAsync(request, cancellationToken);
+            response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync(cancellationToken));
+            return (await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken))!.AccessToken;
         }
     }
 

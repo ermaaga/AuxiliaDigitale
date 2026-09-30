@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Caching;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Diagnostics;
@@ -18,6 +19,7 @@ internal sealed class TenantMigrationManager : ITenantMigrationManager
     private readonly ITenantDatabaseAdmin databases;
     private readonly ITenantConnectionProtector protector;
     private readonly ICurrentUser currentUser;
+    private readonly IReferenceDataCache cache;
     private readonly TimeProvider timeProvider;
 
     public TenantMigrationManager(
@@ -27,6 +29,7 @@ internal sealed class TenantMigrationManager : ITenantMigrationManager
         ITenantDatabaseAdmin databases,
         ITenantConnectionProtector protector,
         ICurrentUser currentUser,
+        IReferenceDataCache cache,
         TimeProvider timeProvider)
     {
         this.operations = operations;
@@ -35,6 +38,7 @@ internal sealed class TenantMigrationManager : ITenantMigrationManager
         this.databases = databases;
         this.protector = protector;
         this.currentUser = currentUser;
+        this.cache = cache;
         this.timeProvider = timeProvider;
     }
 
@@ -98,6 +102,9 @@ internal sealed class TenantMigrationManager : ITenantMigrationManager
 
             run.Succeed(timeProvider.GetUtcNow(), $"schema {version.SchemaVersion}, data {version.DataVersion ?? "-"}");
             await catalog.SaveChangesAsync(cancellationToken);
+
+            // The migration may have changed the tenant's permissions (new modules): the API nodes reload them.
+            scope.OnCommitted(ct => cache.InvalidateAsync(CacheTags.Tenant(slug, Identity.IdentityModule.ModuleCode), ct));
             return Result.Success(version);
         }, cancellationToken);
 

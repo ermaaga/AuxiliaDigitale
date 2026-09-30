@@ -16,6 +16,27 @@ public sealed class CatalogPersistenceTests(CatalogDatabaseFixture database)
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Fact]
+    public async Task SigningKeys_AtMostOneIsActive()
+    {
+        await using (var db = database.CreateContext())
+        {
+            foreach (var active in await db.SigningKeys.Where(key => key.RetiredAt == null).ToListAsync(Ct))
+            {
+                active.Retire(DateTimeOffset.UtcNow, TimeSpan.FromHours(2));
+            }
+
+            db.SigningKeys.Add(new SigningKey(Guid.NewGuid().ToString("N"), "{}", "protected", DateTimeOffset.UtcNow));
+            await db.SaveChangesAsync(Ct);
+        }
+
+        await using (var db = database.CreateContext())
+        {
+            db.SigningKeys.Add(new SigningKey(Guid.NewGuid().ToString("N"), "{}", "protected", DateTimeOffset.UtcNow));
+            await Should.ThrowAsync<DbUpdateException>(() => db.SaveChangesAsync(Ct));
+        }
+    }
+
+    [Fact]
     public async Task SaveTenant_FillsAuditColumnsAndRoundTrips()
     {
         await using var services = database.CreateServices();

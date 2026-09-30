@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
@@ -19,13 +20,13 @@ public sealed class IdentityModule : IModuleDescriptor
 
     public int EventCodeRangeStart => 12000;
 
-    public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
+    public IReadOnlyList<PermissionDefinition> Permissions { get; } = IdentityPermissions.All;
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = IdentitySettings.All;
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
-        new("sessions", "/sessions", "monitor-smartphone", 90, [TenantRole.Administrator]),
+        new("sessions", "/sessions", "monitor-smartphone", 90, [TenantRole.Administrator], IdentityPermissions.ViewSessions),
     ];
 
     public void AddServices(IServiceCollection services)
@@ -39,5 +40,9 @@ public sealed class IdentityModule : IModuleDescriptor
         services.TryAddScoped<IAccountLinkManager, AccountLinkManager>();
         services.TryAddScoped<ISigningKeyManager, SigningKeyManager>();
         services.TryAddScoped<IClientApplicationManager, ClientApplicationManager>();
+        services.TryAddScoped<RolePermissionsCache>();
+        services.TryAddScoped<IPermissionAccess, PermissionAccess>();
+        services.TryAddScoped<IAccessGuard, AccessGuard>();
+        services.TryAddScoped<ICurrentUserQueryService, CurrentUserQueryService>();
     }
 }

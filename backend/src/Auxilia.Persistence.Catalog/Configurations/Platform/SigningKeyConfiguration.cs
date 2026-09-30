@@ -18,7 +18,8 @@ internal sealed class SigningKeyConfiguration : IEntityTypeConfiguration<Signing
         builder.Ignore(key => key.IsActive);
 
         // At most one active (signing) key.
-        builder.HasIndex(key => key.RetiredAt).IsUnique().HasFilter("retired_at IS NULL").HasDatabaseName("ux_signing_keys_active");
+        // NULLS NOT DISTINCT: otherwise every NULL retired_at is distinct and the index would allow several active keys.
+        builder.HasIndex(key => key.RetiredAt).IsUnique().AreNullsDistinct(false).HasFilter("retired_at IS NULL").HasDatabaseName("ux_signing_keys_active");
         builder.HasXminVersion();
     }
 }
