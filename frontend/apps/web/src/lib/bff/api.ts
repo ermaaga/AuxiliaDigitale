@@ -32,6 +32,8 @@ export type ApiCall = {
   tenant?: string;
   /** Sends the client secret too: only for the token endpoints. */
   withClientSecret?: boolean;
+  /** Aborts the call (e.g. `AbortSignal.timeout(...)`). */
+  signal?: AbortSignal;
 };
 
 /**
@@ -77,6 +79,7 @@ export async function callApi(
     body: call.body,
     cache: "no-store",
     redirect: "manual",
+    signal: call.signal,
   });
 }
 

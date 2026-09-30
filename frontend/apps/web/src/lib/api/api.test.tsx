@@ -1,11 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { ApiError, isApiError, networkError, unwrap } from "@auxilia/api-client";
+import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApiErrorAlert, errorMessage } from "@/components/errors/api-error-alert";
 import { createBffClient } from "./client";
 import { createQueryClient, shouldRetry } from "./query-client";
 import { newIdempotencyKey, queryKey } from "./query-keys";
+import { unflatten } from "@/i18n/messages";
 
 const ORIGIN = "http://app.test";
 
@@ -149,8 +151,6 @@ describe("error message and alert", () => {
     "errors.generic": "Si è verificato un errore",
   };
   const translate = (key: string) => translations[key];
-  const labels = { title: "Errore", retry: "Riprova", copy: "Copia il codice", trace: "Traccia" };
-
   it("translates the AUX code and falls back to the generic message", () => {
     expect(errorMessage(new ApiError(404, { errorCode: "AUX-21003" }), translate)).toBe(
       "Lingua non disponibile",
@@ -162,26 +162,36 @@ describe("error message and alert", () => {
     expect(errorMessage(new Error("bug"), () => undefined)).toBe("errors.generic");
   });
 
-  it("shows message, code, trace id and retry", () => {
-    const html = renderToStaticMarkup(
+  it("shows message, code, trace id and retry with the texts of the bundle", () => {
+    const messages = unflatten({
+      ...translations,
+      "common.error.title": "Errore",
+      "common.retry": "Riprova",
+      "common.copyCode": "Copia il codice",
+      "common.traceId": "Traccia",
+    });
+    const render = (node: React.ReactNode) =>
+      renderToStaticMarkup(
+        <NextIntlClientProvider locale="it" messages={messages}>
+          {node}
+        </NextIntlClientProvider>,
+      );
+
+    const html = render(
       <ApiErrorAlert
         error={new ApiError(404, { errorCode: "AUX-21003", traceId: "00-t-01" })}
-        translate={translate}
-        labels={labels}
         onRetry={() => undefined}
       />,
     );
 
     expect(html).toContain('role="alert"');
+    expect(html).toContain("Errore");
     expect(html).toContain("Lingua non disponibile");
     expect(html).toContain("AUX-21003");
     expect(html).toContain("00-t-01");
     expect(html).toContain("Riprova");
     expect(html).toContain('aria-label="Copia il codice"');
-    expect(
-      renderToStaticMarkup(
-        <ApiErrorAlert error={new Error("x")} translate={translate} labels={labels} />,
-      ),
-    ).not.toContain("Riprova");
+    expect(render(<ApiErrorAlert error={new Error("x")} />)).not.toContain("Riprova");
+    expect(render(<ApiErrorAlert error={new Error("x")} />)).toContain("Si è verificato un errore");
   });
 });

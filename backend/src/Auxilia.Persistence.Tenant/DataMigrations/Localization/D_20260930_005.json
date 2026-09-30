@@ -1,0 +1,92 @@
+[
+ {
+  "key": "errors.AUX-WEB-400",
+  "category": "errors",
+  "en": "The request is not valid.",
+  "it": "La richiesta non è valida."
+ },
+ {
+  "key": "errors.AUX-WEB-401",
+  "category": "errors",
+  "en": "Your session has ended. Sign in again.",
+  "it": "La sessione è terminata. Accedi di nuovo."
+ },
+ {
+  "key": "errors.AUX-WEB-403-CSRF",
+  "category": "errors",
+  "en": "The request was refused for security reasons. Reload the page and try again.",
+  "it": "La richiesta è stata rifiutata per motivi di sicurezza. Ricarica la pagina e riprova."
+ },
+ {
+  "key": "errors.AUX-WEB-404",
+  "category": "errors",
+  "en": "The page or the item you are looking for does not exist.",
+  "it": "La pagina o l'elemento che cerchi non esiste."
+ },
+ {
+  "key": "errors.AUX-WEB-502",
+  "category": "errors",
+  "en": "The service is not reachable right now. Try again in a moment.",
+  "it": "Il servizio non è raggiungibile in questo momento. Riprova tra poco."
+ },
+ {
+  "key": "errors.AUX-WEB-NETWORK",
+  "category": "errors",
+  "en": "No connection. Check your network and try again.",
+  "it": "Nessuna connessione. Controlla la rete e riprova."
+ },
+ {
+  "key": "errors.AUX-WEB-UNKNOWN",
+  "category": "errors",
+  "en": "Something went wrong. Try again; if it happens again, contact support with the error code.",
+  "it": "Si è verificato un errore. Riprova; se succede ancora, contatta l'assistenza indicando il codice di errore."
+ },
+ {
+  "key": "common.error.title",
+  "category": "common",
+  "en": "Something went wrong",
+  "it": "Si è verificato un problema"
+ },
+ {
+  "key": "common.retry",
+  "category": "common",
+  "en": "Try again",
+  "it": "Riprova"
+ },
+ {
+  "key": "common.copyCode",
+  "category": "common",
+  "en": "Copy the error code",
+  "it": "Copia il codice di errore"
+ },
+ {
+  "key": "common.traceId",
+  "category": "common",
+  "en": "Trace",
+  "it": "Traccia"
+ },
+ {
+  "key": "common.theme.toggle",
+  "category": "common",
+  "en": "Change theme",
+  "it": "Cambia tema"
+ },
+ {
+  "key": "common.theme.light",
+  "category": "common",
+  "en": "Light",
+  "it": "Chiaro"
+ },
+ {
+  "key": "common.theme.dark",
+  "category": "common",
+  "en": "Dark",
+  "it": "Scuro"
+ },
+ {
+  "key": "common.theme.system",
+  "category": "common",
+  "en": "System",
+  "it": "Sistema"
+ }
+]

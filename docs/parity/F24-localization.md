@@ -1,6 +1,6 @@
 # F24 — Localization
 
-Status: [~] backend done (P3-01) · Tasks: P3-01, P3-05, S-05 
+Status: [~] backend (P3-01) and web app bundles (P3-05) done; editor page in S-05 · Tasks: P3-01, P3-05, S-05 
 
 > **Decision D-18:** labels/translations are edited by **System** (platform console).
 
