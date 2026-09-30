@@ -28,6 +28,20 @@
         "resolved": "2.7.0",
         "contentHash": "U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw=="
       },
+      "MessagePack": {
+        "type": "Transitive",
+        "resolved": "2.5.302",
+        "contentHash": "5DZsKli4dMEpm/glcMAheuO8/IesfaTskbfsuvgnQwWFKS5FN7Z6yNx+5F+UW94E+9N2qt8Zs63/XVzpLsElgA==",
+        "dependencies": {
+          "MessagePack.Annotations": "2.5.302",
+          "Microsoft.NET.StringTools": "17.6.3"
+        }
+      },
+      "MessagePack.Annotations": {
+        "type": "Transitive",
+        "resolved": "2.5.302",
+        "contentHash": "PTHQHbMJzx1VtUUCpnvPavD7o5X9s2dAJ4uQHAP2kBCwJKICpPTZq0qxzbB4/6iJJiIxem8zlxyfldGAx1SjSQ=="
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "10.0.3",
@@ -148,6 +162,11 @@
           "Microsoft.Bcl.Cryptography": "10.0.2",
           "Microsoft.IdentityModel.Logging": "8.19.2"
         }
+      },
+      "Microsoft.NET.StringTools": {
+        "type": "Transitive",
+        "resolved": "17.6.3",
+        "contentHash": "N0ZIanl1QCgvUumEL1laasU0a7sOE5ZwLZVTn0pAePnfhq8P7SvTjF8Axq+CnavuQkmdQpGNXQ1efZtu5kDFbA=="
       },
       "MimeKit": {
         "type": "Transitive",
@@ -356,6 +375,7 @@
           "BCrypt.Net-Next": "[4.2.1, )",
           "Fluid.Core": "[2.40.0, )",
           "MailKit": "[4.18.1, )",
+          "Microsoft.AspNetCore.SignalR.StackExchangeRedis": "[10.0.12, )",
           "Microsoft.Extensions.Caching.Hybrid": "[10.10.0, )",
           "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.12, )",
           "Microsoft.IdentityModel.JsonWebTokens": "[8.19.2, )",
@@ -460,6 +480,16 @@
         "contentHash": "oV5g+PWxCFI3liFQcRNNEhYeS8Jz9+rcjREPDRK8kk0a1q+sf8UUlyFwGCBbxWoNVPpenljm8WEUVCH10k71Bw==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "10.0.12"
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.StackExchangeRedis": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.12, )",
+        "resolved": "10.0.12",
+        "contentHash": "GtsZEM5JP9epJ5cw3h4UaQg9eWrNQFWMSBA3E0FJrd5QK+gJpEC4rgZ9hucL2oEHvVfRDvMsKlaKHZIz0Vz2jw==",
+        "dependencies": {
+          "MessagePack": "2.5.302",
+          "StackExchange.Redis": "2.7.27"
         }
       },
       "Microsoft.EntityFrameworkCore": {

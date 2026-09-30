@@ -2,6 +2,7 @@ using Auxilia.Application;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
+using Auxilia.Infrastructure.Realtime;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.Worker.Handlers.Platform;
@@ -34,6 +35,9 @@ public static class WorkerServices
         {
             services.AddRedisCache(redis);
         }
+
+        // Pushes to the Api's hub connections go through the Redis backplane (without Redis they are dropped).
+        services.AddRealtime(configuration.GetConnectionString("Redis"));
 
         var rabbitMq = configuration.GetConnectionString("RabbitMq")
             ?? throw new InvalidOperationException("ConnectionStrings:RabbitMq is not configured.");

@@ -1,5 +1,6 @@
 using Auxilia.Application.Identity;
 using Auxilia.Application.Tests.Execution;
+using Auxilia.Contracts.Realtime;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
@@ -18,6 +19,7 @@ public sealed class SessionManagerTests : IAsyncDisposable
     private readonly ManualTimeProvider time = new();
     private readonly FakeAccessTokenIssuer issuer;
     private readonly InMemoryDenyList denyList = new();
+    private readonly RecordingRealtimeNotifier realtime = new();
     private readonly RecordingLogger<SessionManager> log = new();
     private readonly RecordingLogger<ClientApplicationValidator> clientLog = new();
 
@@ -103,6 +105,8 @@ public sealed class SessionManagerTests : IAsyncDisposable
         ended.EndReason.ShouldBe(SessionEndReason.SingleSession);
         denyList.Sessions.ShouldContainKey(first.SessionId);
         sessions.Sessions.Single(session => session.Id == second.SessionId).EndedAt.ShouldBeNull();
+        var push = realtime.Pushes.ShouldHaveSingleItem();
+        (push.Target, push.EventName, push.Payload).ShouldBe(($"session:{first.SessionId}", RealtimeEvents.ForceLogout, new ForceLogoutEvent("SingleSession")));
     }
 
     [Fact]
@@ -137,6 +141,7 @@ public sealed class SessionManagerTests : IAsyncDisposable
         sessions.Sessions.ShouldHaveSingleItem().EndReason.ShouldBe(SessionEndReason.RefreshTokenReuse);
         denyList.Sessions.ShouldContainKey(first.SessionId);
         log.Entries.ShouldContain(entry => entry.EventId.Id == EventCodes.Security.RefreshTokenReuse);
+        realtime.Pushes.ShouldHaveSingleItem().Payload.ShouldBe(new ForceLogoutEvent("RefreshTokenReuse"));
         (await manager.RefreshAsync(new RefreshTokens(Web, second.RefreshToken, null, null), Ct)).Error!.Code
             .ShouldBe(EventCodes.Identity.RefreshTokenInvalid);
     }
@@ -184,6 +189,7 @@ public sealed class SessionManagerTests : IAsyncDisposable
 
         var session = sessions.Sessions.ShouldHaveSingleItem();
         session.EndReason.ShouldBe(SessionEndReason.Logout);
+        realtime.Pushes.ShouldHaveSingleItem().ShouldBe(($"session:{pair.SessionId}", RealtimeEvents.ForceLogout, (object)new ForceLogoutEvent("Logout")));
         denyList.Sessions[pair.SessionId].ShouldBe(time.GetUtcNow() + TimeSpan.FromMinutes(IdentitySettings.AccessTokenMinutes.Default));
         log.Entries.Where(entry => entry.EventId.Id == EventCodes.Security.SessionEnded).ShouldHaveSingleItem()
             .Properties["Reason"].ShouldBe("Logout");
@@ -219,6 +225,6 @@ public sealed class SessionManagerTests : IAsyncDisposable
         var authenticator = new PasswordAuthenticator(runner, identity, hasher, settings, time, new RecordingLogger<PasswordAuthenticator>());
         return new SessionManager(
             runner, sessions, authenticator, new ClientApplicationValidator(clients, hasher, clientLog), issuer, denyList, settings,
-            SessionSettings.Tenant(), time, log);
+            SessionSettings.Tenant(), realtime, time, log);
     }
 }

@@ -286,6 +286,7 @@ Implementazione (P1-10): `IReferenceDataCache` su `HybridCache`; L2 Redis/Valkey
 - Attivazione account (D-06): token monouso via email → pagina `/{tenant}/activate` per scegliere la password. Reset password analogo.
 - Console System: autenticazione separata (utenti Catalog), token di piattaforma (§4.2).
 - Sessioni: `identity.refresh_sessions`; revoca + deny-list `jti` + push `ForceLogout`; sessione singola opzionale (D-08, default off).
+- Realtime (P2-05): hub SignalR `/hubs/notifications` (tipo condiviso in `Infrastructure/Realtime`, perché anche il Worker invia tramite il backplane Redis, canali `auxilia:signalr`); gruppi `t:{slug}`, `t:{slug}:u:{userId}`, `t:{slug}:role:{ruolo}`, `t:{slug}:s:{sessionId}`; token in query string accettato solo sul path dell'hub; connessione chiusa alla scadenza del token; `IRealtimeNotifier` (Application) best effort. Ogni fine sessione invia `ForceLogout` al gruppo della sessione. Senza Redis il Worker non può inviare.
 - Rate limiting (P2-04): limiter di ASP.NET Core, in memoria per nodo, partizioni per tenant; globale = per chiamante (utente per tenant, altrimenti IP) in catena con un limite per client app; `POST /auth/token` e i link account (attivazione, password dimenticata, reset) hanno policy più strette per tenant e IP. Oltre il limite 429 `AUX-10024` con `Retry-After` ed evento `AUX-29016`; health esclusi. Limiti nella sezione `RateLimiting` (livello 0). Con più nodi il limite effettivo si moltiplica per il numero di nodi; dietro reverse proxy servono i forwarded headers (H-01).
 
 ---

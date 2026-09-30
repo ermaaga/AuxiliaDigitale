@@ -1,7 +1,9 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Operations;
+using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Contracts.Realtime;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.SharedKernel.Results;
@@ -44,8 +46,10 @@ internal sealed class SessionManager : ISessionManager
     private readonly IAccessTokenDenyList denyList;
     private readonly ISettingsProvider settings;
     private readonly ITenantContext tenantContext;
+    private readonly IRealtimeNotifier realtime;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<SessionManager> logger;
+    private readonly List<(Guid SessionId, SessionEndReason Reason)> endedSessions = [];
 
     public SessionManager(
         IOperationRunner operations,
@@ -56,6 +60,7 @@ internal sealed class SessionManager : ISessionManager
         IAccessTokenDenyList denyList,
         ISettingsProvider settings,
         ITenantContext tenantContext,
+        IRealtimeNotifier realtime,
         TimeProvider timeProvider,
         ILogger<SessionManager> logger)
     {
@@ -67,6 +72,7 @@ internal sealed class SessionManager : ISessionManager
         this.denyList = denyList;
         this.settings = settings;
         this.tenantContext = tenantContext;
+        this.realtime = realtime;
         this.timeProvider = timeProvider;
         this.logger = logger;
     }
@@ -108,7 +114,7 @@ internal sealed class SessionManager : ISessionManager
             scope.SetEntity("Session", session.Id);
 
             var pair = await IssueAsync(store, session, user.UserId, user.Roles, now, cancellationToken);
-            await store.SaveChangesAsync(cancellationToken);
+            await SaveAsync(store, cancellationToken);
             return Result.Success(pair);
         }, cancellationToken);
     }
@@ -139,7 +145,7 @@ internal sealed class SessionManager : ISessionManager
                 // A rotated token presented again: someone else may hold the family. Revoke it all.
                 Log.Security.RefreshTokenReuse(logger, session.Id, session.UserId);
                 await EndAsync(session, SessionEndReason.RefreshTokenReuse, now, cancellationToken);
-                await store.SaveChangesAsync(cancellationToken);
+                await SaveAsync(store, cancellationToken);
                 return Errors.Identity.RefreshTokenInvalid();
             }
 
@@ -152,14 +158,14 @@ internal sealed class SessionManager : ISessionManager
             if (user is null || !user.IsActive || !string.Equals(user.SecurityStamp, session.SecurityStamp, StringComparison.Ordinal))
             {
                 await EndAsync(session, SessionEndReason.SecurityStampChanged, now, cancellationToken);
-                await store.SaveChangesAsync(cancellationToken);
+                await SaveAsync(store, cancellationToken);
                 return Errors.Identity.RefreshTokenInvalid();
             }
 
             token.Consume(now);
             session.Touch(now, TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken)));
             var pair = await IssueAsync(store, session, user.Id, user.Roles, now, cancellationToken);
-            await store.SaveChangesAsync(cancellationToken);
+            await SaveAsync(store, cancellationToken);
             return Result.Success(pair);
         }, cancellationToken);
     }
@@ -174,7 +180,7 @@ internal sealed class SessionManager : ISessionManager
             }
 
             await EndAsync(session, reason, timeProvider.GetUtcNow(), cancellationToken);
-            await store.SaveChangesAsync(cancellationToken);
+            await SaveAsync(store, cancellationToken);
             return Result.Success();
         }, cancellationToken);
 
@@ -191,6 +197,19 @@ internal sealed class SessionManager : ISessionManager
         await denyList.DenySessionAsync(tenantContext.Tenant.Slug, session.Id, now + lifetime, cancellationToken);
         var reasonName = Enum.GetName(reason) ?? "Unknown";
         Log.Security.SessionEnded(logger, session.Id, session.UserId, reasonName);
+        endedSessions.Add((session.Id, reason));
+    }
+
+    /// <summary>Saves, then tells the connected clients of every session ended meanwhile to sign out (F17).</summary>
+    private async Task SaveAsync(ISessionData store, CancellationToken cancellationToken)
+    {
+        await store.SaveChangesAsync(cancellationToken);
+        foreach (var (sessionId, reason) in endedSessions)
+        {
+            await realtime.ToSessionAsync(sessionId, RealtimeEvents.ForceLogout, new ForceLogoutEvent(Enum.GetName(reason) ?? "Unknown"), cancellationToken);
+        }
+
+        endedSessions.Clear();
     }
 
     private async Task<TokenPair> IssueAsync(

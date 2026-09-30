@@ -9,6 +9,7 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
+using Auxilia.Infrastructure.Realtime;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults;
@@ -48,6 +49,7 @@ if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rab
 
 builder.Services.AddAuxiliaAuthentication(builder.Configuration);
 builder.Services.AddAuxiliaRateLimiting(builder.Configuration);
+builder.Services.AddRealtime(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 
@@ -77,6 +79,10 @@ app.UseAuthorization();
 app.MapDefaultEndpoints();
 app.MapAuxiliaOpenApi();
 app.MapJwks();
+
+// Server-to-client events (F16/F17); a connection closes when its access token expires, so a revoked session cannot
+// keep listening.
+app.MapHub<NotificationsHub>(RealtimeRegistration.HubPath, options => options.CloseOnAuthenticationExpiration = true);
 
 var api = app.MapApiV1();
 foreach (var endpoints in app.Services.GetServices<IApiEndpoints>())

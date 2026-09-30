@@ -1,11 +1,13 @@
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Messaging;
+using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Infrastructure.Adapters.Channels.Smtp;
 using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
+using Auxilia.Infrastructure.Realtime;
 using Auxilia.Infrastructure.Security;
 using Auxilia.Infrastructure.Security.Tokens;
 using Auxilia.Infrastructure.Tenancy;
@@ -45,6 +47,9 @@ public static class DependencyInjection
         services.TryAddScoped<ISigningKeyFactory, SigningKeyFactory>();
         services.TryAddSingleton<IAccessTokenIssuer, JwtAccessTokenIssuer>();
         services.TryAddSingleton<IAccessTokenDenyList, DistributedAccessTokenDenyList>();
+
+        // Replaced by AddRealtime in the Api and the Worker.
+        services.TryAddScoped<IRealtimeNotifier, NullRealtimeNotifier>();
 
         return services;
     }
