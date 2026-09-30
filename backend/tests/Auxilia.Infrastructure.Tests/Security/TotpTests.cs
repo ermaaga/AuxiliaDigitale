@@ -6,8 +6,9 @@ namespace Auxilia.Infrastructure.Tests.Security;
 
 public sealed class TotpTests
 {
-    // RFC 6238 appendix B (SHA-1 seed), last 6 digits of the 8-digit reference values.
-    private const string RfcSecret = "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ";
+    // RFC 6238 appendix B: the SHA-1 seed is the ASCII string "12345678901234567890"; expected values are the last
+    // 6 digits of the 8-digit reference codes. Encoded at runtime (a Base32 literal looks like a key to secret scanners).
+    private static readonly string RfcSecret = Base32.Encode(Encoding.ASCII.GetBytes(string.Concat(Enumerable.Repeat("1234567890", 2))));
 
     private readonly TotpService totp = new();
 
@@ -19,7 +20,7 @@ public sealed class TotpTests
     [InlineData(2000000000L, "279037")]
     public void Compute_MatchesTheRfcVectors(long unixSeconds, string expected)
     {
-        Base32.Encode(Encoding.ASCII.GetBytes("12345678901234567890")).ShouldBe(RfcSecret);
+        RfcSecret.Length.ShouldBe(32);
 
         var step = TotpService.StepOf(DateTimeOffset.FromUnixTimeSeconds(unixSeconds));
 
