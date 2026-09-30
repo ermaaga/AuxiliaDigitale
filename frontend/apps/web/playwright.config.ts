@@ -1,0 +1,83 @@
+import path from "node:path";
+import { defineConfig, devices } from "@playwright/test";
+
+import { API_URL, BASE_URL, REPO_ROOT, loadE2eEnv } from "./e2e/support/env";
+
+/*
+ * End-to-end suite (P3-09, skill auxilia-testing): real API + Postgres + the built web app. Prepare once with
+ * `pnpm --filter web e2e:prepare` (Postgres from deploy/compose.dev.yml, backend built in Release, web app built),
+ * then `pnpm --filter web e2e`. Playwright starts the API and `next start` unless they already run.
+ */
+loadE2eEnv();
+
+const apiPort = new URL(API_URL).port || "80";
+const webPort = new URL(BASE_URL).port || "80";
+
+export default defineConfig({
+  testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
+  // Flows share the seeded users and sign-in rate limits: one worker, files in order, no retries hiding flakiness.
+  workers: 1,
+  fullyParallel: false,
+  retries: 0,
+  forbidOnly: Boolean(process.env.CI),
+  timeout: 90_000,
+  expect: { timeout: 10_000 },
+  reporter: process.env.CI
+    ? [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]]
+    : "list",
+  use: {
+    baseURL: BASE_URL,
+    locale: "it-IT",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        // A Chromium already on the machine (e.g. a cloud sandbox) instead of `playwright install`.
+        launchOptions: process.env.E2E_CHROMIUM_PATH
+          ? { executablePath: process.env.E2E_CHROMIUM_PATH }
+          : {},
+      },
+    },
+  ],
+  webServer: [
+    {
+      name: "api",
+      command:
+        "dotnet run --project backend/src/Auxilia.Api -c Release --no-build --no-launch-profile",
+      cwd: REPO_ROOT,
+      url: `${API_URL}/health/live`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: {
+        ASPNETCORE_ENVIRONMENT: "Development",
+        ASPNETCORE_URLS: `http://localhost:${apiPort}`,
+        ConnectionStrings__Catalog: process.env.E2E_CATALOG_CONNECTION ?? "",
+        ConnectionStrings__Redis: "",
+        AuxiliaLogging__Storage: "none",
+        // Every run activates an account and changes a password from the same address.
+        RateLimiting__AccountLinks__PermitLimit: "100",
+      },
+    },
+    {
+      name: "web",
+      command: `pnpm start --port ${webPort}`,
+      cwd: path.resolve(__dirname),
+      url: `${BASE_URL}/platform/login`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+      env: {
+        AUXILIA_API_URL: API_URL,
+        AUXILIA_PUBLIC_ORIGIN: BASE_URL,
+        AUXILIA_WEB_CLIENT_ID: process.env.AUXILIA_WEB_CLIENT_ID ?? "",
+        AUXILIA_WEB_CLIENT_SECRET: process.env.AUXILIA_WEB_CLIENT_SECRET ?? "",
+        AUXILIA_CONSOLE_CLIENT_ID: process.env.AUXILIA_CONSOLE_CLIENT_ID ?? "",
+        AUXILIA_CONSOLE_CLIENT_SECRET: process.env.AUXILIA_CONSOLE_CLIENT_SECRET ?? "",
+      },
+    },
+  ],
+});

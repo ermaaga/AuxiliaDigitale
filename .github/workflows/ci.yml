@@ -92,6 +92,44 @@ jobs:
       - name: License check
         run: pnpm licenses:check
 
+  e2e:
+    name: E2E (Playwright + axe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: backend/global.json
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Start Postgres
+        run: docker compose -f deploy/compose.dev.yml up -d --wait postgres
+      - name: Build API and auxctl (Release)
+        run: |
+          dotnet build backend/src/Auxilia.Api -c Release
+          dotnet build backend/src/Auxilia.MigrationRunner -c Release
+      - name: Install and build the web app
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter web build
+      - name: Install Chromium
+        working-directory: frontend
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Seed tenants, clients and users
+        working-directory: frontend
+        run: pnpm --filter web e2e:prepare
+      - name: Run the suite (starts API and web app)
+        working-directory: frontend
+        run: pnpm --filter web e2e
+
   secrets:
     name: Secrets (gitleaks)
     runs-on: ubuntu-latest
