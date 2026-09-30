@@ -1,0 +1,230 @@
+[
+ {
+  "key": "app.platform.consoleName",
+  "category": "app",
+  "en": "Auxilia Console",
+  "it": "Console Auxilia"
+ },
+ {
+  "key": "app.platform.login.title",
+  "category": "app",
+  "en": "Platform console",
+  "it": "Console di piattaforma"
+ },
+ {
+  "key": "app.platform.login.description",
+  "category": "app",
+  "en": "Sign in with your e-mail, your password and the code of your authenticator app.",
+  "it": "Accedi con e-mail, password e il codice della tua app di autenticazione."
+ },
+ {
+  "key": "app.platform.login.code",
+  "category": "app",
+  "en": "Authenticator code",
+  "it": "Codice di autenticazione"
+ },
+ {
+  "key": "app.platform.login.failed",
+  "category": "app",
+  "en": "Wrong e-mail, password or code.",
+  "it": "E-mail, password o codice errati."
+ },
+ {
+  "key": "app.platform.login.activateLink",
+  "category": "app",
+  "en": "Activate a new account",
+  "it": "Attiva un nuovo account"
+ },
+ {
+  "key": "app.platform.activate.title",
+  "category": "app",
+  "en": "Activate your System account",
+  "it": "Attiva il tuo account System"
+ },
+ {
+  "key": "app.platform.activate.description",
+  "category": "app",
+  "en": "Enter the activation code you received to set up the authenticator app.",
+  "it": "Inserisci il codice di attivazione ricevuto per configurare l'app di autenticazione."
+ },
+ {
+  "key": "app.platform.activate.token",
+  "category": "app",
+  "en": "Activation code",
+  "it": "Codice di attivazione"
+ },
+ {
+  "key": "app.platform.activate.start",
+  "category": "app",
+  "en": "Continue",
+  "it": "Continua"
+ },
+ {
+  "key": "app.platform.activate.scan",
+  "category": "app",
+  "en": "Add the account to your authenticator app: open the link on this device, or type the setup key. The key is shown only now.",
+  "it": "Aggiungi l'account alla tua app di autenticazione: apri il link su questo dispositivo oppure digita la chiave di configurazione. La chiave viene mostrata solo ora."
+ },
+ {
+  "key": "app.platform.activate.setupKey",
+  "category": "app",
+  "en": "Setup key",
+  "it": "Chiave di configurazione"
+ },
+ {
+  "key": "app.platform.activate.openApp",
+  "category": "app",
+  "en": "Open in the authenticator app",
+  "it": "Apri nell'app di autenticazione"
+ },
+ {
+  "key": "app.platform.activate.copyKey",
+  "category": "app",
+  "en": "Copy the key",
+  "it": "Copia la chiave"
+ },
+ {
+  "key": "app.platform.activate.copied",
+  "category": "app",
+  "en": "Copied",
+  "it": "Copiato"
+ },
+ {
+  "key": "app.platform.activate.passwordHint",
+  "category": "app",
+  "en": "At least {count} characters.",
+  "it": "Almeno {count} caratteri."
+ },
+ {
+  "key": "app.platform.activate.codeHint",
+  "category": "app",
+  "en": "The code the app shows now for this account.",
+  "it": "Il codice che l'app mostra ora per questo account."
+ },
+ {
+  "key": "app.platform.nav.tenants",
+  "category": "app",
+  "en": "Tenants",
+  "it": "Tenant"
+ },
+ {
+  "key": "app.platform.nav.overview",
+  "category": "app",
+  "en": "Overview",
+  "it": "Panoramica"
+ },
+ {
+  "key": "app.platform.tenantSelector.label",
+  "category": "app",
+  "en": "Tenant",
+  "it": "Tenant"
+ },
+ {
+  "key": "app.platform.tenantSelector.placeholder",
+  "category": "app",
+  "en": "Select a tenant",
+  "it": "Seleziona un tenant"
+ },
+ {
+  "key": "app.platform.tenants.title",
+  "category": "app",
+  "en": "Tenants",
+  "it": "Tenant"
+ },
+ {
+  "key": "app.platform.tenants.description",
+  "category": "app",
+  "en": "Workspaces of the platform. Select one to open its technical configuration.",
+  "it": "Gli spazi di lavoro della piattaforma. Selezionane uno per aprirne la configurazione tecnica."
+ },
+ {
+  "key": "app.platform.tenants.search",
+  "category": "app",
+  "en": "Search by name or identifier",
+  "it": "Cerca per nome o identificativo"
+ },
+ {
+  "key": "app.platform.tenants.slug",
+  "category": "app",
+  "en": "Identifier",
+  "it": "Identificativo"
+ },
+ {
+  "key": "app.platform.tenants.schemaVersion",
+  "category": "app",
+  "en": "Schema version",
+  "it": "Versione schema"
+ },
+ {
+  "key": "app.platform.tenantStatus.Provisioning",
+  "category": "app",
+  "en": "Provisioning",
+  "it": "In creazione"
+ },
+ {
+  "key": "app.platform.tenantStatus.Active",
+  "category": "app",
+  "en": "Active",
+  "it": "Attivo"
+ },
+ {
+  "key": "app.platform.tenantStatus.Suspended",
+  "category": "app",
+  "en": "Suspended",
+  "it": "Sospeso"
+ },
+ {
+  "key": "app.platform.tenantStatus.MigrationFailed",
+  "category": "app",
+  "en": "Migration failed",
+  "it": "Migrazione fallita"
+ },
+ {
+  "key": "app.platform.tenantStatus.Archived",
+  "category": "app",
+  "en": "Archived",
+  "it": "Archiviato"
+ },
+ {
+  "key": "app.platform.tenant.description",
+  "category": "app",
+  "en": "Technical configuration of the tenant. Settings, branding, translations, messaging, permissions and jobs will appear here.",
+  "it": "Configurazione tecnica del tenant. Qui compariranno impostazioni, branding, traduzioni, messaggistica, permessi e job."
+ },
+ {
+  "key": "app.platform.tenant.languages",
+  "category": "app",
+  "en": "Languages",
+  "it": "Lingue"
+ },
+ {
+  "key": "app.platform.tenant.default",
+  "category": "app",
+  "en": "Default",
+  "it": "Predefinita"
+ },
+ {
+  "key": "app.platform.tenant.inactive",
+  "category": "app",
+  "en": "Inactive",
+  "it": "Non attiva"
+ },
+ {
+  "key": "app.platform.tenant.missing",
+  "category": "app",
+  "en": "{count, plural, =0 {All texts translated} one {# text to translate} other {# texts to translate}}",
+  "it": "{count, plural, =0 {Tutti i testi tradotti} one {# testo da tradurre} other {# testi da tradurre}}"
+ },
+ {
+  "key": "errors.AUX-12041",
+  "category": "errors",
+  "en": "The authenticator code is not valid.",
+  "it": "Il codice di autenticazione non è valido."
+ },
+ {
+  "key": "errors.AUX-12040",
+  "category": "errors",
+  "en": "This area is reserved to System users.",
+  "it": "Quest'area è riservata agli utenti System."
+ }
+]

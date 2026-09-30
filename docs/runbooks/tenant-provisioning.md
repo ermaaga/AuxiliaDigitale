@@ -68,9 +68,11 @@ Settings `Auth:Issuer` / `Auth:Audience` (default `https://auxilia.app` / `auxil
 
 ## Platform (System) users
 System users sign in to the console with password **and** an authenticator code (TOTP, D-22). `auxctl platform users
-add` prints an activation token once (valid 72 h, only its hash is stored): give it to the person, who enrols the
-authenticator (QR code from `POST /api/v1/platform/auth/enrollment`) and sets the password
-(`POST /api/v1/platform/auth/activate`). `reset` clears password and authenticator, ends every console session and
+add` prints an activation token once (valid 72 h, only its hash is stored): give it to the person, who opens
+`/platform/activate` in the web app (or `/platform/activate?token=<token>`), pastes the token, adds the account to an
+authenticator app (setup key or `otpauth://` link, shown once; API `POST /api/v1/platform/auth/enrollment`) and sets a
+password of at least 12 characters with the first code (`POST /api/v1/platform/auth/activate`). Sign-in is then at
+`/platform/login` (e-mail, password, code). `reset` clears password and authenticator, ends every console session and
 prints a new token; `disable` ends the sessions and blocks sign-in. The console needs a client application of type
 `PlatformConsole` (`auxctl clients add --type PlatformConsole …`); tenant clients cannot sign in to the console and vice
 versa. Five wrong attempts lock the account for 15 minutes (doubling on repeat).

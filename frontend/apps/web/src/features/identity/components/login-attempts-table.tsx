@@ -1,30 +1,19 @@
 "use client";
 
-import * as React from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { unwrap, type components } from "@auxilia/api-client";
 import { Badge } from "@auxilia/ui/components/badge";
-import { Input } from "@auxilia/ui/components/input";
-import { Label } from "@auxilia/ui/components/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@auxilia/ui/components/select";
 import { Button } from "@auxilia/ui/components/button";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import type { DataTableColumn } from "@/components/data-table/table-model";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { createBffClient } from "@/lib/api/client";
 import { queryKey } from "@/lib/api/query-keys";
 
 type LoginAttempt = components["schemas"]["LoginAttemptResponse"];
-
-const ALL = "all";
 
 /**
  * Login audit (F35, `GET /identity/login-attempts`, permission `identity.loginAttempts.view`): every sign-in attempt,
@@ -34,22 +23,6 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
   const t = useTranslations();
   const format = useFormatter();
   const table = useTableState(["userName", "method", "succeeded"] as const);
-  const [search, setSearch] = React.useState(table.filters.userName ?? "");
-
-  // Debounced search: the URL (and the query) change 300 ms after the last keystroke.
-  React.useEffect(() => {
-    const current = table.filters.userName ?? "";
-    if (search === current) {
-      return;
-    }
-
-    const timer = window.setTimeout(
-      () => table.setFilter("userName", search.trim() || undefined),
-      300,
-    );
-    return () => window.clearTimeout(timer);
-  }, [search, table]);
-
   const params = {
     page: table.page,
     pageSize: table.pageSize,
@@ -125,16 +98,13 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
 
   const toolbar = (
     <>
-      <div className="flex min-w-48 flex-1 flex-col gap-1 sm:max-w-64">
-        <Label htmlFor="attempts-search">{t("Search")}</Label>
-        <Input
-          id="attempts-search"
-          type="search"
-          placeholder={t("app.identity.loginAttempts.searchUser")}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
+      <SearchFilter
+        id="attempts-search"
+        label={t("Search")}
+        placeholder={t("app.identity.loginAttempts.searchUser")}
+        value={table.filters.userName}
+        onChange={(value) => table.setFilter("userName", value)}
+      />
       <FilterSelect
         id="attempts-method"
         label={t("LoginType")}
@@ -156,15 +126,7 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
         ]}
       />
       {table.hasFilters ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setSearch("");
-            table.clearFilters();
-          }}
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={table.clearFilters}>
           {t("ClearFilters")}
         </Button>
       ) : null}
@@ -191,42 +153,5 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
       toolbar={toolbar}
       filtered={table.hasFilters}
     />
-  );
-}
-
-function FilterSelect({
-  id,
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  id: string;
-  label: string;
-  value: string | undefined;
-  onChange: (value: string | undefined) => void;
-  options: readonly { value: string; label: string }[];
-}) {
-  const t = useTranslations();
-  return (
-    <div className="flex flex-col gap-1">
-      <Label htmlFor={id}>{label}</Label>
-      <Select
-        value={value ?? ALL}
-        onValueChange={(next) => onChange(next === ALL ? undefined : next)}
-      >
-        <SelectTrigger id={id} className="w-40">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>{t("common.table.all")}</SelectItem>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
   );
 }

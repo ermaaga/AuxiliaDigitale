@@ -89,3 +89,37 @@ export function customFieldColumns<TRow>(
       cell: (row: TRow) => valueOf(row, definition.key),
     }));
 }
+
+/**
+ * Sort and page in the browser a short list the API returns whole (e.g. the tenants of the console), with the same
+ * `sort` syntax as the API (`field` / `-field`); `sortValue` gives the text a row is sorted by. A page past the end
+ * (after filtering) shows the last one.
+ */
+export function pageLocally<TRow>(
+  rows: readonly TRow[],
+  {
+    page,
+    pageSize,
+    sort,
+    sortValue,
+  }: {
+    page: number;
+    pageSize: number;
+    sort: string | null | undefined;
+    sortValue: (row: TRow, field: string) => string;
+  },
+): { rows: TRow[]; totalCount: number; page: number } {
+  const sorted = [...rows];
+  if (sort) {
+    const descending = sort.startsWith("-");
+    const field = descending ? sort.slice(1) : sort;
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+    sorted.sort(
+      (a, b) => collator.compare(sortValue(a, field), sortValue(b, field)) * (descending ? -1 : 1),
+    );
+  }
+
+  const shown = Math.min(Math.max(1, page), pageCount(sorted.length, pageSize));
+  const start = (shown - 1) * pageSize;
+  return { rows: sorted.slice(start, start + pageSize), totalCount: sorted.length, page: shown };
+}

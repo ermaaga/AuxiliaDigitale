@@ -1,0 +1,62 @@
+"use client";
+
+import * as React from "react";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+
+import type { LanguageOption } from "@/components/shell/language-switcher";
+import { ShellFrame, type ShellLink } from "@/components/shell/shell-frame";
+import { PLATFORM_HOME, consoleTenantFromPath, platformHref, tenantConsoleHref } from "@/lib/href";
+
+import { TenantSelector, type TenantOption } from "./tenant-selector";
+
+/**
+ * Frame of the platform console (N02): the tenant list, the pages of the selected tenant (the slug in the path) and
+ * the tenant selector in the topbar; account menu with the System user. Signs out through the console BFF.
+ */
+export function ConsoleShell({
+  appName,
+  user,
+  tenants,
+  languages,
+  children,
+}: {
+  appName: string;
+  user: { name: string; detail: string };
+  tenants: readonly TenantOption[];
+  languages: readonly LanguageOption[];
+  children: React.ReactNode;
+}) {
+  const t = useTranslations();
+  const selected = consoleTenantFromPath(usePathname());
+  const tenant = tenants.find((item) => item.slug === selected);
+
+  const navigation: ShellLink[] = [
+    { key: "tenants", label: t("app.platform.nav.tenants"), href: PLATFORM_HOME, icon: "building" },
+    ...(tenant
+      ? [
+          {
+            key: "tenant-overview",
+            label: t("app.platform.nav.overview"),
+            href: tenantConsoleHref(tenant.slug),
+            icon: "gauge",
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <ShellFrame
+      appName={appName}
+      homeHref={PLATFORM_HOME}
+      navigation={navigation}
+      user={user}
+      loginPath={platformHref("/login")}
+      logoutUrl="/api/platform-auth/logout"
+      languages={languages}
+      topbar={<TenantSelector tenants={tenants} selected={tenant?.slug} />}
+    >
+      {children}
+    </ShellFrame>
+  );
+}

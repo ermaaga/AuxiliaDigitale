@@ -22,9 +22,19 @@ export function errorMessage(error: unknown, translate: Translate): string {
  * Error state of a query or form (skill auxilia-ui-design): translated message, copyable `AUX-` code, trace id and
  * retry. Texts from the `common.*` and `errors.*` keys (P3-05).
  */
-export function ApiErrorAlert({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+export function ApiErrorAlert({
+  error,
+  onRetry,
+  messageKeys,
+}: {
+  error: unknown;
+  onRetry?: () => void;
+  /** Per-page wording of some codes, `{ "AUX-12002": "app.platform.login.failed" }`. */
+  messageKeys?: Readonly<Record<string, string>>;
+}) {
   const t = useTranslations();
   const translate: Translate = (key) => (t.has(key) ? t(key) : undefined);
+  const override = isApiError(error) ? messageKeys?.[error.errorCode] : undefined;
   const labels = {
     title: t("common.error.title"),
     retry: t("common.retry"),
@@ -40,7 +50,7 @@ export function ApiErrorAlert({ error, onRetry }: { error: unknown; onRetry?: ()
       <CircleAlertIcon aria-hidden />
       <AlertTitle>{labels.title}</AlertTitle>
       <AlertDescription className="flex flex-col gap-3">
-        <p>{errorMessage(error, translate)}</p>
+        <p>{(override && translate(override)) ?? errorMessage(error, translate)}</p>
         <p className="flex flex-wrap items-center gap-2 text-xs">
           <code className="rounded bg-muted px-1.5 py-0.5 text-foreground" data-testid="error-code">
             {code}
