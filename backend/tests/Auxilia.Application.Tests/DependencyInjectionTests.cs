@@ -58,8 +58,9 @@ public sealed class DependencyInjectionTests
         registry.Find("cases.expiry.expiringDays").ShouldBeSameAs(CasesSettings.ExpiryExpiringDays);
         registry.All.Select(definition => definition.Key).ShouldBe(
         [
+            "auth.accessToken.minutes", "auth.activation.linkHours", "auth.appBaseUrl",
             "auth.lockout.maxFailedAttempts", "auth.lockout.minutes", "auth.password.minLength",
-            "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled", "cases.expiry.expiringDays",
+            "auth.passwordReset.linkMinutes", "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled", "cases.expiry.expiringDays",
             "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage", "registration.enabled",
             "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);

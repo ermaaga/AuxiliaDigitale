@@ -4,6 +4,7 @@ using Auxilia.Application.Abstractions.Caching;
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Application.Messaging.Public;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Messaging;
 using Auxilia.SharedKernel.Results;

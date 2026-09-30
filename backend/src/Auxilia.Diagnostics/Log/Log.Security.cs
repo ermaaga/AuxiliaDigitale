@@ -30,5 +30,33 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.AccountActivationChanged, EventName = "Security.AccountActivationChanged",
             Level = LogLevel.Information, Message = "User {UserId} can sign in: {IsActive}")]
         public static partial void AccountActivationChanged(ILogger logger, Guid userId, bool isActive);
+
+        [LoggerMessage(EventId = EventCodes.Security.RefreshTokenReuse, EventName = "Security.RefreshTokenReuse",
+            Level = LogLevel.Warning, Message = "Refresh token reused in session {SessionId} of user {UserId}: session revoked")]
+        public static partial void RefreshTokenReuse(ILogger logger, Guid sessionId, Guid userId);
+
+        [LoggerMessage(EventId = EventCodes.Security.SessionEnded, EventName = "Security.SessionEnded",
+            Level = LogLevel.Information, Message = "Session {SessionId} of user {UserId} ended: {Reason}")]
+        public static partial void SessionEnded(ILogger logger, Guid sessionId, Guid userId, string reason);
+
+        [LoggerMessage(EventId = EventCodes.Security.PasswordResetRequested, EventName = "Security.PasswordResetRequested",
+            Level = LogLevel.Information, Message = "Password reset requested for user {UserId}")]
+        public static partial void PasswordResetRequested(ILogger logger, Guid? userId);
+
+        [LoggerMessage(EventId = EventCodes.Security.PasswordResetCompleted, EventName = "Security.PasswordResetCompleted",
+            Level = LogLevel.Information, Message = "Password of user {UserId} reset with a reset link")]
+        public static partial void PasswordResetCompleted(ILogger logger, Guid userId);
+
+        [LoggerMessage(EventId = EventCodes.Security.AccountActivated, EventName = "Security.AccountActivated",
+            Level = LogLevel.Information, Message = "User {UserId} activated the account")]
+        public static partial void AccountActivated(ILogger logger, Guid userId);
+
+        [LoggerMessage(EventId = EventCodes.Security.ClientRejected, EventName = "Security.ClientRejected",
+            Level = LogLevel.Warning, Message = "Token request rejected for client {ClientId}: {Reason}")]
+        public static partial void ClientRejected(ILogger logger, string clientId, string reason);
+
+        [LoggerMessage(EventId = EventCodes.Security.SigningKeyRotated, EventName = "Security.SigningKeyRotated",
+            Level = LogLevel.Information, Message = "Token signing key {KeyId} is now active")]
+        public static partial void SigningKeyRotated(ILogger logger, string keyId);
     }
 }

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using Auxilia.Application.Messaging;
+using Auxilia.Application.Messaging.Public;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Messaging;
 

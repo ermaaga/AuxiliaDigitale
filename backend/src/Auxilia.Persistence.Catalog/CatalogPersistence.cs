@@ -1,9 +1,11 @@
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Channels;
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Persistence.Catalog.Configuration;
+using Auxilia.Persistence.Catalog.Identity;
 using Auxilia.Persistence.Catalog.Interceptors;
 using Auxilia.Persistence.Catalog.Modules;
 using Auxilia.Persistence.Catalog.Tenancy;
@@ -50,8 +52,11 @@ public static class CatalogPersistence
         services.AddSingleton<ITenantConnectionProtector, TenantConnectionProtector>();
         services.AddScoped<IPlatformSettingStore, PlatformSettingStore>();
         services.AddScoped<IModuleCatalogReader, ModuleCatalogReader>();
+        services.AddScoped<ISigningKeyStore, SigningKeyStore>();
+        services.AddScoped<IClientApplicationStore, ClientApplicationStore>();
         services.AddSingleton<ISettingSecretProtector, SettingSecretProtector>();
         services.AddSingleton<IAccountSecretProtector, AccountSecretProtector>();
+        services.AddSingleton<ISigningKeyProtector, SigningKeyProtector>();
 
         return services;
     }

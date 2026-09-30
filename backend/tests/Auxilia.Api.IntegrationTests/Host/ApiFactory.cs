@@ -12,7 +12,7 @@ namespace Auxilia.Api.IntegrationTests.Host;
 
 /// <summary>
 /// The API in Development on the shared <see cref="ApiDatabase"/>, logging to the console only; <see cref="Endpoints"/>
-/// are mapped on <c>/api/v1</c>. Until authentication exists (P2), header <see cref="TestTenantClaimHeader"/> makes the
+/// are mapped on <c>/api/v1</c>. Besides real bearer tokens, header <see cref="TestTenantClaimHeader"/> makes the
 /// caller authenticated with that <c>tenant</c> claim.
 /// </summary>
 public class ApiFactory : WebApplicationFactory<Program>

@@ -196,6 +196,106 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("people", "directory");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Identity.RefreshSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AbsoluteExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("absolute_expires_at");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("end_reason");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<DateTimeOffset>("IdleExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("idle_expires_at");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("SecurityStamp")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("security_stamp");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_refresh_sessions");
+
+                    b.HasIndex("UserId", "EndedAt")
+                        .HasDatabaseName("ix_refresh_sessions_user_id_ended_at");
+
+                    b.ToTable("refresh_sessions", "identity");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Identity.RefreshToken", b =>
+                {
+                    b.Property<string>("TokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset?>("ConsumedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("consumed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.HasKey("TokenHash")
+                        .HasName("pk_refresh_tokens");
+
+                    b.HasIndex("SessionId")
+                        .HasDatabaseName("ix_refresh_tokens_session_id");
+
+                    b.ToTable("refresh_tokens", "identity");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -301,6 +401,53 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasDatabaseName("ix_users_user_name");
 
                     b.ToTable("users", "identity");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Identity.UserToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("purpose");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("token_hash");
+
+                    b.Property<DateTimeOffset?>("UsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("used_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_tokens");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_tokens_token_hash");
+
+                    b.HasIndex("UserId", "Purpose")
+                        .HasDatabaseName("ix_user_tokens_user_id_purpose");
+
+                    b.ToTable("user_tokens", "identity");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Messaging.MessageTemplate", b =>
@@ -930,6 +1077,26 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("processed_messages", "ops");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Identity.RefreshSession", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_refresh_sessions_user_user_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Identity.RefreshToken", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Identity.RefreshSession", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_refresh_tokens_refresh_sessions_session_id");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Identity.User", b =>
                 {
                     b.HasOne("Auxilia.Domain.Directory.Person", null)
@@ -971,6 +1138,16 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
 
                     b.Navigation("roles");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Identity.UserToken", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Messaging.OutboundMessage", b =>

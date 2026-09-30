@@ -1,8 +1,10 @@
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Application.Identity;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Platform;
 using Auxilia.Application.Platform.Modules;
 using Auxilia.Diagnostics;
+using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Results;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +35,10 @@ internal sealed class AuxctlCli
           tenant list
           jobs list
           jobs run <job-code> (--tenant <slug> | --all)
+          keys rotate                     (new token signing key; the previous one keeps validating for 2 h)
+          clients add --client-id <id> --name <name> --type (WebBff | PlatformConsole | Mobile | Integration) [--origin <url>]
+                      (a confidential client's secret is printed once)
+          clients list
           diagnostics registry [--output <file>]
         """;
 
@@ -61,6 +67,9 @@ internal sealed class AuxctlCli
                 _ when command.Is("tenant", "list") => await InScopeAsync(scope => ListTenantsAsync(scope, cancellationToken)),
                 _ when command.Is("tenant") && command.Word(1) is "suspend" or "reactivate" or "archive" =>
                     await InScopeAsync(scope => ChangeStatusAsync(scope, command, cancellationToken)),
+                _ when command.Is("keys", "rotate") => await InScopeAsync(scope => RotateKeysAsync(scope, cancellationToken)),
+                _ when command.Is("clients", "add") => await InScopeAsync(scope => AddClientAsync(scope, command, cancellationToken)),
+                _ when command.Is("clients", "list") => await InScopeAsync(scope => ListClientsAsync(scope, cancellationToken)),
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
                 _ => await UsageAsync(),
@@ -199,6 +208,41 @@ internal sealed class AuxctlCli
         foreach (var tenant in await scope.GetRequiredService<ICatalogStore>().ListTenantsAsync(cancellationToken))
         {
             await output.WriteLineAsync($"{tenant.Slug}\t{tenant.Status}\tschema {tenant.SchemaVersion ?? "-"}\tdata {tenant.DataVersion ?? "-"}");
+        }
+
+        return Success;
+    }
+
+    private async Task<int> RotateKeysAsync(IServiceProvider scope, CancellationToken cancellationToken)
+    {
+        var result = await scope.GetRequiredService<ISigningKeyManager>().RotateAsync(cancellationToken);
+        return await ReportAsync(result, keyId => $"signing key {keyId} is now active");
+    }
+
+    private async Task<int> AddClientAsync(IServiceProvider scope, CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("client-id") is not { } clientId
+            || command.Option("name") is not { } name
+            || !Enum.TryParse<ClientApplicationType>(command.Option("type"), ignoreCase: true, out var type)
+            || !Enum.IsDefined(type))
+        {
+            return await UsageAsync();
+        }
+
+        var origins = command.Option("origin") is { } origin ? new[] { origin } : [];
+        var result = await scope.GetRequiredService<IClientApplicationManager>()
+            .AddAsync(new NewClientApplication(clientId, name, type, origins), cancellationToken);
+        return await ReportAsync(result, added => added.Secret is { } secret
+            ? $"{added.Client.ClientId}: added ({added.Client.Type}); client secret (shown only now): {secret}"
+            : $"{added.Client.ClientId}: added ({added.Client.Type}, public client)");
+    }
+
+    private async Task<int> ListClientsAsync(IServiceProvider scope, CancellationToken cancellationToken)
+    {
+        foreach (var client in await scope.GetRequiredService<IClientApplicationManager>().ListAsync(cancellationToken))
+        {
+            var origins = client.AllowedOrigins.Length == 0 ? "-" : string.Join(',', client.AllowedOrigins);
+            await output.WriteLineAsync($"{client.ClientId}\t{client.Type}\t{(client.IsEnabled ? "enabled" : "disabled")}\t{origins}\t{client.Name}");
         }
 
         return Success;

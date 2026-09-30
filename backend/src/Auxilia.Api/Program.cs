@@ -1,4 +1,5 @@
 using Auxilia.Api.Endpoints;
+using Auxilia.Api.Endpoints.Identity;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Modules;
 using Auxilia.Api.Tenancy;
@@ -44,6 +45,9 @@ if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rab
     builder.Services.AddMessageBusClient(rabbitMq);
 }
 
+builder.Services.AddAuxiliaAuthentication(builder.Configuration);
+builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
+
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 
 // Module descriptors are registered by AddApplication; their endpoints are IModuleEndpoints (MapModules below).
@@ -59,11 +63,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAuxiliaSecurityHeaders();
 
-// Authentication (P2) goes before tenant resolution, so the token claim is authoritative.
+// Authentication goes before tenant resolution, so the token claim is authoritative.
+app.UseAuthentication();
 app.UseMiddleware<TenantResolutionMiddleware>();
+app.UseAuthorization();
 
 app.MapDefaultEndpoints();
 app.MapAuxiliaOpenApi();
+app.MapJwks();
 
 var api = app.MapApiV1();
 foreach (var endpoints in app.Services.GetServices<IApiEndpoints>())

@@ -26,7 +26,10 @@
   </ItemGroup>
   <ItemGroup Label="Identity">
     <PackageVersion Include="BCrypt.Net-Next" Version="4.2.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="10.0.12" />
+    <!-- Same version JwtBearer 10.0.12 brings (IdentityModel packages must match) -->
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.2" />
   </ItemGroup>
   <ItemGroup Label="Outbound channels and templates">
     <PackageVersion Include="Fluid.Core" Version="2.40.0" />

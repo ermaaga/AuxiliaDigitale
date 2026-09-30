@@ -14,5 +14,25 @@ public static partial class Operations
 
         /// <summary>Not transactional: failed attempts and lockout must be saved even when the sign-in fails.</summary>
         public static readonly OperationDescriptor AuthenticateUser = new("Identity.AuthenticateUser", EventCodes.Identity.UserAuthenticated, isWrite: false);
+
+        /// <summary>Not transactional as a whole: failed attempts must be saved; the session is saved on success.</summary>
+        public static readonly OperationDescriptor SignIn = new("Identity.SignIn", EventCodes.Identity.TokensIssued, isWrite: false);
+
+        /// <summary>Not transactional: a detected reuse must revoke the session even though the refresh fails.</summary>
+        public static readonly OperationDescriptor RefreshTokens = new("Identity.RefreshTokens", EventCodes.Identity.TokensRefreshed, isWrite: false);
+
+        public static readonly OperationDescriptor EndSession = new("Identity.EndSession", EventCodes.Identity.SessionEnded);
+
+        public static readonly OperationDescriptor SendActivation = new("Identity.SendActivation", EventCodes.Identity.ActivationSent);
+
+        public static readonly OperationDescriptor ActivateAccount = new("Identity.ActivateAccount", EventCodes.Identity.AccountActivated);
+
+        public static readonly OperationDescriptor RequestPasswordReset = new("Identity.RequestPasswordReset", EventCodes.Identity.PasswordResetRequested);
+
+        public static readonly OperationDescriptor ResetPassword = new("Identity.ResetPassword", EventCodes.Identity.PasswordReset);
+
+        public static readonly OperationDescriptor RotateSigningKey = new("Identity.RotateSigningKey", EventCodes.Identity.SigningKeyRotated);
+
+        public static readonly OperationDescriptor AddClientApplication = new("Identity.AddClientApplication", EventCodes.Identity.ClientApplicationAdded);
     }
 }

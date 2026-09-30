@@ -22,5 +22,26 @@ public static partial class EventCodes
 
         /// <summary>A user account was enabled or disabled for sign-in.</summary>
         public const int AccountActivationChanged = 29006;
+
+        /// <summary>A consumed refresh token was presented again: the session is revoked.</summary>
+        public const int RefreshTokenReuse = 29007;
+
+        /// <summary>A session ended (logout, revocation, single session, security stamp).</summary>
+        public const int SessionEnded = 29008;
+
+        /// <summary>A password reset was requested.</summary>
+        public const int PasswordResetRequested = 29009;
+
+        /// <summary>A password was reset with a reset link.</summary>
+        public const int PasswordResetCompleted = 29010;
+
+        /// <summary>An account was activated with its activation link.</summary>
+        public const int AccountActivated = 29011;
+
+        /// <summary>A token request came from an unknown or disabled client, or with a wrong secret.</summary>
+        public const int ClientRejected = 29012;
+
+        /// <summary>The token signing key was rotated.</summary>
+        public const int SigningKeyRotated = 29013;
     }
 }
