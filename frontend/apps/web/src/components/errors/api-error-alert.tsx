@@ -2,12 +2,10 @@
 
 import * as React from "react";
 import { CircleAlertIcon, CopyIcon, RotateCcwIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { isApiError } from "@auxilia/api-client";
 import { Alert, AlertDescription, AlertTitle } from "@auxilia/ui/components/alert";
 import { Button } from "@auxilia/ui/components/button";
-
-/** Translated texts of the alert (the component has none of its own, skill auxilia-localization). */
-export type ApiErrorLabels = { title: string; retry: string; copy: string; trace: string };
 
 type Translate = (key: string) => string | undefined;
 
@@ -20,18 +18,19 @@ export function errorMessage(error: unknown, translate: Translate): string {
   return translate(key) ?? translate("errors.generic") ?? key;
 }
 
-/** Error state of a query or form (skill auxilia-ui-design): message, copyable `AUX-` code, trace id, retry. */
-export function ApiErrorAlert({
-  error,
-  translate,
-  labels,
-  onRetry,
-}: {
-  error: unknown;
-  translate: Translate;
-  labels: ApiErrorLabels;
-  onRetry?: () => void;
-}) {
+/**
+ * Error state of a query or form (skill auxilia-ui-design): translated message, copyable `AUX-` code, trace id and
+ * retry. Texts from the `common.*` and `errors.*` keys (P3-05).
+ */
+export function ApiErrorAlert({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+  const t = useTranslations();
+  const translate: Translate = (key) => (t.has(key) ? t(key) : undefined);
+  const labels = {
+    title: t("common.error.title"),
+    retry: t("common.retry"),
+    copy: t("common.copyCode"),
+    trace: t("common.traceId"),
+  };
   const code = isApiError(error) ? error.errorCode : "AUX-WEB-UNKNOWN";
   const traceId = isApiError(error) ? error.traceId : undefined;
   const reference = traceId ? `${code} · ${traceId}` : code;

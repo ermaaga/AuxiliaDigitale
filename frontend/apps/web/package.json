@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "i18n:sync": "node scripts/sync-messages.mjs"
   },
   "dependencies": {
     "@auxilia/api-client": "workspace:*",
@@ -16,6 +17,7 @@
     "@tanstack/react-query": "^5.104.0",
     "lucide-react": "^1.48.0",
     "next": "16.3.7",
+    "next-intl": "^4.14.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "sonner": "^2.0.8"

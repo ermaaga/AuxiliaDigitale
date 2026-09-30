@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InfoIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@auxilia/ui/components/alert";
@@ -66,6 +67,7 @@ const colors = [
 ] as const;
 
 export function Showcase() {
+  const theme = useTranslations("common.theme");
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 p-4 sm:p-8">
       <header className="flex items-center justify-between gap-4">
@@ -75,7 +77,14 @@ export function Showcase() {
             Tokens, components, themes and tenant branding.
           </p>
         </div>
-        <ThemeToggle labels={{ toggle: "Theme", light: "Light", dark: "Dark", system: "System" }} />
+        <ThemeToggle
+          labels={{
+            toggle: theme("toggle"),
+            light: theme("light"),
+            dark: theme("dark"),
+            system: theme("system"),
+          }}
+        />
       </header>
 
       <div className="h-24 rounded-xl bg-brand" aria-hidden />
