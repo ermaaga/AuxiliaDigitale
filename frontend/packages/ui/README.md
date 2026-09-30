@@ -8,6 +8,7 @@ Design system: shadcn/ui components (source copied here) on Radix + Tailwind v4,
 - Root layout: `ThemeProvider` (next-themes, `class` strategy, light/dark/system), `TooltipProvider`, `Toaster` (sonner). `ThemeToggle` takes its labels as props.
 
 ## Tokens and tenant branding
+
 - Components use tokens only (`bg-primary`, `text-muted-foreground`, `bg-brand`…), never hex colours.
 - Brand tokens (`--primary`, `--primary-foreground`, `--primary-text`, `--accent`, `--accent-foreground`, `--ring`, `--sidebar-primary*`, `--brand-gradient`) default to the legacy theme #667eea → #764ba2 made accessible.
 - A tenant brand (`{ primaryColor, accentColor }`, public branding endpoint in S-02) is applied by `<BrandingStyle branding={…} nonce={…} />` in the tenant layout. `lib/branding.ts` derives light and dark tokens and guarantees WCAG 2.2 AA: text ≥ 4.5:1 (a failing brand colour is replaced by its closest accessible shade), filled components and focus ring ≥ 3:1 against the page. `--primary-text` is the brand as text on the page (links), because a light brand can fill a button with dark text but cannot be text on white.
