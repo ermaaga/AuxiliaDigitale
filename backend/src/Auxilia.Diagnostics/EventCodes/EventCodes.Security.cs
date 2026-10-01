@@ -73,5 +73,8 @@ public static partial class EventCodes
 
         /// <summary>An operator reset a user's password with auxctl (F31): temporary password or reset link.</summary>
         public const int PasswordResetByOperator = 29023;
+
+        /// <summary>The permissions of a tenant role changed (F22): permissions granted and revoked.</summary>
+        public const int RolePermissionsChanged = 29024;
     }
 }

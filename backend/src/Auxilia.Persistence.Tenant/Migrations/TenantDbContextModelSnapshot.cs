@@ -402,6 +402,80 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("people", "directory");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Directory.Specialization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_private");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("citext")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("role");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("WorkPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("work_phone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_specializations");
+
+                    b.HasIndex("Role", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_specializations_role_name")
+                        .HasFilter("is_active");
+
+                    b.ToTable("specializations", "directory");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Identity.LoginAttempt", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1589,6 +1663,52 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
 
                     b.Navigation("Columns");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Directory.Specialization", b =>
+                {
+                    b.HasOne("Auxilia.Persistence.Tenant.Configurations.Identity.IdentityRoleRow", null)
+                        .WithMany()
+                        .HasForeignKey("Role")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_specializations_roles_role");
+
+                    b.OwnsMany("Auxilia.Domain.Directory.SpecializationMember", "Members", b1 =>
+                        {
+                            b1.Property<Guid>("SpecializationId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("specialization_id");
+
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("user_id");
+
+                            b1.Property<DateTimeOffset>("AssignedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("assigned_at");
+
+                            b1.HasKey("SpecializationId", "UserId")
+                                .HasName("pk_specialization_members");
+
+                            b1.HasIndex("UserId")
+                                .HasDatabaseName("ix_specialization_members_user_id");
+
+                            b1.ToTable("specialization_members", "directory");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SpecializationId")
+                                .HasConstraintName("fk_specialization_members_specializations_specialization_id");
+
+                            b1.HasOne("Auxilia.Domain.Identity.User", null)
+                                .WithMany()
+                                .HasForeignKey("UserId")
+                                .OnDelete(DeleteBehavior.Cascade)
+                                .IsRequired()
+                                .HasConstraintName("fk_specialization_members_user_user_id");
+                        });
+
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Identity.RefreshSession", b =>

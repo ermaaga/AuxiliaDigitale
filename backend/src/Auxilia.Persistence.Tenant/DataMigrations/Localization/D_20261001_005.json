@@ -1,0 +1,440 @@
+[
+ {
+  "key": "app.platform.nav.permissions",
+  "category": "app",
+  "en": "Permissions",
+  "it": "Permessi"
+ },
+ {
+  "key": "app.platform.nav.specializations",
+  "category": "app",
+  "en": "Specializations",
+  "it": "Specializzazioni"
+ },
+ {
+  "key": "app.platform.permissions.title",
+  "category": "app",
+  "en": "Role permissions",
+  "it": "Permessi dei ruoli"
+ },
+ {
+  "key": "app.platform.permissions.description",
+  "category": "app",
+  "en": "What Administrators, Employees and Clients may do in the tenant app. A change applies at once to every user of the role.",
+  "it": "Cosa possono fare Amministratori, Operatori e Clienti nell'app del tenant. Una modifica vale subito per tutti gli utenti del ruolo."
+ },
+ {
+  "key": "app.platform.permissions.roles",
+  "category": "app",
+  "en": "Roles",
+  "it": "Ruoli"
+ },
+ {
+  "key": "app.platform.permissions.rolesDescription",
+  "category": "app",
+  "en": "A role with customized permissions can get the defaults of the modules back.",
+  "it": "Un ruolo con permessi personalizzati può tornare a quelli predefiniti dei moduli."
+ },
+ {
+  "key": "app.platform.permissions.customized",
+  "category": "app",
+  "en": "Customized",
+  "it": "Personalizzati"
+ },
+ {
+  "key": "app.platform.permissions.default",
+  "category": "app",
+  "en": "Default",
+  "it": "Predefiniti"
+ },
+ {
+  "key": "app.platform.permissions.reset",
+  "category": "app",
+  "en": "Restore defaults",
+  "it": "Ripristina predefiniti"
+ },
+ {
+  "key": "app.platform.permissions.resetNamed",
+  "category": "app",
+  "en": "Restore the default permissions of {role}",
+  "it": "Ripristina i permessi predefiniti di {role}"
+ },
+ {
+  "key": "app.platform.permissions.resetTitle",
+  "category": "app",
+  "en": "Restore the default permissions?",
+  "it": "Ripristinare i permessi predefiniti?"
+ },
+ {
+  "key": "app.platform.permissions.resetText",
+  "category": "app",
+  "en": "{role} will get exactly the default permissions of the modules; the changes made so far are lost.",
+  "it": "{role} avrà esattamente i permessi predefiniti dei moduli; le modifiche fatte finora andranno perse."
+ },
+ {
+  "key": "app.platform.permissions.resetDone",
+  "category": "app",
+  "en": "Default permissions restored",
+  "it": "Permessi predefiniti ripristinati"
+ },
+ {
+  "key": "app.platform.permissions.permission",
+  "category": "app",
+  "en": "Permission",
+  "it": "Permesso"
+ },
+ {
+  "key": "app.platform.permissions.toggle",
+  "category": "app",
+  "en": "{permission} for {role}",
+  "it": "{permission} per {role}"
+ },
+ {
+  "key": "app.platform.permissions.granted",
+  "category": "app",
+  "en": "Permission granted",
+  "it": "Permesso concesso"
+ },
+ {
+  "key": "app.platform.permissions.revoked",
+  "category": "app",
+  "en": "Permission revoked",
+  "it": "Permesso revocato"
+ },
+ {
+  "key": "app.platform.specializations.title",
+  "category": "app",
+  "en": "Specializations",
+  "it": "Specializzazioni"
+ },
+ {
+  "key": "app.platform.specializations.description",
+  "category": "app",
+  "en": "Specializations of Employees and Clients, with their contacts and the users holding them.",
+  "it": "Specializzazioni di Operatori e Clienti, con i loro contatti e gli utenti che le hanno."
+ },
+ {
+  "key": "app.platform.specializations.list",
+  "category": "app",
+  "en": "Active specializations",
+  "it": "Specializzazioni attive"
+ },
+ {
+  "key": "app.platform.specializations.listDescription",
+  "category": "app",
+  "en": "A private specialization makes the cases of its services private. Deleting a specialization deactivates it.",
+  "it": "Una specializzazione privata rende private le pratiche dei suoi servizi. Eliminare una specializzazione la disattiva."
+ },
+ {
+  "key": "app.platform.specializations.allRoles",
+  "category": "app",
+  "en": "All roles",
+  "it": "Tutti i ruoli"
+ },
+ {
+  "key": "app.platform.specializations.new",
+  "category": "app",
+  "en": "New specialization",
+  "it": "Nuova specializzazione"
+ },
+ {
+  "key": "app.platform.specializations.edit",
+  "category": "app",
+  "en": "Edit specialization",
+  "it": "Modifica specializzazione"
+ },
+ {
+  "key": "app.platform.specializations.dialogDescription",
+  "category": "app",
+  "en": "Name, role and contacts of the specialization.",
+  "it": "Nome, ruolo e contatti della specializzazione."
+ },
+ {
+  "key": "app.platform.specializations.name",
+  "category": "app",
+  "en": "Name",
+  "it": "Nome"
+ },
+ {
+  "key": "app.platform.specializations.descriptionLabel",
+  "category": "app",
+  "en": "Description",
+  "it": "Descrizione"
+ },
+ {
+  "key": "app.platform.specializations.workPhone",
+  "category": "app",
+  "en": "Work phone",
+  "it": "Telefono di lavoro"
+ },
+ {
+  "key": "app.platform.specializations.roleFixed",
+  "category": "app",
+  "en": "The role cannot change: the members hold it.",
+  "it": "Il ruolo non può cambiare: lo hanno i membri."
+ },
+ {
+  "key": "app.platform.specializations.privateLabel",
+  "category": "app",
+  "en": "Private cases",
+  "it": "Pratiche private"
+ },
+ {
+  "key": "app.platform.specializations.privateHint",
+  "category": "app",
+  "en": "The cases of the services of this specialization are visible only to the operators who can handle them.",
+  "it": "Le pratiche dei servizi di questa specializzazione sono visibili solo agli operatori che possono gestirle."
+ },
+ {
+  "key": "app.platform.specializations.private",
+  "category": "app",
+  "en": "Private",
+  "it": "Privata"
+ },
+ {
+  "key": "app.platform.specializations.members",
+  "category": "app",
+  "en": "Members",
+  "it": "Membri"
+ },
+ {
+  "key": "app.platform.specializations.assign",
+  "category": "app",
+  "en": "Members",
+  "it": "Membri"
+ },
+ {
+  "key": "app.platform.specializations.membersNamed",
+  "category": "app",
+  "en": "Members of {name}",
+  "it": "Membri di {name}"
+ },
+ {
+  "key": "app.platform.specializations.editNamed",
+  "category": "app",
+  "en": "Edit {name}",
+  "it": "Modifica {name}"
+ },
+ {
+  "key": "app.platform.specializations.deleteNamed",
+  "category": "app",
+  "en": "Delete {name}",
+  "it": "Elimina {name}"
+ },
+ {
+  "key": "app.platform.specializations.deleteTitle",
+  "category": "app",
+  "en": "Delete the specialization?",
+  "it": "Eliminare la specializzazione?"
+ },
+ {
+  "key": "app.platform.specializations.deleteText",
+  "category": "app",
+  "en": "{name} is deactivated: it disappears from the lists and keeps its members.",
+  "it": "{name} viene disattivata: sparisce dagli elenchi e conserva i suoi membri."
+ },
+ {
+  "key": "app.platform.specializations.deleted",
+  "category": "app",
+  "en": "Specialization deleted",
+  "it": "Specializzazione eliminata"
+ },
+ {
+  "key": "app.platform.specializations.saved",
+  "category": "app",
+  "en": "Specialization saved",
+  "it": "Specializzazione salvata"
+ },
+ {
+  "key": "app.platform.specializations.membersTitle",
+  "category": "app",
+  "en": "Specialization members",
+  "it": "Membri della specializzazione"
+ },
+ {
+  "key": "app.platform.specializations.membersDescription",
+  "category": "app",
+  "en": "The users holding the specialization; only users of its role can be added.",
+  "it": "Gli utenti che hanno la specializzazione; si possono aggiungere solo utenti del suo ruolo."
+ },
+ {
+  "key": "app.platform.specializations.back",
+  "category": "app",
+  "en": "Back to the specializations",
+  "it": "Torna alle specializzazioni"
+ },
+ {
+  "key": "app.platform.specializations.notFound",
+  "category": "app",
+  "en": "The specialization does not exist or was deleted.",
+  "it": "La specializzazione non esiste o è stata eliminata."
+ },
+ {
+  "key": "app.platform.specializations.user",
+  "category": "app",
+  "en": "User",
+  "it": "Utente"
+ },
+ {
+  "key": "app.platform.specializations.inactiveUser",
+  "category": "app",
+  "en": "Disabled account",
+  "it": "Account disattivato"
+ },
+ {
+  "key": "app.platform.specializations.remove",
+  "category": "app",
+  "en": "Remove",
+  "it": "Rimuovi"
+ },
+ {
+  "key": "app.platform.specializations.removeNamed",
+  "category": "app",
+  "en": "Remove {user}",
+  "it": "Rimuovi {user}"
+ },
+ {
+  "key": "app.platform.specializations.removeTitle",
+  "category": "app",
+  "en": "Remove the member?",
+  "it": "Rimuovere il membro?"
+ },
+ {
+  "key": "app.platform.specializations.removeText",
+  "category": "app",
+  "en": "{user} will no longer hold {name}.",
+  "it": "{user} non avrà più {name}."
+ },
+ {
+  "key": "app.platform.specializations.removed",
+  "category": "app",
+  "en": "Member removed",
+  "it": "Membro rimosso"
+ },
+ {
+  "key": "app.platform.specializations.addTitle",
+  "category": "app",
+  "en": "Add members",
+  "it": "Aggiungi membri"
+ },
+ {
+  "key": "app.platform.specializations.addDescription",
+  "category": "app",
+  "en": "Choose one or more users with the role {role}.",
+  "it": "Scegli uno o più utenti con il ruolo {role}."
+ },
+ {
+  "key": "app.platform.specializations.searchPlaceholder",
+  "category": "app",
+  "en": "Name, user name or e-mail",
+  "it": "Nome, nome utente o e-mail"
+ },
+ {
+  "key": "app.platform.specializations.candidates",
+  "category": "app",
+  "en": "Users with the role {role}",
+  "it": "Utenti con il ruolo {role}"
+ },
+ {
+  "key": "app.platform.specializations.noCandidates",
+  "category": "app",
+  "en": "No other user with the role {role} matches.",
+  "it": "Nessun altro utente con il ruolo {role} corrisponde."
+ },
+ {
+  "key": "app.platform.specializations.addSelected",
+  "category": "app",
+  "en": "Add selected ({count})",
+  "it": "Aggiungi selezionati ({count})"
+ },
+ {
+  "key": "app.platform.specializations.added",
+  "category": "app",
+  "en": "Members added",
+  "it": "Membri aggiunti"
+ },
+ {
+  "key": "validation.specializations.name",
+  "category": "validation",
+  "en": "Enter a name of at most 100 characters",
+  "it": "Inserisci un nome di al massimo 100 caratteri"
+ },
+ {
+  "key": "validation.specializations.role",
+  "category": "validation",
+  "en": "Choose Employee or Client",
+  "it": "Scegli Operatore o Cliente"
+ },
+ {
+  "key": "validation.specializations.description",
+  "category": "validation",
+  "en": "At most 1000 characters",
+  "it": "Al massimo 1000 caratteri"
+ },
+ {
+  "key": "validation.specializations.email",
+  "category": "validation",
+  "en": "Enter a valid e-mail address",
+  "it": "Inserisci un indirizzo e-mail valido"
+ },
+ {
+  "key": "validation.specializations.workPhone",
+  "category": "validation",
+  "en": "Use only digits, spaces and + ( ) . / -",
+  "it": "Usa solo cifre, spazi e + ( ) . / -"
+ },
+ {
+  "key": "validation.specializations.members",
+  "category": "validation",
+  "en": "Choose from 1 to 100 users",
+  "it": "Scegli da 1 a 100 utenti"
+ },
+ {
+  "key": "validation.specializations.member",
+  "category": "validation",
+  "en": "Every user must have the role of the specialization",
+  "it": "Ogni utente deve avere il ruolo della specializzazione"
+ },
+ {
+  "key": "validation.specializations.search",
+  "category": "validation",
+  "en": "At most 100 characters",
+  "it": "Al massimo 100 caratteri"
+ },
+ {
+  "key": "validation.rolePermissions.role",
+  "category": "validation",
+  "en": "Unknown role",
+  "it": "Ruolo sconosciuto"
+ },
+ {
+  "key": "validation.rolePermissions.unknown",
+  "category": "validation",
+  "en": "Unknown permission",
+  "it": "Permesso sconosciuto"
+ },
+ {
+  "key": "errors.AUX-13005",
+  "category": "errors",
+  "en": "The specialization does not exist or was deleted.",
+  "it": "La specializzazione non esiste o è stata eliminata."
+ },
+ {
+  "key": "errors.AUX-13006",
+  "category": "errors",
+  "en": "The role already has a specialization with this name.",
+  "it": "Il ruolo ha già una specializzazione con questo nome."
+ },
+ {
+  "key": "errors.AUX-13009",
+  "category": "errors",
+  "en": "Every user must have the role of the specialization.",
+  "it": "Ogni utente deve avere il ruolo della specializzazione."
+ },
+ {
+  "key": "errors.AUX-12058",
+  "category": "errors",
+  "en": "The role or a permission is not valid.",
+  "it": "Il ruolo o un permesso non è valido."
+ }
+]

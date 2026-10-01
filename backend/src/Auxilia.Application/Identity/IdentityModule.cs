@@ -65,6 +65,8 @@ public sealed class IdentityModule : IModuleDescriptor
         services.TryAddScoped<RolePermissionsCache>();
         services.TryAddScoped<IPermissionAccess, PermissionAccess>();
         services.TryAddScoped<IAccessGuard, AccessGuard>();
+        services.TryAddScoped<IRolePermissionManager, RolePermissionManager>();
+        services.TryAddScoped<IRolePermissionQueryService, RolePermissionQueryService>();
         services.TryAddScoped<ICurrentUserQueryService, CurrentUserQueryService>();
         services.TryAddScoped<PlatformAuthManager>();
         services.TryAddScoped<IPlatformAuthManager>(provider => provider.GetRequiredService<PlatformAuthManager>());

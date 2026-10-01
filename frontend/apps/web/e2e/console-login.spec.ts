@@ -8,7 +8,7 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * Platform console (N02, D-21, D-22): activation of a System account (authenticator enrolment), sign-in with
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
  * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03),
- * custom fields and grid layouts (S-04), translations (S-05), sign-out.
+ * custom fields and grid layouts (S-04), translations (S-05), role permissions and specializations (S-06), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -489,6 +489,115 @@ test("console journey of a System user", async ({ page }) => {
       .getByRole("button", { name: t("Delete") })
       .click();
     await expect(page.getByText(t("app.platform.localization.deleted"))).toBeVisible();
+    await expect(row).toHaveCount(0);
+  });
+
+  await test.step("permissions: Clients get a permission, then the defaults back", async () => {
+    await page.goto(`/platform/tenants/${E2E.tenant}/permissions`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.permissions.title"), level: 1 }),
+    ).toBeVisible();
+    await expectAccessible(page, "permissions");
+
+    const sessions = page.getByRole("checkbox", {
+      name: t("app.platform.permissions.toggle", {
+        permission: t("permissions.identity.sessions.view.description"),
+        role: t("Client"),
+      }),
+    });
+    const resetClient = page.getByRole("button", {
+      name: t("app.platform.permissions.resetNamed", { role: t("Client") }),
+    });
+    const customized = page.getByText(t("app.platform.permissions.customized"), { exact: true });
+    async function restoreClient() {
+      await resetClient.click();
+      await page
+        .getByRole("alertdialog")
+        .getByRole("button", { name: t("app.platform.permissions.reset") })
+        .click();
+      await expect(page.getByText(t("app.platform.permissions.resetDone")).last()).toBeVisible();
+      await expect(resetClient).toHaveCount(0);
+    }
+
+    // A previous run on the same database may have left the Clients customized.
+    await expect(sessions).toBeEnabled();
+    if (await resetClient.isVisible()) {
+      await restoreClient();
+    }
+
+    await expect(sessions).not.toBeChecked();
+    await sessions.click();
+    await expect(page.getByText(t("app.platform.permissions.granted"))).toBeVisible();
+    await expect(sessions).toBeChecked();
+    await expect(customized).toBeVisible();
+
+    await restoreClient();
+    await expect(sessions).not.toBeChecked();
+    await expect(customized).toHaveCount(0);
+  });
+
+  await test.step("specializations: one is created, given to a user, taken back and deleted", async () => {
+    const name = `E2E ${Date.now().toString(36)}`;
+    await page.goto(`/platform/tenants/${E2E.tenant}/specializations`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.specializations.title"), level: 1 }),
+    ).toBeVisible();
+    await expectAccessible(page, "specializations");
+
+    await page.getByRole("button", { name: t("app.platform.specializations.new") }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel(t("app.platform.specializations.name")).fill(name);
+    await dialog.getByLabel(t("Email")).fill("not-an-email");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(dialog.getByText(t("validation.specializations.email"))).toBeVisible();
+    await dialog.getByLabel(t("Email")).fill("fisio@example.test");
+    await dialog.getByLabel(t("app.platform.specializations.privateLabel")).click();
+    await expectAccessible(page, "new specialization dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByText(t("app.platform.specializations.saved"))).toBeVisible();
+
+    const table = page.getByRole("table", { name: t("app.platform.specializations.list") });
+    const row = table.getByRole("row").filter({ hasText: name });
+    await expect(row).toContainText(t("app.platform.specializations.private"));
+    await row
+      .getByRole("link", { name: t("app.platform.specializations.membersNamed", { name }) })
+      .click();
+
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.specializations.membersTitle"), level: 1 }),
+    ).toBeVisible();
+    await page.getByLabel(t("Search")).fill("mario");
+    const candidate = page.getByRole("checkbox", { name: /Mario Rossi \(mario\.rossi\)/ });
+    await candidate.click();
+    await expectAccessible(page, "specialization members");
+    await page
+      .getByRole("button", { name: t("app.platform.specializations.addSelected", { count: 1 }) })
+      .click();
+    await expect(page.getByText(t("app.platform.specializations.added"))).toBeVisible();
+    const members = page.getByRole("table", { name: t("app.platform.specializations.members") });
+    await expect(members).toContainText("mario.rossi");
+
+    await members
+      .getByRole("button", {
+        name: t("app.platform.specializations.removeNamed", { user: "Mario Rossi (mario.rossi)" }),
+      })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("app.platform.specializations.remove") })
+      .click();
+    await expect(page.getByText(t("app.platform.specializations.removed"))).toBeVisible();
+    await expect(members).not.toContainText("mario.rossi");
+
+    await page.getByRole("link", { name: t("app.platform.specializations.back") }).click();
+    await row
+      .getByRole("button", { name: t("app.platform.specializations.deleteNamed", { name }) })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("Delete") })
+      .click();
+    await expect(page.getByText(t("app.platform.specializations.deleted"))).toBeVisible();
     await expect(row).toHaveCount(0);
   });
 

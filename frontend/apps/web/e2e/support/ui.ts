@@ -19,6 +19,17 @@ export function t(
 
 /** Every page visited by the suite: no serious or critical WCAG 2.2 AA violation (skill auxilia-testing). */
 export async function expectAccessible(page: Page, name: string): Promise<void> {
+  // Colours caught mid-transition (a toast fading out, a button changing colour) are not the page's real contrast.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter(
+          (animation) => animation.effect?.getTiming().iterations !== Number.POSITIVE_INFINITY,
+        )
+        .map((animation) => animation.finished.catch(() => undefined)),
+    ),
+  );
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();

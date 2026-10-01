@@ -12,6 +12,10 @@ public static partial class Operations
 
         public static readonly OperationDescriptor SetUserRoles = new("Identity.SetUserRoles", EventCodes.Identity.UserRolesChanged);
 
+        public static readonly OperationDescriptor SetRolePermissions = new("Identity.SetRolePermissions", EventCodes.Identity.RolePermissionsChanged);
+
+        public static readonly OperationDescriptor ResetRolePermissions = new("Identity.ResetRolePermissions", EventCodes.Identity.RolePermissionsReset);
+
         /// <summary>Not transactional: failed attempts and lockout must be saved even when the sign-in fails.</summary>
         public static readonly OperationDescriptor AuthenticateUser = new("Identity.AuthenticateUser", EventCodes.Identity.UserAuthenticated, isWrite: false);
 

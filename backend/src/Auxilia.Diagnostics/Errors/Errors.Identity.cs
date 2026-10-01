@@ -87,5 +87,9 @@ public static partial class Errors
 
         public static Error ClientIdTaken() =>
             Error.Conflict(EventCodes.Identity.ClientIdTaken, "A client application with this client id already exists");
+
+        public static Error RolePermissionsInvalid(string field, string messageKey) =>
+            Error.Validation(EventCodes.Identity.RolePermissionsInvalid, $"The role permission change is not valid ({field})",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
     }
 }

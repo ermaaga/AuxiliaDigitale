@@ -169,5 +169,14 @@ public static partial class EventCodes
 
         /// <summary>The account is already activated: no invitation is needed (409).</summary>
         public const int AccountAlreadyActivated = 12055;
+
+        /// <summary>The System changed the permissions of a tenant role (F22).</summary>
+        public const int RolePermissionsChanged = 12056;
+
+        /// <summary>The System restored the default permissions of a tenant role (F22).</summary>
+        public const int RolePermissionsReset = 12057;
+
+        /// <summary>Unknown role or permission in a role permission change (400).</summary>
+        public const int RolePermissionsInvalid = 12058;
     }
 }

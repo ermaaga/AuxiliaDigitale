@@ -4,6 +4,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Directory;
 
@@ -32,5 +33,7 @@ public sealed class DirectoryModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddScoped<ISpecializationManager, SpecializationManager>();
+        services.TryAddScoped<ISpecializationQueryService, SpecializationQueryService>();
     }
 }

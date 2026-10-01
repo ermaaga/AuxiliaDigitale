@@ -77,6 +77,18 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug, "/localization"),
             icon: "languages",
           },
+          {
+            key: "tenant-permissions",
+            label: t("app.platform.nav.permissions"),
+            href: tenantConsoleHref(tenant.slug, "/permissions"),
+            icon: "key-round",
+          },
+          {
+            key: "tenant-specializations",
+            label: t("app.platform.nav.specializations"),
+            href: tenantConsoleHref(tenant.slug, "/specializations"),
+            icon: "award",
+          },
         ]
       : []),
   ];
