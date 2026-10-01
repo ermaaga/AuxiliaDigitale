@@ -22,5 +22,20 @@ public static partial class EventCodes
 
         /// <summary>A setting value was removed from a level (the next level applies again).</summary>
         public const int SettingReset = 20006;
+
+        /// <summary>A branding image is not a PNG, JPEG or WebP file (400).</summary>
+        public const int BrandingImageInvalid = 20007;
+
+        /// <summary>A branding image is larger than allowed (logo 512 KB, background 2 MB) (400).</summary>
+        public const int BrandingImageTooLarge = 20008;
+
+        /// <summary>The tenant has no image of this kind (404).</summary>
+        public const int BrandingAssetNotFound = 20009;
+
+        /// <summary>A branding image (logo, login background) was uploaded.</summary>
+        public const int BrandingAssetChanged = 20010;
+
+        /// <summary>A branding image was removed.</summary>
+        public const int BrandingAssetRemoved = 20011;
     }
 }

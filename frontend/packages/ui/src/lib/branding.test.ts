@@ -23,6 +23,8 @@ const hex = (value: string | undefined) => {
 const black = hex("#000000");
 const white = hex("#ffffff");
 const darkBackground = hex("#0a0a0a");
+/** `--card` of the dark theme: brand text sits on the sign-in card. */
+const darkCard = hex("#171717");
 
 describe("colour maths", () => {
   it("parses #rgb and #rrggbb and rejects anything else", () => {
@@ -119,9 +121,14 @@ describe("tenant branding tokens", () => {
           expect(contrastRatio(hex(tokens.light["--primary-text"]), white)).toBeGreaterThanOrEqual(
             TEXT_CONTRAST,
           );
-          expect(
-            contrastRatio(hex(tokens.dark["--primary-text"]), darkBackground),
-          ).toBeGreaterThanOrEqual(TEXT_CONTRAST);
+          for (const surface of [darkBackground, darkCard]) {
+            expect(
+              contrastRatio(hex(tokens.dark["--primary-text"]), surface),
+            ).toBeGreaterThanOrEqual(TEXT_CONTRAST);
+            expect(contrastRatio(hex(tokens.dark["--ring"]), surface)).toBeGreaterThanOrEqual(
+              UI_CONTRAST,
+            );
+          }
           expect(contrastRatio(hex(tokens.light["--ring"]), white)).toBeGreaterThanOrEqual(
             UI_CONTRAST,
           );
@@ -150,6 +157,27 @@ describe("tenant branding tokens", () => {
     expect(brandingTokens({ primaryColor: "#123456" }).light["--brand-gradient"]).toBe(
       "linear-gradient(135deg, #123456, #123456)",
     );
+  });
+
+  it("keeps brand links readable on dark cards (#2b6cb0 gave 4.2:1)", () => {
+    const tokens = brandingTokens({ primaryColor: "#2b6cb0" });
+    expect(contrastRatio(hex(tokens.dark["--primary-text"]), darkCard)).toBeGreaterThanOrEqual(
+      TEXT_CONTRAST,
+    );
+  });
+
+  it("uses the primary colour alone for a solid fill", () => {
+    const gradient = brandingTokens({ primaryColor: "#225588", accentColor: "#aa3366" });
+    const solid = brandingTokens({
+      primaryColor: "#225588",
+      accentColor: "#aa3366",
+      themeFill: "Solid",
+    });
+
+    expect(gradient.light["--brand-gradient"]).toBe("linear-gradient(135deg, #225588, #aa3366)");
+    expect(solid.light["--brand-gradient"]).toBe("linear-gradient(135deg, #225588, #225588)");
+    expect(solid.dark["--brand-gradient"]).toMatch(/^linear-gradient\(135deg, (#\w{6}), \1\)$/);
+    expect(solid.light["--primary"]).toBe(gradient.light["--primary"]);
   });
 
   it("writes light tokens on :root and dark tokens on .dark only", () => {

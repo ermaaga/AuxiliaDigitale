@@ -10,6 +10,8 @@ export type Rgb = { r: number; g: number; b: number };
 export type TenantBranding = {
   primaryColor?: string | null;
   accentColor?: string | null;
+  /** `Solid`: brand surfaces use the primary colour alone instead of the primary → accent gradient. */
+  themeFill?: string | null;
 };
 
 export type BrandingTokens = { light: Record<string, string>; dark: Record<string, string> };
@@ -19,7 +21,7 @@ export const TEXT_CONTRAST = 4.5;
 export const UI_CONTRAST = 3;
 
 /** Legacy default theme (#667eea → #764ba2): the platform brand when a tenant has none. */
-export const DEFAULT_BRANDING: Required<{ [K in keyof TenantBranding]: string }> = {
+export const DEFAULT_BRANDING: { primaryColor: string; accentColor: string } = {
   primaryColor: "#667eea",
   accentColor: "#764ba2",
 };
@@ -29,6 +31,11 @@ const WHITE: Rgb = { r: 255, g: 255, b: 255 };
 const INK: Rgb = { r: 10, g: 10, b: 10 };
 /** Dark theme page background, as `--background` in `.dark` (oklch 0.145). */
 const DARK_BACKGROUND: Rgb = INK;
+/**
+ * Dark theme cards and popovers, as `--card` in `.dark` (oklch 0.205): lighter than the page, so brand text (links on
+ * the sign-in card) and focus rings are checked against it — what passes here passes on the page too.
+ */
+const DARK_SURFACE: Rgb = { r: 23, g: 23, b: 23 };
 
 export function parseHexColor(value: string | null | undefined): Rgb | null {
   const digits = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value?.trim() ?? "")?.[1];
@@ -161,6 +168,9 @@ export function brandingTokens(branding: TenantBranding | null | undefined): Bra
   const darkPrimary = filledOnDark(primary);
   const darkAccent = mix(accent, DARK_BACKGROUND, 0.75);
   const darkAccentText = ensureContrast(accent, darkAccent, TEXT_CONTRAST);
+  const solid = branding?.themeFill === "Solid";
+  const gradient = (from: Rgb, to: Rgb) =>
+    `linear-gradient(135deg, ${toHex(from)}, ${toHex(solid ? from : to)})`;
 
   return {
     light: {
@@ -173,19 +183,22 @@ export function brandingTokens(branding: TenantBranding | null | undefined): Bra
       "--accent-foreground": toHex(lightAccentText),
       "--sidebar-primary": toHex(lightPrimary.background),
       "--sidebar-primary-foreground": toHex(lightPrimary.foreground),
-      "--brand-gradient": `linear-gradient(135deg, ${toHex(primary)}, ${toHex(accent)})`,
+      "--brand-gradient": gradient(primary, accent),
     },
     dark: {
       "--primary": toHex(darkPrimary.background),
       "--primary-foreground": toHex(darkPrimary.foreground),
       "--primary-hover": toHex(hovered(darkPrimary)),
-      "--primary-text": toHex(ensureContrast(primary, DARK_BACKGROUND, TEXT_CONTRAST)),
-      "--ring": toHex(ensureContrast(primary, DARK_BACKGROUND, UI_CONTRAST)),
+      "--primary-text": toHex(ensureContrast(primary, DARK_SURFACE, TEXT_CONTRAST)),
+      "--ring": toHex(ensureContrast(primary, DARK_SURFACE, UI_CONTRAST)),
       "--accent": toHex(darkAccent),
       "--accent-foreground": toHex(darkAccentText),
       "--sidebar-primary": toHex(darkPrimary.background),
       "--sidebar-primary-foreground": toHex(darkPrimary.foreground),
-      "--brand-gradient": `linear-gradient(135deg, ${toHex(mix(primary, DARK_BACKGROUND, 0.35))}, ${toHex(mix(accent, DARK_BACKGROUND, 0.35))})`,
+      "--brand-gradient": gradient(
+        mix(primary, DARK_BACKGROUND, 0.35),
+        mix(accent, DARK_BACKGROUND, 0.35),
+      ),
     },
   };
 }

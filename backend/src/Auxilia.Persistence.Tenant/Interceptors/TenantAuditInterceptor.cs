@@ -126,14 +126,17 @@ internal sealed class TenantAuditInterceptor : SaveChangesInterceptor
             var name = JsonNamingPolicy.CamelCase.ConvertName(property.Metadata.Name);
             if (action == "Created")
             {
-                values[name] = property.CurrentValue;
+                values[name] = Loggable(property.CurrentValue);
             }
             else if (action == "Updated" && property.IsModified && !Equals(property.OriginalValue, property.CurrentValue))
             {
-                values[name] = new { old = property.OriginalValue, @new = property.CurrentValue };
+                values[name] = new { old = Loggable(property.OriginalValue), @new = Loggable(property.CurrentValue) };
             }
         }
 
         return JsonSerializer.Serialize(values);
     }
+
+    /// <summary>Binary content (branding images) is recorded by its size: the audit keeps who changed it, not a copy.</summary>
+    private static object? Loggable(object? value) => value is byte[] bytes ? $"<{bytes.Length} bytes>" : value;
 }

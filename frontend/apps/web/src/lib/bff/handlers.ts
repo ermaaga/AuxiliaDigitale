@@ -389,3 +389,53 @@ async function tenantScopedToken(
   await context.store.set(updated, remainingSeconds(context.config, updated, context.now));
   return issued.accessToken;
 }
+
+/** Branding images a tenant may have (S-02). */
+export const BRANDING_ASSETS = ["logo", "background"] as const;
+export type BrandingAsset = (typeof BRANDING_ASSETS)[number];
+
+/**
+ * A branding image of a tenant (`GET /api/branding/{tenant}/{asset}?v=…`), for `<img>` and CSS backgrounds that
+ * cannot send the tenant header: anonymous, no session, only the image types the API stores. The API answers with
+ * the hash as ETag and caches a URL that names the current version for a year.
+ */
+export async function brandingImage(
+  request: Request,
+  tenant: string,
+  asset: string,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  if (!isTenantSlug(tenant) || !(BRANDING_ASSETS as readonly string[]).includes(asset)) {
+    return Problems.forbiddenPath();
+  }
+
+  const version = new URL(request.url).searchParams.get("v");
+  const headers = new Headers();
+  const ifNoneMatch = request.headers.get("if-none-match");
+  if (ifNoneMatch !== null) {
+    headers.set("if-none-match", ifNoneMatch);
+  }
+
+  return safeCall(async () => {
+    const response = await callApi(
+      context.config,
+      "tenant",
+      {
+        method: "GET",
+        path: `branding/${asset}`,
+        search: version ? `?v=${encodeURIComponent(version)}` : "",
+        headers,
+        tenant,
+      },
+      request,
+    );
+    const type = response.headers.get("content-type") ?? "";
+    if (response.ok && !/^image\/(png|jpeg|webp)$/.test(type)) {
+      return Problems.apiUnavailable();
+    }
+
+    const browser = toBrowserResponse(response);
+    browser.headers.set("x-content-type-options", "nosniff");
+    return browser;
+  });
+}

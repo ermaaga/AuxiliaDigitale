@@ -19,7 +19,7 @@ public sealed class ConfigurationModule : IModuleDescriptor
 
     public IReadOnlyList<PermissionDefinition> Permissions { get; } = [];
 
-    public IReadOnlyList<SettingDefinition> Settings { get; } = [];
+    public IReadOnlyList<SettingDefinition> Settings { get; } = BrandingSettings.All;
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } = [];
 

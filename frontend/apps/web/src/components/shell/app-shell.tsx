@@ -25,6 +25,7 @@ export type ShellUser = { userName: string; roles: readonly string[] };
 export function AppShell({
   tenant,
   appName,
+  logoUrl,
   navigation,
   user,
   languages,
@@ -32,6 +33,8 @@ export function AppShell({
 }: {
   tenant: string;
   appName: string;
+  /** Tenant logo instead of the name (F23). */
+  logoUrl?: string;
   navigation: readonly ShellNavigationItem[];
   user: ShellUser;
   languages: readonly LanguageOption[];
@@ -48,6 +51,7 @@ export function AppShell({
   return (
     <ShellFrame
       appName={appName}
+      logoUrl={logoUrl}
       homeHref={tenantHref(tenant)}
       navigation={links}
       user={{ name: user.userName, detail: user.roles.join(", ") }}

@@ -41,6 +41,18 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug),
             icon: "gauge",
           },
+          {
+            key: "tenant-settings",
+            label: t("app.platform.nav.settings"),
+            href: tenantConsoleHref(tenant.slug, "/settings"),
+            icon: "settings",
+          },
+          {
+            key: "tenant-branding",
+            label: t("app.platform.nav.branding"),
+            href: tenantConsoleHref(tenant.slug, "/branding"),
+            icon: "palette",
+          },
         ]
       : []),
   ];

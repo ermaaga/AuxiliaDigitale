@@ -5,13 +5,14 @@ import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/shell/language-switcher";
 import { ThemeSwitcher } from "@/components/shell/theme-switcher";
 import { AuthCard } from "@/features/auth/components/auth-card";
+import { brandIdentity, loginBackground } from "@/features/branding/branding";
+import { loadBranding } from "@/features/branding/server";
 import { tenantLanguages } from "@/i18n/bundles";
 import { publicApi } from "@/lib/api/server";
-import { DEFAULT_APP_NAME } from "@/lib/app";
 
 /**
  * Frame of every public page of a tenant: 404 when the tenant does not exist, the tenant status message when it is
- * suspended or unavailable, language and theme switches in the corner.
+ * suspended or unavailable, the tenant branding (F23), language and theme switches in the corner.
  */
 export async function PublicPage({
   tenant,
@@ -45,7 +46,11 @@ export async function PublicPage({
     problem = code && t.has(`errors.${code}`) ? t(`errors.${code}`) : t("errors.generic");
   }
 
-  const languages = (await tenantLanguages(tenant)) ?? [];
+  const [languages, branding] = await Promise.all([
+    tenantLanguages(tenant).then((list) => list ?? []),
+    loadBranding(tenant),
+  ]);
+  const identity = brandIdentity(tenant, branding);
   const toolbar = (
     <>
       <LanguageSwitcher languages={languages} />
@@ -54,7 +59,14 @@ export async function PublicPage({
   );
 
   return (
-    <AuthCard appName={DEFAULT_APP_NAME} title={title} description={description} toolbar={toolbar}>
+    <AuthCard
+      appName={identity.appName}
+      logoUrl={identity.logoUrl}
+      background={loginBackground(tenant, branding.background)}
+      title={title}
+      description={description}
+      toolbar={toolbar}
+    >
       {problem ? (
         <p role="alert" className="text-sm text-destructive">
           {problem}

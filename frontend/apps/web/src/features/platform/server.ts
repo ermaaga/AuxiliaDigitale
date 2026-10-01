@@ -36,3 +36,21 @@ export const loadConsole = cache(async (): Promise<ConsoleContext> => {
     tenants: (await tenants.json()) as PlatformTenant[],
   };
 });
+
+export type PlatformTenantDetail = components["schemas"]["PlatformTenantDetailResponse"];
+
+/** A tenant of the console page `/platform/tenants/{slug}/…`; `undefined` when the API does not know it (404). */
+export const loadConsoleTenant = cache(
+  async (slug: string): Promise<PlatformTenantDetail | undefined> => {
+    const response = await serverApi("platform", `platform/tenants/${encodeURIComponent(slug)}`);
+    if (response.status === 404) {
+      return undefined;
+    }
+
+    if (!response.ok) {
+      throw new Error(`The API answered ${response.status} for tenant ${slug}.`);
+    }
+
+    return (await response.json()) as PlatformTenantDetail;
+  },
+);

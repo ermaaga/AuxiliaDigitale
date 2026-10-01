@@ -1,6 +1,6 @@
 # F23 — System configuration (settings, e-mail, theme, background)
 
-Status: [ ] not started · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
+Status: [~] in progress · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
 
 > **Decisions D-16, D-18:** settings, branding and **N sending accounts** (SMTP; WhatsApp prepared) with rules purpose × sender role are managed by **System**. See N03.
 
@@ -13,8 +13,13 @@ Status: [ ] not started · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
 App-level config (appsettings): `AppName` ("Auxilia Digitale"), `DefaultPassword`, `SessionTimeout`, storage, queue, reCAPTCHA, cache, logging.
 
 ## Acceptance criteria
-- [ ] `/platform/tenants/{slug}/settings`: all legacy keys with typed editors and descriptions; defaults seeded per tenant; generic list of other keys.
+- [x] `/platform/tenants/{slug}/settings`: all legacy keys with typed editors and descriptions; defaults seeded per tenant; generic list of other keys. *(S-02: every setting definition the tenant level allows, grouped by module; defaults live in code, not seeded rows — see notes.)*
 - [ ] `/platform/tenants/{slug}/messaging`: N SMTP accounts (host/port/security/user/password encrypted and never returned in clear, from e-mail/name, active, default) + rules purpose × sender role (N03); "send test e-mail".
-- [ ] `/platform/tenants/{slug}/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
-- [ ] Branding applied to the whole UI and to the public login/register pages (public branding endpoint). *(P3-02: tokens + `<BrandingStyle>` with WCAG fallback ready; endpoint and pages in S-02 / P3-06.)*
+- [x] `/platform/tenants/{slug}/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
+- [x] Branding applied to the whole UI and to the public login/register pages (public branding endpoint). *(S-02: tenant layout, sign-in pages, app shell; register pages are API-only, D-14.)*
 - [ ] Legacy values imported (SMTP password re-encrypted).
+
+## Status notes
+- P1-10: typed `SettingDefinition<T>` per module, levels user → tenant → platform → default, secrets encrypted, cached snapshot per tenant.
+- S-02 (settings): technical endpoints with a tenant-scoped platform token (D-21) — `GET /settings` (every definition that allows the tenant level: kind `boolean|integer|number|string|choice|secret`, choices for enums and fixed lists, default, platform, tenant and effective value with its source; secret values never returned), `PUT /settings/{key}` (validated by the definition, `AUX-20003`), `DELETE /settings/{key}` (back to platform value or default). Legacy keys map to definitions: `RegistrationEnabled/RegistrationLanguage/SendRegistrationConfirmationEmail` → `registration.*`, `AutoSubscriptionExpiry/SubscriptionExpiringDays` → `cases.expiry.*`, `UseAppName` → `branding.useAppName`. Defaults are the code defaults of the definitions (no seeded rows: a tenant row exists only when the System changes a value), so the legacy "ensure defaults" toggle is not needed. No free-form keys: a value without a definition has no reader. Every setting has a description key `settings.<key>.description` (EN + IT, a test enforces it).
+- S-02 (branding): settings `branding.useAppName`, `branding.appName` (default "Auxilia Digitale"), `branding.theme.fill` (Gradient | Solid), `branding.theme.primaryColor` / `accentColor` (default #667eea / #764ba2), `branding.background.kind` (Gradient | Solid | Image), `…startColor` / `endColor` / `color`; colours must be `#rgb`/`#rrggbb`. Images in `configuration.branding_assets` (one per kind): logo ≤ 512 KB, background ≤ 2 MB, PNG/JPEG/WebP recognised by signature (SVG refused: it can carry scripts), SHA-256 as version and ETag; the audit records their size, not their bytes. **Deviation:** the legacy resized the background to 1920×1080 JPEG; images are stored as uploaded (SkiaSharp is allowlisted for when resizing is wanted). Public `GET /branding` (anonymous, cached per tenant with the settings tag) and `GET /branding/{logo|background}` (ETag/304, immutable when the URL names the current version); uploads `PUT /branding/{asset}` (multipart) and `DELETE` with the tenant-scoped platform token. Web: `<BrandingStyle>` in the tenant layout (colours and fill → accessible tokens; dark-mode brand text now checked against the card surface, a contrast bug found by the E2E suite with a custom brand), name or logo in the sign-in card and the app sidebar, login background panel from parsed colours only, images through the same-origin route `/api/branding/{tenant}/{asset}?v=` (an `<img>` cannot send the tenant header).

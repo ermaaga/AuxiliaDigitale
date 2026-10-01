@@ -56,6 +56,9 @@ public abstract partial class SettingDefinition
     /// <summary>The code default as JSON (level 1); <c>null</c> when the setting has none (secrets).</summary>
     public abstract string? DefaultJson { get; }
 
+    /// <summary>The only values allowed (enum names, or a fixed list), for a select in the System editor; otherwise <c>null</c>.</summary>
+    public virtual IReadOnlyList<string>? Choices => null;
+
     /// <summary>Whether a value can be stored at <paramref name="level"/> (a single level).</summary>
     public bool Allows(SettingScope level) => level != SettingScope.None && (Scopes & level) == level;
 
@@ -75,10 +78,19 @@ public sealed class SettingDefinition<T> : SettingDefinition
 {
     private readonly Func<T, bool>? isValid;
 
-    public SettingDefinition(string key, string module, T defaultValue, SettingScope scopes = SettingScope.PlatformAndTenant, Func<T, bool>? isValid = null)
+    /// <param name="choices">The only values allowed (shown as a select); enums list their names on their own.</param>
+    public SettingDefinition(
+        string key, string module, T defaultValue, SettingScope scopes = SettingScope.PlatformAndTenant, Func<T, bool>? isValid = null, IReadOnlyList<T>? choices = null)
         : base(key, module, scopes)
     {
         ArgumentNullException.ThrowIfNull(defaultValue);
+        if (choices is not null)
+        {
+            var allowed = choices;
+            var rule = isValid;
+            isValid = value => allowed.Contains(value) && (rule is null || rule(value));
+        }
+
         if (isValid is not null && !isValid(defaultValue))
         {
             throw new ArgumentException($"The default of setting '{key}' fails its own validation.", nameof(defaultValue));
@@ -87,7 +99,12 @@ public sealed class SettingDefinition<T> : SettingDefinition
         Default = defaultValue;
         this.isValid = isValid;
         DefaultJson = Write(defaultValue);
+        Choices = typeof(T).IsEnum
+            ? Enum.GetNames(typeof(T))
+            : choices?.Select(choice => JsonSerializer.Deserialize<JsonElement>(Write(choice)).ToString()).ToArray();
     }
+
+    public override IReadOnlyList<string>? Choices { get; }
 
     public T Default { get; }
 

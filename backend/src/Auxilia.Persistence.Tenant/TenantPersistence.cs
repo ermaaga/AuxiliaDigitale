@@ -49,6 +49,7 @@ public static class TenantPersistence
         services.AddSingleton<TenantInitialSeed>();
         services.AddScoped<IJobRunStore, JobRunStore>();
         services.AddScoped<ITenantSettingStore, TenantSettingStore>();
+        services.AddScoped<Application.Abstractions.Configuration.IBrandingAssetStore, BrandingAssetStore>();
         services.AddScoped<IOutboxStore, OutboxStore>();
         services.AddScoped<IProcessedMessageStore, ProcessedMessageStore>();
         services.AddScoped<IJobLock, PostgresJobLock>();

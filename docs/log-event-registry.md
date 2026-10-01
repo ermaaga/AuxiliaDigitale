@@ -20,7 +20,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
-| 20000–20999 | Configuration | Configuration | 6 | 20007 |
+| 20000–20999 | Configuration | Configuration | 11 | 20012 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
@@ -141,6 +141,11 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-20004 | Configuration.StoredSettingIgnored | Warning | – | – | Stored value of setting {SettingKey} at level {SettingLevel} is not valid and is ignored |
 | AUX-20005 | Configuration.SettingChanged | – | – | Configuration.SetSetting (success) | – |
 | AUX-20006 | Configuration.SettingReset | – | – | Configuration.ResetSetting (success) | – |
+| AUX-20007 | Configuration.BrandingImageInvalid | – | Validation | – | – |
+| AUX-20008 | Configuration.BrandingImageTooLarge | – | Validation | – | – |
+| AUX-20009 | Configuration.BrandingAssetNotFound | – | NotFound | – | – |
+| AUX-20010 | Configuration.BrandingAssetChanged | – | – | Configuration.SetBrandingAsset (success) | – |
+| AUX-20011 | Configuration.BrandingAssetRemoved | – | – | Configuration.RemoveBrandingAsset (success) | – |
 | AUX-21001 | Localization.ResourceKeyNotFound | – | NotFound | – | – |
 | AUX-21002 | Localization.ResourceKeyExists | – | Conflict | – | – |
 | AUX-21003 | Localization.LanguageNotFound | – | NotFound | – | – |
