@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { ApiError } from "@auxilia/api-client";
+import { describe, expect, it, vi } from "vitest";
+
+import { applyApiErrors } from "@/components/forms/form";
 
 import {
   PLATFORM_HOME,
@@ -13,6 +16,8 @@ import { groupSecret } from "./components/activation-form";
 import { statusLabel } from "./tenant-status";
 import { filterTenants } from "./components/tenants-table";
 import { activationSchema, activationTokenSchema } from "./schemas/activation";
+import { CREATE_TENANT_FIELDS, createTenantSchema } from "./schemas/tenant";
+import { rolesText } from "./labels";
 
 const tenants = [
   {
@@ -80,6 +85,13 @@ describe("tenant list", () => {
       "gamma",
     ]);
     expect(filterTenants(tenants, "acme", "Suspended")).toEqual([]);
+    const archived = { ...tenants[2]!, slug: "old", status: "Archived" };
+    expect(
+      filterTenants([...tenants, archived], undefined, undefined).map((t) => t.slug),
+    ).not.toContain("old");
+    expect(filterTenants([...tenants, archived], undefined, "Archived").map((t) => t.slug)).toEqual(
+      ["old"],
+    );
   });
 
   it("labels statuses with their translation, unknown ones as they are", () => {
@@ -130,5 +142,75 @@ describe("System account activation", () => {
     expect(result.error?.issues.map((issue) => [issue.path.join("."), issue.message])).toEqual([
       ["confirmPassword", "app.auth.passwordMismatch"],
     ]);
+  });
+});
+
+describe("tenant creation", () => {
+  const values = {
+    slug: "studio-rossi",
+    displayName: "Studio Rossi",
+    defaultLanguage: "it" as const,
+    timeZone: "Europe/Rome",
+    inviteAdministrator: false,
+    adminEmail: "",
+    adminFirstName: "",
+    adminLastName: "",
+  };
+  const issues = (input: Record<string, unknown>) =>
+    Object.fromEntries(
+      (createTenantSchema.safeParse({ ...values, ...input }).error?.issues ?? []).map((issue) => [
+        issue.path.join("."),
+        issue.message,
+      ]),
+    );
+
+  it("follows the slug rule of the API", () => {
+    expect(issues({})).toEqual({});
+    expect(issues({ slug: "Studio" })).toEqual({ slug: "validation.tenant.slug" });
+    expect(issues({ slug: "a" })).toEqual({ slug: "validation.tenant.slug" });
+    expect(issues({ slug: "-studio" })).toEqual({ slug: "validation.tenant.slug" });
+  });
+
+  it("asks for the Administrator only when the invitation is chosen", () => {
+    expect(issues({ inviteAdministrator: true })).toEqual({
+      adminEmail: "validation.email",
+      adminFirstName: "validation.notEmpty",
+      adminLastName: "validation.notEmpty",
+    });
+    expect(
+      issues({
+        inviteAdministrator: true,
+        adminEmail: "anna@rossi.test",
+        adminFirstName: "Anna",
+        adminLastName: "Rossi",
+      }),
+    ).toEqual({});
+  });
+
+  it("puts the API errors of the Administrator on the form fields", () => {
+    const setError = vi.fn();
+    const error = new ApiError(400, {
+      errorCode: "AUX-10020",
+      errors: {
+        "administrator.email": ["validation.email"],
+        slug: ["validation.tenant.slugReserved"],
+      },
+    });
+
+    expect(applyApiErrors(error, setError, [], CREATE_TENANT_FIELDS)).toBe(true);
+    expect(setError).toHaveBeenCalledWith("adminEmail", {
+      type: "server",
+      message: "validation.email",
+    });
+    expect(setError).toHaveBeenCalledWith("slug", {
+      type: "server",
+      message: "validation.tenant.slugReserved",
+    });
+  });
+
+  it("names the roles of a module", () => {
+    const t = Object.assign((key: string) => `«${key}»`, { has: () => true });
+    expect(rolesText(t, [])).toBe("«app.platform.modules.none»");
+    expect(rolesText(t, ["Administrator", "Client"])).toBe("«Administrator», «Client»");
   });
 });

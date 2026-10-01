@@ -20,6 +20,8 @@ public sealed class Tenant : AggregateRoot<Guid>
     {
         "api", "app", "www", "platform", "admin", "system", "static", "assets", "health", "status", "docs", "mail",
         "auth", "login", "logout", "support", "help", "cdn", "console", "public",
+        // Console paths (/platform/tenants/new).
+        "new",
     };
 
     private static readonly Dictionary<TenantStatus, TenantStatus[]> Transitions = new()

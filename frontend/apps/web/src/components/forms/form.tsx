@@ -37,21 +37,28 @@ export function useZodForm<TSchema extends z.ZodType<FieldValues, FieldValues>>(
 
 /**
  * Puts the field errors of an API validation failure (400, `errors: { field: [keys] }`) on the form fields; returns
- * whether any field matched (otherwise show the error as an alert).
+ * whether any field matched (otherwise show the error as an alert). `aliases` maps API field names that differ from
+ * the form's (`administrator.email` → `adminEmail`).
  */
 export function applyApiErrors<TValues extends FieldValues>(
   error: unknown,
   setError: UseFormSetError<TValues>,
   fields: readonly FieldPath<TValues>[],
+  aliases: Readonly<Record<string, FieldPath<TValues>>> = {},
 ): boolean {
   if (!isApiError(error)) {
     return false;
   }
 
   let matched = false;
-  for (const [field, keys] of Object.entries(error.fieldErrors)) {
-    if ((fields as readonly string[]).includes(field) && keys[0]) {
-      setError(field as FieldPath<TValues>, { type: "server", message: keys[0] });
+  for (const [apiField, keys] of Object.entries(error.fieldErrors)) {
+    const field =
+      aliases[apiField] ??
+      ((fields as readonly string[]).includes(apiField)
+        ? (apiField as FieldPath<TValues>)
+        : undefined);
+    if (field && keys[0]) {
+      setError(field, { type: "server", message: keys[0] });
       matched = true;
     }
   }

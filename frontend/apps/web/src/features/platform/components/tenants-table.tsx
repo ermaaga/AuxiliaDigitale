@@ -12,6 +12,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { tenantConsoleHref } from "@/lib/href";
 
 import type { PlatformTenant } from "../server";
+import { nameOf } from "../labels";
 import { TENANT_STATUSES, statusLabel } from "../tenant-status";
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
@@ -22,7 +23,7 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "
   Archived: "outline",
 };
 
-/** Tenants whose name or slug contains the search text, with the given status. */
+/** Tenants whose name or slug contains the search text, with the given status; archived ones only when asked for. */
 export function filterTenants(
   tenants: readonly PlatformTenant[],
   search: string | undefined,
@@ -31,7 +32,7 @@ export function filterTenants(
   const text = search?.trim().toLocaleLowerCase();
   return tenants.filter(
     (tenant) =>
-      (!status || tenant.status === status) &&
+      (status ? tenant.status === status : tenant.status !== "Archived") &&
       (!text ||
         tenant.slug.includes(text) ||
         tenant.displayName.toLocaleLowerCase().includes(text)),
@@ -39,7 +40,7 @@ export function filterTenants(
 }
 
 /**
- * Tenant list of the console (N02): name, identifier, status and schema version; search, status filter, sort and
+ * Tenant list of the console (N02): name, identifier, status, plan and schema version; search, status filter, sort and
  * paging in the URL, done in the browser (`GET /platform/tenants` returns every tenant). The name opens the tenant.
  */
 export function TenantsTable({
@@ -61,9 +62,11 @@ export function TenantsTable({
         ? tenant.slug
         : field === "status"
           ? tenant.status
-          : field === "schemaVersion"
-            ? (tenant.schemaVersion ?? "")
-            : tenant.displayName,
+          : field === "plan"
+            ? (tenant.planCode ?? "")
+            : field === "schemaVersion"
+              ? (tenant.schemaVersion ?? "")
+              : tenant.displayName,
   });
 
   const columns: DataTableColumn<PlatformTenant>[] = [
@@ -97,6 +100,13 @@ export function TenantsTable({
           {statusLabel(t, tenant.status)}
         </Badge>
       ),
+    },
+    {
+      id: "plan",
+      header: t("app.platform.tenants.plan"),
+      sortField: "plan",
+      cell: (tenant) =>
+        tenant.planCode ? nameOf(t, `platform.plans.${tenant.planCode}`, tenant.planCode) : "—",
     },
     {
       id: "schemaVersion",

@@ -38,6 +38,7 @@ import {
   SelectValue,
 } from "@auxilia/ui/components/select";
 import { Skeleton } from "@auxilia/ui/components/skeleton";
+import { cn } from "@auxilia/ui/lib/utils";
 import {
   Table,
   TableBody,
@@ -79,6 +80,8 @@ export type DataTableProps<TRow extends RowData> = {
   /** Export of the current filters (F26); the API export endpoints arrive with the lists that need them. */
   onExport?: () => void;
   onRowClick?: (row: TRow) => void;
+  /** A short list shown whole (e.g. the modules of a tenant): no page size and page buttons, the total stays. */
+  hidePaging?: boolean;
 };
 
 /**
@@ -286,7 +289,7 @@ export function DataTable<TRow extends RowData>(props: DataTableProps<TRow>) {
         <p className="text-muted-foreground" aria-live="polite">
           {t("common.table.total", { count: props.totalCount })}
         </p>
-        <div className="flex items-center gap-2">
+        <div className={cn("flex items-center gap-2", props.hidePaging && "hidden")}>
           <label className="flex items-center gap-2 text-muted-foreground">
             <span>{t("common.table.rowsPerPage")}</span>
             <Select
