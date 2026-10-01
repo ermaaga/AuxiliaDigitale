@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Settings;
@@ -62,6 +63,29 @@ public sealed class IdentityPersistenceTests(TenantDatabaseFixture database)
         (await accounts.SetPasswordAsync(userId, "A brand new Passw0rd!", Ct)).IsSuccess.ShouldBeTrue();
 
         (await scope.ServiceProvider.GetRequiredService<IPasswordAuthenticator>().AuthenticateAsync(userName, "A brand new Passw0rd!", Ct)).IsSuccess.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task IdentityData_AddsPeople_AndFindsUsersByRoleInSql()
+    {
+        await using var services = Services();
+        await using var scope = services.CreateAsyncScope();
+        var suffix = Guid.NewGuid().ToString("N")[..6];
+        var person = new Domain.Directory.Person(Guid.CreateVersion7(), "Anna", "Bianchi", $"anna.{suffix}@example.test");
+        var admin = User.Create(Guid.CreateVersion7(), person.Id, $"anna.{suffix}@example.test", person.Email, "it", [TenantRole.Administrator], true).Value;
+        await using (var data = await scope.ServiceProvider.GetRequiredService<IIdentityDataFactory>().OpenAsync(Ct))
+        {
+            data.Add(person);
+            data.Add(admin);
+            await data.SaveChangesAsync(Ct);
+        }
+
+        await using var read = await scope.ServiceProvider.GetRequiredService<IIdentityDataFactory>().OpenAsync(Ct);
+        (await read.PersonExistsAsync(person.Id, Ct)).ShouldBeTrue();
+        var administrators = await read.UsersWithRoleAsync(TenantRole.Administrator, Ct);
+        administrators.ShouldContain(user => user.Id == admin.Id);
+        administrators.ShouldAllBe(user => user.Roles.Contains(TenantRole.Administrator));
+        (await read.UsersWithRoleAsync(TenantRole.Client, Ct)).ShouldNotContain(user => user.Id == admin.Id);
     }
 
     [Fact]

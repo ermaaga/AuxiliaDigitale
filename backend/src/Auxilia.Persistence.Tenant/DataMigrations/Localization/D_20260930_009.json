@@ -1,0 +1,518 @@
+[
+ {
+  "key": "platform.plans.standard",
+  "category": "app",
+  "en": "Standard",
+  "it": "Standard"
+ },
+ {
+  "key": "app.platform.tenants.name",
+  "category": "app",
+  "en": "Organization name",
+  "it": "Denominazione"
+ },
+ {
+  "key": "app.platform.tenants.new",
+  "category": "app",
+  "en": "New tenant",
+  "it": "Nuovo tenant"
+ },
+ {
+  "key": "app.platform.tenants.plan",
+  "category": "app",
+  "en": "Plan",
+  "it": "Piano"
+ },
+ {
+  "key": "app.platform.create.title",
+  "category": "app",
+  "en": "New tenant",
+  "it": "Nuovo tenant"
+ },
+ {
+  "key": "app.platform.create.description",
+  "category": "app",
+  "en": "The tenant is created at once; its database, schema and initial data are prepared in the background.",
+  "it": "Il tenant viene creato subito; database, schema e dati iniziali vengono preparati in background."
+ },
+ {
+  "key": "app.platform.create.slugHint",
+  "category": "app",
+  "en": "Lower-case letters, digits and hyphens. It appears in the addresses (e.g. /studio-rossi/…) and cannot be changed.",
+  "it": "Lettere minuscole, cifre e trattini. Compare negli indirizzi (es. /studio-rossi/…) e non si può cambiare."
+ },
+ {
+  "key": "app.platform.create.inviteAdmin",
+  "category": "app",
+  "en": "Invite the first Administrator",
+  "it": "Invita il primo amministratore"
+ },
+ {
+  "key": "app.platform.create.adminHint",
+  "category": "app",
+  "en": "They receive the activation link by e-mail when the tenant is ready and has a sending account.",
+  "it": "Riceverà il link di attivazione per e-mail quando il tenant sarà pronto e avrà un account di invio."
+ },
+ {
+  "key": "app.platform.create.submit",
+  "category": "app",
+  "en": "Create tenant",
+  "it": "Crea tenant"
+ },
+ {
+  "key": "app.platform.create.created",
+  "category": "app",
+  "en": "Tenant created: provisioning is under way.",
+  "it": "Tenant creato: il provisioning è in corso."
+ },
+ {
+  "key": "app.platform.tenant.details",
+  "category": "app",
+  "en": "Details",
+  "it": "Dettagli"
+ },
+ {
+  "key": "app.platform.tenant.edit",
+  "category": "app",
+  "en": "Edit tenant",
+  "it": "Modifica tenant"
+ },
+ {
+  "key": "app.platform.tenant.saved",
+  "category": "app",
+  "en": "Changes saved.",
+  "it": "Modifiche salvate."
+ },
+ {
+  "key": "app.platform.tenant.timeZone",
+  "category": "app",
+  "en": "Time zone",
+  "it": "Fuso orario"
+ },
+ {
+  "key": "app.platform.tenant.language",
+  "category": "app",
+  "en": "Default language",
+  "it": "Lingua predefinita"
+ },
+ {
+  "key": "app.platform.tenant.archivedAt",
+  "category": "app",
+  "en": "Archived on",
+  "it": "Archiviato il"
+ },
+ {
+  "key": "app.platform.tenant.suspend",
+  "category": "app",
+  "en": "Suspend",
+  "it": "Sospendi"
+ },
+ {
+  "key": "app.platform.tenant.reactivate",
+  "category": "app",
+  "en": "Reactivate",
+  "it": "Riattiva"
+ },
+ {
+  "key": "app.platform.tenant.archive",
+  "category": "app",
+  "en": "Archive",
+  "it": "Archivia"
+ },
+ {
+  "key": "app.platform.tenant.retry",
+  "category": "app",
+  "en": "Retry provisioning",
+  "it": "Riavvia il provisioning"
+ },
+ {
+  "key": "app.platform.tenant.confirmSuspend",
+  "category": "app",
+  "en": "The users of {name} cannot sign in while the tenant is suspended.",
+  "it": "Gli utenti di {name} non potranno accedere finché il tenant è sospeso."
+ },
+ {
+  "key": "app.platform.tenant.confirmArchive",
+  "category": "app",
+  "en": "{name} becomes read-only for good: its data is kept, but the tenant can never be reactivated.",
+  "it": "{name} diventerà di sola lettura per sempre: i dati restano conservati, ma il tenant non potrà più essere riattivato."
+ },
+ {
+  "key": "app.platform.tenant.suspended",
+  "category": "app",
+  "en": "Tenant suspended.",
+  "it": "Tenant sospeso."
+ },
+ {
+  "key": "app.platform.tenant.reactivated",
+  "category": "app",
+  "en": "Tenant reactivated.",
+  "it": "Tenant riattivato."
+ },
+ {
+  "key": "app.platform.tenant.archived",
+  "category": "app",
+  "en": "Tenant archived.",
+  "it": "Tenant archiviato."
+ },
+ {
+  "key": "app.platform.tenant.requeued",
+  "category": "app",
+  "en": "Provisioning queued again.",
+  "it": "Provisioning rimesso in coda."
+ },
+ {
+  "key": "app.platform.tenant.provisioning",
+  "category": "app",
+  "en": "Provisioning in progress: this page updates by itself.",
+  "it": "Provisioning in corso: la pagina si aggiorna da sola."
+ },
+ {
+  "key": "app.platform.tenant.migrationFailed",
+  "category": "app",
+  "en": "Provisioning failed. Check the logs with the code shown and retry.",
+  "it": "Il provisioning non è riuscito. Controlla i log con il codice indicato e riprova."
+ },
+ {
+  "key": "app.platform.tenant.archivedNotice",
+  "category": "app",
+  "en": "This tenant is archived and read-only.",
+  "it": "Questo tenant è archiviato ed è di sola lettura."
+ },
+ {
+  "key": "app.platform.runs.title",
+  "category": "app",
+  "en": "Latest runs",
+  "it": "Ultime esecuzioni"
+ },
+ {
+  "key": "app.platform.runs.kind",
+  "category": "app",
+  "en": "Type",
+  "it": "Tipo"
+ },
+ {
+  "key": "app.platform.runs.started",
+  "category": "app",
+  "en": "Started",
+  "it": "Avvio"
+ },
+ {
+  "key": "app.platform.runs.outcome",
+  "category": "app",
+  "en": "Outcome",
+  "it": "Esito"
+ },
+ {
+  "key": "app.platform.runs.empty",
+  "category": "app",
+  "en": "No runs yet.",
+  "it": "Nessuna esecuzione."
+ },
+ {
+  "key": "app.platform.runKind.Provisioning",
+  "category": "app",
+  "en": "Provisioning",
+  "it": "Provisioning"
+ },
+ {
+  "key": "app.platform.runKind.TenantSchema",
+  "category": "app",
+  "en": "Schema migration",
+  "it": "Migrazione dello schema"
+ },
+ {
+  "key": "app.platform.runKind.TenantData",
+  "category": "app",
+  "en": "Data migration",
+  "it": "Migrazione dei dati"
+ },
+ {
+  "key": "app.platform.runKind.Job",
+  "category": "app",
+  "en": "Job",
+  "it": "Job"
+ },
+ {
+  "key": "app.platform.runKind.LegacyImport",
+  "category": "app",
+  "en": "Legacy import",
+  "it": "Import dal legacy"
+ },
+ {
+  "key": "app.platform.runKind.CatalogSchema",
+  "category": "app",
+  "en": "Catalog migration",
+  "it": "Migrazione del catalogo"
+ },
+ {
+  "key": "app.platform.runStatus.Running",
+  "category": "app",
+  "en": "Running",
+  "it": "In corso"
+ },
+ {
+  "key": "app.platform.runStatus.Succeeded",
+  "category": "app",
+  "en": "Succeeded",
+  "it": "Riuscito"
+ },
+ {
+  "key": "app.platform.runStatus.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallito"
+ },
+ {
+  "key": "app.platform.plan.since",
+  "category": "app",
+  "en": "Since {date}",
+  "it": "Dal {date}"
+ },
+ {
+  "key": "app.platform.plan.change",
+  "category": "app",
+  "en": "Change plan",
+  "it": "Cambia piano"
+ },
+ {
+  "key": "app.platform.plan.changed",
+  "category": "app",
+  "en": "Plan updated.",
+  "it": "Piano aggiornato."
+ },
+ {
+  "key": "app.platform.modules.title",
+  "category": "app",
+  "en": "Modules",
+  "it": "Moduli"
+ },
+ {
+  "key": "app.platform.modules.description",
+  "category": "app",
+  "en": "What each role sees. The plan decides; an override for this tenant replaces it. Core modules are always visible.",
+  "it": "Cosa vede ogni ruolo. Decide il piano; un override per questo tenant lo sostituisce. I moduli di base sono sempre visibili."
+ },
+ {
+  "key": "app.platform.modules.module",
+  "category": "app",
+  "en": "Module",
+  "it": "Modulo"
+ },
+ {
+  "key": "app.platform.modules.kind",
+  "category": "app",
+  "en": "Kind",
+  "it": "Tipo"
+ },
+ {
+  "key": "app.platform.modules.core",
+  "category": "app",
+  "en": "Core",
+  "it": "Base"
+ },
+ {
+  "key": "app.platform.modules.optional",
+  "category": "app",
+  "en": "Optional",
+  "it": "Opzionale"
+ },
+ {
+  "key": "app.platform.modules.planRoles",
+  "category": "app",
+  "en": "From the plan",
+  "it": "Dal piano"
+ },
+ {
+  "key": "app.platform.modules.override",
+  "category": "app",
+  "en": "Override",
+  "it": "Override"
+ },
+ {
+  "key": "app.platform.modules.effective",
+  "category": "app",
+  "en": "Visible to",
+  "it": "Visibile a"
+ },
+ {
+  "key": "app.platform.modules.none",
+  "category": "app",
+  "en": "Nobody",
+  "it": "Nessuno"
+ },
+ {
+  "key": "app.platform.modules.noOverride",
+  "category": "app",
+  "en": "None",
+  "it": "Nessuno"
+ },
+ {
+  "key": "app.platform.modules.followPlan",
+  "category": "app",
+  "en": "Follow the plan",
+  "it": "Segui il piano"
+ },
+ {
+  "key": "app.platform.modules.enabledFor",
+  "category": "app",
+  "en": "Enabled for the chosen roles",
+  "it": "Abilitato per i ruoli scelti"
+ },
+ {
+  "key": "app.platform.modules.disabled",
+  "category": "app",
+  "en": "Disabled for everyone",
+  "it": "Disabilitato per tutti"
+ },
+ {
+  "key": "app.platform.modules.edit",
+  "category": "app",
+  "en": "Visibility of {module}",
+  "it": "Visibilità di {module}"
+ },
+ {
+  "key": "app.platform.modules.saved",
+  "category": "app",
+  "en": "Visibility updated.",
+  "it": "Visibilità aggiornata."
+ },
+ {
+  "key": "app.platform.admins.title",
+  "category": "app",
+  "en": "Administrators",
+  "it": "Amministratori"
+ },
+ {
+  "key": "app.platform.admins.description",
+  "category": "app",
+  "en": "The first Administrator gets the invitation by e-mail; the link is never shown here.",
+  "it": "Il primo amministratore riceve l'invito per e-mail; il link non viene mai mostrato qui."
+ },
+ {
+  "key": "app.platform.admins.none",
+  "category": "app",
+  "en": "The tenant has no Administrator yet.",
+  "it": "Il tenant non ha ancora un amministratore."
+ },
+ {
+  "key": "app.platform.admins.create",
+  "category": "app",
+  "en": "Create the first Administrator",
+  "it": "Crea il primo amministratore"
+ },
+ {
+  "key": "app.platform.admins.activated",
+  "category": "app",
+  "en": "Active",
+  "it": "Attivo"
+ },
+ {
+  "key": "app.platform.admins.pending",
+  "category": "app",
+  "en": "Invitation pending",
+  "it": "Invito in attesa"
+ },
+ {
+  "key": "app.platform.admins.resend",
+  "category": "app",
+  "en": "Send the invitation again",
+  "it": "Invia di nuovo l'invito"
+ },
+ {
+  "key": "app.platform.admins.sent",
+  "category": "app",
+  "en": "Invitation sent.",
+  "it": "Invito inviato."
+ },
+ {
+  "key": "app.platform.admins.notSent",
+  "category": "app",
+  "en": "The invitation did not leave ({code}): set up a sending account for the tenant, then send it again.",
+  "it": "L'invito non è partito ({code}): configura un account di invio per il tenant, poi invialo di nuovo."
+ },
+ {
+  "key": "app.platform.admins.unavailable",
+  "category": "app",
+  "en": "Administrators are available once the tenant is active.",
+  "it": "Gli amministratori sono disponibili quando il tenant è attivo."
+ },
+ {
+  "key": "errors.AUX-11006",
+  "category": "errors",
+  "en": "This change is not possible in the current state of the tenant.",
+  "it": "Questa modifica non è possibile nello stato attuale del tenant."
+ },
+ {
+  "key": "errors.AUX-11016",
+  "category": "errors",
+  "en": "A tenant with this identifier already exists.",
+  "it": "Esiste già un tenant con questo identificativo."
+ },
+ {
+  "key": "errors.AUX-11024",
+  "category": "errors",
+  "en": "The plan does not exist.",
+  "it": "Il piano non esiste."
+ },
+ {
+  "key": "errors.AUX-11025",
+  "category": "errors",
+  "en": "The module does not exist.",
+  "it": "Il modulo non esiste."
+ },
+ {
+  "key": "errors.AUX-11026",
+  "category": "errors",
+  "en": "Core modules are always visible.",
+  "it": "I moduli di base sono sempre visibili."
+ },
+ {
+  "key": "errors.AUX-11028",
+  "category": "errors",
+  "en": "The tenant is not waiting for provisioning.",
+  "it": "Il tenant non è in attesa di provisioning."
+ },
+ {
+  "key": "errors.AUX-11029",
+  "category": "errors",
+  "en": "The tenant is archived and cannot be changed.",
+  "it": "Il tenant è archiviato e non può essere modificato."
+ },
+ {
+  "key": "errors.AUX-12004",
+  "category": "errors",
+  "en": "This user name is already used.",
+  "it": "Questo nome utente è già in uso."
+ },
+ {
+  "key": "errors.AUX-12053",
+  "category": "errors",
+  "en": "The tenant already has an Administrator.",
+  "it": "Il tenant ha già un amministratore."
+ },
+ {
+  "key": "errors.AUX-12055",
+  "category": "errors",
+  "en": "The account is already activated.",
+  "it": "L'account è già attivo."
+ },
+ {
+  "key": "errors.AUX-25011",
+  "category": "errors",
+  "en": "The tenant has no sending account for this message yet.",
+  "it": "Il tenant non ha ancora un account di invio per questo messaggio."
+ },
+ {
+  "key": "validation.tenant.coreModule",
+  "category": "validation",
+  "en": "Core modules take no override",
+  "it": "I moduli di base non accettano override"
+ },
+ {
+  "key": "validation.tenant.moduleRoles",
+  "category": "validation",
+  "en": "Choose at least one role",
+  "it": "Scegli almeno un ruolo"
+ }
+]

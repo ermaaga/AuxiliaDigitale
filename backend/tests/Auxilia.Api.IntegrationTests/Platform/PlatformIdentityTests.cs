@@ -31,7 +31,7 @@ namespace Auxilia.Api.IntegrationTests.Platform;
 /// N02 over HTTP: platform user activation with TOTP (D-22), console sign-in, tenant-scoped platform token, and D-21:
 /// platform tokens never reach business endpoints.
 /// </summary>
-public sealed class PlatformIdentityTests : IClassFixture<PlatformIdentityTests.Factory>
+public sealed partial class PlatformIdentityTests : IClassFixture<PlatformIdentityTests.Factory>
 {
     private const string ConsoleClient = "test-console";
     private const string ConsoleSecret = "integration-tests-console-credential";

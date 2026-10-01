@@ -1,9 +1,11 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Identity;
+using Auxilia.Application.Identity.Public;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Platform;
 using Auxilia.Application.Platform.Modules;
+using Auxilia.Contracts.Platform;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
@@ -32,7 +34,11 @@ internal sealed class AuxctlCli
           migrate catalog                 (then aligns catalog.modules with the module descriptors)
           migrate tenants (--tenant <slug> | --all)
           tenant provision --slug <slug> --name <display name> [--language it] [--time-zone Europe/Rome] [--existing-database]
-                           (--existing-database reads the connection string from AUXILIA_TENANT_CONNECTION)
+                           [--admin-email <e-mail> --admin-first-name <name> --admin-last-name <name>]
+                           (--existing-database reads the connection string from AUXILIA_TENANT_CONNECTION; the first
+                            Administrator gets the invitation by e-mail, pending while the tenant has no sending account)
+          tenant update --slug <slug> [--name <display name>] [--time-zone <IANA zone>]
+          tenant plan --slug <slug> --plan <plan code>
           tenant (suspend | reactivate | archive) --slug <slug>
           tenant list
           jobs list
@@ -79,6 +85,8 @@ internal sealed class AuxctlCli
                 _ when command.Is("migrate", "tenants") => await MigrateTenantsAsync(command, cancellationToken),
                 _ when command.Is("tenant", "provision") => await InScopeAsync(scope => ProvisionAsync(scope, command, cancellationToken)),
                 _ when command.Is("tenant", "list") => await InScopeAsync(scope => ListTenantsAsync(scope, cancellationToken)),
+                _ when command.Is("tenant", "update") => await InScopeAsync(scope => UpdateTenantAsync(scope, command, cancellationToken)),
+                _ when command.Is("tenant", "plan") => await InScopeAsync(scope => ChangePlanAsync(scope, command, cancellationToken)),
                 _ when command.Is("tenant") && command.Word(1) is "suspend" or "reactivate" or "archive" =>
                     await InScopeAsync(scope => ChangeStatusAsync(scope, command, cancellationToken)),
                 _ when command.Is("keys", "rotate") => await InScopeAsync(scope => RotateKeysAsync(scope, cancellationToken)),
@@ -197,9 +205,53 @@ internal sealed class AuxctlCli
             }
         }
 
+        var administrator = command.Option("admin-email") is { } adminEmail
+            ? new CreateTenantAdministratorRequest(adminEmail, command.Option("admin-first-name") ?? string.Empty, command.Option("admin-last-name") ?? string.Empty)
+            : null;
         var request = new ProvisionTenant(slug, name, command.Option("language") ?? "it", command.Option("time-zone") ?? "Europe/Rome", existing);
         var result = await scope.GetRequiredService<ITenantLifecycleManager>().ProvisionAsync(request, cancellationToken);
-        return await ReportAsync(result, tenant => $"{tenant.Slug}: {tenant.Status} (connection string stored encrypted: ***)");
+        var exitCode = await ReportAsync(result, tenant => $"{tenant.Slug}: {tenant.Status} (connection string stored encrypted: ***)");
+        if (exitCode != Success || administrator is null)
+        {
+            return exitCode;
+        }
+
+        // The Administrator lives in the tenant database: a new scope inside the tenant.
+        return await InTenantAsync(result.Value.Slug, async tenantScope =>
+        {
+            var invited = await tenantScope.GetRequiredService<ITenantAdministratorManager>().CreateInitialAsync(administrator, cancellationToken);
+            return await ReportAsync(invited, outcome => outcome.InvitationSent
+                ? $"{result.Value.Slug}: Administrator {administrator.Email} created, invitation e-mailed"
+                : $"{result.Value.Slug}: Administrator {administrator.Email} created, invitation pending ({outcome.InvitationErrorCode}): send it from the console once the tenant has a sending account");
+        }, cancellationToken);
+    }
+
+    private async Task<int> UpdateTenantAsync(IServiceProvider scope, CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("slug") is not { } slug)
+        {
+            return await UsageAsync();
+        }
+
+        if (await scope.GetRequiredService<ICatalogStore>().FindTenantAsync(slug, cancellationToken) is not { } tenant)
+        {
+            return await ReportAsync(Result.Failure(Errors.Tenancy.TenantNotFound()), string.Empty);
+        }
+
+        var request = new UpdatePlatformTenantRequest(command.Option("name") ?? tenant.DisplayName, command.Option("time-zone") ?? tenant.TimeZone);
+        var result = await scope.GetRequiredService<IPlatformTenantManager>().UpdateAsync(slug, request, cancellationToken);
+        return await ReportAsync(result, $"{slug}: updated");
+    }
+
+    private async Task<int> ChangePlanAsync(IServiceProvider scope, CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("slug") is not { } slug || command.Option("plan") is not { } plan)
+        {
+            return await UsageAsync();
+        }
+
+        var result = await scope.GetRequiredService<IPlatformTenantManager>().ChangePlanAsync(slug, new ChangeTenantPlanRequest(plan), cancellationToken);
+        return await ReportAsync(result, $"{slug}: plan {plan}");
     }
 
     private async Task<int> ChangeStatusAsync(IServiceProvider scope, CommandLine command, CancellationToken cancellationToken)
@@ -209,13 +261,13 @@ internal sealed class AuxctlCli
             return await UsageAsync();
         }
 
-        var lifecycle = scope.GetRequiredService<ITenantLifecycleManager>();
+        var tenants = scope.GetRequiredService<IPlatformTenantManager>();
         var action = command.Word(1)!;
         var result = action switch
         {
-            "suspend" => await lifecycle.SuspendAsync(slug, cancellationToken),
-            "reactivate" => await lifecycle.ReactivateAsync(slug, cancellationToken),
-            _ => await lifecycle.ArchiveAsync(slug, cancellationToken),
+            "suspend" => await tenants.SuspendAsync(slug, cancellationToken),
+            "reactivate" => await tenants.ReactivateAsync(slug, cancellationToken),
+            _ => await tenants.ArchiveAsync(slug, cancellationToken),
         };
 
         return await ReportAsync(result, $"{slug}: {action} done");

@@ -6,7 +6,7 @@
 | Setting | Meaning |
 |---|---|
 | `ConnectionStrings__Catalog` | Catalog database (environment or user-secrets `auxilia-api`). Required. |
-| `Provisioning__AdminConnectionString` | Login with `CREATEDB` and `CREATEROLE` used to create tenant databases (D-02). Defaults to the Catalog login. |
+| `Provisioning__AdminConnectionString` | Login with `CREATEDB` and `CREATEROLE` used to create tenant databases (D-02), by auxctl **and by the Worker** (tenants created in the console). Defaults to the Catalog login. |
 | `ConnectionStrings__Redis` | Optional (Development: `localhost:6379`). With the same Redis as Api and Worker, suspend/reactivate/archive/provision evict the tenant lookups of every node at once; without it the nodes see the change within 30 s. |
 | `ConnectionStrings__RabbitMq` | Optional for auxctl: needed by jobs that send messages (e.g. `bus.outbox`, which sends the outbox entries left pending by a RabbitMQ outage: `auxctl jobs run bus.outbox --all`). |
 | `AUXILIA_TENANT_CONNECTION` | Only with `--existing-database`: connection string of a database created by a DBA. Never pass it on the command line. |
@@ -19,6 +19,9 @@ auxctl migrate catalog                                   # Catalog schema (never
 auxctl migrate tenants --all                             # every Active, Suspended or MigrationFailed tenant
 auxctl migrate tenants --tenant acme                     # one tenant: schema, then pending data-migrations
 auxctl tenant provision --slug acme --name "ACME S.r.l." [--language it] [--time-zone Europe/Rome] [--existing-database]
+               [--admin-email anna@acme.example --admin-first-name Anna --admin-last-name Rossi]   (first Administrator, invited by e-mail)
+auxctl tenant update --slug acme [--name "ACME Group"] [--time-zone Europe/London]
+auxctl tenant plan --slug acme --plan standard           # new plan from now on (ends the current period)
 auxctl tenant suspend|reactivate|archive --slug acme
 auxctl tenant list
 auxctl jobs list
@@ -46,7 +49,24 @@ Exit codes: `0` success, `1` usage error, `2` failure (message `error AUX-NNNNN:
 
 If a step fails the tenant stays `Provisioning` (database step) or becomes `MigrationFailed` (migration step) and the run is `Failed` with a code. **Re-run the same command** to resume: an existing database is reused.
 
-Not yet: first Administrator and activation e-mail (Identity, P2), post-provisioning isolation probe via the API, provisioning from the System console (N02, through the Worker).
+## From the platform console (N02, S-01)
+`/platform/tenants/new` creates the tenant at once (`Provisioning`, plan `standard`) and sends `ProvisionTenantCommand`
+on `auxilia.platform`; the **Worker** runs the steps above (same resumable pipeline, so it needs
+`Provisioning__AdminConnectionString` too) and then creates the first Administrator inside the tenant. The tenant page
+refreshes every 3 s while it is provisioning and lists the latest runs. If RabbitMQ was unavailable the message is not
+sent (`AUX-11027` in the logs) and the tenant stays in `Provisioning`: **Retry provisioning** on the tenant page (or the
+same auxctl command) queues it again; `MigrationFailed` is retried the same way.
+
+**First Administrator.** It receives the activation link **by e-mail only** — the link is never shown to the System, who
+could otherwise take over the account (D-21). A new tenant has no sending account yet (N03, S-03): the invitation stays
+pending (`AUX-12054` in the logs, `Invitation pending` in the console) and is sent with **Send the invitation again**
+once the tenant has an e-mail account. With auxctl, `--admin-*` does the same and prints whether the invitation left.
+
+Other console actions: edit name and time zone, suspend / reactivate, archive (read-only, never deleted, D-25), change
+plan, module overrides per role (Core modules cannot be overridden). Module changes take effect at once (tenant module
+cache invalidated). Slugs `new` and the other reserved names cannot be used.
+
+Not yet: post-provisioning isolation probe via the API; plan editing (one `standard` plan today).
 
 ## Client applications
 Every caller of `/api/v1/auth/token` identifies its application with header `X-Client-Id` (D-03); confidential clients

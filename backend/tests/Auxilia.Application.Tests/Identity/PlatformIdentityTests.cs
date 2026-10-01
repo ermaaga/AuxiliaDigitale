@@ -215,7 +215,7 @@ public sealed class PlatformIdentityTests
     }
 
     [Fact]
-    public async Task ConsoleQueries_ReturnTheUserAndTheNonArchivedTenants()
+    public async Task ConsoleQueries_ReturnTheUserAndTheTenantsWithTheirPlan()
     {
         var user = (await users.AddAsync("ops@example.test", "Ops", Ct)).Value.User;
         var catalog = Substitute.For<ICatalogStore>();
@@ -224,7 +224,9 @@ public sealed class PlatformIdentityTests
         var archived = Tenant.Create(Guid.CreateVersion7(), "alpha", "Alpha", "it", "Europe/Rome").Value;
         archived.Archive(time.GetUtcNow());
         catalog.ListTenantsAsync(Arg.Any<CancellationToken>()).Returns([active, archived]);
-        var console = new PlatformConsoleQueryService(currentUser, store, catalog);
+        catalog.CurrentPlanCodesAsync(Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+            .Returns(new Dictionary<Guid, string> { [active.Id] = "standard" });
+        var console = new PlatformConsoleQueryService(currentUser, store, catalog, Substitute.For<Auxilia.Application.Abstractions.Modules.IModuleCatalogReader>(), time);
 
         currentUser.ActorType.Returns(ActorType.User);
         (await console.GetMeAsync(Ct)).Error!.Code.ShouldBe(EventCodes.Identity.UserNotFound);
@@ -234,7 +236,10 @@ public sealed class PlatformIdentityTests
 
         (me.Email, me.DisplayName).ShouldBe(("ops@example.test", "Ops"));
         me.Roles.ShouldBe(["System"]);
-        (await console.ListTenantsAsync(Ct)).ShouldHaveSingleItem().ShouldBe(new Contracts.Platform.PlatformTenantResponse("beta", "Beta", "Active", null));
+        (await console.ListTenantsAsync(includeArchived: false, Ct)).ShouldHaveSingleItem()
+            .ShouldBe(new Contracts.Platform.PlatformTenantResponse("beta", "Beta", "Active", null, "standard"));
+        (await console.ListTenantsAsync(includeArchived: true, Ct)).Select(tenant => (tenant.Slug, tenant.Status, tenant.PlanCode))
+            .ShouldBe([("alpha", "Archived", null), ("beta", "Active", "standard")]);
     }
 
     private static PlatformSignIn SignIn(ClientCredentials? client = null, string email = "ops@example.test", string password = Password, string code = FakeTotp.Valid) =>

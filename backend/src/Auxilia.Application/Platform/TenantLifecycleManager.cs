@@ -105,40 +105,21 @@ internal sealed class TenantLifecycleManager : ITenantLifecycleManager
         }, cancellationToken);
     }
 
-    public Task<Result> SuspendAsync(string slug, CancellationToken cancellationToken) =>
-        ChangeStatusAsync(Operations.Tenancy.SuspendTenant, slug, tenant => tenant.Suspend(), cancellationToken);
-
-    public Task<Result> ReactivateAsync(string slug, CancellationToken cancellationToken) =>
-        ChangeStatusAsync(Operations.Tenancy.ReactivateTenant, slug, ReactivateSuspended, cancellationToken);
-
-    public Task<Result> ArchiveAsync(string slug, CancellationToken cancellationToken) =>
-        ChangeStatusAsync(Operations.Tenancy.ArchiveTenant, slug, tenant => tenant.Archive(timeProvider.GetUtcNow()), cancellationToken);
-
-    private static Result ReactivateSuspended(Tenant tenant) =>
-        tenant.Status == TenantStatus.Suspended
-            ? tenant.Activate()
-            : Errors.Tenancy.TenantTransitionNotAllowed(tenant.Status.ToString(), nameof(TenantStatus.Active));
-
-    private Task<Result> ChangeStatusAsync(
-        OperationDescriptor operation, string slug, Func<Tenant, Result> change, CancellationToken cancellationToken) =>
-        operations.RunAsync(operation, new { TenantSlug = slug }, async scope =>
+    public async Task<Result<TenantInfo>> ResumeProvisioningAsync(string slug, CancellationToken cancellationToken)
+    {
+        var tenant = await catalog.FindTenantAsync(slug, cancellationToken);
+        if (tenant is null)
         {
-            var tenant = await catalog.FindTenantAsync(slug, cancellationToken);
-            if (tenant is null)
-            {
-                return Errors.Tenancy.TenantNotFound();
-            }
+            return Errors.Tenancy.TenantNotFound();
+        }
 
-            scope.SetEntity("Tenant", tenant.Id);
-            var result = change(tenant);
-            if (result.IsSuccess)
-            {
-                await catalog.SaveChangesAsync(cancellationToken);
-                scope.OnCommitted(InvalidateTenantLookups);
-            }
+        if (tenant.Status is not (TenantStatus.Provisioning or TenantStatus.MigrationFailed))
+        {
+            return Result.Success(new TenantInfo(tenant.Id, tenant.Slug, tenant.Status, tenant.DefaultLanguage, tenant.TimeZone));
+        }
 
-            return result;
-        }, cancellationToken);
+        return await ProvisionAsync(new ProvisionTenant(tenant.Slug, tenant.DisplayName, tenant.DefaultLanguage, tenant.TimeZone), cancellationToken);
+    }
 
     /// <summary>Every node sees the new status at once (Api tenant resolution, ARCHITECTURE §7.3).</summary>
     private Task InvalidateTenantLookups(CancellationToken cancellationToken) =>

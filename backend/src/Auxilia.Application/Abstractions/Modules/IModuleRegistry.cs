@@ -32,6 +32,9 @@ public sealed record TenantModules(IReadOnlyDictionary<string, TenantRole[]> Mod
 {
     public bool IsVisible(string moduleCode, IEnumerable<TenantRole> roles) =>
         Modules.TryGetValue(moduleCode, out var allowed) && roles.Any(allowed.Contains);
+
+    /// <summary>The roles that see the module (none when it is hidden for everyone).</summary>
+    public IReadOnlyList<TenantRole> RolesOf(string moduleCode) => Modules.GetValueOrDefault(moduleCode, []);
 }
 
 /// <summary>Catalog data needed to compute <see cref="TenantModules"/> (untracked reads).</summary>

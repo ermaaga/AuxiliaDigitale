@@ -166,6 +166,44 @@ public sealed class CatalogPersistenceTests(CatalogDatabaseFixture database)
         (await db.DataProtectionKeys.CountAsync(Ct)).ShouldBeGreaterThan(0);
     }
 
+    [Fact]
+    public async Task CatalogStore_ReadsCurrentPlansOverridesAndRecentRuns()
+    {
+        await using var services = database.CreateServices();
+        var tenant = NewTenant();
+        var now = DateTimeOffset.UtcNow;
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<Application.Abstractions.Tenancy.ICatalogStore>();
+            store.Add(tenant);
+            var old = new TenantPlan(Guid.CreateVersion7(), tenant.Id, Plan.StandardId, now.AddDays(-10));
+            old.End(now.AddDays(-1));
+            store.Add(old);
+            store.Add(new TenantPlan(Guid.CreateVersion7(), tenant.Id, Plan.StandardId, now.AddDays(-1)));
+            store.Add(new MigrationRun(Guid.CreateVersion7(), tenant.Id, MigrationRunKind.Provisioning, tenant.Slug, "test", now.AddMinutes(-5)));
+            store.Add(new MigrationRun(Guid.CreateVersion7(), tenant.Id, MigrationRunKind.TenantSchema, tenant.Slug, "test", now.AddMinutes(-1)));
+            await store.SaveChangesAsync(Ct);
+            store.Add(new TenantModuleOverride(tenant.Id, "cases", isEnabled: true, [TenantRole.Administrator]));
+            await store.SaveChangesAsync(Ct);
+        }
+
+        await using (var scope = services.CreateAsyncScope())
+        {
+            var store = scope.ServiceProvider.GetRequiredService<Application.Abstractions.Tenancy.ICatalogStore>();
+            (await store.CurrentPlanCodesAsync(now, Ct))[tenant.Id].ShouldBe(Plan.StandardCode);
+            (await store.CurrentTenantPlanAsync(tenant.Id, now, Ct))!.ValidTo.ShouldBeNull();
+            (await store.CurrentTenantPlanAsync(tenant.Id, now.AddDays(-30), Ct)).ShouldBeNull();
+            (await store.RecentRunsAsync(tenant.Id, 1, Ct)).ShouldHaveSingleItem().Kind.ShouldBe(MigrationRunKind.TenantSchema);
+            (await store.ListPlansAsync(Ct)).ShouldContain(plan => plan.Code == Plan.StandardCode);
+
+            var item = (await store.ListOverridesAsync(tenant.Id, Ct)).ShouldHaveSingleItem();
+            item.Roles.ShouldBe([TenantRole.Administrator]);
+            store.Remove(item);
+            await store.SaveChangesAsync(Ct);
+            (await store.ListOverridesAsync(tenant.Id, Ct)).ShouldBeEmpty();
+        }
+    }
+
     private static CatalogTenant NewTenant(string? slug = null) =>
         CatalogTenant.Create(Guid.CreateVersion7(), slug ?? "t-" + Guid.NewGuid().ToString("N")[..10], "Acme", "it", "Europe/Rome").Value;
 }

@@ -1,6 +1,8 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Settings;
+using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
+using Auxilia.SharedKernel.Tenancy;
 
 using NSubstitute;
 
@@ -26,7 +28,18 @@ internal sealed class InMemoryIdentityData : IIdentityDataFactory, IIdentityData
 
     public Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken) => Task.FromResult(People.Contains(personId));
 
+    public Task<IReadOnlyList<User>> UsersWithRoleAsync(TenantRole role, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<User>>(Users.Where(user => user.Roles.Contains(role)).OrderBy(user => user.UserName, StringComparer.Ordinal).ToArray());
+
     public void Add(User user) => Users.Add(user);
+
+    public List<Person> AddedPeople { get; } = [];
+
+    public void Add(Person person)
+    {
+        AddedPeople.Add(person);
+        People.Add(person.Id);
+    }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken)
     {

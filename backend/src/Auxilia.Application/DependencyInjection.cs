@@ -12,6 +12,7 @@ using Auxilia.Application.Documents;
 using Auxilia.Application.Engagement;
 using Auxilia.Application.Execution;
 using Auxilia.Application.Identity;
+using Auxilia.Application.Identity.Public;
 using Auxilia.Application.Jobs;
 using Auxilia.Application.Localization;
 using Auxilia.Application.Marketing;
@@ -67,6 +68,8 @@ public static class DependencyInjection
         services.TryAddScoped<IModuleAccess, ModuleAccess>();
         services.TryAddScoped<INavigationQueryService, NavigationQueryService>();
         services.TryAddScoped<IPlatformConsoleQueryService, PlatformConsoleQueryService>();
+        services.TryAddScoped<IPlatformTenantManager, PlatformTenantManager>();
+        services.TryAddScoped<ITenantAdministratorManager, TenantAdministratorManager>();
         services.TryAddScoped<IModuleCatalogManager, ModuleCatalogManager>();
         services.AddModules(Modules);
 
@@ -76,8 +79,8 @@ public static class DependencyInjection
     }
 
     /// <summary>
-    /// Tenant lifecycle and migrations: only for hosts that administer databases (auxctl, later the Worker handling
-    /// provisioning messages), since they need <c>ITenantDatabaseAdmin</c> and a CREATEDB/CREATEROLE login. The Api
+    /// Tenant provisioning and migrations: only for hosts that administer databases (auxctl, the Worker handling
+    /// provisioning messages, <see cref="ITenantProvisioningWorkflow"/>), since they need <c>ITenantDatabaseAdmin</c> and a CREATEDB/CREATEROLE login. The Api
     /// never creates databases.
     /// </summary>
     public static IServiceCollection AddTenantAdministration(this IServiceCollection services)
@@ -86,6 +89,7 @@ public static class DependencyInjection
 
         services.TryAddScoped<ITenantLifecycleManager, TenantLifecycleManager>();
         services.TryAddScoped<ITenantMigrationManager, TenantMigrationManager>();
+        services.TryAddScoped<ITenantProvisioningWorkflow, TenantProvisioningWorkflow>();
 
         return services;
     }

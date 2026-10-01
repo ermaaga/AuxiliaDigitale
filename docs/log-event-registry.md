@@ -11,8 +11,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
-| 11000–11999 | Tenancy | Tenancy / Catalog | 16 | 11020 |
-| 12000–12999 | Identity | Identity / Auth | 51 | 12052 |
+| 11000–11999 | Tenancy | Tenancy / Catalog | 26 | 11030 |
+| 12000–12999 | Identity | Identity / Auth | 55 | 12056 |
 | 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -67,6 +67,16 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11017 | Tenancy.TenantSlugReserved | – | Validation | – | – |
 | AUX-11018 | Tenancy.TenantDatabaseInvalid | – | Failure | – | – |
 | AUX-11019 | Tenancy.ModulesSynchronized | – | – | Tenancy.SyncModules (success) | – |
+| AUX-11020 | Tenancy.TenantProvisioningRequested | – | – | Tenancy.RequestProvisioning (success) | – |
+| AUX-11021 | Tenancy.TenantUpdated | – | – | Tenancy.UpdateTenant (success) | – |
+| AUX-11022 | Tenancy.TenantPlanChanged | – | – | Tenancy.ChangeTenantPlan (success) | – |
+| AUX-11023 | Tenancy.TenantModuleOverrideChanged | – | – | Tenancy.ChangeModuleOverride (success) | – |
+| AUX-11024 | Tenancy.PlanNotFound | – | NotFound | – | – |
+| AUX-11025 | Tenancy.ModuleNotFound | – | NotFound | – | – |
+| AUX-11026 | Tenancy.CoreModuleNotConfigurable | – | Validation | – | – |
+| AUX-11027 | Tenancy.ProvisioningNotDispatched | Warning | – | – | The provisioning of tenant {TenantSlug} was not queued (message bus unavailable): retry from the console |
+| AUX-11028 | Tenancy.TenantNotProvisioning | – | Conflict | – | – |
+| AUX-11029 | Tenancy.TenantArchived | – | Conflict | – | – |
 | AUX-12001 | Identity.UserCreated | – | – | Identity.CreateUser (success) | – |
 | AUX-12002 | Identity.InvalidCredentials | – | Unauthorized | – | – |
 | AUX-12003 | Identity.AccountLocked | – | Forbidden | – | – |
@@ -118,6 +128,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12049 | Identity.ExpiredPasswordChanged | – | – | Identity.ChangeExpiredPassword (success) | – |
 | AUX-12050 | Identity.PasswordResetByOperator | – | – | Identity.ResetPasswordByOperator (success) | – |
 | AUX-12051 | Identity.UserAmbiguous | – | Conflict | – | – |
+| AUX-12052 | Identity.InitialAdministratorCreated | – | – | Identity.CreateInitialAdministrator (success) | – |
+| AUX-12053 | Identity.AdministratorAlreadyExists | – | Conflict | – | – |
+| AUX-12054 | Identity.InvitationPending | Warning | – | – | The invitation of Administrator {UserId} was not sent ({ErrorCode}): it stays pending |
+| AUX-12055 | Identity.AccountAlreadyActivated | – | Conflict | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

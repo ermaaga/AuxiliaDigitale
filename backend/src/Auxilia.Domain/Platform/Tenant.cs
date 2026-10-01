@@ -20,6 +20,8 @@ public sealed class Tenant : AggregateRoot<Guid>
     {
         "api", "app", "www", "platform", "admin", "system", "static", "assets", "health", "status", "docs", "mail",
         "auth", "login", "logout", "support", "help", "cdn", "console", "public",
+        // Console paths (/platform/tenants/new).
+        "new",
     };
 
     private static readonly Dictionary<TenantStatus, TenantStatus[]> Transitions = new()
@@ -116,6 +118,28 @@ public sealed class Tenant : AggregateRoot<Guid>
 
         DisplayName = displayName.Trim();
         return Result.Success();
+    }
+
+    /// <summary>Changes name and time zone (the slug never changes); an archived tenant is read-only (D-25).</summary>
+    public Result Update(string displayName, string timeZone)
+    {
+        if (Status == TenantStatus.Archived)
+        {
+            return Errors.Tenancy.TenantArchived();
+        }
+
+        if (string.IsNullOrWhiteSpace(timeZone) || timeZone.Length > TimeZoneMaxLength)
+        {
+            return Errors.Tenancy.CatalogValueInvalid("timeZone", "validation.tenant.timeZone");
+        }
+
+        var renamed = Rename(displayName);
+        if (renamed.IsSuccess)
+        {
+            TimeZone = timeZone;
+        }
+
+        return renamed;
     }
 
     public Result Activate() => MoveTo(TenantStatus.Active);

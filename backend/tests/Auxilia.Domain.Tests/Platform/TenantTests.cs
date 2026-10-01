@@ -103,4 +103,23 @@ public sealed class TenantTests
     }
 
     private static Tenant NewTenant() => Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+
+    [Fact]
+    public void Update_ChangesNameAndTimeZone_ButNotOfAnArchivedTenant()
+    {
+        var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+
+        tenant.Update(" ACME Group ", "Europe/London").IsSuccess.ShouldBeTrue();
+        (tenant.DisplayName, tenant.TimeZone).ShouldBe(("ACME Group", "Europe/London"));
+        tenant.Update("", "Europe/Rome").IsFailure.ShouldBeTrue();
+        tenant.Update("Acme", new string('x', Tenant.TimeZoneMaxLength + 1)).Error!.Code.ShouldBe(EventCodes.Tenancy.CatalogValueInvalid);
+        tenant.TimeZone.ShouldBe("Europe/London");
+
+        tenant.Archive(DateTimeOffset.UnixEpoch);
+        tenant.Update("Other", "Europe/Rome").Error!.Code.ShouldBe(EventCodes.Tenancy.TenantArchived);
+
+        // "new" is a console path (/platform/tenants/new), never a tenant.
+        Tenant.Create(Guid.CreateVersion7(), "new", "New", "it", "Europe/Rome").Error!.Code.ShouldBe(EventCodes.Tenancy.TenantSlugReserved);
+        tenant.DisplayName.ShouldBe("ACME Group");
+    }
 }
