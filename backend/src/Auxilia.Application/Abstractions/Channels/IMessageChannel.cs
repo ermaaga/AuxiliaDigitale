@@ -105,8 +105,14 @@ public interface IMessagingData : IAsyncDisposable
 
     Task<OutboundMessage?> FindOutboundAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>A page of the outbound log, newest first, with the total of the filter.</summary>
+    Task<(IReadOnlyList<OutboundMessage> Items, int Total)> OutboundPageAsync(OutboundMessageFilter filter, CancellationToken cancellationToken);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
+
+/// <summary>A validated outbound log filter (<c>Search</c> = part of the recipient).</summary>
+public sealed record OutboundMessageFilter(MessageChannel? Channel, OutboundMessageStatus? Status, string? Search, Guid? AccountId, int Skip, int Take);
 
 public interface IMessagingDataFactory
 {

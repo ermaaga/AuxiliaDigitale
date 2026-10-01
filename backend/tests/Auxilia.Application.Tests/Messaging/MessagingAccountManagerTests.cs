@@ -106,7 +106,8 @@ public sealed class MessagingAccountManagerTests
         var office = harness.AddAccount("Office", isDefault: true);
         harness.AddTemplate(MessageTemplates.AccountTest, "en", "Test from {{ accountName }}", "<p>{{ tenantName }}</p>");
 
-        (await harness.Accounts.SendTestAsync(office.Id, "anna@example.test", "de", Ct)).IsSuccess.ShouldBeTrue();
+        var sent = (await harness.Accounts.SendTestAsync(office.Id, "anna@example.test", "de", Ct)).Value;
+        (sent.Sent, sent.ErrorCode).ShouldBe((true, null));
 
         var (message, account) = harness.Channel.Sent.ShouldHaveSingleItem();
         (message.Recipient, message.Subject, message.Body, account.Secret).ShouldBe(("anna@example.test", "Test from Office", "<p>acme</p>", "pw-Office"));
@@ -114,8 +115,25 @@ public sealed class MessagingAccountManagerTests
         (logged.Status, logged.Language, logged.Purpose).ShouldBe((OutboundMessageStatus.Sent, "en", MessagePurpose.Transactional));
 
         harness.Channel.Failure = new Auxilia.Application.Abstractions.Channels.ChannelPermanentException(Errors.Messaging.AccountAuthenticationFailed());
-        (await harness.Accounts.SendTestAsync(office.Id, "anna@example.test", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.AccountAuthenticationFailed);
+        var refused = (await harness.Accounts.SendTestAsync(office.Id, "anna@example.test", "en", Ct)).Value;
+        (refused.Sent, refused.ErrorCode).ShouldBe((false, "AUX-25021"));
         harness.Data.Outbound[1].Status.ShouldBe(OutboundMessageStatus.Failed);
+        refused.MessageId.ShouldBe(harness.Data.Outbound[1].Id);
+    }
+
+    [Fact]
+    public async Task SendTest_ServerNotReachable_IsAFailedOutcomeNotAnError()
+    {
+        var office = harness.AddAccount("Office", isDefault: true);
+        harness.AddTemplate(MessageTemplates.AccountTest, "it", "Test", "<p>x</p>");
+        harness.Channel.Failure = new System.Net.Sockets.SocketException(111);
+
+        var outcome = (await harness.Accounts.SendTestAsync(office.Id, " anna@example.test ", "", Ct)).Value;
+
+        (outcome.Sent, outcome.ErrorCode).ShouldBe((false, "AUX-25022"));
+        var logged = harness.Data.Outbound.ShouldHaveSingleItem();
+        (logged.Status, logged.Recipient, logged.Language, logged.ErrorCode).ShouldBe((OutboundMessageStatus.Failed, "anna@example.test", "it", "AUX-25022"));
+        harness.Logger.Entries.ShouldContain(entry => entry.EventId.Id == EventCodes.Messaging.TestDeliveryFailed);
     }
 
     [Fact]
@@ -127,6 +145,7 @@ public sealed class MessagingAccountManagerTests
         (await harness.Accounts.SendTestAsync(Guid.CreateVersion7(), "a@b.test", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.AccountNotFound);
         (await harness.Accounts.SendTestAsync(gateway.Id, "+39000", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.ChannelNotAvailable);
         (await harness.Accounts.SendTestAsync(office.Id, "nobody", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.RecipientInvalid);
+        (await harness.Accounts.SendTestAsync(office.Id, "  ", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.RecipientInvalid);
         (await harness.Accounts.SendTestAsync(office.Id, "a@b.test", "en", Ct)).Error!.Code.ShouldBe(EventCodes.Messaging.TemplateNotFound);
         harness.Data.Outbound.ShouldBeEmpty();
     }

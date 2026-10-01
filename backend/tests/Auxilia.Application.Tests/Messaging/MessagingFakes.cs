@@ -5,6 +5,7 @@ using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Messaging;
 using Auxilia.Application.Tests.Configuration;
+using Auxilia.Application.Tests.Execution;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Messaging;
 using Auxilia.Domain.Platform;
@@ -51,6 +52,18 @@ internal sealed class InMemoryMessagingData : IMessagingDataFactory, IMessagingD
     public void Add(OutboundMessage message) => Outbound.Add(message);
 
     public Task<OutboundMessage?> FindOutboundAsync(Guid id, CancellationToken cancellationToken) => Task.FromResult(Outbound.SingleOrDefault(message => message.Id == id));
+
+    public Task<(IReadOnlyList<OutboundMessage> Items, int Total)> OutboundPageAsync(OutboundMessageFilter filter, CancellationToken cancellationToken)
+    {
+        var matching = Outbound
+            .Where(message => filter.Channel is null || message.Channel == filter.Channel)
+            .Where(message => filter.Status is null || message.Status == filter.Status)
+            .Where(message => filter.AccountId is null || message.AccountId == filter.AccountId)
+            .Where(message => filter.Search is null || message.Recipient.Contains(filter.Search, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(message => message.QueuedAt)
+            .ToList();
+        return Task.FromResult<(IReadOnlyList<OutboundMessage>, int)>((matching.Skip(filter.Skip).Take(filter.Take).ToList(), matching.Count));
+    }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -130,7 +143,8 @@ internal sealed class MessagingHarness
 
         var runner = Platform.ManagerHarness.Runner();
         Snapshots = new MessagingSnapshotCache(Cache, TenantContext, Data);
-        Accounts = new MessagingAccountManager(runner, Data, [Channel], Secrets, Renderer, TenantContext, Cache, TimeProvider.System);
+        Accounts = new MessagingAccountManager(runner, Data, [Channel], Secrets, Renderer, TenantContext, Cache, TimeProvider.System, Logger);
+        Query = new MessagingQueryService(Data, [Channel]);
         Dispatcher = new MessageDispatcher(runner, Data, Snapshots, [Channel], Renderer, Outbox, TenantContext, User, TimeProvider.System);
         Delivery = new OutboundMessageManager(runner, Data, [Channel], Secrets, TimeProvider.System, NullLogger<OutboundMessageManager>.Instance);
     }
@@ -154,6 +168,10 @@ internal sealed class MessagingHarness
     public MessagingSnapshotCache Snapshots { get; }
 
     public MessagingAccountManager Accounts { get; }
+
+    public MessagingQueryService Query { get; }
+
+    public RecordingLogger<MessagingAccountManager> Logger { get; } = new();
 
     public MessageDispatcher Dispatcher { get; }
 
