@@ -1,6 +1,6 @@
 # F21 — Grid configuration
 
-Status: [ ] not started · Tasks: S-04, P3-07 
+Status: [~] in progress · Tasks: S-04, P3-07 
 
 > **Decision D-18:** grid layouts are managed by **System** (platform console).
 
@@ -11,7 +11,10 @@ Status: [ ] not started · Tasks: S-04, P3-07
 - `DataGrid`: label rendered as translation key; filter inputs for `FilterThisColumn`; clickable headers for `OrderThisColumn`; default page size 10; pager with ellipsis.
 
 ## Acceptance criteria
-- [ ] `grid_layouts` per grid key and role: columns (label key, field, filterable, sortable, visible, order); editor in `/platform/tenants/{slug}/grids` (System console).
+- [x] `grid_layouts` per grid key and role: columns (label key, field, filterable, sortable, visible, order); editor in `/platform/tenants/{slug}/grids` (System console).
 - [ ] Every legacy grid key exists with the legacy default columns (seeded from current `PageConfiguration` rows for the migrated tenant).
 - [ ] Users can save personal views (columns, filters, sort) and pick a default.
-- [ ] Filters/sorts only on fields the API supports (validated server-side).
+- [x] Filters/sorts only on fields the API supports (validated server-side). *(Sortable/filterable come from the grid declaration in code, never from the layout; each QueryService keeps its whitelist.)*
+
+## Status notes
+- S-04: grids are declared by the module descriptors (`Grids`: key `<module>.<grid>`, columns with label key, sortable, filterable, can hide, visible by default, and the roles that see the grid); the first one is `identity.loginAttempts` (login audit). `configuration.grid_layouts` keeps, per grid and role, the columns in their order with their visibility (jsonb); a stored layout is read against the current declaration (removed columns dropped, new ones appended with their default, fixed columns always shown). Console page `/platform/tenants/{slug}/grids` (per role: show/hide, move up/down, save, back to default); the tenant app reads `GET /me/grids/{key}` (layout of the first of the user's roles that sees the grid) and applies it with `applyLayout` (the login audit already does). Users can still show hidden columns from the column picker. Pending: the legacy grid keys with their default columns arrive with their pages (B-xx); personal saved views (`user_saved_views`) with the business grids; the legacy `PageConfiguration` import (Fase 7).

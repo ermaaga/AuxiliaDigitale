@@ -25,6 +25,27 @@ public static partial class Errors
             Error.Validation(EventCodes.Configuration.BrandingImageTooLarge, $"The image must not be larger than {maxKilobytes} KB",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["file"] = ["validation.branding.imageTooLarge"] });
 
+        public static Error CustomFieldInvalid(string field, string messageKey) =>
+            Error.Validation(EventCodes.Configuration.CustomFieldInvalid, $"The custom field {field} is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
+
+        public static Error CustomFieldKeyTaken() =>
+            Error.Conflict(EventCodes.Configuration.CustomFieldKeyTaken, "The entity already has a custom field with this key");
+
+        public static Error CustomFieldNotFound() =>
+            Error.NotFound(EventCodes.Configuration.CustomFieldNotFound, "Custom field not found");
+
+        /// <param name="errors">Per field: <c>customFields.&lt;key&gt;</c> → message keys.</param>
+        public static Error CustomFieldValuesInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Configuration.CustomFieldValuesInvalid, "The custom field values are not valid", errors);
+
+        public static Error GridNotFound(string key) =>
+            Error.NotFound(EventCodes.Configuration.GridNotFound, $"Grid {key} not found");
+
+        public static Error GridLayoutInvalid(string messageKey) =>
+            Error.Validation(EventCodes.Configuration.GridLayoutInvalid, "The grid layout is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["columns"] = [messageKey] });
+
         public static Error BrandingAssetNotFound() =>
             Error.NotFound(EventCodes.Configuration.BrandingAssetNotFound, "Branding image not found");
     }

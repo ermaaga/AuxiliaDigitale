@@ -8,7 +8,8 @@ import { useFormatter, useTranslations } from "next-intl";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
-import type { DataTableColumn } from "@/components/data-table/table-model";
+import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
+import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { createBffClient } from "@/lib/api/client";
 import { queryKey } from "@/lib/api/query-keys";
@@ -17,12 +18,14 @@ type LoginAttempt = components["schemas"]["LoginAttemptResponse"];
 
 /**
  * Login audit (F35, `GET /identity/login-attempts`, permission `identity.loginAttempts.view`): every sign-in attempt,
- * filtered by user name, method and result, sorted by date or user, paged by the API; the state lives in the URL.
+ * filtered by user name, method and result, sorted by date or user, paged by the API; the state lives in the URL. The
+ * columns follow the grid layout `identity.loginAttempts` of the user's role (F21).
  */
 export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: string }) {
   const t = useTranslations();
   const format = useFormatter();
   const table = useTableState(["userName", "method", "succeeded"] as const);
+  const grid = useGridLayout(tenant, "identity.loginAttempts");
   const params = {
     page: table.page,
     pageSize: table.pageSize,
@@ -96,6 +99,9 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
     },
   ];
 
+  // The System's layout for the user's role (F21): order and default visibility of the columns.
+  const laid = applyLayout(columns, grid.layout);
+
   const toolbar = (
     <>
       <SearchFilter
@@ -135,9 +141,11 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
 
   return (
     <DataTable
+      // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
+      key={grid.layout ? "layout" : "default"}
       label={title}
-      columns={columns}
-      initiallyHidden={["userAgent"]}
+      columns={laid.columns}
+      initiallyHidden={grid.layout ? laid.hidden : ["userAgent"]}
       rows={query.data?.items}
       getRowId={(row) => row.id}
       totalCount={Number(query.data?.totalCount ?? 0)}
@@ -147,7 +155,7 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
       onPageChange={table.setPage}
       onPageSizeChange={table.setPageSize}
       onSortChange={table.setSort}
-      isLoading={query.isPending}
+      isLoading={query.isPending || grid.isPending}
       error={query.error}
       onRetry={() => void query.refetch()}
       toolbar={toolbar}

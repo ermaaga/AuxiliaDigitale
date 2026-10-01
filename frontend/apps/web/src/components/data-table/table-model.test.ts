@@ -5,6 +5,7 @@ import { applyApiErrors } from "@/components/forms/form";
 import {
   applyLayout,
   customFieldColumns,
+  type CustomFieldDefinition,
   nextSort,
   pageCount,
   pageLocally,
@@ -47,19 +48,29 @@ describe("server-side table model", () => {
     expect(hidden).toEqual(["a"]);
   });
 
-  it("adds the custom fields visible on grid, in their order", () => {
+  it("adds the custom fields visible on grid, in their order, one column per group", () => {
+    const field = (key: string, order: number, extra: Partial<CustomFieldDefinition> = {}) => ({
+      key,
+      label: key.toUpperCase(),
+      type: "Boolean",
+      visibleOnGrid: true,
+      order,
+      ...extra,
+    });
     const columns = customFieldColumns<Row>(
       [
-        { key: "size", label: "Size", visibleOnGrid: true, order: 2 },
-        { key: "secret", label: "Secret", visibleOnGrid: false, order: 0 },
-        { key: "colour", label: "Colour", visibleOnGrid: true, order: 1 },
+        field("size", 3, { type: "Text" }),
+        field("secret", 0, { visibleOnGrid: false }),
+        field("caf", 1, { groupName: "Area" }),
+        field("patronato", 2, { groupName: "Area" }),
       ],
-      (row, key) => row.custom[key],
+      (row, fields) => fields.map((item) => row.custom[item.key]).join("|"),
     );
     expect(columns.map((c) => [c.id, c.header])).toEqual([
-      ["cf:colour", "Colour"],
-      ["cf:size", "Size"],
+      ["cfg:Area", "Area"],
+      ["cf:size", "SIZE"],
     ]);
+    expect(columns[0]!.cell({ name: "x", custom: { caf: "yes", patronato: "no" } })).toBe("yes|no");
     expect(columns[1]!.cell({ name: "x", custom: { size: "XL" } })).toBe("XL");
   });
 });

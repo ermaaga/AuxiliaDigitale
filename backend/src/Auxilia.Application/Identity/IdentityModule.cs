@@ -31,6 +31,22 @@ public sealed class IdentityModule : IModuleDescriptor
         new("loginAudit", "/login-audit", "shield-check", 95, [TenantRole.Administrator], IdentityPermissions.ViewLoginAttempts),
     ];
 
+    public IReadOnlyList<GridDefinition> Grids { get; } =
+    [
+        new(
+            "identity.loginAttempts",
+            [
+                new("attemptedAt", "Date", Sortable: true, CanHide: false),
+                new("userName", "Username", Sortable: true, Filterable: true),
+                new("method", "LoginType", Filterable: true),
+                new("result", "LoginResult", Filterable: true),
+                new("failureReason", "FailureReason"),
+                new("ipAddress", "app.identity.loginAttempts.ipAddress"),
+                new("userAgent", "app.identity.loginAttempts.userAgent", VisibleByDefault: false),
+            ],
+            [TenantRole.Administrator]),
+    ];
+
     public void AddServices(IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);

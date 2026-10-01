@@ -14,6 +14,8 @@ import {
   PaletteIcon,
   SettingsIcon,
   ShieldCheckIcon,
+  SlidersHorizontalIcon,
+  Table2Icon,
   UserCogIcon,
   UsersIcon,
   type LucideIcon,
@@ -35,6 +37,8 @@ const icons: Record<string, LucideIcon> = {
   palette: PaletteIcon,
   settings: SettingsIcon,
   "shield-check": ShieldCheckIcon,
+  sliders: SlidersHorizontalIcon,
+  table: Table2Icon,
   "user-cog": UserCogIcon,
   users: UsersIcon,
 };

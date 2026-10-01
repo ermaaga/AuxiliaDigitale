@@ -28,6 +28,8 @@ public sealed class DirectoryModule : IModuleDescriptor
         new("employees", "/employees", "user-cog", 20, [TenantRole.Administrator], DirectoryPermissions.ViewEmployees),
     ];
 
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("client")];
+
     public void AddServices(IServiceCollection services)
     {
     }

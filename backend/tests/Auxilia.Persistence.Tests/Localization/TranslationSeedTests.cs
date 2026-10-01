@@ -46,7 +46,7 @@ public sealed class TranslationSeedTests
     }
 
     [Fact]
-    public void BackendKeys_ModulesNavigationPermissionsAndSettings_AreTranslated()
+    public void BackendKeys_ModulesNavigationPermissionsSettingsGridsAndEntities_AreTranslated()
     {
         using var services = new ServiceCollection().AddLogging().AddApplication().BuildServiceProvider();
         var modules = services.GetRequiredService<IModuleRegistry>().All;
@@ -57,6 +57,8 @@ public sealed class TranslationSeedTests
             .Concat(modules.SelectMany(module => module.Navigation).Select(entry => entry.LabelKey))
             .Concat(modules.SelectMany(module => module.Permissions).Select(permission => permission.DescriptionKey))
             .Concat(settings.Select(setting => setting.DescriptionKey))
+            .Concat(modules.SelectMany(module => module.Grids).SelectMany(grid => grid.Columns.Select(column => column.LabelKey).Append(grid.NameKey)))
+            .Concat(modules.SelectMany(module => module.CustomFieldEntities).Select(entity => entity.NameKey))
             .Concat(TranslationSeed.Languages.Select(language => "languages." + language.Code))
             .Append("errors.generic");
 

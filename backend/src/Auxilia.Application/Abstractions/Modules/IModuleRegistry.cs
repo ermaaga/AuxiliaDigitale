@@ -12,6 +12,12 @@ public interface IModuleRegistry
     IReadOnlyDictionary<string, string> PermissionModules { get; }
 
     IModuleDescriptor? Find(string code);
+
+    /// <summary>Every declared grid by key (<c>&lt;module&gt;.&lt;grid&gt;</c>).</summary>
+    IReadOnlyDictionary<string, GridDefinition> Grids { get; }
+
+    /// <summary>Every entity with custom fields by code → its module code.</summary>
+    IReadOnlyDictionary<string, string> CustomFieldEntities { get; }
 }
 
 /// <summary>

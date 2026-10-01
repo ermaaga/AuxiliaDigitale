@@ -27,6 +27,8 @@ public sealed class EngagementModule : IModuleDescriptor
         new("requests", "/requests", "message-square", 70, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client], EngagementPermissions.ViewRequests),
     ];
 
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("request")];
+
     public void AddServices(IServiceCollection services)
     {
     }

@@ -37,5 +37,38 @@ public static partial class EventCodes
 
         /// <summary>A branding image was removed.</summary>
         public const int BrandingAssetRemoved = 20011;
+
+        /// <summary>A custom field definition was added.</summary>
+        public const int CustomFieldCreated = 20012;
+
+        /// <summary>A custom field definition was changed.</summary>
+        public const int CustomFieldUpdated = 20013;
+
+        /// <summary>A custom field definition was removed (values already stored stay in the records).</summary>
+        public const int CustomFieldDeleted = 20014;
+
+        /// <summary>A custom field definition is not valid (key, label, type, options, group colour…) (400).</summary>
+        public const int CustomFieldInvalid = 20015;
+
+        /// <summary>The entity already has a custom field with this key (409).</summary>
+        public const int CustomFieldKeyTaken = 20016;
+
+        /// <summary>No custom field definition with this id (404).</summary>
+        public const int CustomFieldNotFound = 20017;
+
+        /// <summary>The custom field values of a record do not match the definitions of its entity (400).</summary>
+        public const int CustomFieldValuesInvalid = 20018;
+
+        /// <summary>The column layout of a grid was set for a role.</summary>
+        public const int GridLayoutChanged = 20019;
+
+        /// <summary>The column layout of a grid was removed for a role (the default applies again).</summary>
+        public const int GridLayoutReset = 20020;
+
+        /// <summary>No grid with this key, or the role does not see it (404).</summary>
+        public const int GridNotFound = 20021;
+
+        /// <summary>A grid layout names unknown columns, repeats one or hides a column that must stay visible (400).</summary>
+        public const int GridLayoutInvalid = 20022;
     }
 }

@@ -20,7 +20,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
-| 20000–20999 | Configuration | Configuration | 11 | 20012 |
+| 20000–20999 | Configuration | Configuration | 22 | 20023 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
@@ -146,6 +146,17 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-20009 | Configuration.BrandingAssetNotFound | – | NotFound | – | – |
 | AUX-20010 | Configuration.BrandingAssetChanged | – | – | Configuration.SetBrandingAsset (success) | – |
 | AUX-20011 | Configuration.BrandingAssetRemoved | – | – | Configuration.RemoveBrandingAsset (success) | – |
+| AUX-20012 | Configuration.CustomFieldCreated | – | – | Configuration.CreateCustomField (success) | – |
+| AUX-20013 | Configuration.CustomFieldUpdated | – | – | Configuration.UpdateCustomField (success) | – |
+| AUX-20014 | Configuration.CustomFieldDeleted | – | – | Configuration.DeleteCustomField (success) | – |
+| AUX-20015 | Configuration.CustomFieldInvalid | – | Validation | – | – |
+| AUX-20016 | Configuration.CustomFieldKeyTaken | – | Conflict | – | – |
+| AUX-20017 | Configuration.CustomFieldNotFound | – | NotFound | – | – |
+| AUX-20018 | Configuration.CustomFieldValuesInvalid | – | Validation | – | – |
+| AUX-20019 | Configuration.GridLayoutChanged | – | – | Configuration.SetGridLayout (success) | – |
+| AUX-20020 | Configuration.GridLayoutReset | – | – | Configuration.ResetGridLayout (success) | – |
+| AUX-20021 | Configuration.GridNotFound | – | NotFound | – | – |
+| AUX-20022 | Configuration.GridLayoutInvalid | – | Validation | – | – |
 | AUX-21001 | Localization.ResourceKeyNotFound | – | NotFound | – | – |
 | AUX-21002 | Localization.ResourceKeyExists | – | Conflict | – | – |
 | AUX-21003 | Localization.LanguageNotFound | – | NotFound | – | – |

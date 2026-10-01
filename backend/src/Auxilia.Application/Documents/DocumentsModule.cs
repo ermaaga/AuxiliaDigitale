@@ -27,6 +27,8 @@ public sealed class DocumentsModule : IModuleDescriptor
         new("documents", "/documents", "folder", 60, [TenantRole.Administrator, TenantRole.Employee], DocumentsPermissions.ViewDocuments),
     ];
 
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("document")];
+
     public void AddServices(IServiceCollection services)
     {
     }
