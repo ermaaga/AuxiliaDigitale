@@ -644,6 +644,7 @@
   "app.platform.tenantStatus.Provisioning": "Provisioning",
   "app.platform.tenantStatus.Suspended": "Suspended",
   "app.platform.tenants.description": "Workspaces of the platform. Select one to open its technical configuration.",
+  "app.platform.tenants.name": "Organization name",
   "app.platform.tenants.new": "New tenant",
   "app.platform.tenants.plan": "Plan",
   "app.platform.tenants.schemaVersion": "Schema version",

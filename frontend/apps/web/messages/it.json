@@ -644,6 +644,7 @@
   "app.platform.tenantStatus.Provisioning": "In creazione",
   "app.platform.tenantStatus.Suspended": "Sospeso",
   "app.platform.tenants.description": "Gli spazi di lavoro della piattaforma. Selezionane uno per aprirne la configurazione tecnica.",
+  "app.platform.tenants.name": "Denominazione",
   "app.platform.tenants.new": "Nuovo tenant",
   "app.platform.tenants.plan": "Piano",
   "app.platform.tenants.schemaVersion": "Versione schema",

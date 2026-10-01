@@ -117,6 +117,9 @@ public sealed class TenantTests
 
         tenant.Archive(DateTimeOffset.UnixEpoch);
         tenant.Update("Other", "Europe/Rome").Error!.Code.ShouldBe(EventCodes.Tenancy.TenantArchived);
+
+        // "new" is a console path (/platform/tenants/new), never a tenant.
+        Tenant.Create(Guid.CreateVersion7(), "new", "New", "it", "Europe/Rome").Error!.Code.ShouldBe(EventCodes.Tenancy.TenantSlugReserved);
         tenant.DisplayName.ShouldBe("ACME Group");
     }
 }

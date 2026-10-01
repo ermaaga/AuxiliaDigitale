@@ -9,6 +9,7 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
+const newSlug = `e2e-${Date.now().toString(36)}`;
 
 async function signIn(page: Page, code: string) {
   await page.getByLabel(t("Email")).fill(E2E.systemEmail);
@@ -18,6 +19,7 @@ async function signIn(page: Page, code: string) {
 }
 
 test("console journey of a System user", async ({ page }) => {
+  test.setTimeout(180_000);
   let secret = "";
 
   await test.step("signed out, the console asks to sign in", async () => {
@@ -97,6 +99,102 @@ test("console journey of a System user", async ({ page }) => {
     await page.getByRole("option", { name: /Beta Studio/ }).click();
     await expect(page).toHaveURL(`/platform/tenants/${E2E.otherTenant}`);
     await expect(page.getByRole("heading", { name: "Beta Studio", level: 1 })).toBeVisible();
+  });
+
+  await test.step("a new tenant is created and waits for its provisioning", async () => {
+    await page.goto("/platform/tenants");
+    await page.getByRole("link", { name: t("app.platform.tenants.new") }).click();
+    await expect(page).toHaveURL(/\/platform\/tenants\/new$/);
+    await page.getByRole("button", { name: t("app.platform.create.submit") }).click();
+    await expect(page.getByText(t("validation.tenant.slug"))).toBeVisible();
+    await expectAccessible(page, "new tenant (errors)");
+
+    await page.getByLabel(t("app.platform.tenants.slug")).fill(newSlug);
+    await page.getByLabel(t("app.platform.tenants.name")).fill("Studio E2E");
+    await page.getByLabel(t("Email")).fill("anna@e2e.test");
+    await page.getByLabel(t("FirstName"), { exact: true }).fill("Anna");
+    await page.getByLabel(t("LastName"), { exact: true }).fill("Rossi");
+    await page.getByRole("button", { name: t("app.platform.create.submit") }).click();
+    await expect(page).toHaveURL(`/platform/tenants/${newSlug}`);
+    await expect(page.getByRole("heading", { name: "Studio E2E", level: 1 })).toBeVisible();
+    // No Worker in this environment: the tenant stays in Provisioning and can be queued again.
+    await expect(page.getByText(t("app.platform.tenant.provisioning"))).toBeVisible();
+    await expect(page.getByRole("button", { name: t("app.platform.tenant.retry") })).toBeVisible();
+    await expectAccessible(page, "tenant being provisioned");
+  });
+
+  await test.step("the tenant is edited, then archived after a confirmation", async () => {
+    await page
+      .getByRole("button", { name: t("Edit") })
+      .first()
+      .click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel(t("app.platform.tenants.name")).fill("Studio E2E Bis");
+    await expectAccessible(page, "edit tenant dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByRole("heading", { name: "Studio E2E Bis", level: 1 })).toBeVisible();
+
+    await page.getByRole("button", { name: t("app.platform.tenant.archive") }).click();
+    const confirm = page.getByRole("alertdialog");
+    await expect(confirm).toContainText("Studio E2E Bis");
+    await confirm.getByRole("button", { name: t("app.platform.tenant.archive") }).click();
+    await expect(page.getByText(t("app.platform.tenant.archivedNotice"))).toBeVisible();
+    await expect(page.getByRole("button", { name: t("app.platform.tenant.archive") })).toHaveCount(
+      0,
+    );
+  });
+
+  await test.step("a module override changes who sees the module, and goes back to the plan", async () => {
+    await page.goto(`/platform/tenants/${E2E.otherTenant}`);
+    const modules = page.getByRole("table", { name: t("app.platform.modules.title") });
+    const cases = modules.getByRole("row").filter({ hasText: t("modules.cases.name") });
+    await cases
+      .getByRole("button", {
+        name: t("app.platform.modules.edit", { module: t("modules.cases.name") }),
+      })
+      .click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("combobox").click();
+    await page.getByRole("option", { name: t("app.platform.modules.disabled") }).click();
+    await expectAccessible(page, "module override dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(cases).toContainText(t("app.platform.modules.disabled"));
+
+    await cases
+      .getByRole("button", {
+        name: t("app.platform.modules.edit", { module: t("modules.cases.name") }),
+      })
+      .click();
+    await page.getByRole("dialog").getByRole("combobox").click();
+    await page
+      .getByRole("option", { name: new RegExp(t("app.platform.modules.followPlan")) })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: t("Save") })
+      .click();
+    await expect(
+      cases.getByRole("cell", { name: t("app.platform.modules.noOverride"), exact: true }),
+    ).toBeVisible();
+  });
+
+  await test.step("the first Administrator is invited by e-mail only, pending without a sending account", async () => {
+    const card = page
+      .getByRole("heading", { name: t("app.platform.admins.title") })
+      .locator("xpath=ancestor::*[@data-slot='card'][1]");
+    const create = card.getByRole("button", { name: t("app.platform.admins.create") });
+    // The first run creates the Administrator of beta; later runs find it.
+    await expect(create.or(card.getByText(t("app.platform.admins.pending")))).toBeVisible();
+    if (await create.isVisible()) {
+      await card.getByLabel(t("Email")).fill("first.admin@beta.test");
+      await card.getByLabel(t("FirstName"), { exact: true }).fill("Bea");
+      await card.getByLabel(t("LastName"), { exact: true }).fill("Bianchi");
+      await create.click();
+      await expect(card.getByRole("status")).toContainText("AUX-25011");
+    }
+
+    await expect(card.getByText(t("app.platform.admins.pending"))).toBeVisible();
+    await expectAccessible(page, "tenant with administrators");
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {

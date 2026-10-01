@@ -71,7 +71,11 @@ export function TenantEditDialog({ tenant }: { tenant: TenantDetail }) {
           {save.error && !form.formState.errors.displayName && !form.formState.errors.timeZone ? (
             <ApiErrorAlert error={save.error} />
           ) : null}
-          <FormField control={form.control} name="displayName" label={t("Name")}>
+          <FormField
+            control={form.control}
+            name="displayName"
+            label={t("app.platform.tenants.name")}
+          >
             {(field, props) => <Input {...field} {...props} />}
           </FormField>
           <FormField

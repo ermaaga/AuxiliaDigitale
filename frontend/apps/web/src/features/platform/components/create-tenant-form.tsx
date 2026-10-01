@@ -101,7 +101,7 @@ export function CreateTenantForm() {
             />
           )}
         </FormField>
-        <FormField control={form.control} name="displayName" label={t("Name")}>
+        <FormField control={form.control} name="displayName" label={t("app.platform.tenants.name")}>
           {(field, props) => <Input {...field} {...props} autoComplete="organization" />}
         </FormField>
         <FormField

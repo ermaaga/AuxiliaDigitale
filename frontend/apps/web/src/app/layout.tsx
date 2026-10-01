@@ -40,7 +40,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <NuqsAdapter>
                   <ConfirmProvider>{children}</ConfirmProvider>
                 </NuqsAdapter>
-                <Toaster richColors closeButton />
+                <Toaster closeButton />
               </TooltipProvider>
             </QueryProvider>
           </NextIntlClientProvider>

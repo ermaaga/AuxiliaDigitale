@@ -6,6 +6,12 @@
   "it": "Standard"
  },
  {
+  "key": "app.platform.tenants.name",
+  "category": "app",
+  "en": "Organization name",
+  "it": "Denominazione"
+ },
+ {
   "key": "app.platform.tenants.new",
   "category": "app",
   "en": "New tenant",
