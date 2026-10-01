@@ -33,6 +33,22 @@ public static partial class Errors
         public static Error TenantTransitionNotAllowed(string from, string to) =>
             Error.Conflict(EventCodes.Tenancy.TenantTransitionNotAllowed, $"A tenant cannot move from {from} to {to}");
 
+        public static Error PlanNotFound() =>
+            Error.NotFound(EventCodes.Tenancy.PlanNotFound, "Plan not found");
+
+        public static Error ModuleNotFound() =>
+            Error.NotFound(EventCodes.Tenancy.ModuleNotFound, "Module not found");
+
+        public static Error CoreModuleNotConfigurable() =>
+            Error.Validation(EventCodes.Tenancy.CoreModuleNotConfigurable, "Core modules are always visible and take no override",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["moduleCode"] = ["validation.tenant.coreModule"] });
+
+        public static Error TenantNotProvisioning() =>
+            Error.Conflict(EventCodes.Tenancy.TenantNotProvisioning, "The tenant is not waiting for provisioning");
+
+        public static Error TenantArchived() =>
+            Error.Conflict(EventCodes.Tenancy.TenantArchived, "The tenant is archived and cannot be changed");
+
         public static Error CatalogValueInvalid(string field, string translationKey) =>
             Error.Validation(EventCodes.Tenancy.CatalogValueInvalid, $"The value of {field} is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [translationKey] });

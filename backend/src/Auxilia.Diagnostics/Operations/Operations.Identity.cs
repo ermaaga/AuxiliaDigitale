@@ -23,6 +23,8 @@ public static partial class Operations
 
         public static readonly OperationDescriptor EndSession = new("Identity.EndSession", EventCodes.Identity.SessionEnded);
 
+        public static readonly OperationDescriptor CreateInitialAdministrator = new("Identity.CreateInitialAdministrator", EventCodes.Identity.InitialAdministratorCreated);
+
         public static readonly OperationDescriptor SendActivation = new("Identity.SendActivation", EventCodes.Identity.ActivationSent);
 
         public static readonly OperationDescriptor ActivateAccount = new("Identity.ActivateAccount", EventCodes.Identity.AccountActivated);

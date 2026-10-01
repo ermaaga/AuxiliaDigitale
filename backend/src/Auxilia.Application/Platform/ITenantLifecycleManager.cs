@@ -3,7 +3,10 @@ using Auxilia.SharedKernel.Results;
 
 namespace Auxilia.Application.Platform;
 
-/// <summary>Tenant lifecycle (skill auxilia-tenant-provisioning); used by auxctl and, later, the System console.</summary>
+/// <summary>
+/// Tenant provisioning (skill auxilia-tenant-provisioning): needs the database-admin login, so only auxctl and the Worker
+/// register it. Status changes, plans and overrides are in <see cref="IPlatformTenantManager"/>.
+/// </summary>
 public interface ITenantLifecycleManager
 {
     /// <summary>
@@ -13,11 +16,11 @@ public interface ITenantLifecycleManager
     /// </summary>
     Task<Result<TenantInfo>> ProvisionAsync(ProvisionTenant request, CancellationToken cancellationToken);
 
-    Task<Result> SuspendAsync(string slug, CancellationToken cancellationToken);
-
-    Task<Result> ReactivateAsync(string slug, CancellationToken cancellationToken);
-
-    Task<Result> ArchiveAsync(string slug, CancellationToken cancellationToken);
+    /// <summary>
+    /// Provisioning of a tenant the console already created (Worker, <c>ProvisionTenantCommand</c>): resumes it when it
+    /// is in Provisioning or MigrationFailed; a tenant already provisioned is left as it is (redelivered message).
+    /// </summary>
+    Task<Result<TenantInfo>> ResumeProvisioningAsync(string slug, CancellationToken cancellationToken);
 }
 
 /// <summary>Schema and data migrations of the Catalog and of tenant databases (auxctl).</summary>

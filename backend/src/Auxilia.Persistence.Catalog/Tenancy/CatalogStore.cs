@@ -35,6 +35,40 @@ internal sealed class CatalogStore : ICatalogStore
     public Task<Plan?> FindPlanAsync(Guid planId, CancellationToken cancellationToken) =>
         catalog.Plans.Include(plan => plan.Modules).SingleOrDefaultAsync(plan => plan.Id == planId, cancellationToken);
 
+    public async Task<IReadOnlyList<Plan>> ListPlansAsync(CancellationToken cancellationToken) =>
+        await catalog.Plans.Include(plan => plan.Modules).OrderBy(plan => plan.Code).ToListAsync(cancellationToken);
+
+    public Task<TenantPlan?> CurrentTenantPlanAsync(Guid tenantId, DateTimeOffset at, CancellationToken cancellationToken) =>
+        catalog.TenantPlans
+            .Where(period => period.TenantId == tenantId && period.ValidFrom <= at && (period.ValidTo == null || period.ValidTo > at))
+            .OrderByDescending(period => period.ValidFrom)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, string>> CurrentPlanCodesAsync(DateTimeOffset at, CancellationToken cancellationToken)
+    {
+        var periods = await catalog.TenantPlans.AsNoTracking()
+            .Where(period => period.ValidFrom <= at && (period.ValidTo == null || period.ValidTo > at))
+            .Join(catalog.Plans, period => period.PlanId, plan => plan.Id, (period, plan) => new { period.TenantId, period.ValidFrom, plan.Code })
+            .ToListAsync(cancellationToken);
+        return periods
+            .GroupBy(period => period.TenantId)
+            .ToDictionary(group => group.Key, group => group.MaxBy(period => period.ValidFrom)!.Code);
+    }
+
+    public async Task<IReadOnlyList<TenantModuleOverride>> ListOverridesAsync(Guid tenantId, CancellationToken cancellationToken) =>
+        await catalog.TenantModuleOverrides.Where(item => item.TenantId == tenantId).ToListAsync(cancellationToken);
+
+    public void Add(TenantModuleOverride moduleOverride) => catalog.TenantModuleOverrides.Add(moduleOverride);
+
+    public void Remove(TenantModuleOverride moduleOverride) => catalog.TenantModuleOverrides.Remove(moduleOverride);
+
+    public async Task<IReadOnlyList<MigrationRun>> RecentRunsAsync(Guid tenantId, int count, CancellationToken cancellationToken) =>
+        await catalog.MigrationRuns.AsNoTracking()
+            .Where(run => run.TenantId == tenantId)
+            .OrderByDescending(run => run.StartedAt)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => catalog.SaveChangesAsync(cancellationToken);
 }
 

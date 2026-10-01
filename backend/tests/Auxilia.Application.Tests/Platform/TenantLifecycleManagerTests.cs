@@ -113,20 +113,29 @@ public sealed class TenantLifecycleManagerTests
     }
 
     [Fact]
-    public async Task StatusChanges_FollowTheTenantStateMachine()
+    public async Task ResumeProvisioning_OfATenantCreatedByTheConsole_ProvisionsIt()
+    {
+        var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+        catalog.FindTenantAsync("acme", Arg.Any<CancellationToken>()).Returns(tenant);
+
+        var result = await manager.ResumeProvisioningAsync("acme", Ct);
+
+        result.Value.Status.ShouldBe(TenantStatus.Active);
+        tenant.SchemaVersion.ShouldBe("Tenant_Initial");
+        plans.ShouldBeEmpty();
+        runs.ShouldHaveSingleItem().Status.ShouldBe(MigrationRunStatus.Succeeded);
+    }
+
+    [Fact]
+    public async Task ResumeProvisioning_OfAProvisionedTenant_ChangesNothing_AndUnknownIsNotFound()
     {
         var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
         tenant.Activate();
         catalog.FindTenantAsync("acme", Arg.Any<CancellationToken>()).Returns(tenant);
 
-        (await manager.ReactivateAsync("acme", Ct)).Error!.Code.ShouldBe(EventCodes.Tenancy.TenantTransitionNotAllowed);
-        (await manager.SuspendAsync("acme", Ct)).IsSuccess.ShouldBeTrue();
-        (await manager.ReactivateAsync("acme", Ct)).IsSuccess.ShouldBeTrue();
-        (await manager.ArchiveAsync("acme", Ct)).IsSuccess.ShouldBeTrue();
-        tenant.Status.ShouldBe(TenantStatus.Archived);
-        (await manager.SuspendAsync("unknown", Ct)).Error!.Code.ShouldBe(EventCodes.Tenancy.TenantNotFound);
-
-        // One invalidation of the tenant lookups per successful change, none for the refused ones.
-        await cache.Received(3).InvalidateAsync(CacheTags.CatalogTenants, Arg.Any<CancellationToken>());
+        (await manager.ResumeProvisioningAsync("acme", Ct)).Value.Status.ShouldBe(TenantStatus.Active);
+        (await manager.ResumeProvisioningAsync("unknown", Ct)).Error!.Code.ShouldBe(EventCodes.Tenancy.TenantNotFound);
+        runs.ShouldBeEmpty();
+        await databases.DidNotReceive().MigrateAsync(Arg.Any<string>(), Arg.Any<bool>(), Arg.Any<CancellationToken>());
     }
 }

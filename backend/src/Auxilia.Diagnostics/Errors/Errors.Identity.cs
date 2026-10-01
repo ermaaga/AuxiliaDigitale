@@ -79,6 +79,12 @@ public static partial class Errors
         public static Error UserAmbiguous() =>
             Error.Conflict(EventCodes.Identity.UserAmbiguous, "Several users have this e-mail address: use the user name");
 
+        public static Error AdministratorAlreadyExists() =>
+            Error.Conflict(EventCodes.Identity.AdministratorAlreadyExists, "The tenant already has an Administrator");
+
+        public static Error AccountAlreadyActivated() =>
+            Error.Conflict(EventCodes.Identity.AccountAlreadyActivated, "The account is already activated");
+
         public static Error ClientIdTaken() =>
             Error.Conflict(EventCodes.Identity.ClientIdTaken, "A client application with this client id already exists");
     }

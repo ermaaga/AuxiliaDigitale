@@ -35,7 +35,13 @@ public interface IIdentityData : IAsyncDisposable
 
     Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken);
 
+    /// <summary>Users that have the role (tracked), by user name.</summary>
+    Task<IReadOnlyList<User>> UsersWithRoleAsync(Auxilia.SharedKernel.Tenancy.TenantRole role, CancellationToken cancellationToken);
+
     void Add(User user);
+
+    /// <summary>A person of the Directory (only the first Administrator is created this way; clients and employees come with B-01/B-02).</summary>
+    void Add(Auxilia.Domain.Directory.Person person);
 
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }

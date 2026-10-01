@@ -2,6 +2,7 @@ using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Persistence;
 using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +30,15 @@ internal sealed class IdentityData(ITenantDbContext db) : IIdentityData
     public Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken) =>
         db.Set<Person>().AnyAsync(person => person.Id == personId, cancellationToken);
 
+    public async Task<IReadOnlyList<User>> UsersWithRoleAsync(TenantRole role, CancellationToken cancellationToken) =>
+        await db.Set<User>()
+            .Where(user => EF.Property<List<UserRole>>(user, "roles").Any(item => item.Role == role))
+            .OrderBy(user => user.UserName)
+            .ToListAsync(cancellationToken);
+
     public void Add(User user) => db.Set<User>().Add(user);
+
+    public void Add(Person person) => db.Set<Person>().Add(person);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 

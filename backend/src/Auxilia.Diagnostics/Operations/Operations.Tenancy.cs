@@ -13,5 +13,13 @@ public static partial class Operations
         public static readonly OperationDescriptor SyncModules = new("Tenancy.SyncModules", EventCodes.Tenancy.ModulesSynchronized);
 
         public static readonly OperationDescriptor ArchiveTenant = new("Tenancy.ArchiveTenant", EventCodes.Tenancy.TenantWasArchived);
+
+        public static readonly OperationDescriptor RequestProvisioning = new("Tenancy.RequestProvisioning", EventCodes.Tenancy.TenantProvisioningRequested);
+
+        public static readonly OperationDescriptor UpdateTenant = new("Tenancy.UpdateTenant", EventCodes.Tenancy.TenantUpdated);
+
+        public static readonly OperationDescriptor ChangeTenantPlan = new("Tenancy.ChangeTenantPlan", EventCodes.Tenancy.TenantPlanChanged);
+
+        public static readonly OperationDescriptor ChangeModuleOverride = new("Tenancy.ChangeModuleOverride", EventCodes.Tenancy.TenantModuleOverrideChanged);
     }
 }

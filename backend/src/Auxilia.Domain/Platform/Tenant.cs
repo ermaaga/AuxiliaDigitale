@@ -118,6 +118,28 @@ public sealed class Tenant : AggregateRoot<Guid>
         return Result.Success();
     }
 
+    /// <summary>Changes name and time zone (the slug never changes); an archived tenant is read-only (D-25).</summary>
+    public Result Update(string displayName, string timeZone)
+    {
+        if (Status == TenantStatus.Archived)
+        {
+            return Errors.Tenancy.TenantArchived();
+        }
+
+        if (string.IsNullOrWhiteSpace(timeZone) || timeZone.Length > TimeZoneMaxLength)
+        {
+            return Errors.Tenancy.CatalogValueInvalid("timeZone", "validation.tenant.timeZone");
+        }
+
+        var renamed = Rename(displayName);
+        if (renamed.IsSuccess)
+        {
+            TimeZone = timeZone;
+        }
+
+        return renamed;
+    }
+
     public Result Activate() => MoveTo(TenantStatus.Active);
 
     public Result Suspend() => MoveTo(TenantStatus.Suspended);

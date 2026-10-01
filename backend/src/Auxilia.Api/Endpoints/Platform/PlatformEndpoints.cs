@@ -12,6 +12,7 @@ using Auxilia.Contracts.Platform;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.Infrastructure.Security.Tokens;
+using Auxilia.SharedKernel.Results;
 
 namespace Auxilia.Api.Endpoints.Platform;
 
@@ -76,10 +77,12 @@ internal sealed class PlatformEndpoints : IApiEndpoints
         platform.MapGet("/tenants", ListTenantsAsync)
             .RequirePlatformUser()
             .WithName("ListPlatformTenants")
-            .WithSummary("Tenants of the platform (archived excluded)")
+            .WithSummary("Tenants of the platform with their plan (archived ones with includeArchived=true)")
             .Produces<IReadOnlyList<PlatformTenantResponse>>()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden);
+
+        MapTenantAdministration(platform);
 
         platform.MapPost("/tenants/{slug}/token", OpenTenantAsync)
             .RequirePlatformUser()
@@ -150,8 +153,159 @@ internal sealed class PlatformEndpoints : IApiEndpoints
     private static async Task<IResult> GetMeAsync(IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
         (await console.GetMeAsync(cancellationToken)).ToHttpResult(TypedResults.Ok);
 
-    private static async Task<IResult> ListTenantsAsync(IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
-        TypedResults.Ok(await console.ListTenantsAsync(cancellationToken));
+    private static async Task<IResult> ListTenantsAsync(IPlatformConsoleQueryService console, CancellationToken cancellationToken, bool includeArchived = false) =>
+        TypedResults.Ok(await console.ListTenantsAsync(includeArchived, cancellationToken));
+
+    /// <summary>
+    /// Tenant administration (N02): creation with asynchronous provisioning, edits, status (archive, never delete),
+    /// plan and module overrides per role. Console tokens only; nothing here reads a tenant database (D-21).
+    /// </summary>
+    private static void MapTenantAdministration(RouteGroupBuilder platform)
+    {
+        var tenants = platform.MapGroup("/tenants").RequirePlatformUser();
+
+        tenants.MapPost("/", CreateTenantAsync)
+            .WithName("CreatePlatformTenant")
+            .WithSummary("Creates a tenant and queues its provisioning (202); the first Administrator is invited by e-mail")
+            .Produces<PlatformTenantDetailResponse>(StatusCodes.Status202Accepted)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        tenants.MapGet("/{slug}", GetTenantAsync)
+            .WithName("GetPlatformTenant")
+            .WithSummary("A tenant (archived included) with its plan and its latest provisioning and migration runs")
+            .Produces<PlatformTenantDetailResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        tenants.MapPut("/{slug}", UpdateTenantAsync)
+            .WithName("UpdatePlatformTenant")
+            .WithSummary("Changes name and time zone of a tenant")
+            .Produces<PlatformTenantDetailResponse>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        tenants.MapPost("/{slug}/provisioning", RetryProvisioningAsync)
+            .WithName("RetryPlatformTenantProvisioning")
+            .WithSummary("Queues the provisioning again for a tenant in Provisioning or MigrationFailed")
+            .Produces<PlatformTenantDetailResponse>(StatusCodes.Status202Accepted)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        MapStatusChange(tenants, "suspend", "SuspendPlatformTenant", "Suspends an active tenant (its users cannot sign in)",
+            static (manager, slug, ct) => manager.SuspendAsync(slug, ct));
+        MapStatusChange(tenants, "reactivate", "ReactivatePlatformTenant", "Reactivates a suspended tenant",
+            static (manager, slug, ct) => manager.ReactivateAsync(slug, ct));
+        MapStatusChange(tenants, "archive", "ArchivePlatformTenant", "Archives a tenant: read-only, never deleted (D-25)",
+            static (manager, slug, ct) => manager.ArchiveAsync(slug, ct));
+
+        tenants.MapPut("/{slug}/plan", ChangePlanAsync)
+            .WithName("ChangePlatformTenantPlan")
+            .WithSummary("Moves the tenant to another plan from now on")
+            .Produces<PlatformTenantDetailResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        tenants.MapGet("/{slug}/modules", GetModulesAsync)
+            .WithName("ListPlatformTenantModules")
+            .WithSummary("Modules of the tenant: plan roles, override and effective roles")
+            .Produces<IReadOnlyList<TenantModuleResponse>>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        tenants.MapPut("/{slug}/modules/{moduleCode}", SetModuleOverrideAsync)
+            .WithName("SetPlatformTenantModuleOverride")
+            .WithSummary("Overrides the plan for one module of the tenant (enabled for some roles, or disabled)")
+            .Produces<IReadOnlyList<TenantModuleResponse>>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        tenants.MapDelete("/{slug}/modules/{moduleCode}", RemoveModuleOverrideAsync)
+            .WithName("RemovePlatformTenantModuleOverride")
+            .WithSummary("Removes the override: the module follows the plan again")
+            .Produces<IReadOnlyList<TenantModuleResponse>>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        platform.MapGet("/plans", ListPlansAsync)
+            .RequirePlatformUser()
+            .WithName("ListPlatformPlans")
+            .WithSummary("Active plans with their modules per role")
+            .Produces<IReadOnlyList<PlanResponse>>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
+    }
+
+    private static void MapStatusChange(
+        RouteGroupBuilder tenants, string action, string name, string summary, Func<IPlatformTenantManager, string, CancellationToken, Task<Result>> change) =>
+        tenants.MapPost($"/{{slug}}/{action}", async (string slug, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+                await DetailAfterAsync(await change(manager, slug, cancellationToken), slug, console, cancellationToken))
+            .WithName(name)
+            .WithSummary(summary)
+            .Produces<PlatformTenantDetailResponse>()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+    private static async Task<IResult> CreateTenantAsync(
+        CreatePlatformTenantRequest request, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken)
+    {
+        var created = await manager.CreateAsync(request, cancellationToken);
+        if (created.IsFailure)
+        {
+            return created.Error!.ToProblem();
+        }
+
+        var slug = request.Slug.Trim();
+        return (await console.GetTenantAsync(slug, cancellationToken))
+            .ToHttpResult(detail => TypedResults.Accepted($"/api/v1/platform/tenants/{detail.Slug}", detail));
+    }
+
+    private static async Task<IResult> GetTenantAsync(string slug, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        (await console.GetTenantAsync(slug, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> UpdateTenantAsync(
+        string slug, UpdatePlatformTenantRequest request, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        await DetailAfterAsync(await manager.UpdateAsync(slug, request, cancellationToken), slug, console, cancellationToken);
+
+    private static async Task<IResult> RetryProvisioningAsync(
+        string slug, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken)
+    {
+        var retried = await manager.RetryProvisioningAsync(slug, cancellationToken);
+        return retried.IsFailure
+            ? retried.Error!.ToProblem()
+            : (await console.GetTenantAsync(slug, cancellationToken)).ToHttpResult(detail => TypedResults.Accepted($"/api/v1/platform/tenants/{detail.Slug}", detail));
+    }
+
+    private static async Task<IResult> ChangePlanAsync(
+        string slug, ChangeTenantPlanRequest request, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        await DetailAfterAsync(await manager.ChangePlanAsync(slug, request, cancellationToken), slug, console, cancellationToken);
+
+    private static async Task<IResult> GetModulesAsync(string slug, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        (await console.GetTenantModulesAsync(slug, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> SetModuleOverrideAsync(
+        string slug, string moduleCode, SetModuleOverrideRequest request, IPlatformTenantManager manager, IPlatformConsoleQueryService console,
+        CancellationToken cancellationToken)
+    {
+        var changed = await manager.SetModuleOverrideAsync(slug, moduleCode, request, cancellationToken);
+        return changed.IsFailure ? changed.Error!.ToProblem() : await GetModulesAsync(slug, console, cancellationToken);
+    }
+
+    private static async Task<IResult> RemoveModuleOverrideAsync(
+        string slug, string moduleCode, IPlatformTenantManager manager, IPlatformConsoleQueryService console, CancellationToken cancellationToken)
+    {
+        var removed = await manager.RemoveModuleOverrideAsync(slug, moduleCode, cancellationToken);
+        return removed.IsFailure ? removed.Error!.ToProblem() : await GetModulesAsync(slug, console, cancellationToken);
+    }
+
+    private static async Task<IResult> ListPlansAsync(IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await console.ListPlansAsync(cancellationToken));
+
+    /// <summary>A change answers with the tenant as it is now (the console refreshes its page from it).</summary>
+    private static async Task<IResult> DetailAfterAsync(Result change, string slug, IPlatformConsoleQueryService console, CancellationToken cancellationToken) =>
+        change.IsFailure ? change.Error!.ToProblem() : (await console.GetTenantAsync(slug, cancellationToken)).ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> OpenTenantAsync(string slug, ClaimsPrincipal user, HttpContext context, IPlatformAuthManager auth, CancellationToken cancellationToken)
     {

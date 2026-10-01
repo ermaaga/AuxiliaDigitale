@@ -52,5 +52,35 @@ public static partial class EventCodes
 
         /// <summary>The module catalog was aligned with the module descriptors of this deployment.</summary>
         public const int ModulesSynchronized = 11019;
+
+        /// <summary>The System asked to create a tenant; provisioning runs in the Worker (N02).</summary>
+        public const int TenantProvisioningRequested = 11020;
+
+        /// <summary>The name or the time zone of a tenant changed.</summary>
+        public const int TenantUpdated = 11021;
+
+        /// <summary>A tenant moved to another plan.</summary>
+        public const int TenantPlanChanged = 11022;
+
+        /// <summary>A module override of a tenant was set or removed (D-18).</summary>
+        public const int TenantModuleOverrideChanged = 11023;
+
+        /// <summary>No active plan with this code (404).</summary>
+        public const int PlanNotFound = 11024;
+
+        /// <summary>No available module with this code (404).</summary>
+        public const int ModuleNotFound = 11025;
+
+        /// <summary>Core modules are always visible and take no override (400).</summary>
+        public const int CoreModuleNotConfigurable = 11026;
+
+        /// <summary>The provisioning message could not be sent (bus unavailable): the System retries from the console.</summary>
+        public const int ProvisioningNotDispatched = 11027;
+
+        /// <summary>The tenant is not waiting for provisioning (409).</summary>
+        public const int TenantNotProvisioning = 11028;
+
+        /// <summary>The tenant is archived and read-only (409, D-25).</summary>
+        public const int TenantArchived = 11029;
     }
 }

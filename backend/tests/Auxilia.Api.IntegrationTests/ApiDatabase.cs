@@ -31,6 +31,9 @@ public sealed class ApiDatabase : IAsyncLifetime
 {
     public const string TenantA = "tenant-a";
     public const string TenantB = "tenant-b";
+
+    /// <summary>Active, with a database and no users: for the first-Administrator tests (N02).</summary>
+    public const string TenantC = "tenant-c";
     public const string Suspended = "tenant-suspended";
     public const string Provisioning = "tenant-provisioning";
     public const string Archived = "tenant-archived";
@@ -72,6 +75,8 @@ public sealed class ApiDatabase : IAsyncLifetime
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantA.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantB.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantModuleOverrides.Add(new TenantModuleOverride(tenantB.Id, "cases", isEnabled: false, []));
+        var tenantC = await AddTenantAsync(catalog, protector, TenantC, database: "tenant_c", tenant => tenant.Activate());
+        catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantC.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         await AddTenantAsync(catalog, protector, Suspended, database: null, tenant => { tenant.Activate(); tenant.Suspend(); });
         await AddTenantAsync(catalog, protector, Provisioning, database: null, _ => { });
         await AddTenantAsync(catalog, protector, Archived, database: null, tenant => tenant.Archive(DateTimeOffset.UtcNow));

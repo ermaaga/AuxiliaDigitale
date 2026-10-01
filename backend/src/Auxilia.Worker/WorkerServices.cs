@@ -31,6 +31,10 @@ public static class WorkerServices
         services.AddCatalogPersistence(catalog);
         services.AddTenantPersistence();
 
+        // Provisioning requested from the console (ProvisionTenantCommand): creates tenant databases.
+        services.AddTenantAdministration();
+        services.AddTenantDatabaseAdministration(configuration["Provisioning:AdminConnectionString"] ?? catalog);
+
         if (configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
         {
             services.AddRedisCache(redis);

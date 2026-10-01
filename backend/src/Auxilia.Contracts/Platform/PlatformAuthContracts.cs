@@ -20,7 +20,7 @@ public sealed record PlatformActivateRequest(string ActivationToken, string Pass
 public sealed record PlatformMeResponse(Guid Id, string Email, string DisplayName, IReadOnlyList<string> Roles);
 
 /// <summary>A tenant in the console list (<c>GET /platform/tenants</c>).</summary>
-public sealed record PlatformTenantResponse(string Slug, string DisplayName, string Status, string? SchemaVersion);
+public sealed record PlatformTenantResponse(string Slug, string DisplayName, string Status, string? SchemaVersion, string? PlanCode);
 
 /// <summary>
 /// <c>POST /platform/tenants/{slug}/token</c>: a short-lived platform token for that tenant's technical endpoints

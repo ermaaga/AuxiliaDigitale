@@ -57,6 +57,7 @@ builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, AdministratorEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));

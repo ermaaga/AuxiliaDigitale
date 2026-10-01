@@ -157,5 +157,17 @@ public static partial class EventCodes
 
         /// <summary>Several users share the e-mail address: the operator must use the user name (409).</summary>
         public const int UserAmbiguous = 12051;
+
+        /// <summary>The first Administrator of a tenant was created by the System (N02).</summary>
+        public const int InitialAdministratorCreated = 12052;
+
+        /// <summary>The tenant already has an Administrator (409).</summary>
+        public const int AdministratorAlreadyExists = 12053;
+
+        /// <summary>The invitation of an Administrator could not be e-mailed (e.g. no sending account yet): it stays pending.</summary>
+        public const int InvitationPending = 12054;
+
+        /// <summary>The account is already activated: no invitation is needed (409).</summary>
+        public const int AccountAlreadyActivated = 12055;
     }
 }
