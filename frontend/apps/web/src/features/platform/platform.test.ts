@@ -15,9 +15,27 @@ import { filterTenants } from "./components/tenants-table";
 import { activationSchema, activationTokenSchema } from "./schemas/activation";
 
 const tenants = [
-  { slug: "acme", displayName: "ACME Srl", status: "Active", schemaVersion: "v1" },
-  { slug: "beta", displayName: "Beta Studio", status: "Suspended", schemaVersion: null },
-  { slug: "gamma", displayName: "Gamma", status: "Active", schemaVersion: "v1" },
+  {
+    slug: "acme",
+    displayName: "ACME Srl",
+    status: "Active",
+    schemaVersion: "v1",
+    planCode: "standard",
+  },
+  {
+    slug: "beta",
+    displayName: "Beta Studio",
+    status: "Suspended",
+    schemaVersion: null,
+    planCode: null,
+  },
+  {
+    slug: "gamma",
+    displayName: "Gamma",
+    status: "Active",
+    schemaVersion: "v1",
+    planCode: "standard",
+  },
 ];
 
 describe("console links", () => {
