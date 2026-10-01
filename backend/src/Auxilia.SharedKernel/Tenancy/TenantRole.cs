@@ -10,3 +10,15 @@ public enum TenantRole
     Employee,
     Client,
 }
+
+public static class TenantRoles
+{
+    /// <summary>The exact role name (<c>Administrator</c>, <c>Employee</c>, <c>Client</c>): no other case, no numbers.</summary>
+    public static bool TryParse(string? value, out TenantRole role)
+    {
+        role = default;
+        return value is not null
+            && Enum.GetNames<TenantRole>().Contains(value, StringComparer.Ordinal)
+            && Enum.TryParse(value, ignoreCase: false, out role);
+    }
+}

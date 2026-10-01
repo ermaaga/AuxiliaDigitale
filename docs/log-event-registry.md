@@ -12,8 +12,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 26 | 11030 |
-| 12000–12999 | Identity | Identity / Auth | 55 | 12056 |
-| 13000–13999 | Directory | Directory (clients, employees) | 0 | 13001 |
+| 12000–12999 | Identity | Identity / Auth | 58 | 12059 |
+| 13000–13999 | Directory | Directory (clients, employees) | 9 | 13010 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 23 | 29024 |
+| 29000–29999 | Security | Security events | 24 | 29025 |
 
 ## Codes
 
@@ -132,6 +132,18 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12053 | Identity.AdministratorAlreadyExists | – | Conflict | – | – |
 | AUX-12054 | Identity.InvitationPending | Warning | – | – | The invitation of Administrator {UserId} was not sent ({ErrorCode}): it stays pending |
 | AUX-12055 | Identity.AccountAlreadyActivated | – | Conflict | – | – |
+| AUX-12056 | Identity.RolePermissionsChanged | – | – | Identity.SetRolePermissions (success) | – |
+| AUX-12057 | Identity.RolePermissionsReset | – | – | Identity.ResetRolePermissions (success) | – |
+| AUX-12058 | Identity.RolePermissionsInvalid | – | Validation | – | – |
+| AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
+| AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
+| AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |
+| AUX-13004 | Directory.SpecializationInvalid | – | Validation | – | – |
+| AUX-13005 | Directory.SpecializationNotFound | – | NotFound | – | – |
+| AUX-13006 | Directory.SpecializationNameTaken | – | Conflict | – | – |
+| AUX-13007 | Directory.SpecializationMembersAdded | – | – | Directory.AddSpecializationMembers (success) | – |
+| AUX-13008 | Directory.SpecializationMemberRemoved | – | – | Directory.RemoveSpecializationMember (success) | – |
+| AUX-13009 | Directory.SpecializationMemberInvalid | – | Validation | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
@@ -234,3 +246,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29021 | Security.PlatformCredentialsChanged | Information | – | – | Credentials of platform user {PlatformUserId} {Change} |
 | AUX-29022 | Security.LoginOtpSent | Information | – | – | Sign-in code e-mailed to user {UserId} |
 | AUX-29023 | Security.PasswordResetByOperator | Warning | – | – | Password of user {UserId} reset by an operator ({Mode}) |
+| AUX-29024 | Security.RolePermissionsChanged | Warning | – | – | Permissions of role {Role} changed: granted {Granted}, revoked {Revoked} |

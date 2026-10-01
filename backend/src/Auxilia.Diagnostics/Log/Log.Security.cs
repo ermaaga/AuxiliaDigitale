@@ -98,5 +98,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.PasswordResetByOperator, EventName = "Security.PasswordResetByOperator",
             Level = LogLevel.Warning, Message = "Password of user {UserId} reset by an operator ({Mode})")]
         public static partial void PasswordResetByOperator(ILogger logger, Guid userId, string mode);
+
+        [LoggerMessage(EventId = EventCodes.Security.RolePermissionsChanged, EventName = "Security.RolePermissionsChanged",
+            Level = LogLevel.Warning, Message = "Permissions of role {Role} changed: granted {Granted}, revoked {Revoked}")]
+        public static partial void RolePermissionsChanged(ILogger logger, string role, string granted, string revoked);
     }
 }

@@ -1,10 +1,12 @@
 import {
+  AwardIcon,
   Building2Icon,
   BriefcaseIcon,
   CalendarIcon,
   CircleIcon,
   FolderIcon,
   GaugeIcon,
+  KeyRoundIcon,
   LanguagesIcon,
   LayersIcon,
   LayoutDashboardIcon,
@@ -24,11 +26,13 @@ import {
 
 /** Icons named by the module descriptors (`NavigationEntry.Icon`) and the console; unknown names get a neutral dot. */
 const icons: Record<string, LucideIcon> = {
+  award: AwardIcon,
   briefcase: BriefcaseIcon,
   building: Building2Icon,
   calendar: CalendarIcon,
   folder: FolderIcon,
   gauge: GaugeIcon,
+  "key-round": KeyRoundIcon,
   languages: LanguagesIcon,
   layers: LayersIcon,
   "layout-dashboard": LayoutDashboardIcon,
