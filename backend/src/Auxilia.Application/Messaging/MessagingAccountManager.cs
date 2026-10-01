@@ -10,6 +10,8 @@ using Auxilia.Domain.Messaging;
 using Auxilia.SharedKernel.Results;
 using Auxilia.SharedKernel.Tenancy;
 
+using Microsoft.Extensions.Logging;
+
 namespace Auxilia.Application.Messaging;
 
 /// <summary>
@@ -33,9 +35,17 @@ public interface IMessagingAccountManager
     /// <summary>Replaces the rules of a channel.</summary>
     Task<Result> SetSenderRulesAsync(MessageChannel channel, IReadOnlyList<SenderRuleInput> rules, CancellationToken cancellationToken);
 
-    /// <summary>Sends a test message through the account right away (not queued) and records it in the outbound log.</summary>
-    Task<Result> SendTestAsync(Guid accountId, string recipient, string language, CancellationToken cancellationToken);
+    /// <summary>
+    /// Sends a test message through the account right away (not queued) and records it in the outbound log. A delivery
+    /// failure is an outcome, not an error: the message is logged as Failed with its code (credentials refused, server
+    /// not reachable…); only a request that cannot be sent at all (unknown account, no adapter, invalid recipient,
+    /// missing template) fails.
+    /// </summary>
+    Task<Result<TestMessageOutcome>> SendTestAsync(Guid accountId, string recipient, string language, CancellationToken cancellationToken);
 }
+
+/// <param name="ErrorCode"><c>AUX-…</c> code when the message was not delivered.</param>
+public sealed record TestMessageOutcome(Guid MessageId, bool Sent, string? ErrorCode);
 
 /// <param name="Settings">Non-secret provider settings (JSON object).</param>
 /// <param name="Secret">Plain secret (password, token); protected before storage.</param>
@@ -56,6 +66,7 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
     private readonly ITenantContext tenantContext;
     private readonly IReferenceDataCache cache;
     private readonly TimeProvider timeProvider;
+    private readonly ILogger<MessagingAccountManager> logger;
 
     public MessagingAccountManager(
         IOperationRunner operations,
@@ -65,7 +76,8 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
         ITemplateRenderer templates,
         ITenantContext tenantContext,
         IReferenceDataCache cache,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ILogger<MessagingAccountManager> logger)
     {
         this.operations = operations;
         this.data = data;
@@ -75,6 +87,7 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
         this.tenantContext = tenantContext;
         this.cache = cache;
         this.timeProvider = timeProvider;
+        this.logger = logger;
     }
 
     public Task<Result<Guid>> CreateAccountAsync(CreateMessagingAccount request, CancellationToken cancellationToken)
@@ -180,12 +193,8 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
         }, cancellationToken);
     }
 
-    public Task<Result> SendTestAsync(Guid accountId, string recipient, string language, CancellationToken cancellationToken)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(recipient);
-        ArgumentException.ThrowIfNullOrWhiteSpace(language);
-
-        return operations.RunAsync(Operations.Messaging.SendTestMessage, new { MessagingAccountId = accountId }, async scope =>
+    public Task<Result<TestMessageOutcome>> SendTestAsync(Guid accountId, string recipient, string language, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Messaging.SendTestMessage, new { MessagingAccountId = accountId }, async scope =>
         {
             await using var store = await data.OpenAsync(cancellationToken);
             if (await store.FindAccountAsync(accountId, cancellationToken) is not { } account)
@@ -198,17 +207,19 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
                 return Errors.Messaging.ChannelNotAvailable(account.Provider);
             }
 
-            if (!channel.IsValidRecipient(recipient))
+            recipient = recipient?.Trim() ?? string.Empty;
+            if (recipient.Length is 0 or > OutboundMessage.RecipientMaxLength || !channel.IsValidRecipient(recipient))
             {
                 return Errors.Messaging.RecipientInvalid();
             }
 
+            var defaultLanguage = tenantContext.Tenant.DefaultLanguage;
             var content = await MessageContent.RenderAsync(
-                store, templates, account.Channel, MessageTemplates.AccountTest, language, tenantContext.Tenant.DefaultLanguage,
+                store, templates, account.Channel, MessageTemplates.AccountTest, string.IsNullOrWhiteSpace(language) ? defaultLanguage : language, defaultLanguage,
                 new Dictionary<string, object?> { ["accountName"] = account.Name, ["tenantName"] = tenantContext.Tenant.Slug }, cancellationToken);
             if (content.IsFailure)
             {
-                return content;
+                return Result.Failure<TestMessageOutcome>(content.Error!);
             }
 
             var message = new OutboundMessage(
@@ -216,7 +227,18 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
                 content.Value.Language, content.Value.Subject, content.Value.Body, timeProvider.GetUtcNow());
             scope.SetEntity("OutboundMessage", message.Id);
 
-            var outcome = await DeliverySteps.SendAsync(channel, account, message, secrets, cancellationToken);
+            Result outcome;
+            try
+            {
+                outcome = await DeliverySteps.SendAsync(channel, account, message, secrets, cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+            {
+                // Not retried like a queued message: the System sees at once that the server cannot be reached.
+                Log.Messaging.TestDeliveryFailed(logger, exception, message.Id, account.Id);
+                outcome = Errors.Messaging.TestDeliveryFailed();
+            }
+
             if (outcome.IsSuccess)
             {
                 message.MarkSent(timeProvider.GetUtcNow());
@@ -228,9 +250,8 @@ internal sealed class MessagingAccountManager : IMessagingAccountManager
 
             store.Add(message);
             await store.SaveChangesAsync(cancellationToken);
-            return outcome;
+            return Result.Success(new TestMessageOutcome(message.Id, outcome.IsSuccess, outcome.IsSuccess ? null : outcome.Error!.DisplayCode));
         }, cancellationToken);
-    }
 
     private Task<Result> WithAccountAsync(
         Diagnostics.OperationDescriptor operation, Guid accountId, Func<MessagingAccount, IMessagingData, Task<Result>> change, CancellationToken cancellationToken) =>

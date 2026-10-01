@@ -25,7 +25,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 22000–22999 | Imports | Imports | 0 | 22001 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
-| 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 21 | 25022 |
+| 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 22 | 25023 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
@@ -190,6 +190,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-25019 | Messaging.OutboundMessageNotFound | – | NotFound | – | – |
 | AUX-25020 | Messaging.SenderRuleInvalid | – | Validation | – | – |
 | AUX-25021 | Messaging.AccountAuthenticationFailed | – | Failure | – | – |
+| AUX-25022 | Messaging.TestDeliveryFailed | Warning | Failure | – | Test message {OutboundMessageId} through account {MessagingAccountId} could not be delivered |
 | AUX-26001 | Jobs.JobRunSucceeded | – | – | Jobs.RunJob (success) | – |
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |

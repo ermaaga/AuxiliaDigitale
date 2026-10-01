@@ -67,5 +67,8 @@ public static partial class EventCodes
 
         /// <summary>The channel server refused the credentials of the account.</summary>
         public const int AccountAuthenticationFailed = 25021;
+
+        /// <summary>A test message could not be delivered: the server did not answer or the connection failed.</summary>
+        public const int TestDeliveryFailed = 25022;
     }
 }

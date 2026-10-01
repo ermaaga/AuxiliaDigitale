@@ -1,0 +1,476 @@
+[
+ {
+  "key": "app.platform.nav.messaging",
+  "category": "app",
+  "en": "Messaging",
+  "it": "Invii"
+ },
+ {
+  "key": "app.platform.messaging.title",
+  "category": "app",
+  "en": "Messaging",
+  "it": "Invii"
+ },
+ {
+  "key": "app.platform.messaging.description",
+  "category": "app",
+  "en": "Sending accounts, the rules that choose them and the log of every message sent.",
+  "it": "Account di invio, regole che li scelgono e registro di ogni messaggio inviato."
+ },
+ {
+  "key": "app.platform.messaging.accounts",
+  "category": "app",
+  "en": "Sending accounts",
+  "it": "Account di invio"
+ },
+ {
+  "key": "app.platform.messaging.accountsDescription",
+  "category": "app",
+  "en": "Every channel has one default account; rules can pick another one by purpose and role.",
+  "it": "Ogni canale ha un account predefinito; le regole possono sceglierne un altro per scopo e ruolo."
+ },
+ {
+  "key": "app.platform.messaging.newAccount",
+  "category": "app",
+  "en": "New SMTP account",
+  "it": "Nuovo account SMTP"
+ },
+ {
+  "key": "app.platform.messaging.editAccount",
+  "category": "app",
+  "en": "Edit account",
+  "it": "Modifica account"
+ },
+ {
+  "key": "app.platform.messaging.editNamed",
+  "category": "app",
+  "en": "Edit {account}",
+  "it": "Modifica {account}"
+ },
+ {
+  "key": "app.platform.messaging.smtpDescription",
+  "category": "app",
+  "en": "E-mail through an SMTP server. The password is stored encrypted and never shown again.",
+  "it": "E-mail tramite un server SMTP. La password è salvata cifrata e non viene più mostrata."
+ },
+ {
+  "key": "app.platform.messaging.accountName",
+  "category": "app",
+  "en": "Account name",
+  "it": "Nome dell'account"
+ },
+ {
+  "key": "app.platform.messaging.host",
+  "category": "app",
+  "en": "SMTP server",
+  "it": "Server SMTP"
+ },
+ {
+  "key": "app.platform.messaging.port",
+  "category": "app",
+  "en": "Port",
+  "it": "Porta"
+ },
+ {
+  "key": "app.platform.messaging.security",
+  "category": "app",
+  "en": "Connection security",
+  "it": "Sicurezza della connessione"
+ },
+ {
+  "key": "app.platform.messaging.securityOption.None",
+  "category": "app",
+  "en": "None",
+  "it": "Nessuna"
+ },
+ {
+  "key": "app.platform.messaging.securityOption.StartTls",
+  "category": "app",
+  "en": "STARTTLS",
+  "it": "STARTTLS"
+ },
+ {
+  "key": "app.platform.messaging.securityOption.SslOnConnect",
+  "category": "app",
+  "en": "SSL/TLS",
+  "it": "SSL/TLS"
+ },
+ {
+  "key": "app.platform.messaging.passwordKept",
+  "category": "app",
+  "en": "Leave empty to keep the stored password.",
+  "it": "Lascia vuoto per mantenere la password salvata."
+ },
+ {
+  "key": "app.platform.messaging.fromAddress",
+  "category": "app",
+  "en": "Sender address",
+  "it": "Indirizzo del mittente"
+ },
+ {
+  "key": "app.platform.messaging.fromName",
+  "category": "app",
+  "en": "Sender name",
+  "it": "Nome del mittente"
+ },
+ {
+  "key": "app.platform.messaging.accountSaved",
+  "category": "app",
+  "en": "Account saved",
+  "it": "Account salvato"
+ },
+ {
+  "key": "app.platform.messaging.channel",
+  "category": "app",
+  "en": "Channel",
+  "it": "Canale"
+ },
+ {
+  "key": "app.platform.messaging.channelName.Email",
+  "category": "app",
+  "en": "E-mail",
+  "it": "E-mail"
+ },
+ {
+  "key": "app.platform.messaging.channelName.WhatsApp",
+  "category": "app",
+  "en": "WhatsApp",
+  "it": "WhatsApp"
+ },
+ {
+  "key": "app.platform.messaging.channelName.Sms",
+  "category": "app",
+  "en": "SMS",
+  "it": "SMS"
+ },
+ {
+  "key": "app.platform.messaging.notAvailable",
+  "category": "app",
+  "en": "Not available yet",
+  "it": "Non ancora disponibile"
+ },
+ {
+  "key": "app.platform.messaging.server",
+  "category": "app",
+  "en": "Server and sender",
+  "it": "Server e mittente"
+ },
+ {
+  "key": "app.platform.messaging.makeDefault",
+  "category": "app",
+  "en": "Make default",
+  "it": "Rendi predefinito"
+ },
+ {
+  "key": "app.platform.messaging.makeDefaultNamed",
+  "category": "app",
+  "en": "Make {account} the default",
+  "it": "Rendi predefinito {account}"
+ },
+ {
+  "key": "app.platform.messaging.defaultSet",
+  "category": "app",
+  "en": "Default account changed",
+  "it": "Account predefinito cambiato"
+ },
+ {
+  "key": "app.platform.messaging.activate",
+  "category": "app",
+  "en": "Activate",
+  "it": "Attiva"
+ },
+ {
+  "key": "app.platform.messaging.activateNamed",
+  "category": "app",
+  "en": "Activate {account}",
+  "it": "Attiva {account}"
+ },
+ {
+  "key": "app.platform.messaging.deactivate",
+  "category": "app",
+  "en": "Deactivate",
+  "it": "Disattiva"
+ },
+ {
+  "key": "app.platform.messaging.deactivateNamed",
+  "category": "app",
+  "en": "Deactivate {account}",
+  "it": "Disattiva {account}"
+ },
+ {
+  "key": "app.platform.messaging.deactivateTitle",
+  "category": "app",
+  "en": "Deactivate the account?",
+  "it": "Disattivare l'account?"
+ },
+ {
+  "key": "app.platform.messaging.deactivateText",
+  "category": "app",
+  "en": "{account} will no longer send messages; the rules that use it fall back to the default account.",
+  "it": "{account} non invierà più messaggi; le regole che lo usano passano all'account predefinito."
+ },
+ {
+  "key": "app.platform.messaging.sendTest",
+  "category": "app",
+  "en": "Send test",
+  "it": "Invia prova"
+ },
+ {
+  "key": "app.platform.messaging.testNamed",
+  "category": "app",
+  "en": "Send a test from {account}",
+  "it": "Invia una prova da {account}"
+ },
+ {
+  "key": "app.platform.messaging.testTitle",
+  "category": "app",
+  "en": "Test message from {account}",
+  "it": "Messaggio di prova da {account}"
+ },
+ {
+  "key": "app.platform.messaging.testDescription",
+  "category": "app",
+  "en": "The message is sent now and recorded in the log, delivered or not.",
+  "it": "Il messaggio viene inviato subito e registrato nel log, consegnato o no."
+ },
+ {
+  "key": "app.platform.messaging.recipient",
+  "category": "app",
+  "en": "Recipient",
+  "it": "Destinatario"
+ },
+ {
+  "key": "app.platform.messaging.testSent",
+  "category": "app",
+  "en": "Test message sent.",
+  "it": "Messaggio di prova inviato."
+ },
+ {
+  "key": "app.platform.messaging.testFailed",
+  "category": "app",
+  "en": "The test message was not delivered: {reason}",
+  "it": "Il messaggio di prova non è stato consegnato: {reason}"
+ },
+ {
+  "key": "app.platform.messaging.rules",
+  "category": "app",
+  "en": "Sender rules (e-mail)",
+  "it": "Regole di invio (e-mail)"
+ },
+ {
+  "key": "app.platform.messaging.rulesDescription",
+  "category": "app",
+  "en": "For each message the account comes from the rule of its purpose and the sender's role, then from the rule of its purpose for any role, otherwise from the default account. The lowest priority wins.",
+  "it": "Per ogni messaggio l'account viene dalla regola del suo scopo e del ruolo del mittente, poi dalla regola dello scopo per qualsiasi ruolo, altrimenti dall'account predefinito. Vince la priorità più bassa."
+ },
+ {
+  "key": "app.platform.messaging.rulesNeedAccount",
+  "category": "app",
+  "en": "Add an active e-mail account to create rules.",
+  "it": "Aggiungi un account e-mail attivo per creare regole."
+ },
+ {
+  "key": "app.platform.messaging.noRules",
+  "category": "app",
+  "en": "No rules: every e-mail goes through the default account.",
+  "it": "Nessuna regola: ogni e-mail passa dall'account predefinito."
+ },
+ {
+  "key": "app.platform.messaging.purpose",
+  "category": "app",
+  "en": "Purpose",
+  "it": "Scopo"
+ },
+ {
+  "key": "app.platform.messaging.purposeName.Transactional",
+  "category": "app",
+  "en": "Transactional",
+  "it": "Transazionale"
+ },
+ {
+  "key": "app.platform.messaging.purposeName.Notification",
+  "category": "app",
+  "en": "Notification",
+  "it": "Notifica"
+ },
+ {
+  "key": "app.platform.messaging.purposeName.Marketing",
+  "category": "app",
+  "en": "Marketing",
+  "it": "Marketing"
+ },
+ {
+  "key": "app.platform.messaging.anyRole",
+  "category": "app",
+  "en": "Any role",
+  "it": "Qualsiasi ruolo"
+ },
+ {
+  "key": "app.platform.messaging.account",
+  "category": "app",
+  "en": "Account",
+  "it": "Account"
+ },
+ {
+  "key": "app.platform.messaging.priority",
+  "category": "app",
+  "en": "Priority",
+  "it": "Priorità"
+ },
+ {
+  "key": "app.platform.messaging.ruleField",
+  "category": "app",
+  "en": "{field} of rule {number}",
+  "it": "{field} della regola {number}"
+ },
+ {
+  "key": "app.platform.messaging.removeRule",
+  "category": "app",
+  "en": "Remove rule {number}",
+  "it": "Rimuovi la regola {number}"
+ },
+ {
+  "key": "app.platform.messaging.addRule",
+  "category": "app",
+  "en": "Add rule",
+  "it": "Aggiungi regola"
+ },
+ {
+  "key": "app.platform.messaging.saveRules",
+  "category": "app",
+  "en": "Save rules",
+  "it": "Salva regole"
+ },
+ {
+  "key": "app.platform.messaging.rulesSaved",
+  "category": "app",
+  "en": "Rules saved",
+  "it": "Regole salvate"
+ },
+ {
+  "key": "app.platform.messaging.log",
+  "category": "app",
+  "en": "Outbound log",
+  "it": "Registro degli invii"
+ },
+ {
+  "key": "app.platform.messaging.logDescription",
+  "category": "app",
+  "en": "Every message the tenant sent or tried to send, newest first.",
+  "it": "Ogni messaggio che il tenant ha inviato o provato a inviare, dal più recente."
+ },
+ {
+  "key": "app.platform.messaging.allStatuses",
+  "category": "app",
+  "en": "All statuses",
+  "it": "Tutti gli stati"
+ },
+ {
+  "key": "app.platform.messaging.status.Queued",
+  "category": "app",
+  "en": "Queued",
+  "it": "In coda"
+ },
+ {
+  "key": "app.platform.messaging.status.Sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviato"
+ },
+ {
+  "key": "app.platform.messaging.status.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Non riuscito"
+ },
+ {
+  "key": "app.platform.messaging.queuedAt",
+  "category": "app",
+  "en": "Queued at",
+  "it": "In coda dal"
+ },
+ {
+  "key": "app.platform.messaging.completedAt",
+  "category": "app",
+  "en": "Completed at",
+  "it": "Concluso il"
+ },
+ {
+  "key": "validation.messaging.channel",
+  "category": "validation",
+  "en": "Choose a valid channel",
+  "it": "Scegli un canale valido"
+ },
+ {
+  "key": "validation.messaging.status",
+  "category": "validation",
+  "en": "Choose a valid status",
+  "it": "Scegli uno stato valido"
+ },
+ {
+  "key": "validation.messaging.host",
+  "category": "validation",
+  "en": "Enter the SMTP server",
+  "it": "Inserisci il server SMTP"
+ },
+ {
+  "key": "validation.messaging.port",
+  "category": "validation",
+  "en": "Enter a port between 1 and 65535",
+  "it": "Inserisci una porta tra 1 e 65535"
+ },
+ {
+  "key": "errors.AUX-25010",
+  "category": "errors",
+  "en": "The sending account does not exist.",
+  "it": "L'account di invio non esiste."
+ },
+ {
+  "key": "errors.AUX-25012",
+  "category": "errors",
+  "en": "The account settings are not valid.",
+  "it": "Le impostazioni dell'account non sono valide."
+ },
+ {
+  "key": "errors.AUX-25013",
+  "category": "errors",
+  "en": "This channel cannot send yet.",
+  "it": "Questo canale non può ancora inviare."
+ },
+ {
+  "key": "errors.AUX-25014",
+  "category": "errors",
+  "en": "The message template is missing.",
+  "it": "Manca il modello del messaggio."
+ },
+ {
+  "key": "errors.AUX-25016",
+  "category": "errors",
+  "en": "The recipient was refused.",
+  "it": "Il destinatario è stato rifiutato."
+ },
+ {
+  "key": "errors.AUX-25017",
+  "category": "errors",
+  "en": "The default account must stay active: choose another default first.",
+  "it": "L'account predefinito deve restare attivo: scegli prima un altro predefinito."
+ },
+ {
+  "key": "errors.AUX-25020",
+  "category": "errors",
+  "en": "A sender rule is not valid.",
+  "it": "Una regola di invio non è valida."
+ },
+ {
+  "key": "errors.AUX-25021",
+  "category": "errors",
+  "en": "the server refused the username or the password",
+  "it": "il server ha rifiutato nome utente o password"
+ },
+ {
+  "key": "errors.AUX-25022",
+  "category": "errors",
+  "en": "the server did not answer (check host, port and security)",
+  "it": "il server non ha risposto (controlla server, porta e sicurezza)"
+ }
+]

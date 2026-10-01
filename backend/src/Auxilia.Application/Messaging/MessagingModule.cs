@@ -31,6 +31,7 @@ public sealed class MessagingModule : IModuleDescriptor
 
         services.TryAddScoped<MessagingSnapshotCache>();
         services.TryAddScoped<IMessagingAccountManager, MessagingAccountManager>();
+        services.TryAddScoped<IMessagingQueryService, MessagingQueryService>();
         services.TryAddScoped<IMessageDispatcher, MessageDispatcher>();
         services.TryAddScoped<IOutboundMessageManager, OutboundMessageManager>();
     }

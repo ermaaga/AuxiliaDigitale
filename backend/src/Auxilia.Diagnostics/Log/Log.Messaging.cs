@@ -13,5 +13,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Messaging.MessageFailed, EventName = "Messaging.MessageFailed",
             Level = LogLevel.Warning, Message = "Outbound message {OutboundMessageId} failed permanently with {ErrorCode}")]
         public static partial void MessageFailed(ILogger logger, Guid outboundMessageId, string errorCode);
+
+        [LoggerMessage(EventId = EventCodes.Messaging.TestDeliveryFailed, EventName = "Messaging.TestDeliveryFailed",
+            Level = LogLevel.Warning, Message = "Test message {OutboundMessageId} through account {MessagingAccountId} could not be delivered")]
+        public static partial void TestDeliveryFailed(ILogger logger, Exception exception, Guid outboundMessageId, Guid messagingAccountId);
     }
 }

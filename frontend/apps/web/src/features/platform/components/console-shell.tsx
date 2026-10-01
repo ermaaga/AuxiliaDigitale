@@ -53,6 +53,12 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug, "/branding"),
             icon: "palette",
           },
+          {
+            key: "tenant-messaging",
+            label: t("app.platform.nav.messaging"),
+            href: tenantConsoleHref(tenant.slug, "/messaging"),
+            icon: "mail",
+          },
         ]
       : []),
   ];

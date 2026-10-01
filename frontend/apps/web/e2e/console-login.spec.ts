@@ -7,7 +7,7 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
 /*
  * Platform console (N02, D-21, D-22): activation of a System account (authenticator enrolment), sign-in with
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
- * and branding of a tenant (S-02) seen on its sign-in page, sign-out.
+ * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -289,6 +289,62 @@ test("console journey of a System user", async ({ page }) => {
 
     await page.goto(`/${E2E.tenant}/login`);
     await expect(page.getByText("Studio Demo").first()).toBeVisible();
+  });
+
+  await test.step("messaging: an SMTP account, a test send that fails, a rule and the log", async () => {
+    const accountName = `Ufficio E2E ${Date.now().toString(36)}`;
+    await page.goto(`/platform/tenants/${E2E.tenant}/messaging`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.messaging.title"), level: 1 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("table", { name: t("app.platform.messaging.accounts") }),
+    ).toBeVisible();
+    await expectAccessible(page, "messaging page");
+
+    await page.getByRole("button", { name: t("app.platform.messaging.newAccount") }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(dialog.getByText(t("validation.messaging.host"))).toBeVisible();
+    await dialog.getByLabel(t("app.platform.messaging.accountName")).fill(accountName);
+    await dialog.getByLabel(t("app.platform.messaging.host")).fill("127.0.0.1");
+    // Nothing listens on port 1: the test send fails fast with "server not reachable".
+    await dialog.getByLabel(t("app.platform.messaging.port")).fill("1");
+    await dialog.getByLabel(t("app.platform.messaging.security")).click();
+    await page
+      .getByRole("option", { name: t("app.platform.messaging.securityOption.None") })
+      .click();
+    await dialog.getByLabel(t("Password")).fill("smtp-password");
+    await dialog.getByLabel(t("app.platform.messaging.fromAddress")).fill("office@demo.test");
+    await expectAccessible(page, "new SMTP account dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByText(t("app.platform.messaging.accountSaved"))).toBeVisible();
+    const accounts = page.getByRole("table", { name: t("app.platform.messaging.accounts") });
+    await expect(accounts.getByRole("row").filter({ hasText: accountName })).toBeVisible();
+
+    await page
+      .getByRole("button", {
+        name: t("app.platform.messaging.testNamed", { account: accountName }),
+      })
+      .click();
+    const test = page.getByRole("dialog");
+    await test.getByLabel(t("app.platform.messaging.recipient")).fill("anna@example.test");
+    await test.getByRole("button", { name: t("app.platform.messaging.sendTest") }).click();
+    await expect(test.getByRole("status")).toContainText("AUX-25022");
+    await expectAccessible(page, "test send outcome");
+    await test
+      .getByRole("button", { name: t("Close") })
+      .first()
+      .click();
+
+    await page.getByRole("button", { name: t("app.platform.messaging.addRule") }).click();
+    await page.getByRole("button", { name: t("app.platform.messaging.saveRules") }).click();
+    await expect(page.getByText(t("app.platform.messaging.rulesSaved"))).toBeVisible();
+
+    const log = page.getByRole("table", { name: t("app.platform.messaging.log") });
+    await expect(
+      log.getByRole("row").filter({ hasText: "anna@example.test" }).first(),
+    ).toContainText(t("app.platform.messaging.status.Failed"));
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {

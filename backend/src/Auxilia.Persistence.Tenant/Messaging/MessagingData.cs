@@ -39,6 +39,42 @@ internal sealed class MessagingData(ITenantDbContext db) : IMessagingData
     public Task<OutboundMessage?> FindOutboundAsync(Guid id, CancellationToken cancellationToken) =>
         db.Set<OutboundMessage>().SingleOrDefaultAsync(message => message.Id == id, cancellationToken);
 
+    public async Task<(IReadOnlyList<OutboundMessage> Items, int Total)> OutboundPageAsync(OutboundMessageFilter filter, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        var messages = db.Set<OutboundMessage>().AsNoTracking();
+        if (filter.Channel is { } channel)
+        {
+            messages = messages.Where(message => message.Channel == channel);
+        }
+
+        if (filter.Status is { } status)
+        {
+            messages = messages.Where(message => message.Status == status);
+        }
+
+        if (filter.AccountId is { } accountId)
+        {
+            messages = messages.Where(message => message.AccountId == accountId);
+        }
+
+        if (filter.Search is { } search)
+        {
+            var pattern = "%" + search.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal).Replace("_", "\\_", StringComparison.Ordinal) + "%";
+            messages = messages.Where(message => EF.Functions.ILike(message.Recipient, pattern, "\\"));
+        }
+
+        var total = await messages.CountAsync(cancellationToken);
+        var items = await messages
+            .OrderByDescending(message => message.QueuedAt)
+            .ThenByDescending(message => message.Id)
+            .Skip(filter.Skip)
+            .Take(filter.Take)
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();

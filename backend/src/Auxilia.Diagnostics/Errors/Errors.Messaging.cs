@@ -42,5 +42,8 @@ public static partial class Errors
 
         public static Error AccountAuthenticationFailed() =>
             Error.Failure(EventCodes.Messaging.AccountAuthenticationFailed, "The server refused the account credentials");
+
+        public static Error TestDeliveryFailed() =>
+            Error.Failure(EventCodes.Messaging.TestDeliveryFailed, "The test message could not be delivered: the server did not answer");
     }
 }

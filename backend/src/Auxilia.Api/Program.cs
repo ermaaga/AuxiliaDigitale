@@ -2,6 +2,7 @@ using Auxilia.Api.Endpoints;
 using Auxilia.Api.Endpoints.Configuration;
 using Auxilia.Api.Endpoints.Identity;
 using Auxilia.Api.Endpoints.Localization;
+using Auxilia.Api.Endpoints.Messaging;
 using Auxilia.Api.Endpoints.Platform;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Modules;
@@ -60,6 +61,7 @@ builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, AdministratorEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, ConfigurationEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, MessagingEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));

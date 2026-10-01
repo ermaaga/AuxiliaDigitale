@@ -8,8 +8,9 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        // The description keeps the full token: shadcn's `text-destructive/90` is 4.49:1 on white (WCAG AA needs 4.5).
         destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
+          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive [&>svg]:text-current",
       },
     },
     defaultVariants: {
