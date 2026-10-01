@@ -32,6 +32,12 @@ public interface IModuleDescriptor
 
     IReadOnlyList<NavigationEntry> Navigation { get; }
 
+    /// <summary>Grids (list pages) of the module whose columns the System lays out per role (F21).</summary>
+    IReadOnlyList<GridDefinition> Grids => [];
+
+    /// <summary>Entities of the module whose records carry custom fields defined by the System (F20).</summary>
+    IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities => [];
+
     /// <summary>Managers, QueryServices, validators, jobs of the module.</summary>
     void AddServices(IServiceCollection services);
 }
@@ -59,4 +65,33 @@ public sealed record NavigationEntry(
     string? Permission = null)
 {
     public string LabelKey => $"nav.{Key}";
+}
+
+/// <summary>
+/// A grid of the tenant app (F21): key <c>&lt;module&gt;.&lt;grid&gt;</c>, its columns as the code renders them, and the
+/// roles that see it. The System chooses, per role, which columns are shown and in which order; whether a column can be
+/// sorted or filtered depends on the API, never on the layout.
+/// </summary>
+public sealed record GridDefinition(string Key, IReadOnlyList<GridColumnDefinition> Columns, IReadOnlyList<TenantRole> Roles)
+{
+    public string NameKey => $"grids.{Key}.name";
+}
+
+/// <param name="Key">Column id used by the web app (<c>attemptedAt</c>).</param>
+/// <param name="LabelKey">Translation key of the header.</param>
+/// <param name="Sortable">The API sorts by this column (<c>?sort=</c>).</param>
+/// <param name="Filterable">The API filters by this column (<c>filter[…]</c>).</param>
+/// <param name="CanHide">False for the column that identifies the row: always shown.</param>
+public sealed record GridColumnDefinition(
+    string Key,
+    string LabelKey,
+    bool Sortable = false,
+    bool Filterable = false,
+    bool CanHide = true,
+    bool VisibleByDefault = true);
+
+/// <summary>An entity whose records carry custom fields (<c>custom_fields jsonb</c>, F20), e.g. <c>client</c>.</summary>
+public sealed record CustomFieldEntityDefinition(string Code)
+{
+    public string NameKey => $"customFields.entities.{Code}";
 }

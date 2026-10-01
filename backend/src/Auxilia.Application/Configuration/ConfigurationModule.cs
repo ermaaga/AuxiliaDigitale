@@ -3,6 +3,7 @@ using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Configuration;
 
@@ -25,5 +26,14 @@ public sealed class ConfigurationModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
+        services.TryAddScoped<CustomFieldCache>();
+        services.TryAddScoped<ICustomFieldManager, CustomFieldManager>();
+        services.TryAddScoped<ICustomFieldQueryService, CustomFieldQueryService>();
+        services.TryAddScoped<Public.ICustomFieldValidator, CustomFieldValidator>();
+        services.TryAddScoped<GridLayoutCache>();
+        services.TryAddScoped<IGridLayoutManager, GridLayoutManager>();
+        services.TryAddScoped<IGridQueryService, GridQueryService>();
     }
 }

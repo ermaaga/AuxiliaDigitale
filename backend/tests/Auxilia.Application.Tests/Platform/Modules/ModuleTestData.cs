@@ -13,7 +13,9 @@ internal sealed class TestModule(
     ModuleKind kind = ModuleKind.Optional,
     int rangeStart = 90000,
     IReadOnlyList<NavigationEntry>? navigation = null,
-    IReadOnlyList<PermissionDefinition>? permissions = null) : IModuleDescriptor
+    IReadOnlyList<PermissionDefinition>? permissions = null,
+    IReadOnlyList<GridDefinition>? grids = null,
+    IReadOnlyList<CustomFieldEntityDefinition>? customFieldEntities = null) : IModuleDescriptor
 {
     public string Code => code;
 
@@ -26,6 +28,10 @@ internal sealed class TestModule(
     public IReadOnlyList<SettingDefinition> Settings { get; } = [];
 
     public IReadOnlyList<NavigationEntry> Navigation { get; } = navigation ?? [];
+
+    public IReadOnlyList<GridDefinition> Grids { get; } = grids ?? [];
+
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = customFieldEntities ?? [];
 
     public int ServicesAdded { get; private set; }
 

@@ -1,0 +1,476 @@
+[
+ {
+  "key": "app.platform.nav.grids",
+  "category": "app",
+  "en": "Grids",
+  "it": "Griglie"
+ },
+ {
+  "key": "app.platform.nav.customFields",
+  "category": "app",
+  "en": "Custom fields",
+  "it": "Campi personalizzati"
+ },
+ {
+  "key": "customFields.entities.appointment",
+  "category": "app",
+  "en": "Appointments",
+  "it": "Appuntamenti"
+ },
+ {
+  "key": "customFields.entities.case",
+  "category": "app",
+  "en": "Cases",
+  "it": "Pratiche"
+ },
+ {
+  "key": "customFields.entities.client",
+  "category": "app",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "customFields.entities.document",
+  "category": "app",
+  "en": "Documents",
+  "it": "Documenti"
+ },
+ {
+  "key": "customFields.entities.request",
+  "category": "app",
+  "en": "Requests",
+  "it": "Richieste"
+ },
+ {
+  "key": "grids.identity.loginAttempts.name",
+  "category": "app",
+  "en": "Login audit",
+  "it": "Registro degli accessi"
+ },
+ {
+  "key": "app.platform.customFields.title",
+  "category": "app",
+  "en": "Custom fields",
+  "it": "Campi personalizzati"
+ },
+ {
+  "key": "app.platform.customFields.description",
+  "category": "app",
+  "en": "Extra values that clients, cases and the other entities carry, how they appear in forms and grids.",
+  "it": "Valori aggiuntivi di clienti, pratiche e altre entità, e come compaiono in moduli e griglie."
+ },
+ {
+  "key": "app.platform.customFields.fieldsOf",
+  "category": "app",
+  "en": "Fields",
+  "it": "Campi"
+ },
+ {
+  "key": "app.platform.customFields.fieldsDescription",
+  "category": "app",
+  "en": "Fields of the chosen entity, in their order. Fields of the same group share one grid column.",
+  "it": "Campi dell'entità scelta, nel loro ordine. I campi dello stesso gruppo condividono una colonna della griglia."
+ },
+ {
+  "key": "app.platform.customFields.entity",
+  "category": "app",
+  "en": "Entity",
+  "it": "Entità"
+ },
+ {
+  "key": "app.platform.customFields.new",
+  "category": "app",
+  "en": "New field",
+  "it": "Nuovo campo"
+ },
+ {
+  "key": "app.platform.customFields.edit",
+  "category": "app",
+  "en": "Edit field",
+  "it": "Modifica campo"
+ },
+ {
+  "key": "app.platform.customFields.editNamed",
+  "category": "app",
+  "en": "Edit {field}",
+  "it": "Modifica {field}"
+ },
+ {
+  "key": "app.platform.customFields.deleteNamed",
+  "category": "app",
+  "en": "Delete {field}",
+  "it": "Elimina {field}"
+ },
+ {
+  "key": "app.platform.customFields.deleteTitle",
+  "category": "app",
+  "en": "Delete the field?",
+  "it": "Eliminare il campo?"
+ },
+ {
+  "key": "app.platform.customFields.deleteText",
+  "category": "app",
+  "en": "{field} will no longer be shown or accepted; the values already saved stay in the records.",
+  "it": "{field} non verrà più mostrato né accettato; i valori già salvati restano nei record."
+ },
+ {
+  "key": "app.platform.customFields.deleted",
+  "category": "app",
+  "en": "Field deleted",
+  "it": "Campo eliminato"
+ },
+ {
+  "key": "app.platform.customFields.saved",
+  "category": "app",
+  "en": "Field saved",
+  "it": "Campo salvato"
+ },
+ {
+  "key": "app.platform.customFields.label",
+  "category": "app",
+  "en": "Label",
+  "it": "Etichetta"
+ },
+ {
+  "key": "app.platform.customFields.key",
+  "category": "app",
+  "en": "Key",
+  "it": "Chiave"
+ },
+ {
+  "key": "app.platform.customFields.keyHint",
+  "category": "app",
+  "en": "Name of the value in the records; it cannot change later.",
+  "it": "Nome del valore nei record; non si potrà cambiare."
+ },
+ {
+  "key": "app.platform.customFields.type",
+  "category": "app",
+  "en": "Type",
+  "it": "Tipo"
+ },
+ {
+  "key": "app.platform.customFields.types.Text",
+  "category": "app",
+  "en": "Text",
+  "it": "Testo"
+ },
+ {
+  "key": "app.platform.customFields.types.Number",
+  "category": "app",
+  "en": "Number",
+  "it": "Numero"
+ },
+ {
+  "key": "app.platform.customFields.types.Date",
+  "category": "app",
+  "en": "Date",
+  "it": "Data"
+ },
+ {
+  "key": "app.platform.customFields.types.Boolean",
+  "category": "app",
+  "en": "Yes/no",
+  "it": "Sì/no"
+ },
+ {
+  "key": "app.platform.customFields.types.Select",
+  "category": "app",
+  "en": "List (one choice)",
+  "it": "Elenco (una scelta)"
+ },
+ {
+  "key": "app.platform.customFields.types.MultiSelect",
+  "category": "app",
+  "en": "List (several choices)",
+  "it": "Elenco (più scelte)"
+ },
+ {
+  "key": "app.platform.customFields.options",
+  "category": "app",
+  "en": "Choices",
+  "it": "Scelte"
+ },
+ {
+  "key": "app.platform.customFields.optionsHint",
+  "category": "app",
+  "en": "One choice per line.",
+  "it": "Una scelta per riga."
+ },
+ {
+  "key": "app.platform.customFields.group",
+  "category": "app",
+  "en": "Group",
+  "it": "Gruppo"
+ },
+ {
+  "key": "app.platform.customFields.groupHint",
+  "category": "app",
+  "en": "Fields with the same group share a grid column (e.g. “Area”).",
+  "it": "I campi con lo stesso gruppo condividono una colonna (es. “Area”)."
+ },
+ {
+  "key": "app.platform.customFields.badgeColor",
+  "category": "app",
+  "en": "Badge colour",
+  "it": "Colore del badge"
+ },
+ {
+  "key": "app.platform.customFields.order",
+  "category": "app",
+  "en": "Order",
+  "it": "Ordine"
+ },
+ {
+  "key": "app.platform.customFields.flags",
+  "category": "app",
+  "en": "Options",
+  "it": "Opzioni"
+ },
+ {
+  "key": "app.platform.customFields.required",
+  "category": "app",
+  "en": "Required",
+  "it": "Obbligatorio"
+ },
+ {
+  "key": "app.platform.customFields.onGrid",
+  "category": "app",
+  "en": "In grid",
+  "it": "In griglia"
+ },
+ {
+  "key": "app.platform.customFields.counter",
+  "category": "app",
+  "en": "Counter",
+  "it": "Contatore"
+ },
+ {
+  "key": "app.platform.customFields.requiredLabel",
+  "category": "app",
+  "en": "Required",
+  "it": "Obbligatorio"
+ },
+ {
+  "key": "app.platform.customFields.onGridLabel",
+  "category": "app",
+  "en": "Show in grids",
+  "it": "Mostra nelle griglie"
+ },
+ {
+  "key": "app.platform.customFields.counterLabel",
+  "category": "app",
+  "en": "Count on the dashboards",
+  "it": "Conteggia nelle dashboard"
+ },
+ {
+  "key": "app.platform.grids.title",
+  "category": "app",
+  "en": "Grids",
+  "it": "Griglie"
+ },
+ {
+  "key": "app.platform.grids.description",
+  "category": "app",
+  "en": "Which columns each role sees in the lists of the app, and in which order.",
+  "it": "Quali colonne vede ogni ruolo negli elenchi dell'app, e in che ordine."
+ },
+ {
+  "key": "app.platform.grids.none",
+  "category": "app",
+  "en": "No grids yet.",
+  "it": "Ancora nessuna griglia."
+ },
+ {
+  "key": "app.platform.grids.customized",
+  "category": "app",
+  "en": "Customised",
+  "it": "Personalizzata"
+ },
+ {
+  "key": "app.platform.grids.default",
+  "category": "app",
+  "en": "Default",
+  "it": "Predefinita"
+ },
+ {
+  "key": "app.platform.grids.hint",
+  "category": "app",
+  "en": "Users can still show hidden columns from the column picker.",
+  "it": "Gli utenti possono comunque mostrare le colonne nascoste dal selettore delle colonne."
+ },
+ {
+  "key": "app.platform.grids.columnsOf",
+  "category": "app",
+  "en": "Columns of {grid} for {role}",
+  "it": "Colonne di {grid} per {role}"
+ },
+ {
+  "key": "app.platform.grids.sortable",
+  "category": "app",
+  "en": "Sortable",
+  "it": "Ordinabile"
+ },
+ {
+  "key": "app.platform.grids.filterable",
+  "category": "app",
+  "en": "Filterable",
+  "it": "Filtrabile"
+ },
+ {
+  "key": "app.platform.grids.moveUp",
+  "category": "app",
+  "en": "Move {column} up",
+  "it": "Sposta {column} in su"
+ },
+ {
+  "key": "app.platform.grids.moveDown",
+  "category": "app",
+  "en": "Move {column} down",
+  "it": "Sposta {column} in giù"
+ },
+ {
+  "key": "app.platform.grids.saved",
+  "category": "app",
+  "en": "Layout saved",
+  "it": "Disposizione salvata"
+ },
+ {
+  "key": "app.platform.grids.reset",
+  "category": "app",
+  "en": "Back to default",
+  "it": "Torna al predefinito"
+ },
+ {
+  "key": "app.platform.grids.resetTitle",
+  "category": "app",
+  "en": "Back to the default layout?",
+  "it": "Tornare alla disposizione predefinita?"
+ },
+ {
+  "key": "app.platform.grids.resetText",
+  "category": "app",
+  "en": "{role} will see {grid} with its default columns.",
+  "it": "{role} vedrà {grid} con le colonne predefinite."
+ },
+ {
+  "key": "app.platform.grids.resetDone",
+  "category": "app",
+  "en": "Default layout restored",
+  "it": "Disposizione predefinita ripristinata"
+ },
+ {
+  "key": "validation.customFields.key",
+  "category": "validation",
+  "en": "Use letters, digits and _ (starting with a letter), up to 50",
+  "it": "Usa lettere, cifre e _ (iniziando con una lettera), massimo 50"
+ },
+ {
+  "key": "validation.customFields.label",
+  "category": "validation",
+  "en": "Enter a label of up to 100 characters",
+  "it": "Inserisci un'etichetta di massimo 100 caratteri"
+ },
+ {
+  "key": "validation.customFields.type",
+  "category": "validation",
+  "en": "Choose a valid type",
+  "it": "Scegli un tipo valido"
+ },
+ {
+  "key": "validation.customFields.typeImmutable",
+  "category": "validation",
+  "en": "The type of a field cannot change",
+  "it": "Il tipo di un campo non si può cambiare"
+ },
+ {
+  "key": "validation.customFields.options",
+  "category": "validation",
+  "en": "Enter from 1 to 50 different choices of up to 100 characters",
+  "it": "Inserisci da 1 a 50 scelte diverse di massimo 100 caratteri"
+ },
+ {
+  "key": "validation.customFields.groupName",
+  "category": "validation",
+  "en": "Enter a group of up to 50 characters",
+  "it": "Inserisci un gruppo di massimo 50 caratteri"
+ },
+ {
+  "key": "validation.customFields.badgeColor",
+  "category": "validation",
+  "en": "Enter a colour as #rrggbb (only for grouped fields)",
+  "it": "Inserisci un colore come #rrggbb (solo per campi con gruppo)"
+ },
+ {
+  "key": "validation.customFields.dashboardCounter",
+  "category": "validation",
+  "en": "Only yes/no fields can be counted",
+  "it": "Solo i campi sì/no si possono conteggiare"
+ },
+ {
+  "key": "validation.customFields.order",
+  "category": "validation",
+  "en": "Enter a number from 0 to 9999",
+  "it": "Inserisci un numero da 0 a 9999"
+ },
+ {
+  "key": "validation.customFields.entityType",
+  "category": "validation",
+  "en": "Choose a valid entity",
+  "it": "Scegli un'entità valida"
+ },
+ {
+  "key": "validation.customFields.object",
+  "category": "validation",
+  "en": "The custom fields are not valid",
+  "it": "I campi personalizzati non sono validi"
+ },
+ {
+  "key": "validation.customFields.unknown",
+  "category": "validation",
+  "en": "This field does not exist",
+  "it": "Questo campo non esiste"
+ },
+ {
+  "key": "validation.customFields.required",
+  "category": "validation",
+  "en": "This field is required",
+  "it": "Questo campo è obbligatorio"
+ },
+ {
+  "key": "validation.customFields.value",
+  "category": "validation",
+  "en": "The value is not valid for this field",
+  "it": "Il valore non è valido per questo campo"
+ },
+ {
+  "key": "validation.grids.columns",
+  "category": "validation",
+  "en": "The columns are not valid",
+  "it": "Le colonne non sono valide"
+ },
+ {
+  "key": "validation.grids.noneVisible",
+  "category": "validation",
+  "en": "Keep at least one column visible",
+  "it": "Lascia visibile almeno una colonna"
+ },
+ {
+  "key": "validation.grids.unknownColumn",
+  "category": "validation",
+  "en": "The grid has no such column",
+  "it": "La griglia non ha questa colonna"
+ },
+ {
+  "key": "validation.grids.mustStayVisible",
+  "category": "validation",
+  "en": "This column must stay visible",
+  "it": "Questa colonna deve restare visibile"
+ },
+ {
+  "key": "errors.AUX-20016",
+  "category": "errors",
+  "en": "This entity already has a field with this key.",
+  "it": "Questa entità ha già un campo con questa chiave."
+ }
+]

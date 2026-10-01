@@ -27,6 +27,8 @@ public sealed class SchedulingModule : IModuleDescriptor
         new("appointments", "/appointments", "calendar", 50, [TenantRole.Employee, TenantRole.Client], SchedulingPermissions.ViewAppointments),
     ];
 
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("appointment")];
+
     public void AddServices(IServiceCollection services)
     {
     }

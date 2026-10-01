@@ -28,6 +28,8 @@ public sealed class CasesModule : IModuleDescriptor
         new("services", "/services", "layers", 40, [TenantRole.Administrator], CasesPermissions.ManageServices),
     ];
 
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("case")];
+
     public void AddServices(IServiceCollection services)
     {
     }

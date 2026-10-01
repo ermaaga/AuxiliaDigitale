@@ -19,10 +19,15 @@ export type DataTableColumn<TRow> = {
 /** Grid layout of a role (F21, `configuration.grid_layouts`, S-04): visible columns in their order. */
 export type GridLayoutColumn = { key: string; visible: boolean; order: number };
 
-/** A custom field definition shown in grids (F20, S-04). */
+/** A custom field definition (F20, `GET /me/custom-fields/{entity}`); `type` is Text, Number, Date, Boolean, Select, MultiSelect. */
 export type CustomFieldDefinition = {
   key: string;
   label: string;
+  type: string;
+  options?: readonly string[];
+  isRequired?: boolean;
+  groupName?: string | null;
+  badgeColor?: string | null;
   visibleOnGrid: boolean;
   order: number;
 };
@@ -75,19 +80,28 @@ export function applyLayout<TRow>(
   return { columns: ordered, hidden };
 }
 
-/** Grid columns of the custom fields marked "visible on grid" (F20), after the standard ones, by their order. */
+/**
+ * Grid columns of the custom fields marked "visible on grid" (F20), after the standard ones, by their order: fields of
+ * the same group share one column named after the group (legacy: booleans as coloured badges), the others get their own.
+ * `cell` renders the fields of a column for a row.
+ */
 export function customFieldColumns<TRow>(
   definitions: readonly CustomFieldDefinition[],
-  valueOf: (row: TRow, key: string) => React.ReactNode,
+  cell: (row: TRow, fields: readonly CustomFieldDefinition[]) => React.ReactNode,
 ): DataTableColumn<TRow>[] {
-  return [...definitions]
-    .filter((definition) => definition.visibleOnGrid)
-    .sort((a, b) => a.order - b.order)
-    .map((definition) => ({
-      id: `cf:${definition.key}`,
-      header: definition.label,
-      cell: (row: TRow) => valueOf(row, definition.key),
-    }));
+  const groups = new Map<string, CustomFieldDefinition[]>();
+  for (const definition of [...definitions]
+    .filter((item) => item.visibleOnGrid)
+    .sort((a, b) => a.order - b.order)) {
+    const id = definition.groupName ? `cfg:${definition.groupName}` : `cf:${definition.key}`;
+    groups.set(id, [...(groups.get(id) ?? []), definition]);
+  }
+
+  return [...groups.entries()].map(([id, fields]) => ({
+    id,
+    header: fields[0]!.groupName ?? fields[0]!.label,
+    cell: (row: TRow) => cell(row, fields),
+  }));
 }
 
 /**

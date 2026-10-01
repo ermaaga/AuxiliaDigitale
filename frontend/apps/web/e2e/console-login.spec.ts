@@ -7,7 +7,8 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
 /*
  * Platform console (N02, D-21, D-22): activation of a System account (authenticator enrolment), sign-in with
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
- * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03), sign-out.
+ * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03),
+ * custom fields and grid layouts (S-04), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -345,6 +346,98 @@ test("console journey of a System user", async ({ page }) => {
     await expect(
       log.getByRole("row").filter({ hasText: "anna@example.test" }).first(),
     ).toContainText(t("app.platform.messaging.status.Failed"));
+  });
+
+  await test.step("custom fields: a grouped yes/no counter field is created, edited and deleted", async () => {
+    const key = `CAF${Date.now().toString(36)}`;
+    await page.goto(`/platform/tenants/${E2E.tenant}/custom-fields`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.customFields.title"), level: 1 }),
+    ).toBeVisible();
+    await expect(page.getByLabel(t("app.platform.customFields.entity"))).toContainText(
+      t("customFields.entities.client"),
+    );
+    await expectAccessible(page, "custom fields");
+
+    await page.getByRole("button", { name: t("app.platform.customFields.new") }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel(t("app.platform.customFields.key"), { exact: true }).fill("1abc");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(dialog.getByText(t("validation.customFields.key"))).toBeVisible();
+    await dialog.getByLabel(t("app.platform.customFields.key"), { exact: true }).fill(key);
+    await dialog.getByLabel(t("app.platform.customFields.label"), { exact: true }).fill("CAF");
+    await dialog.getByLabel(t("app.platform.customFields.type"), { exact: true }).click();
+    await page.getByRole("option", { name: t("app.platform.customFields.types.Boolean") }).click();
+    await dialog.getByLabel(t("app.platform.customFields.group"), { exact: true }).fill("Area");
+    await dialog.getByLabel(t("app.platform.customFields.badgeColor")).fill("#72fa29");
+    await dialog.getByLabel(t("app.platform.customFields.onGridLabel")).click();
+    await dialog.getByLabel(t("app.platform.customFields.counterLabel")).click();
+    await expectAccessible(page, "new custom field dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByText(t("app.platform.customFields.saved"))).toBeVisible();
+
+    const table = page.getByRole("table", { name: t("app.platform.customFields.fieldsOf") });
+    const row = table.getByRole("row").filter({ hasText: key });
+    await expect(row).toContainText("Area");
+    await expect(row).toContainText(t("app.platform.customFields.counter"));
+
+    await page
+      .getByRole("button", { name: t("app.platform.customFields.editNamed", { field: "CAF" }) })
+      .first()
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByLabel(t("app.platform.customFields.label"), { exact: true })
+      .fill("CAF servizi");
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: t("Save") })
+      .click();
+    await expect(row).toContainText("CAF servizi");
+
+    await page
+      .getByRole("button", {
+        name: t("app.platform.customFields.deleteNamed", { field: "CAF servizi" }),
+      })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("Delete") })
+      .click();
+    await expect(page.getByText(t("app.platform.customFields.deleted"))).toBeVisible();
+    await expect(row).toHaveCount(0);
+  });
+
+  await test.step("grids: the login audit columns of the Administrator are changed and reset", async () => {
+    await page.goto(`/platform/tenants/${E2E.tenant}/grids`);
+    const name = t("grids.identity.loginAttempts.name");
+    await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
+    await expectAccessible(page, "grids");
+
+    const ipAddress = page.getByRole("checkbox", {
+      name: t("app.identity.loginAttempts.ipAddress"),
+    });
+    await ipAddress.click();
+    await page
+      .getByRole("button", { name: t("app.platform.grids.moveUp", { column: t("Username") }) })
+      .click();
+    await page.getByRole("button", { name: t("Save"), exact: true }).click();
+    await expect(page.getByText(t("app.platform.grids.saved"))).toBeVisible();
+    await expect(page.getByText(t("app.platform.grids.customized"))).toBeVisible();
+    const columns = page.getByRole("list", {
+      name: t("app.platform.grids.columnsOf", { grid: name, role: t("Administrator") }),
+    });
+    await expect(columns.getByRole("listitem").first()).toContainText(t("Username"));
+    await expect(ipAddress).not.toBeChecked();
+
+    await page.getByRole("button", { name: t("app.platform.grids.reset") }).click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("app.platform.grids.reset") })
+      .click();
+    await expect(page.getByText(t("app.platform.grids.resetDone"))).toBeVisible();
+    await expect(page.getByText(t("app.platform.grids.default"), { exact: true })).toBeVisible();
+    await expect(columns.getByRole("listitem").first()).toContainText(t("Date"));
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {

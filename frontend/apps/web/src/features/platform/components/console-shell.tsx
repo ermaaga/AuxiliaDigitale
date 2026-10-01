@@ -59,6 +59,18 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug, "/messaging"),
             icon: "mail",
           },
+          {
+            key: "tenant-grids",
+            label: t("app.platform.nav.grids"),
+            href: tenantConsoleHref(tenant.slug, "/grids"),
+            icon: "table",
+          },
+          {
+            key: "tenant-custom-fields",
+            label: t("app.platform.nav.customFields"),
+            href: tenantConsoleHref(tenant.slug, "/custom-fields"),
+            icon: "sliders",
+          },
         ]
       : []),
   ];
