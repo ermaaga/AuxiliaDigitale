@@ -62,7 +62,9 @@ public sealed class DependencyInjectionTests
             "auth.lockout.minutes", "auth.otp.codeMinutes", "auth.otp.enabled", "auth.password.expiryEnabled",
             "auth.password.expiryMonths", "auth.password.historyCount", "auth.password.minLength", "auth.password.requireDigit",
             "auth.password.requireLowercase", "auth.password.requireSpecial", "auth.password.requireUppercase", "auth.passwordReset.linkMinutes",
-            "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "cases.expiry.enabled",
+            "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "branding.appName", "branding.background.color",
+            "branding.background.endColor", "branding.background.kind", "branding.background.startColor", "branding.theme.accentColor",
+            "branding.theme.fill", "branding.theme.primaryColor", "branding.useAppName", "cases.expiry.enabled",
             "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage",
             "registration.enabled", "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);

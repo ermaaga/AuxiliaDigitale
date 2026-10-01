@@ -1,5 +1,6 @@
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Modules;
+using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Localization;
 using Auxilia.Persistence.Tenant.DataMigrations.Localization;
 
@@ -21,6 +22,15 @@ public sealed class TranslationSeedTests
     }
 
     [Fact]
+    public void NoKeyIsThePrefixOfAnother()
+    {
+        // The web app nests keys at the dots (next-intl): `a.b` and `a.b.c` cannot both be texts.
+        var keys = All.Select(entry => entry.Key).ToHashSet(StringComparer.Ordinal);
+
+        keys.Where(key => keys.Any(other => other.StartsWith(key + ".", StringComparison.Ordinal))).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void LegacyDictionary_IsCompleteWithoutWorkoutKeys()
     {
         var legacy = TranslationSeed.Load("D_20260930_003");
@@ -36,15 +46,17 @@ public sealed class TranslationSeedTests
     }
 
     [Fact]
-    public void BackendKeys_ModulesNavigationAndPermissions_AreTranslated()
+    public void BackendKeys_ModulesNavigationPermissionsAndSettings_AreTranslated()
     {
         using var services = new ServiceCollection().AddLogging().AddApplication().BuildServiceProvider();
         var modules = services.GetRequiredService<IModuleRegistry>().All;
+        var settings = services.GetRequiredService<ISettingDefinitionRegistry>().All;
         var keys = All.Select(entry => entry.Key).ToHashSet(StringComparer.Ordinal);
 
         var expected = modules.Select(module => module.NameKey)
             .Concat(modules.SelectMany(module => module.Navigation).Select(entry => entry.LabelKey))
             .Concat(modules.SelectMany(module => module.Permissions).Select(permission => permission.DescriptionKey))
+            .Concat(settings.Select(setting => setting.DescriptionKey))
             .Concat(TranslationSeed.Languages.Select(language => "languages." + language.Code))
             .Append("errors.generic");
 

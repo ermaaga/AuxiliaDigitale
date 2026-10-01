@@ -61,6 +61,10 @@ public static class DependencyInjection
         services.TryAddScoped<SettingsSnapshotCache>();
         services.TryAddScoped<ISettingsProvider, SettingsProvider>();
         services.TryAddScoped<ISettingsManager, SettingsManager>();
+        services.TryAddScoped<ISettingsQueryService, SettingsQueryService>();
+        services.TryAddScoped<BrandingCache>();
+        services.TryAddScoped<IBrandingQueryService, BrandingQueryService>();
+        services.TryAddScoped<IBrandingManager, BrandingManager>();
 
         // Modules (ARCHITECTURE §5): registry, effective modules per tenant, navigation, catalog sync.
         services.TryAddSingleton<IModuleRegistry, ModuleRegistry>();

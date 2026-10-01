@@ -1,0 +1,554 @@
+[
+ {
+  "key": "settings.auth.accessToken.minutes.description",
+  "category": "settings",
+  "en": "Access token lifetime (minutes)",
+  "it": "Durata del token di accesso (minuti)"
+ },
+ {
+  "key": "settings.auth.activation.linkHours.description",
+  "category": "settings",
+  "en": "Activation link validity (hours)",
+  "it": "Validità del link di attivazione (ore)"
+ },
+ {
+  "key": "settings.auth.appBaseUrl.description",
+  "category": "settings",
+  "en": "Web app address used in e-mail links",
+  "it": "Indirizzo dell'app web usato nei link delle e-mail"
+ },
+ {
+  "key": "settings.auth.lockout.maxFailedAttempts.description",
+  "category": "settings",
+  "en": "Failed sign-ins before the account is locked",
+  "it": "Accessi falliti prima del blocco dell'account"
+ },
+ {
+  "key": "settings.auth.lockout.minutes.description",
+  "category": "settings",
+  "en": "Lockout duration (minutes)",
+  "it": "Durata del blocco (minuti)"
+ },
+ {
+  "key": "settings.auth.otp.codeMinutes.description",
+  "category": "settings",
+  "en": "E-mail code validity (minutes)",
+  "it": "Validità del codice via e-mail (minuti)"
+ },
+ {
+  "key": "settings.auth.otp.enabled.description",
+  "category": "settings",
+  "en": "Sign-in with a code sent by e-mail",
+  "it": "Accesso con codice inviato via e-mail"
+ },
+ {
+  "key": "settings.auth.password.expiryEnabled.description",
+  "category": "settings",
+  "en": "Passwords expire",
+  "it": "Scadenza delle password"
+ },
+ {
+  "key": "settings.auth.password.expiryMonths.description",
+  "category": "settings",
+  "en": "Password lifetime (months)",
+  "it": "Durata della password (mesi)"
+ },
+ {
+  "key": "settings.auth.password.historyCount.description",
+  "category": "settings",
+  "en": "Previous passwords that cannot be reused",
+  "it": "Password precedenti non riutilizzabili"
+ },
+ {
+  "key": "settings.auth.password.minLength.description",
+  "category": "settings",
+  "en": "Minimum password length",
+  "it": "Lunghezza minima della password"
+ },
+ {
+  "key": "settings.auth.password.requireDigit.description",
+  "category": "settings",
+  "en": "Password needs a digit",
+  "it": "La password richiede una cifra"
+ },
+ {
+  "key": "settings.auth.password.requireLowercase.description",
+  "category": "settings",
+  "en": "Password needs a lower-case letter",
+  "it": "La password richiede una lettera minuscola"
+ },
+ {
+  "key": "settings.auth.password.requireSpecial.description",
+  "category": "settings",
+  "en": "Password needs a special character",
+  "it": "La password richiede un carattere speciale"
+ },
+ {
+  "key": "settings.auth.password.requireUppercase.description",
+  "category": "settings",
+  "en": "Password needs an upper-case letter",
+  "it": "La password richiede una lettera maiuscola"
+ },
+ {
+  "key": "settings.auth.passwordReset.linkMinutes.description",
+  "category": "settings",
+  "en": "Password reset link validity (minutes)",
+  "it": "Validità del link di reimpostazione password (minuti)"
+ },
+ {
+  "key": "settings.auth.session.absoluteDays.description",
+  "category": "settings",
+  "en": "Maximum session length (days)",
+  "it": "Durata massima della sessione (giorni)"
+ },
+ {
+  "key": "settings.auth.session.idleMinutes.description",
+  "category": "settings",
+  "en": "Sign out after inactivity (minutes)",
+  "it": "Disconnessione dopo inattività (minuti)"
+ },
+ {
+  "key": "settings.auth.singleSession.description",
+  "category": "settings",
+  "en": "One session per user",
+  "it": "Una sola sessione per utente"
+ },
+ {
+  "key": "settings.branding.appName.description",
+  "category": "settings",
+  "en": "App name",
+  "it": "Nome dell'app"
+ },
+ {
+  "key": "settings.branding.background.color.description",
+  "category": "settings",
+  "en": "Login background colour",
+  "it": "Colore dello sfondo di accesso"
+ },
+ {
+  "key": "settings.branding.background.endColor.description",
+  "category": "settings",
+  "en": "Login background gradient end",
+  "it": "Fine della sfumatura dello sfondo di accesso"
+ },
+ {
+  "key": "settings.branding.background.kind.description",
+  "category": "settings",
+  "en": "Login background type",
+  "it": "Tipo di sfondo della pagina di accesso"
+ },
+ {
+  "key": "settings.branding.background.startColor.description",
+  "category": "settings",
+  "en": "Login background gradient start",
+  "it": "Inizio della sfumatura dello sfondo di accesso"
+ },
+ {
+  "key": "settings.branding.theme.accentColor.description",
+  "category": "settings",
+  "en": "Accent colour",
+  "it": "Colore secondario"
+ },
+ {
+  "key": "settings.branding.theme.fill.description",
+  "category": "settings",
+  "en": "Theme fill",
+  "it": "Riempimento del tema"
+ },
+ {
+  "key": "settings.branding.theme.primaryColor.description",
+  "category": "settings",
+  "en": "Primary colour",
+  "it": "Colore primario"
+ },
+ {
+  "key": "settings.branding.useAppName.description",
+  "category": "settings",
+  "en": "Show the app name instead of the logo",
+  "it": "Mostra il nome dell'app invece del logo"
+ },
+ {
+  "key": "settings.cases.expiry.enabled.description",
+  "category": "settings",
+  "en": "Case expiry reminders",
+  "it": "Promemoria di scadenza delle pratiche"
+ },
+ {
+  "key": "settings.cases.expiry.expiringDays.description",
+  "category": "settings",
+  "en": "Days before expiry a case is “expiring”",
+  "it": "Giorni prima della scadenza in cui una pratica è “in scadenza”"
+ },
+ {
+  "key": "settings.documents.maxUploadMb.description",
+  "category": "settings",
+  "en": "Maximum upload size (MB)",
+  "it": "Dimensione massima dei caricamenti (MB)"
+ },
+ {
+  "key": "settings.documents.storage.provider.description",
+  "category": "settings",
+  "en": "Document storage",
+  "it": "Archiviazione dei documenti"
+ },
+ {
+  "key": "settings.registration.defaultLanguage.description",
+  "category": "settings",
+  "en": "Default language of new users",
+  "it": "Lingua predefinita dei nuovi utenti"
+ },
+ {
+  "key": "settings.registration.enabled.description",
+  "category": "settings",
+  "en": "Self-registration",
+  "it": "Registrazione autonoma"
+ },
+ {
+  "key": "settings.registration.notifyAdmins.description",
+  "category": "settings",
+  "en": "Notify administrators of new registrations",
+  "it": "Avvisa gli amministratori delle nuove registrazioni"
+ },
+ {
+  "key": "settings.registration.sendConfirmationEmail.description",
+  "category": "settings",
+  "en": "Send a confirmation e-mail on registration",
+  "it": "Invia un'e-mail di conferma alla registrazione"
+ },
+ {
+  "key": "app.platform.nav.settings",
+  "category": "app",
+  "en": "Settings",
+  "it": "Impostazioni"
+ },
+ {
+  "key": "app.platform.nav.branding",
+  "category": "app",
+  "en": "Branding",
+  "it": "Branding"
+ },
+ {
+  "key": "app.platform.settings.title",
+  "category": "app",
+  "en": "Settings",
+  "it": "Impostazioni"
+ },
+ {
+  "key": "app.platform.settings.description",
+  "category": "app",
+  "en": "Settings of this tenant. A tenant value overrides the platform value, which overrides the default.",
+  "it": "Impostazioni di questo tenant. Un valore del tenant prevale su quello della piattaforma, che prevale sul predefinito."
+ },
+ {
+  "key": "app.platform.settings.applies",
+  "category": "app",
+  "en": "Applies",
+  "it": "Si applica"
+ },
+ {
+  "key": "app.platform.settings.source.Default",
+  "category": "app",
+  "en": "Default",
+  "it": "Predefinito"
+ },
+ {
+  "key": "app.platform.settings.source.Platform",
+  "category": "app",
+  "en": "Platform",
+  "it": "Piattaforma"
+ },
+ {
+  "key": "app.platform.settings.source.Tenant",
+  "category": "app",
+  "en": "Tenant",
+  "it": "Tenant"
+ },
+ {
+  "key": "app.platform.settings.default",
+  "category": "app",
+  "en": "Default: {value}",
+  "it": "Predefinito: {value}"
+ },
+ {
+  "key": "app.platform.settings.platformValue",
+  "category": "app",
+  "en": "Platform: {value}",
+  "it": "Piattaforma: {value}"
+ },
+ {
+  "key": "app.platform.settings.reset",
+  "category": "app",
+  "en": "Restore",
+  "it": "Ripristina"
+ },
+ {
+  "key": "app.platform.settings.resetSetting",
+  "category": "app",
+  "en": "Restore {setting}",
+  "it": "Ripristina {setting}"
+ },
+ {
+  "key": "app.platform.settings.saveSetting",
+  "category": "app",
+  "en": "Save {setting}",
+  "it": "Salva {setting}"
+ },
+ {
+  "key": "app.platform.settings.saved",
+  "category": "app",
+  "en": "Setting saved",
+  "it": "Impostazione salvata"
+ },
+ {
+  "key": "app.platform.settings.restored",
+  "category": "app",
+  "en": "Setting restored",
+  "it": "Impostazione ripristinata"
+ },
+ {
+  "key": "app.platform.settings.secretStored",
+  "category": "app",
+  "en": "A value is stored",
+  "it": "Un valore è memorizzato"
+ },
+ {
+  "key": "app.platform.settings.secretEmpty",
+  "category": "app",
+  "en": "No value stored",
+  "it": "Nessun valore memorizzato"
+ },
+ {
+  "key": "app.platform.settings.secretNew",
+  "category": "app",
+  "en": "New value",
+  "it": "Nuovo valore"
+ },
+ {
+  "key": "app.platform.settings.on",
+  "category": "app",
+  "en": "On",
+  "it": "Attivo"
+ },
+ {
+  "key": "app.platform.settings.off",
+  "category": "app",
+  "en": "Off",
+  "it": "Disattivo"
+ },
+ {
+  "key": "app.platform.settings.unavailable",
+  "category": "app",
+  "en": "Settings and branding can be changed while the tenant is active.",
+  "it": "Impostazioni e branding si possono modificare mentre il tenant è attivo."
+ },
+ {
+  "key": "app.platform.branding.title",
+  "category": "app",
+  "en": "Branding",
+  "it": "Branding"
+ },
+ {
+  "key": "app.platform.branding.description",
+  "category": "app",
+  "en": "Name, logo, colours and login background of the tenant app.",
+  "it": "Nome, logo, colori e sfondo di accesso dell'app del tenant."
+ },
+ {
+  "key": "app.platform.branding.identity",
+  "category": "app",
+  "en": "Name and logo",
+  "it": "Nome e logo"
+ },
+ {
+  "key": "app.platform.branding.useAppName",
+  "category": "app",
+  "en": "Show the app name (otherwise the logo)",
+  "it": "Mostra il nome dell'app (altrimenti il logo)"
+ },
+ {
+  "key": "app.platform.branding.appName",
+  "category": "app",
+  "en": "App name",
+  "it": "Nome dell'app"
+ },
+ {
+  "key": "app.platform.branding.logo",
+  "category": "app",
+  "en": "Logo",
+  "it": "Logo"
+ },
+ {
+  "key": "app.platform.branding.logoHint",
+  "category": "app",
+  "en": "PNG, JPEG or WebP, up to 512 KB. Without a logo the app name is shown.",
+  "it": "PNG, JPEG o WebP, fino a 512 KB. Senza logo viene mostrato il nome dell'app."
+ },
+ {
+  "key": "app.platform.branding.theme",
+  "category": "app",
+  "en": "Theme",
+  "it": "Tema"
+ },
+ {
+  "key": "app.platform.branding.fillLabel",
+  "category": "app",
+  "en": "Fill",
+  "it": "Riempimento"
+ },
+ {
+  "key": "app.platform.branding.fill.Gradient",
+  "category": "app",
+  "en": "Gradient",
+  "it": "Sfumatura"
+ },
+ {
+  "key": "app.platform.branding.fill.Solid",
+  "category": "app",
+  "en": "Solid colour",
+  "it": "Tinta unita"
+ },
+ {
+  "key": "app.platform.branding.primaryColor",
+  "category": "app",
+  "en": "Primary colour",
+  "it": "Colore primario"
+ },
+ {
+  "key": "app.platform.branding.accentColor",
+  "category": "app",
+  "en": "Accent colour",
+  "it": "Colore secondario"
+ },
+ {
+  "key": "app.platform.branding.contrastNote",
+  "category": "app",
+  "en": "Where a colour is too light or too dark for its text, the app uses an accessible shade of it (WCAG 2.2 AA).",
+  "it": "Se un colore è troppo chiaro o scuro per il suo testo, l'app ne usa una tonalità accessibile (WCAG 2.2 AA)."
+ },
+ {
+  "key": "app.platform.branding.background",
+  "category": "app",
+  "en": "Login background",
+  "it": "Sfondo della pagina di accesso"
+ },
+ {
+  "key": "app.platform.branding.backgroundKind",
+  "category": "app",
+  "en": "Background type",
+  "it": "Tipo di sfondo"
+ },
+ {
+  "key": "app.platform.branding.kind.Gradient",
+  "category": "app",
+  "en": "Gradient",
+  "it": "Sfumatura"
+ },
+ {
+  "key": "app.platform.branding.kind.Solid",
+  "category": "app",
+  "en": "Solid colour",
+  "it": "Tinta unita"
+ },
+ {
+  "key": "app.platform.branding.kind.Image",
+  "category": "app",
+  "en": "Image",
+  "it": "Immagine"
+ },
+ {
+  "key": "app.platform.branding.startColor",
+  "category": "app",
+  "en": "Start colour",
+  "it": "Colore iniziale"
+ },
+ {
+  "key": "app.platform.branding.endColor",
+  "category": "app",
+  "en": "End colour",
+  "it": "Colore finale"
+ },
+ {
+  "key": "app.platform.branding.color",
+  "category": "app",
+  "en": "Colour",
+  "it": "Colore"
+ },
+ {
+  "key": "app.platform.branding.backgroundImage",
+  "category": "app",
+  "en": "Background image",
+  "it": "Immagine di sfondo"
+ },
+ {
+  "key": "app.platform.branding.backgroundHint",
+  "category": "app",
+  "en": "PNG, JPEG or WebP, up to 2 MB. Without an image the gradient is shown.",
+  "it": "PNG, JPEG o WebP, fino a 2 MB. Senza immagine viene mostrata la sfumatura."
+ },
+ {
+  "key": "app.platform.branding.noImage",
+  "category": "app",
+  "en": "No image",
+  "it": "Nessuna immagine"
+ },
+ {
+  "key": "app.platform.branding.removeImage",
+  "category": "app",
+  "en": "Remove {image}",
+  "it": "Rimuovi {image}"
+ },
+ {
+  "key": "app.platform.branding.preview",
+  "category": "app",
+  "en": "Preview",
+  "it": "Anteprima"
+ },
+ {
+  "key": "app.platform.branding.previewButton",
+  "category": "app",
+  "en": "Sample button",
+  "it": "Pulsante di esempio"
+ },
+ {
+  "key": "app.platform.branding.saved",
+  "category": "app",
+  "en": "Branding saved",
+  "it": "Branding salvato"
+ },
+ {
+  "key": "app.platform.branding.imageSaved",
+  "category": "app",
+  "en": "Image uploaded",
+  "it": "Immagine caricata"
+ },
+ {
+  "key": "app.platform.branding.imageRemoved",
+  "category": "app",
+  "en": "Image removed",
+  "it": "Immagine rimossa"
+ },
+ {
+  "key": "validation.branding.imageType",
+  "category": "validation",
+  "en": "Choose a PNG, JPEG or WebP image",
+  "it": "Scegli un'immagine PNG, JPEG o WebP"
+ },
+ {
+  "key": "validation.branding.imageTooLarge",
+  "category": "validation",
+  "en": "The image is too large",
+  "it": "L'immagine è troppo grande"
+ },
+ {
+  "key": "validation.branding.color",
+  "category": "validation",
+  "en": "Enter a colour as #rrggbb",
+  "it": "Inserisci un colore come #rrggbb"
+ },
+ {
+  "key": "validation.branding.appName",
+  "category": "validation",
+  "en": "Enter a name of up to 100 characters",
+  "it": "Inserisci un nome di massimo 100 caratteri"
+ }
+]

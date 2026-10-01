@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOutIcon, MenuIcon } from "lucide-react";
@@ -41,6 +42,7 @@ export type ShellLink = { key: string; label: string; href: string; icon: string
  */
 export function ShellFrame({
   appName,
+  logoUrl,
   homeHref,
   navigation,
   user,
@@ -53,6 +55,8 @@ export function ShellFrame({
   children,
 }: {
   appName: string;
+  /** Shown instead of the name in the sidebar; the name stays its alternative text. */
+  logoUrl?: string;
   homeHref: string;
   navigation: readonly ShellLink[];
   user: { name: string; detail: string };
@@ -98,7 +102,18 @@ export function ShellFrame({
       </a>
       <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground md:flex">
         <Link href={homeHref} className="px-5 py-4 text-lg font-semibold tracking-tight">
-          {appName}
+          {logoUrl ? (
+            <Image
+              src={logoUrl}
+              alt={appName}
+              width={160}
+              height={32}
+              unoptimized
+              className="h-8 w-auto max-w-40 object-contain"
+            />
+          ) : (
+            appName
+          )}
         </Link>
         {nav}
       </aside>

@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { AppShell, type ShellNavigationItem, type ShellUser } from "@/components/shell/app-shell";
+import { brandIdentity } from "@/features/branding/branding";
+import { loadBranding } from "@/features/branding/server";
 import { tenantLanguages } from "@/i18n/bundles";
 import { currentSession, serverApi } from "@/lib/api/server";
-import { DEFAULT_APP_NAME } from "@/lib/app";
 import { tenantHref } from "@/lib/href";
 
 /**
@@ -38,12 +39,17 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
   )
     .sort((a, b) => Number(a.order) - Number(b.order))
     .map(({ key, labelKey, route, icon }) => ({ key, labelKey, route, icon }));
-  const languages = (await tenantLanguages(tenant)) ?? [];
+  const [languages, branding] = await Promise.all([
+    tenantLanguages(tenant).then((list) => list ?? []),
+    loadBranding(tenant),
+  ]);
+  const identity = brandIdentity(tenant, branding);
 
   return (
     <AppShell
       tenant={tenant}
-      appName={DEFAULT_APP_NAME}
+      appName={identity.appName}
+      logoUrl={identity.logoUrl}
       navigation={navigation}
       user={{ userName: me.userName, roles: me.roles }}
       languages={languages}

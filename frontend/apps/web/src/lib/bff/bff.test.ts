@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readBffConfig } from "./config";
 import { csrfRefusal } from "./csrf";
 import {
+  brandingImage,
   changeExpiredPassword,
   login,
   logout,
@@ -554,6 +555,64 @@ describe("console technical endpoints", () => {
         )
       ).status,
     ).toBe(404);
+  });
+});
+
+describe("branding images", () => {
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+  const image = (type: string) => () =>
+    new Response(png, {
+      status: 200,
+      headers: {
+        "content-type": type,
+        etag: '"abc"',
+        "cache-control": "public, max-age=31536000, immutable",
+        "set-cookie": "x=1",
+      },
+    });
+
+  it("serves the image of the tenant anonymously with its cache headers", async () => {
+    replies.push(image("image/png"));
+    const response = await brandingImage(
+      browser("/api/branding/acme/logo?v=abc", { cookie: "aux_session=whatever" }),
+      "acme",
+      "logo",
+      context,
+    );
+
+    expect(response.status).toBe(200);
+    expect(new Uint8Array(await response.arrayBuffer())).toEqual(png);
+    expect(response.headers.get("etag")).toBe('"abc"');
+    expect(response.headers.get("cache-control")).toContain("immutable");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("set-cookie")).toBeNull();
+    expect(calls[0]!.url).toBe(`${API}/api/v1/branding/logo?v=abc`);
+    expect(calls[0]!.headers.get("x-tenant")).toBe("acme");
+    expect(calls[0]!.headers.get("authorization")).toBeNull();
+  });
+
+  it("passes revalidation through", async () => {
+    replies.push(() => new Response(null, { status: 304, headers: { etag: '"abc"' } }));
+    const response = await brandingImage(
+      browser("/api/branding/acme/background", { headers: { "if-none-match": '"abc"' } }),
+      "acme",
+      "background",
+      context,
+    );
+
+    expect(response.status).toBe(304);
+    expect(calls[0]!.headers.get("if-none-match")).toBe('"abc"');
+  });
+
+  it("refuses unknown assets, invalid tenants and anything but an image", async () => {
+    expect((await brandingImage(browser("/x"), "acme", "favicon", context)).status).toBe(404);
+    expect((await brandingImage(browser("/x"), "../etc", "logo", context)).status).toBe(404);
+    expect(calls).toHaveLength(0);
+
+    replies.push(image("image/svg+xml"));
+    expect((await brandingImage(browser("/x"), "acme", "logo", context)).status).toBe(502);
+    replies.push(reply(404, { errorCode: "AUX-20009" }));
+    expect((await brandingImage(browser("/x"), "acme", "logo", context)).status).toBe(404);
   });
 });
 

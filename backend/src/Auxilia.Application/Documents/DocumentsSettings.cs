@@ -11,7 +11,7 @@ public static class DocumentsSettings
     public static readonly IReadOnlyList<string> StorageProviders = ["local", "ftp", "azure-blob"];
 
     public static readonly SettingDefinition<string> StorageProvider = new(
-        "documents.storage.provider", Module, "local", isValid: StorageProviders.Contains);
+        "documents.storage.provider", Module, "local", choices: StorageProviders);
 
     /// <summary>Maximum size of one uploaded file in MB (60, as the legacy upload limit).</summary>
     public static readonly SettingDefinition<int> MaxUploadMb = new(
