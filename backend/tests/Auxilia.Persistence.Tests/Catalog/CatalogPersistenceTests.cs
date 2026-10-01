@@ -1,4 +1,7 @@
+using Auxilia.Application;
+using Auxilia.Application.Platform.Modules;
 using Auxilia.Domain.Platform;
+using Auxilia.Infrastructure;
 using Auxilia.Persistence.Catalog;
 using Auxilia.SharedKernel.Tenancy;
 
@@ -169,6 +172,17 @@ public sealed class CatalogPersistenceTests(CatalogDatabaseFixture database)
     [Fact]
     public async Task CatalogStore_ReadsCurrentPlansOverridesAndRecentRuns()
     {
+        // The override references catalog.modules: fill it here instead of relying on another test class running first.
+        await using (var sync = database.CreateServices(collection =>
+        {
+            collection.AddApplication();
+            collection.AddInfrastructure();
+        }))
+        await using (var scope = sync.CreateAsyncScope())
+        {
+            (await scope.ServiceProvider.GetRequiredService<IModuleCatalogManager>().SyncAsync(Ct)).IsSuccess.ShouldBeTrue();
+        }
+
         await using var services = database.CreateServices();
         var tenant = NewTenant();
         var now = DateTimeOffset.UtcNow;
