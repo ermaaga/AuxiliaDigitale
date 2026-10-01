@@ -8,7 +8,7 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * Platform console (N02, D-21, D-22): activation of a System account (authenticator enrolment), sign-in with
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
  * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03),
- * custom fields and grid layouts (S-04), sign-out.
+ * custom fields and grid layouts (S-04), translations (S-05), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -438,6 +438,58 @@ test("console journey of a System user", async ({ page }) => {
     await expect(page.getByText(t("app.platform.grids.resetDone"))).toBeVisible();
     await expect(page.getByText(t("app.platform.grids.default"), { exact: true })).toBeVisible();
     await expect(columns.getByRole("listitem").first()).toContainText(t("Date"));
+  });
+
+  await test.step("translations: a new key is added in Italian, translated in English in place and deleted", async () => {
+    const key = `app.e2e.k${Date.now().toString(36)}`;
+    await page.goto(`/platform/tenants/${E2E.tenant}/localization`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.localization.title"), level: 1 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("table", { name: t("app.platform.localization.keys") }),
+    ).toBeVisible();
+    await expectAccessible(page, "translations");
+
+    await page.getByRole("button", { name: t("app.platform.localization.newKey") }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel(t("Key"), { exact: true }).fill("1 bad");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(dialog.getByText(t("validation.localization.key"))).toBeVisible();
+    await dialog.getByLabel(t("Key"), { exact: true }).fill(key);
+    await dialog.getByLabel("Italiano").fill("Prova E2E");
+    await expectAccessible(page, "new key dialog");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByText(t("app.platform.localization.created"))).toBeVisible();
+
+    await page.getByLabel(t("Search")).fill(key);
+    const table = page.getByRole("table", { name: t("app.platform.localization.keys") });
+    const row = table.getByRole("row").filter({ hasText: key });
+    await expect(row).toContainText("Prova E2E");
+    await expect(row).toContainText(t("app.platform.localization.missing"));
+
+    await row
+      .getByRole("button", {
+        name: t("app.platform.localization.addTranslation", { key, language: "English" }),
+      })
+      .click();
+    await row
+      .getByLabel(t("app.platform.localization.translationOf", { key, language: "English" }))
+      .fill("E2E test");
+    await expectAccessible(page, "inline translation");
+    await row.getByRole("button", { name: t("Save") }).click();
+    await expect(row).toContainText("E2E test");
+    await expect(row).not.toContainText(t("app.platform.localization.missing"));
+
+    await row
+      .getByRole("button", { name: t("app.platform.localization.deleteKey", { key }) })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("Delete") })
+      .click();
+    await expect(page.getByText(t("app.platform.localization.deleted"))).toBeVisible();
+    await expect(row).toHaveCount(0);
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {

@@ -71,6 +71,12 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug, "/custom-fields"),
             icon: "sliders",
           },
+          {
+            key: "tenant-localization",
+            label: t("app.platform.nav.localization"),
+            href: tenantConsoleHref(tenant.slug, "/localization"),
+            icon: "languages",
+          },
         ]
       : []),
   ];
