@@ -70,6 +70,7 @@ builder.Services.AddSingleton<IApiEndpoints, MessagingEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, RolePermissionEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, SpecializationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, ClientEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 

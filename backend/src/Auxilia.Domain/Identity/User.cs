@@ -184,6 +184,34 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         return Result.Success();
     }
 
+    /// <summary>
+    /// Changes user name and e-mail (staff edit of a client, Q52); uniqueness of the user name is checked by the caller.
+    /// The security stamp changes with the user name, so tokens issued under the old name stop working.
+    /// </summary>
+    public Result ChangeAccount(string userName, string? email)
+    {
+        var name = userName?.Trim() ?? string.Empty;
+        if (name.Length == 0 || name.Length > UserNameMaxLength || name.Any(char.IsWhiteSpace))
+        {
+            return Errors.Identity.UserValueInvalid("userName");
+        }
+
+        var mail = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        if (mail is not null && (mail.Length > EmailMaxLength || !mail.Contains('@', StringComparison.Ordinal)))
+        {
+            return Errors.Identity.UserValueInvalid("email");
+        }
+
+        if (!string.Equals(UserName, name, StringComparison.OrdinalIgnoreCase))
+        {
+            SecurityStamp = NewStamp();
+        }
+
+        UserName = name;
+        Email = mail;
+        return Result.Success();
+    }
+
     public void SetActive(bool isActive)
     {
         IsActive = isActive;

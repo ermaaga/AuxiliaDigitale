@@ -29,11 +29,32 @@ public sealed class DirectoryModule : IModuleDescriptor
         new("employees", "/employees", "user-cog", 20, [TenantRole.Administrator], DirectoryPermissions.ViewEmployees),
     ];
 
-    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("client")];
+    public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new(ClientRules.CustomFieldEntity)];
+
+    /// <summary>The client lists (F05, F21): the columns of the legacy grid; custom fields are appended by the web app (F20).</summary>
+    public IReadOnlyList<GridDefinition> Grids { get; } =
+    [
+        new(
+            "directory.clients",
+            [
+                new("lastName", "Surname", Sortable: true, Filterable: true, CanHide: false),
+                new("firstName", "Name"),
+                new("email", "Email", Sortable: true, Filterable: true),
+                new("userName", "Username", Sortable: true, Filterable: true, VisibleByDefault: false),
+                new("phone", "Phone", Filterable: true),
+                new("fiscalCode", "app.clients.fiscalCode", VisibleByDefault: false),
+                new("employee", "app.clients.employee"),
+                new("status", "Status", Filterable: true),
+                new("canSignIn", "app.clients.canSignIn"),
+            ],
+            [TenantRole.Administrator, TenantRole.Employee]),
+    ];
 
     public void AddServices(IServiceCollection services)
     {
         services.TryAddScoped<ISpecializationManager, SpecializationManager>();
         services.TryAddScoped<ISpecializationQueryService, SpecializationQueryService>();
+        services.TryAddScoped<IClientManager, ClientManager>();
+        services.TryAddScoped<IClientQueryService, ClientQueryService>();
     }
 }

@@ -178,5 +178,8 @@ public static partial class EventCodes
 
         /// <summary>Unknown role or permission in a role permission change (400).</summary>
         public const int RolePermissionsInvalid = 12058;
+
+        /// <summary>The user name or e-mail of an account changed (Q52: still unique).</summary>
+        public const int UserAccountUpdated = 12059;
     }
 }

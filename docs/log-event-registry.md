@@ -12,8 +12,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
-| 12000–12999 | Identity | Identity / Auth | 58 | 12059 |
-| 13000–13999 | Directory | Directory (clients, employees) | 9 | 13010 |
+| 12000–12999 | Identity | Identity / Auth | 59 | 12060 |
+| 13000–13999 | Directory | Directory (clients, employees) | 21 | 13022 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
@@ -140,6 +140,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12056 | Identity.RolePermissionsChanged | – | – | Identity.SetRolePermissions (success) | – |
 | AUX-12057 | Identity.RolePermissionsReset | – | – | Identity.ResetRolePermissions (success) | – |
 | AUX-12058 | Identity.RolePermissionsInvalid | – | Validation | – | – |
+| AUX-12059 | Identity.UserAccountUpdated | – | – | Identity.UpdateUserAccount (success) | – |
 | AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
 | AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
 | AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |
@@ -149,6 +150,18 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-13007 | Directory.SpecializationMembersAdded | – | – | Directory.AddSpecializationMembers (success) | – |
 | AUX-13008 | Directory.SpecializationMemberRemoved | – | – | Directory.RemoveSpecializationMember (success) | – |
 | AUX-13009 | Directory.SpecializationMemberInvalid | – | Validation | – | – |
+| AUX-13010 | Directory.ClientCreated | – | – | Directory.CreateClient (success) | – |
+| AUX-13011 | Directory.ClientUpdated | – | – | Directory.UpdateClient (success) | – |
+| AUX-13012 | Directory.ClientDeleted | – | – | Directory.DeleteClient (success) | – |
+| AUX-13013 | Directory.ClientSignInChanged | – | – | Directory.ChangeClientSignIn (success) | – |
+| AUX-13014 | Directory.ClientAssignmentChanged | – | – | Directory.ChangeClientAssignment (success) | – |
+| AUX-13015 | Directory.ClientSpecializationsChanged | – | – | Directory.ChangeClientSpecializations (success) | – |
+| AUX-13016 | Directory.PersonInvalid | – | Validation | – | – |
+| AUX-13017 | Directory.ClientNotFound | – | NotFound | – | – |
+| AUX-13018 | Directory.FiscalCodeTaken | – | Conflict | – | – |
+| AUX-13019 | Directory.ClientEmployeeRequired | – | Conflict | – | – |
+| AUX-13020 | Directory.EmployeeInvalid | – | Validation | – | – |
+| AUX-13021 | Directory.ClientSpecializationInvalid | – | Validation | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

@@ -31,5 +31,41 @@ public static partial class EventCodes
 
         /// <summary>A user to add does not exist or does not have the specialization's role (400).</summary>
         public const int SpecializationMemberInvalid = 13009;
+
+        /// <summary>A client was created (person, profile and user account, F05).</summary>
+        public const int ClientCreated = 13010;
+
+        /// <summary>The personal data, user name or custom fields of a client changed.</summary>
+        public const int ClientUpdated = 13011;
+
+        /// <summary>A client was deleted (soft delete, Q29): hidden from lists, sign-in disabled.</summary>
+        public const int ClientDeleted = 13012;
+
+        /// <summary>A client's sign-in was enabled or disabled (D-05).</summary>
+        public const int ClientSignInChanged = 13013;
+
+        /// <summary>The employee assigned to a client changed or was removed (history kept).</summary>
+        public const int ClientAssignmentChanged = 13014;
+
+        /// <summary>The specializations of a client changed (Q30: many).</summary>
+        public const int ClientSpecializationsChanged = 13015;
+
+        /// <summary>A value of a person (client, employee) is not valid (400, field errors).</summary>
+        public const int PersonInvalid = 13016;
+
+        /// <summary>No client with this id (404).</summary>
+        public const int ClientNotFound = 13017;
+
+        /// <summary>Another client has the fiscal code (409, Q54).</summary>
+        public const int FiscalCodeTaken = 13018;
+
+        /// <summary>Sign-in cannot be enabled for a client without an assigned employee (409, Q60).</summary>
+        public const int ClientEmployeeRequired = 13019;
+
+        /// <summary>The employee to assign is not an active user with the Employee role (400).</summary>
+        public const int EmployeeInvalid = 13020;
+
+        /// <summary>A specialization to give to a client is not an active Client specialization (400).</summary>
+        public const int ClientSpecializationInvalid = 13021;
     }
 }

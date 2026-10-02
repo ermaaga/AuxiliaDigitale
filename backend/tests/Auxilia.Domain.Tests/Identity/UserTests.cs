@@ -111,4 +111,21 @@ public sealed class UserTests
 
     private static User New(string userName = "mario", string? email = null) =>
         User.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), userName, email, "it", [TenantRole.Employee, TenantRole.Administrator], isActive: true).Value;
+
+    [Fact]
+    public void ChangeAccount_NewUserName_ChangesTheStamp_AndValidates()
+    {
+        var user = User.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "mario@example.test", "mario@example.test", "it", [TenantRole.Client], isActive: true).Value;
+        var stamp = user.SecurityStamp;
+
+        user.ChangeAccount(" MARIO@example.test ", "mario@example.test").IsSuccess.ShouldBeTrue();
+        user.SecurityStamp.ShouldBe(stamp);
+        user.ChangeAccount("mario.rossi", "m.rossi@example.test").IsSuccess.ShouldBeTrue();
+        (user.UserName, user.Email).ShouldBe(("mario.rossi", "m.rossi@example.test"));
+        user.SecurityStamp.ShouldNotBe(stamp);
+
+        user.ChangeAccount("with space", null).Error!.Code.ShouldBe(EventCodes.Identity.UserValueInvalid);
+        user.ChangeAccount("mario.rossi", "no-at").IsFailure.ShouldBeTrue();
+        user.UserName.ShouldBe("mario.rossi");
+    }
 }
