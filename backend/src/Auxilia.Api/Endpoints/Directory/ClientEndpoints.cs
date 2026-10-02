@@ -24,7 +24,7 @@ internal sealed class ClientEndpoints : IModuleEndpoints
         clients.MapGet("/", ListAsync)
             .RequirePermission(DirectoryPermissions.ViewClients)
             .WithName("ListClients")
-            .WithSummary("Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone and status")
+            .WithSummary("Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone, status and employee")
             .Produces<PagedResponse<ClientListItemResponse>>()
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -124,12 +124,13 @@ internal sealed class ClientEndpoints : IModuleEndpoints
         [FromQuery(Name = "filter[userName]")] string? userName,
         [FromQuery(Name = "filter[phone]")] string? phone,
         [FromQuery(Name = "filter[status]")] string? status,
+        [FromQuery(Name = "filter[employeeUserId]")] Guid? employeeUserId,
         string? sort,
         int? page,
         int? pageSize,
         CancellationToken cancellationToken) =>
         (await clients.ListAsync(
-            new ClientListQuery(view, fullName, lastName, email, userName, phone, status, sort, page ?? 1, pageSize ?? 25), cancellationToken))
+            new ClientListQuery(view, fullName, lastName, email, userName, phone, status, sort, page ?? 1, pageSize ?? 25, employeeUserId), cancellationToken))
             .ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> AssignableEmployeesAsync(IClientQueryService clients, CancellationToken cancellationToken) =>

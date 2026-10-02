@@ -48,6 +48,21 @@ public sealed class DirectoryModule : IModuleDescriptor
                 new("canSignIn", "app.clients.canSignIn"),
             ],
             [TenantRole.Administrator, TenantRole.Employee]),
+
+        // The employee list (F06): the columns of the legacy grid (the photo arrives with the profile image, B-03).
+        new(
+            "directory.employees",
+            [
+                new("lastName", "Surname", Sortable: true, Filterable: true, CanHide: false),
+                new("firstName", "Name"),
+                new("userName", "Username", Sortable: true, Filterable: true),
+                new("email", "Email", Sortable: true, Filterable: true),
+                new("phone", "Phone", Filterable: true),
+                new("status", "Status", Filterable: true),
+                new("specializations", "app.employees.specializations"),
+                new("assignedClients", "app.employees.assignedClients"),
+            ],
+            [TenantRole.Administrator]),
     ];
 
     public void AddServices(IServiceCollection services)
@@ -56,5 +71,7 @@ public sealed class DirectoryModule : IModuleDescriptor
         services.TryAddScoped<ISpecializationQueryService, SpecializationQueryService>();
         services.TryAddScoped<IClientManager, ClientManager>();
         services.TryAddScoped<IClientQueryService, ClientQueryService>();
+        services.TryAddScoped<IEmployeeManager, EmployeeManager>();
+        services.TryAddScoped<IEmployeeQueryService, EmployeeQueryService>();
     }
 }

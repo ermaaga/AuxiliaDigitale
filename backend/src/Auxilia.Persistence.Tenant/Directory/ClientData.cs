@@ -140,6 +140,16 @@ internal sealed class ClientData(ITenantDbContext db) : IClientData
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<Guid?> DefaultEmployeeAsync(CancellationToken cancellationToken) =>
+        await (
+                from profile in db.Set<EmployeeProfile>()
+                where profile.IsDefault
+                join user in db.Set<User>() on profile.Id equals user.Id
+                where user.IsActive && EF.Property<List<UserRole>>(user, "roles").Any(role => role.Role == TenantRole.Employee)
+                join person in db.Set<Person>() on user.PersonId equals person.Id
+                select (Guid?)user.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Specialization>> ClientSpecializationsAsync(CancellationToken cancellationToken) =>
         await db.Set<Specialization>()
             .Where(specialization => specialization.IsActive && specialization.Role == TenantRole.Client)

@@ -93,7 +93,8 @@ public sealed record ClientPasswordResetResponse(string? TemporaryPassword);
 /// <summary>
 /// The client lists (F05): <c>view</c> <c>all</c> (default) or <c>mine</c> (clients of the calling employee); text
 /// filters match anywhere; <c>sort</c> one of <c>lastName</c> (default, then first name), <c>fullName</c>, <c>email</c>,
-/// <c>userName</c>, <c>-</c> for descending.
+/// <c>userName</c>, <c>-</c> for descending. <c>employeeUserId</c> restricts the <c>all</c> view to the clients of
+/// one employee (the employee detail, F06).
 /// </summary>
 public sealed record ClientListQuery(
     string? View,
@@ -105,4 +106,5 @@ public sealed record ClientListQuery(
     string? Status,
     string? Sort,
     int Page,
-    int PageSize);
+    int PageSize,
+    Guid? EmployeeUserId = null);

@@ -101,13 +101,15 @@ public sealed class ClientEndpointsTests(ClientEndpointsTests.Factory factory) :
         assignable.ShouldContain(otherEmployeeId);
         var id = await CreateAsync(admin, null);
 
+        // Other test classes may have set a default employee (Q31) on the shared tenant: nobody in charge for this check.
+        (await SendAsync(HttpMethod.Delete, $"/api/v1/clients/{id}/employee", admin)).StatusCode.ShouldBe(HttpStatusCode.OK);
         await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/sign-in", admin, new SetClientSignInRequest(true)),
             HttpStatusCode.Conflict, EventCodes.Directory.ClientEmployeeRequired);
 
         (await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/employee", admin, new AssignClientEmployeeRequest(employeeId))).StatusCode.ShouldBe(HttpStatusCode.OK);
         using var reassigned = await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/employee", admin, new AssignClientEmployeeRequest(otherEmployeeId));
         var history = (await reassigned.Content.ReadFromJsonAsync<ClientDetailResponse>(Ct))!.Assignments;
-        history.Select(item => (item.EmployeeUserId, item.EndedAt is null)).ShouldBe([(otherEmployeeId, true), (employeeId, false)]);
+        history.Take(2).Select(item => (item.EmployeeUserId, item.EndedAt is null)).ShouldBe([(otherEmployeeId, true), (employeeId, false)]);
         await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/employee", admin, new AssignClientEmployeeRequest(Guid.NewGuid())),
             HttpStatusCode.BadRequest, EventCodes.Directory.EmployeeInvalid);
 
