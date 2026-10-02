@@ -19,6 +19,9 @@ export function t(
 
 /** Every page visited by the suite: no serious or critical WCAG 2.2 AA violation (skill auxilia-testing). */
 export async function expectAccessible(page: Page, name: string): Promise<void> {
+  // The pointer left by the previous action may hover a control (e.g. a button rendered where it was): measure
+  // the page at rest. Hover colours are a separate concern of the UI kit, not of each page.
+  await page.mouse.move(0, 0);
   // Colours caught mid-transition (a toast fading out, a button changing colour) are not the page's real contrast.
   await page.evaluate(() =>
     Promise.all(
