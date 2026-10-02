@@ -607,13 +607,22 @@ test("console journey of a System user", async ({ page }) => {
     await expect(
       page.getByRole("heading", { name: t("app.platform.logs.title"), level: 1 }),
     ).toBeVisible();
+    // Repeatable on a reused database: a run stopped half-way may have left Debug on.
+    const disable = page.getByRole("button", { name: t("app.platform.logs.disableDebug") });
+    await expect(
+      page.getByRole("button", { name: t("app.platform.logs.enableDebug") }),
+    ).toBeVisible();
+    if (await disable.isVisible()) {
+      await disable.click();
+      await expect(disable).toHaveCount(0);
+    }
+
     await expect(
       page.getByText(t("app.platform.logs.levelDefault", { level: "Information" })),
     ).toBeVisible();
 
     await page.getByRole("button", { name: t("app.platform.logs.enableDebug") }).click();
     await expect(page.getByText(t("app.platform.logs.debugEnabled"))).toBeVisible();
-    const disable = page.getByRole("button", { name: t("app.platform.logs.disableDebug") });
     await expect(disable).toBeVisible();
 
     // The change itself is a security event in the tenant's file (written in batches): search it by code.
@@ -625,9 +634,11 @@ test("console journey of a System user", async ({ page }) => {
       await expect(events).toContainText("AUX-29025", { timeout: 1_000 });
     }).toPass({ timeout: 15_000 });
 
-    await events.locator("summary").first().click();
-    await expect(events.getByText(t("app.platform.logs.operation"))).toBeVisible();
-    await expect(events).toContainText("Tenancy.ChangeLogLevel");
+    // Newest first: the first event is the change just made (repeatable on a reused database).
+    const newest = events.locator("details").first();
+    await newest.locator("summary").click();
+    await expect(newest.getByText(t("app.platform.logs.operation"), { exact: true })).toBeVisible();
+    await expect(newest).toContainText("Tenancy.ChangeLogLevel");
     await expectAccessible(page, "tenant logs");
 
     await disable.click();

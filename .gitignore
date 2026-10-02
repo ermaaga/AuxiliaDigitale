@@ -36,6 +36,8 @@ bld/
 # Typed log entries of Auxilia.Diagnostics (source code, not log output)
 !backend/src/Auxilia.Diagnostics/Log/
 [Ll]ogs/
+# Source folders named "logs" (console Log page, S-07): code, not log output
+!frontend/apps/web/src/**/logs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -505,6 +507,8 @@ appsettings.*.local.json
 
 # Local runtime output
 logs/
+# Same exception as above (this rule would hide them again)
+!frontend/apps/web/src/**/logs/
 storage/
 # Log storage adapters of Auxilia.ServiceDefaults (source code, not data)
 !backend/src/Auxilia.ServiceDefaults/Logging/Storage/
