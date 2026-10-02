@@ -15,6 +15,9 @@ public sealed class Tenant : AggregateRoot<Guid>
     public const int TimeZoneMaxLength = 64;
     public const int VersionMaxLength = 150;
 
+    /// <summary>How far ahead debug logging can be enabled (D-28: temporary by definition).</summary>
+    public static readonly TimeSpan MaxDebugLogging = TimeSpan.FromHours(24);
+
     /// <summary>Slugs that name platform hosts or paths and can never be a tenant (skill auxilia-tenant-provisioning).</summary>
     public static readonly IReadOnlySet<string> ReservedSlugs = new HashSet<string>(StringComparer.Ordinal)
     {
@@ -66,6 +69,12 @@ public sealed class Tenant : AggregateRoot<Guid>
     public string TimeZone { get; private set; }
 
     public DateTimeOffset? ArchivedAt { get; private set; }
+
+    /// <summary>Until when the tenant's Debug events are written (D-28); past or <c>null</c>: the default level applies.</summary>
+    public DateTimeOffset? DebugLoggingUntil { get; private set; }
+
+    /// <summary>The end of the debug logging when it is still running at <paramref name="now"/>.</summary>
+    public DateTimeOffset? ActiveDebugLoggingUntil(DateTimeOffset now) => DebugLoggingUntil > now ? DebugLoggingUntil : null;
 
     public static Result<Tenant> Create(Guid id, string slug, string displayName, string defaultLanguage, string timeZone)
     {
@@ -141,6 +150,29 @@ public sealed class Tenant : AggregateRoot<Guid>
 
         return renamed;
     }
+
+    /// <summary>
+    /// Writes the tenant's Debug events until <paramref name="until"/>, within <see cref="MaxDebugLogging"/>; the level
+    /// goes back by itself afterwards. Archived tenants are read-only (D-25).
+    /// </summary>
+    public Result EnableDebugLogging(DateTimeOffset until, DateTimeOffset now)
+    {
+        if (Status == TenantStatus.Archived)
+        {
+            return Errors.Tenancy.TenantArchived();
+        }
+
+        if (until <= now || until > now + MaxDebugLogging)
+        {
+            return Errors.Tenancy.LogLevelUntilInvalid();
+        }
+
+        DebugLoggingUntil = until;
+        return Result.Success();
+    }
+
+    /// <summary>Back to the default level now (allowed when archived too: it only reduces logging).</summary>
+    public void DisableDebugLogging() => DebugLoggingUntil = null;
 
     public Result Activate() => MoveTo(TenantStatus.Active);
 

@@ -73,6 +73,9 @@ public static class DependencyInjection
         services.TryAddScoped<INavigationQueryService, NavigationQueryService>();
         services.TryAddScoped<IPlatformConsoleQueryService, PlatformConsoleQueryService>();
         services.TryAddScoped<IPlatformTenantManager, PlatformTenantManager>();
+        services.TryAddScoped<ITenantLogManager, TenantLogManager>();
+        services.TryAddScoped<ITenantLogQueryService, TenantLogQueryService>();
+        services.TryAddScoped<ITenantLogLevelSync, TenantLogLevelSync>();
         services.TryAddScoped<ITenantAdministratorManager, TenantAdministratorManager>();
         services.TryAddScoped<IModuleCatalogManager, ModuleCatalogManager>();
         services.AddModules(Modules);

@@ -5,17 +5,20 @@ import type { PlatformTenantDetail } from "../server";
 
 /**
  * Heading of a technical page of a tenant (settings, branding, …): page title, tenant name and slug, description.
- * The technical endpoints serve active tenants only: otherwise a notice instead of the editor.
+ * The technical endpoints serve active tenants only: otherwise a notice instead of the editor. Pages served by console
+ * endpoints (`anyStatus`, e.g. the logs) work for every status.
  */
 export async function TenantSection({
   tenant,
   title,
   description,
+  anyStatus = false,
   children,
 }: {
   tenant: PlatformTenantDetail;
   title: string;
   description: string;
+  anyStatus?: boolean;
   children: React.ReactNode;
 }) {
   const t = await getTranslations();
@@ -28,7 +31,7 @@ export async function TenantSection({
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         <p className="text-sm text-muted-foreground">{description}</p>
       </header>
-      {tenant.status === "Active" ? (
+      {anyStatus || tenant.status === "Active" ? (
         children
       ) : (
         <p role="status" className="rounded-md border p-4 text-sm">

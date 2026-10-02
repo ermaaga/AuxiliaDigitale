@@ -49,6 +49,17 @@ public static partial class Errors
         public static Error TenantArchived() =>
             Error.Conflict(EventCodes.Tenancy.TenantArchived, "The tenant is archived and cannot be changed");
 
+        public static Error LogLevelUntilInvalid() =>
+            Error.Validation(EventCodes.Tenancy.LogLevelUntilInvalid, "The debug logging must end within the next 24 hours",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["until"] = ["validation.logs.until"] });
+
+        public static Error LogQueryInvalid(string field, string translationKey) =>
+            Error.Validation(EventCodes.Tenancy.LogQueryInvalid, $"The log search value {field} is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [translationKey] });
+
+        public static Error LogFilesUnavailable() =>
+            Error.Failure(EventCodes.Tenancy.LogFilesUnavailable, "The log files cannot be read now");
+
         public static Error CatalogValueInvalid(string field, string translationKey) =>
             Error.Validation(EventCodes.Tenancy.CatalogValueInvalid, $"The value of {field} is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [translationKey] });

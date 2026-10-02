@@ -11,7 +11,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
-| 11000–11999 | Tenancy | Tenancy / Catalog | 26 | 11030 |
+| 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 58 | 12059 |
 | 13000–13999 | Directory | Directory (clients, employees) | 9 | 13010 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 24 | 29025 |
+| 29000–29999 | Security | Security events | 25 | 29026 |
 
 ## Codes
 
@@ -77,6 +77,11 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-11027 | Tenancy.ProvisioningNotDispatched | Warning | – | – | The provisioning of tenant {TenantSlug} was not queued (message bus unavailable): retry from the console |
 | AUX-11028 | Tenancy.TenantNotProvisioning | – | Conflict | – | – |
 | AUX-11029 | Tenancy.TenantArchived | – | Conflict | – | – |
+| AUX-11030 | Tenancy.TenantLogLevelChanged | – | – | Tenancy.ChangeLogLevel (success) | – |
+| AUX-11031 | Tenancy.LogLevelUntilInvalid | – | Validation | – | – |
+| AUX-11032 | Tenancy.LogQueryInvalid | – | Validation | – | – |
+| AUX-11033 | Tenancy.LogFilesUnavailable | Error | Failure | – | The log files of tenant {TenantSlug} could not be read |
+| AUX-11034 | Tenancy.LogLevelSyncFailed | Warning | – | – | The log levels of the tenants could not be synchronised ({Step}): this node keeps the levels it knows |
 | AUX-12001 | Identity.UserCreated | – | – | Identity.CreateUser (success) | – |
 | AUX-12002 | Identity.InvalidCredentials | – | Unauthorized | – | – |
 | AUX-12003 | Identity.AccountLocked | – | Forbidden | – | – |
@@ -247,3 +252,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29022 | Security.LoginOtpSent | Information | – | – | Sign-in code e-mailed to user {UserId} |
 | AUX-29023 | Security.PasswordResetByOperator | Warning | – | – | Password of user {UserId} reset by an operator ({Mode}) |
 | AUX-29024 | Security.RolePermissionsChanged | Warning | – | – | Permissions of role {Role} changed: granted {Granted}, revoked {Revoked} |
+| AUX-29025 | Security.TenantLogLevelChanged | Warning | – | – | Debug logging of tenant {TenantSlug} set until {DebugUntil} (empty: disabled) |

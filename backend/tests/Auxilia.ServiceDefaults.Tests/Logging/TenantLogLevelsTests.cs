@@ -1,4 +1,8 @@
+using Auxilia.Diagnostics.Logging;
 using Auxilia.ServiceDefaults.Logging;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using Serilog.Events;
 
@@ -74,5 +78,24 @@ public sealed class TenantLogLevelsTests
         levels.SetOverride("acme", LogEventLevel.Debug, LogEvents.Noon.AddMinutes(-1));
 
         levels.LevelFor("acme").ShouldBe(LogEventLevel.Information);
+    }
+
+    [Fact]
+    public void AddAuxiliaLogging_RegistersThePipelineLevelsAsThePortAndTheReader()
+    {
+        var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
+        builder.Configuration["AuxiliaLogging:Storage"] = AuxiliaLoggingOptions.NoStorage;
+        builder.AddAuxiliaLogging();
+        using var host = builder.Build();
+
+        var pipeline = host.Services.GetRequiredService<TenantLogLevels>();
+        var port = host.Services.GetRequiredService<ITenantLogLevels>();
+        port.EnableDebug("acme", DateTimeOffset.UtcNow.AddMinutes(30));
+
+        port.DefaultLevel.ShouldBe("Information");
+        pipeline.LevelFor("acme").ShouldBe(LogEventLevel.Debug);
+        port.Clear("acme");
+        pipeline.LevelFor("acme").ShouldBe(LogEventLevel.Information);
+        host.Services.GetRequiredService<ILogFileReader>().ShouldBeOfType<LogFileReader>();
     }
 }

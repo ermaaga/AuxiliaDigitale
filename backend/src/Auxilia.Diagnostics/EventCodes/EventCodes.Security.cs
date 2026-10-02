@@ -76,5 +76,8 @@ public static partial class EventCodes
 
         /// <summary>The permissions of a tenant role changed (F22): permissions granted and revoked.</summary>
         public const int RolePermissionsChanged = 29024;
+
+        /// <summary>The System changed the log level of a tenant (D-28): Debug events may include more detail.</summary>
+        public const int TenantLogLevelChanged = 29025;
     }
 }

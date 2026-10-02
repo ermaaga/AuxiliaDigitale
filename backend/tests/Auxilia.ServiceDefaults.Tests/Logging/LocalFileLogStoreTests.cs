@@ -28,6 +28,36 @@ public sealed class LocalFileLogStoreTests : IDisposable
             () => store.AppendAsync("../escape.jsonl", Encoding.UTF8.GetBytes("x"), TestContext.Current.CancellationToken));
     }
 
+    [Fact]
+    public async Task OpenReadAsync_ReadsWhileAnotherWriterAppends()
+    {
+        var store = new LocalFileLogStore(root);
+        await store.AppendAsync("tenants/acme/2026/09/29.jsonl", Encoding.UTF8.GetBytes("a\n"), TestContext.Current.CancellationToken);
+
+        await using var stream = await store.OpenReadAsync("tenants/acme/2026/09/29.jsonl", TestContext.Current.CancellationToken);
+        await store.AppendAsync("tenants/acme/2026/09/29.jsonl", Encoding.UTF8.GetBytes("b\n"), TestContext.Current.CancellationToken);
+
+        stream.ShouldNotBeNull();
+        using var reader = new StreamReader(stream);
+        (await reader.ReadToEndAsync(TestContext.Current.CancellationToken)).ShouldBe("a\nb\n");
+    }
+
+    [Fact]
+    public async Task OpenReadAsync_MissingFile_ReturnsNull()
+    {
+        var store = new LocalFileLogStore(root);
+
+        (await store.OpenReadAsync("tenants/acme/2026/09/29.jsonl", TestContext.Current.CancellationToken)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task OpenReadAsync_PathOutsideRoot_Throws()
+    {
+        var store = new LocalFileLogStore(root);
+
+        await Should.ThrowAsync<ArgumentException>(() => store.OpenReadAsync("../escape.jsonl", TestContext.Current.CancellationToken));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(root))

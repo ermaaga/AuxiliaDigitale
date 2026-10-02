@@ -89,6 +89,12 @@ export function ConsoleShell({
             href: tenantConsoleHref(tenant.slug, "/specializations"),
             icon: "award",
           },
+          {
+            key: "tenant-logs",
+            label: t("app.platform.nav.logs"),
+            href: tenantConsoleHref(tenant.slug, "/logs"),
+            icon: "scroll-text",
+          },
         ]
       : []),
   ];

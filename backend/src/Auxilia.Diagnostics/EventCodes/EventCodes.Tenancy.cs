@@ -82,5 +82,20 @@ public static partial class EventCodes
 
         /// <summary>The tenant is archived and read-only (409, D-25).</summary>
         public const int TenantArchived = 11029;
+
+        /// <summary>Debug logging of a tenant was enabled until an instant, or disabled (D-28).</summary>
+        public const int TenantLogLevelChanged = 11030;
+
+        /// <summary>The end of the debug logging is not in the next 24 hours (400).</summary>
+        public const int LogLevelUntilInvalid = 11031;
+
+        /// <summary>The log search is not valid: date range, page size or cursor (400).</summary>
+        public const int LogQueryInvalid = 11032;
+
+        /// <summary>The log files of the tenant could not be read (storage unavailable).</summary>
+        public const int LogFilesUnavailable = 11033;
+
+        /// <summary>The log levels of the tenants could not be loaded or announced to the other nodes.</summary>
+        public const int LogLevelSyncFailed = 11034;
     }
 }

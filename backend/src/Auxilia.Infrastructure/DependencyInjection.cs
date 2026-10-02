@@ -1,11 +1,13 @@
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
+using Auxilia.Application.Abstractions.Logging;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Infrastructure.Adapters.Channels.Smtp;
 using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
+using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Realtime;
 using Auxilia.Infrastructure.Security;
@@ -29,6 +31,9 @@ public static class DependencyInjection
         services.AddScoped<ITenantContextSetter>(provider => provider.GetRequiredService<TenantContext>());
 
         services.AddReferenceDataCache();
+
+        // Per-tenant log levels (D-28): replaced by the Redis channel in AddRedisCache.
+        services.TryAddSingleton<ITenantLogLevelBroadcast, NullTenantLogLevelBroadcast>();
 
         // Replaced by AddMessageBusClient / AddMessageBusWorker when RabbitMQ is configured.
         services.TryAddSingleton<IMessageSender, UnavailableMessageSender>();

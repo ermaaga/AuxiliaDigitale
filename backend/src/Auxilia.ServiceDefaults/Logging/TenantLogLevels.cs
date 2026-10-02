@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 
+using Auxilia.Diagnostics.Logging;
+
 using Serilog.Core;
 using Serilog.Events;
 
@@ -9,9 +11,10 @@ namespace Auxilia.ServiceDefaults.Logging;
 /// Minimum log level per tenant with an expiry (decision D-28). The default level applies to every event; a tenant
 /// override (e.g. Debug until 18:00) applies to that tenant's events and ends by itself at its expiry, without jobs
 /// or restarts. <see cref="MinimumLevel"/> follows the lowest active level so lower events are produced only when
-/// some override needs them. Overrides are set from the tenant settings (tasks P1-10, S-07).
+/// some override needs them. Overrides come from the Catalog (<c>tenants.debug_logging_until</c>, S-07) through
+/// <see cref="ITenantLogLevels"/>.
 /// </summary>
-public sealed class TenantLogLevels
+public sealed class TenantLogLevels : ITenantLogLevels
 {
     private readonly TimeProvider timeProvider;
     private readonly Lock gate = new();
@@ -29,6 +32,8 @@ public sealed class TenantLogLevels
 
     public LogEventLevel DefaultLevel { get; }
 
+    string ITenantLogLevels.DefaultLevel => DefaultLevel.ToString();
+
     /// <summary>Controls the logger minimum level: the lowest of the default and the active overrides.</summary>
     public LoggingLevelSwitch MinimumLevel { get; }
 
@@ -44,6 +49,10 @@ public sealed class TenantLogLevels
             Recalculate();
         }
     }
+
+    public void EnableDebug(string tenantSlug, DateTimeOffset until) => SetOverride(tenantSlug, LogEventLevel.Debug, until);
+
+    public void Clear(string tenantSlug) => ClearOverride(tenantSlug);
 
     public void ClearOverride(string tenantSlug)
     {

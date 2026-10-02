@@ -21,5 +21,7 @@ public static partial class Operations
         public static readonly OperationDescriptor ChangeTenantPlan = new("Tenancy.ChangeTenantPlan", EventCodes.Tenancy.TenantPlanChanged);
 
         public static readonly OperationDescriptor ChangeModuleOverride = new("Tenancy.ChangeModuleOverride", EventCodes.Tenancy.TenantModuleOverrideChanged);
+
+        public static readonly OperationDescriptor ChangeLogLevel = new("Tenancy.ChangeLogLevel", EventCodes.Tenancy.TenantLogLevelChanged);
     }
 }

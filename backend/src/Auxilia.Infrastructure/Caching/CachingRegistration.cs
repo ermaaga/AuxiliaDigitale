@@ -1,4 +1,6 @@
 using Auxilia.Application.Abstractions.Caching;
+using Auxilia.Application.Abstractions.Logging;
+using Auxilia.Infrastructure.Logging;
 
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
@@ -25,8 +27,9 @@ public static class CachingRegistration
     }
 
     /// <summary>
-    /// Redis/Valkey as L2 of the reference-data cache (behind a circuit breaker), the cross-node invalidation channel
-    /// and a readiness check that reports Degraded while Redis is down. Connection string <c>ConnectionStrings:Redis</c>.
+    /// Redis/Valkey as L2 of the reference-data cache (behind a circuit breaker), the cross-node invalidation channel,
+    /// the per-tenant log level channel (D-28) and a readiness check that reports Degraded while Redis is down.
+    /// Connection string <c>ConnectionStrings:Redis</c>.
     /// </summary>
     public static IServiceCollection AddRedisCache(this IServiceCollection services, string connectionString)
     {
@@ -50,6 +53,10 @@ public static class CachingRegistration
         services.AddSingleton<RedisCacheInvalidationBus>();
         services.Replace(ServiceDescriptor.Singleton<ICacheInvalidationBus>(provider => provider.GetRequiredService<RedisCacheInvalidationBus>()));
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<RedisCacheInvalidationBus>());
+
+        services.AddSingleton<RedisTenantLogLevelBus>();
+        services.Replace(ServiceDescriptor.Singleton<ITenantLogLevelBroadcast>(provider => provider.GetRequiredService<RedisTenantLogLevelBus>()));
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<RedisTenantLogLevelBus>());
 
         services.AddHealthChecks().AddCheck<RedisHealthCheck>(RedisHealthCheckName);
         services.TryAddSingleton<RedisHealthCheck>();

@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 
+using Azure;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 
 namespace Auxilia.ServiceDefaults.Logging.Storage;
@@ -39,6 +41,19 @@ public sealed class AzureAppendBlobLogStore : ILogFileStore
             var block = content.Slice(offset, Math.Min(maxBlock, content.Length - offset));
             using var stream = new MemoryStream(block.ToArray(), writable: false);
             await blob.AppendBlockAsync(stream, cancellationToken: cancellationToken);
+        }
+    }
+
+    public async Task<Stream?> OpenReadAsync(string path, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // allowModifications: the writers keep appending while the Log page reads.
+            return await container.GetAppendBlobClient(path).OpenReadAsync(new BlobOpenReadOptions(allowModifications: true), cancellationToken);
+        }
+        catch (RequestFailedException exception) when (exception.Status == 404)
+        {
+            return null;
         }
     }
 }
