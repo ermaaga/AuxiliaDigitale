@@ -1,0 +1,242 @@
+[
+ {
+  "key": "app.platform.nav.logs",
+  "category": "app",
+  "en": "Logs",
+  "it": "Log"
+ },
+ {
+  "key": "app.platform.logs.title",
+  "category": "app",
+  "en": "Logs",
+  "it": "Log"
+ },
+ {
+  "key": "app.platform.logs.description",
+  "category": "app",
+  "en": "Events written by the API and the Worker for this tenant, read from its daily log files (newest first).",
+  "it": "Eventi scritti dall'API e dal Worker per questo tenant, letti dai suoi file di log giornalieri (dal più recente)."
+ },
+ {
+  "key": "app.platform.logs.levelTitle",
+  "category": "app",
+  "en": "Log level",
+  "it": "Livello di log"
+ },
+ {
+  "key": "app.platform.logs.levelDefault",
+  "category": "app",
+  "en": "Default level: {level}",
+  "it": "Livello predefinito: {level}"
+ },
+ {
+  "key": "app.platform.logs.debugActive",
+  "category": "app",
+  "en": "Debug logging active until {until}",
+  "it": "Log di Debug attivo fino alle {until}"
+ },
+ {
+  "key": "app.platform.logs.levelHint",
+  "category": "app",
+  "en": "Debug events are more numerous and detailed. The level goes back to the default by itself at the end, with no restart.",
+  "it": "Gli eventi di Debug sono più numerosi e dettagliati. Alla fine il livello torna da solo a quello predefinito, senza riavvii."
+ },
+ {
+  "key": "app.platform.logs.duration",
+  "category": "app",
+  "en": "Duration",
+  "it": "Durata"
+ },
+ {
+  "key": "app.platform.logs.duration30m",
+  "category": "app",
+  "en": "30 minutes",
+  "it": "30 minuti"
+ },
+ {
+  "key": "app.platform.logs.duration1h",
+  "category": "app",
+  "en": "1 hour",
+  "it": "1 ora"
+ },
+ {
+  "key": "app.platform.logs.duration4h",
+  "category": "app",
+  "en": "4 hours",
+  "it": "4 ore"
+ },
+ {
+  "key": "app.platform.logs.duration24h",
+  "category": "app",
+  "en": "24 hours",
+  "it": "24 ore"
+ },
+ {
+  "key": "app.platform.logs.enableDebug",
+  "category": "app",
+  "en": "Enable Debug",
+  "it": "Attiva Debug"
+ },
+ {
+  "key": "app.platform.logs.disableDebug",
+  "category": "app",
+  "en": "Back to default",
+  "it": "Torna al predefinito"
+ },
+ {
+  "key": "app.platform.logs.debugEnabled",
+  "category": "app",
+  "en": "Debug logging enabled",
+  "it": "Log di Debug attivato"
+ },
+ {
+  "key": "app.platform.logs.debugDisabled",
+  "category": "app",
+  "en": "Back to the default log level",
+  "it": "Tornato al livello di log predefinito"
+ },
+ {
+  "key": "app.platform.logs.filters",
+  "category": "app",
+  "en": "Filters",
+  "it": "Filtri"
+ },
+ {
+  "key": "app.platform.logs.from",
+  "category": "app",
+  "en": "From (UTC day)",
+  "it": "Dal (giorno UTC)"
+ },
+ {
+  "key": "app.platform.logs.to",
+  "category": "app",
+  "en": "To (UTC day)",
+  "it": "Al (giorno UTC)"
+ },
+ {
+  "key": "app.platform.logs.minimumLevel",
+  "category": "app",
+  "en": "Minimum level",
+  "it": "Livello minimo"
+ },
+ {
+  "key": "app.platform.logs.code",
+  "category": "app",
+  "en": "Event code",
+  "it": "Codice evento"
+ },
+ {
+  "key": "app.platform.logs.traceId",
+  "category": "app",
+  "en": "Trace id",
+  "it": "Trace id"
+ },
+ {
+  "key": "app.platform.logs.userId",
+  "category": "app",
+  "en": "User id",
+  "it": "Id utente"
+ },
+ {
+  "key": "app.platform.logs.text",
+  "category": "app",
+  "en": "Text",
+  "it": "Testo"
+ },
+ {
+  "key": "app.platform.logs.textPlaceholder",
+  "category": "app",
+  "en": "Message or exception",
+  "it": "Messaggio o eccezione"
+ },
+ {
+  "key": "app.platform.logs.events",
+  "category": "app",
+  "en": "Log events",
+  "it": "Eventi di log"
+ },
+ {
+  "key": "app.platform.logs.empty",
+  "category": "app",
+  "en": "No events for these filters.",
+  "it": "Nessun evento per questi filtri."
+ },
+ {
+  "key": "app.platform.logs.loadOlder",
+  "category": "app",
+  "en": "Load older events",
+  "it": "Carica eventi precedenti"
+ },
+ {
+  "key": "app.platform.logs.exception",
+  "category": "app",
+  "en": "Exception",
+  "it": "Eccezione"
+ },
+ {
+  "key": "app.platform.logs.operation",
+  "category": "app",
+  "en": "Operation",
+  "it": "Operazione"
+ },
+ {
+  "key": "app.platform.logs.source",
+  "category": "app",
+  "en": "Source",
+  "it": "Origine"
+ },
+ {
+  "key": "app.platform.logs.properties",
+  "category": "app",
+  "en": "Other fields",
+  "it": "Altri campi"
+ },
+ {
+  "key": "app.platform.logs.filterTrace",
+  "category": "app",
+  "en": "Show this trace",
+  "it": "Mostra questa traccia"
+ },
+ {
+  "key": "app.platform.logs.timesNote",
+  "category": "app",
+  "en": "Times are shown in your time zone; the days of the filters are UTC days.",
+  "it": "Gli orari sono nel tuo fuso orario; i giorni dei filtri sono giorni UTC."
+ },
+ {
+  "key": "validation.logs.until",
+  "category": "validation",
+  "en": "The debug logging must end within the next 24 hours.",
+  "it": "Il log di Debug deve terminare entro le prossime 24 ore."
+ },
+ {
+  "key": "validation.logs.range",
+  "category": "validation",
+  "en": "Choose at most 31 days, with the first day not after the last.",
+  "it": "Scegli al massimo 31 giorni, con il primo giorno non successivo all'ultimo."
+ },
+ {
+  "key": "validation.logs.level",
+  "category": "validation",
+  "en": "Unknown log level.",
+  "it": "Livello di log sconosciuto."
+ },
+ {
+  "key": "validation.logs.pageSize",
+  "category": "validation",
+  "en": "Between 1 and 200 events per page.",
+  "it": "Da 1 a 200 eventi per pagina."
+ },
+ {
+  "key": "validation.logs.cursor",
+  "category": "validation",
+  "en": "The page to continue from is not valid: search again.",
+  "it": "La pagina da cui continuare non è valida: ripeti la ricerca."
+ },
+ {
+  "key": "errors.AUX-11033",
+  "category": "errors",
+  "en": "The log files cannot be read now. Try again in a few minutes.",
+  "it": "Al momento non è possibile leggere i file di log. Riprova tra qualche minuto."
+ }
+]

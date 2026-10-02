@@ -58,7 +58,9 @@ export default defineConfig({
         ASPNETCORE_URLS: `http://localhost:${apiPort}`,
         ConnectionStrings__Catalog: process.env.E2E_CATALOG_CONNECTION ?? "",
         ConnectionStrings__Redis: "",
-        AuxiliaLogging__Storage: "none",
+        // Daily files under logs/ at the repository root (git-ignored): the console Log page reads them (S-07).
+        AuxiliaLogging__Storage: "local-file",
+        AuxiliaLogging__BatchPeriod: "00:00:00.200",
         // Every run activates an account and changes a password from the same address.
         RateLimiting__AccountLinks__PermitLimit: "100",
       },

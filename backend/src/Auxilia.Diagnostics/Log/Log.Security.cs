@@ -102,5 +102,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.RolePermissionsChanged, EventName = "Security.RolePermissionsChanged",
             Level = LogLevel.Warning, Message = "Permissions of role {Role} changed: granted {Granted}, revoked {Revoked}")]
         public static partial void RolePermissionsChanged(ILogger logger, string role, string granted, string revoked);
+
+        [LoggerMessage(EventId = EventCodes.Security.TenantLogLevelChanged, EventName = "Security.TenantLogLevelChanged",
+            Level = LogLevel.Warning, Message = "Debug logging of tenant {TenantSlug} set until {DebugUntil} (empty: disabled)")]
+        public static partial void TenantLogLevelChanged(ILogger logger, string tenantSlug, DateTimeOffset? debugUntil);
     }
 }

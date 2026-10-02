@@ -122,4 +122,48 @@ public sealed class TenantTests
         Tenant.Create(Guid.CreateVersion7(), "new", "New", "it", "Europe/Rome").Error!.Code.ShouldBe(EventCodes.Tenancy.TenantSlugReserved);
         tenant.DisplayName.ShouldBe("ACME Group");
     }
+
+    [Fact]
+    public void EnableDebugLogging_WithinTheNext24Hours_RunsUntilTheEnd()
+    {
+        var now = new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero);
+        var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+
+        tenant.EnableDebugLogging(now.AddHours(2), now).IsSuccess.ShouldBeTrue();
+
+        tenant.DebugLoggingUntil.ShouldBe(now.AddHours(2));
+        tenant.ActiveDebugLoggingUntil(now.AddHours(1)).ShouldBe(now.AddHours(2));
+        tenant.ActiveDebugLoggingUntil(now.AddHours(2)).ShouldBeNull();
+        tenant.EnableDebugLogging(now.Add(Tenant.MaxDebugLogging), now).IsSuccess.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-60)]
+    [InlineData(24 * 60 + 1)]
+    public void EnableDebugLogging_EndNotInTheNext24Hours_IsRejected(int minutes)
+    {
+        var now = new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero);
+        var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+
+        var result = tenant.EnableDebugLogging(now.AddMinutes(minutes), now);
+
+        result.Error!.Code.ShouldBe(EventCodes.Tenancy.LogLevelUntilInvalid);
+        result.Error.Type.ShouldBe(ErrorType.Validation);
+        tenant.DebugLoggingUntil.ShouldBeNull();
+    }
+
+    [Fact]
+    public void DebugLogging_ArchivedTenant_CannotEnableButCanDisable()
+    {
+        var now = new DateTimeOffset(2026, 10, 2, 12, 0, 0, TimeSpan.Zero);
+        var tenant = Tenant.Create(Guid.CreateVersion7(), "acme", "Acme", "it", "Europe/Rome").Value;
+        tenant.EnableDebugLogging(now.AddHours(1), now);
+        tenant.Archive(now);
+
+        tenant.EnableDebugLogging(now.AddHours(2), now).Error!.Code.ShouldBe(EventCodes.Tenancy.TenantArchived);
+        tenant.DisableDebugLogging();
+
+        tenant.DebugLoggingUntil.ShouldBeNull();
+    }
 }

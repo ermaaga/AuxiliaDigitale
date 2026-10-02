@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using Auxilia.Diagnostics.Logging;
 using Auxilia.ServiceDefaults.Logging.Storage;
 
 using Azure.Storage.Blobs;
@@ -28,10 +29,16 @@ public static class LoggingExtensions
         var options = builder.Configuration.GetSection(AuxiliaLoggingOptions.SectionName).Get<AuxiliaLoggingOptions>() ?? new();
         var contentRoot = builder.Environment.ContentRootPath;
 
+        var store = CreateStore(options, contentRoot);
+
         builder.Services.AddSingleton(options);
         builder.Services.AddSingleton(services =>
             new TenantLogLevels(options.MinimumLevel, services.GetService<TimeProvider>() ?? TimeProvider.System));
+        builder.Services.AddSingleton<ITenantLogLevels>(services => services.GetRequiredService<TenantLogLevels>());
+        builder.Services.AddSingleton<ILogFileReader>(new LogFileReader(store));
 
+        // preserveStaticLogger: each host logs through its own pipeline, never through the static Log.Logger of the
+        // last host built in the process (several hosts share a process in the integration tests).
         builder.Services.AddSerilog((services, configuration) =>
         {
             var levels = services.GetRequiredService<TenantLogLevels>();
@@ -53,7 +60,6 @@ public static class LoggingExtensions
                 configuration.MinimumLevel.Override(source, level);
             }
 
-            var store = CreateStore(options, contentRoot);
             if (store is not null)
             {
                 var sink = new TenantFileSink(
@@ -71,7 +77,7 @@ public static class LoggingExtensions
                     EagerlyEmitFirstEvent = true,
                 });
             }
-        });
+        }, preserveStaticLogger: true);
 
         return builder;
     }

@@ -1,6 +1,7 @@
 using Auxilia.Application;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
+using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Realtime;
 using Auxilia.Persistence.Catalog;
@@ -24,6 +25,7 @@ public static class WorkerServices
 
         services.AddApplication();
         services.AddInfrastructure();
+        services.AddTenantLogLevelSync();
 
         // Same Catalog and tenant databases as the Api (user-secrets / environment, never committed).
         var catalog = configuration.GetConnectionString("Catalog")

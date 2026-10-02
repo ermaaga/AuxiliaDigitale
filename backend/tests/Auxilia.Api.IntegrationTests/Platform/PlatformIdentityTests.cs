@@ -20,6 +20,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.Persistence.Catalog;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -261,6 +262,31 @@ public sealed partial class PlatformIdentityTests : IClassFixture<PlatformIdenti
     public sealed class Factory : ApiFactory, IAsyncLifetime
     {
         private static readonly SemaphoreSlim ClientLock = new(1, 1);
+
+        /// <summary>The daily log files of this host (S-07 reads them back through the Log page API).</summary>
+        public string LogRoot { get; } = Path.Combine(Path.GetTempPath(), "auxilia-api-logs-" + Guid.NewGuid().ToString("N"));
+
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            base.ConfigureWebHost(builder);
+            builder.UseSetting("AuxiliaLogging:Storage", "local-file");
+            builder.UseSetting("AuxiliaLogging:LocalPath", LogRoot);
+            builder.UseSetting("AuxiliaLogging:BufferPath", Path.Combine(LogRoot, "buffer"));
+            builder.UseSetting("AuxiliaLogging:BatchPeriod", "00:00:00.100");
+        }
+
+        public override async ValueTask DisposeAsync()
+        {
+            await base.DisposeAsync();
+            try
+            {
+                Directory.Delete(LogRoot, recursive: true);
+            }
+            catch (IOException)
+            {
+                // The batched sink may still be flushing its last events: the temporary folder is left to the OS.
+            }
+        }
 
         protected override IApiEndpoints? Endpoints { get; } = new TechnicalEndpoints();
 

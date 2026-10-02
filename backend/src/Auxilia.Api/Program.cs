@@ -13,6 +13,7 @@ using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Infrastructure;
 using Auxilia.Infrastructure.Caching;
+using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Realtime;
 using Auxilia.Persistence.Catalog;
@@ -33,6 +34,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
+builder.Services.AddTenantLogLevelSync();
 
 // The Catalog is the only connection string in configuration (user-secrets / environment, never committed).
 var catalogConnectionString = builder.Configuration.GetConnectionString("Catalog")
@@ -59,6 +61,7 @@ builder.Services.AddRealtime(builder.Configuration.GetConnectionString("Redis"))
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, TenantLogEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, AdministratorEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, ConfigurationEndpoints>();

@@ -93,6 +93,9 @@ public sealed class TenantFileSinkTests : IDisposable
             return Task.CompletedTask;
         }
 
+        public Task<Stream?> OpenReadAsync(string path, CancellationToken cancellationToken) =>
+            Task.FromResult<Stream?>(Files.TryGetValue(path, out var file) ? new MemoryStream(Encoding.UTF8.GetBytes(file.ToString())) : null);
+
         public string[] Lines(string path) =>
             Files[path].ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries);
     }

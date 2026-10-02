@@ -483,6 +483,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/tenants/{slug}/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Events of the tenant's daily log files, newest first, by date range (UTC days, at most 31) and filters */
+        get: operations["SearchPlatformTenantLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{slug}/log-level": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The default log level and, while it runs, the end of the tenant's debug logging */
+        get: operations["GetPlatformTenantLogLevel"];
+        /** Writes the tenant's Debug events until the given instant (within 24 hours); it ends by itself */
+        put: operations["EnablePlatformTenantDebugLogging"];
+        post?: never;
+        /** Back to the default log level for the tenant now */
+        delete: operations["DisablePlatformTenantDebugLogging"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/i18n/languages": {
         parameters: {
             query?: never;
@@ -1236,6 +1272,10 @@ export interface components {
             module: string;
             nameKey: string;
         };
+        EnableTenantDebugLoggingRequest: {
+            /** Format: date-time */
+            until: string;
+        };
         ForgotPasswordRequest: {
             userName: string;
         };
@@ -1618,6 +1658,30 @@ export interface components {
             email: null | string;
             isActive: boolean;
             isActivated: boolean;
+        };
+        TenantLogEntryResponse: {
+            /** Format: date-time */
+            timestamp: string;
+            level: string;
+            eventCode: null | string;
+            message: string;
+            exception: null | string;
+            traceId: null | string;
+            userId: null | string;
+            operation: null | string;
+            source: null | string;
+            properties: {
+                [key: string]: string;
+            };
+        };
+        TenantLogLevelResponse: {
+            defaultLevel: string;
+            /** Format: date-time */
+            debugUntil: null | string;
+        };
+        TenantLogPageResponse: {
+            items: components["schemas"]["TenantLogEntryResponse"][];
+            nextCursor: null | string;
         };
         TenantModuleResponse: {
             code: string;
@@ -2954,6 +3018,189 @@ export interface operations {
             };
             /** @description Conflict */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SearchPlatformTenantLogs: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                level?: string;
+                code?: string;
+                traceId?: string;
+                userId?: string;
+                text?: string;
+                cursor?: string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantLogPageResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetPlatformTenantLogLevel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantLogLevelResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    EnablePlatformTenantDebugLogging: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnableTenantDebugLoggingRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantLogLevelResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DisablePlatformTenantDebugLogging: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TenantLogLevelResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

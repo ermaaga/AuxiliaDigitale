@@ -8,7 +8,8 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * Platform console (N02, D-21, D-22): activation of a System account (authenticator enrolment), sign-in with
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
  * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03),
- * custom fields and grid layouts (S-04), translations (S-05), role permissions and specializations (S-06), sign-out.
+ * custom fields and grid layouts (S-04), translations (S-05), role permissions and specializations (S-06), logs and
+ * temporary debug level (S-07), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -599,6 +600,39 @@ test("console journey of a System user", async ({ page }) => {
       .click();
     await expect(page.getByText(t("app.platform.specializations.deleted"))).toBeVisible();
     await expect(row).toHaveCount(0);
+  });
+
+  await test.step("logs: debug level for a while, then the tenant's own events", async () => {
+    await page.goto(`/platform/tenants/${E2E.tenant}/logs`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.logs.title"), level: 1 }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(t("app.platform.logs.levelDefault", { level: "Information" })),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: t("app.platform.logs.enableDebug") }).click();
+    await expect(page.getByText(t("app.platform.logs.debugEnabled"))).toBeVisible();
+    const disable = page.getByRole("button", { name: t("app.platform.logs.disableDebug") });
+    await expect(disable).toBeVisible();
+
+    // The change itself is a security event in the tenant's file (written in batches): search it by code.
+    await page.getByLabel(t("app.platform.logs.code")).fill("AUX-29025");
+    await expect(page).toHaveURL(/filter%5Bcode%5D=AUX-29025|filter\[code\]=AUX-29025/);
+    const events = page.getByRole("list", { name: t("app.platform.logs.events") });
+    await expect(async () => {
+      await page.reload();
+      await expect(events).toContainText("AUX-29025", { timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
+
+    await events.locator("summary").first().click();
+    await expect(events.getByText(t("app.platform.logs.operation"))).toBeVisible();
+    await expect(events).toContainText("Tenancy.ChangeLogLevel");
+    await expectAccessible(page, "tenant logs");
+
+    await disable.click();
+    await expect(page.getByText(t("app.platform.logs.debugDisabled"))).toBeVisible();
+    await expect(disable).toHaveCount(0);
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {
