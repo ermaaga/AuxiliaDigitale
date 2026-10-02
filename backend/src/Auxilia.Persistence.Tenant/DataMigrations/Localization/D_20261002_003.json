@@ -1,0 +1,56 @@
+[
+ {
+  "key": "grids.directory.employees.name",
+  "category": "grids",
+  "en": "Employees",
+  "it": "Operatori"
+ },
+ {
+  "key": "app.employees.specializations",
+  "category": "app",
+  "en": "Specializations",
+  "it": "Specializzazioni"
+ },
+ {
+  "key": "app.employees.assignedClients",
+  "category": "app",
+  "en": "Assigned clients",
+  "it": "Clienti assegnati"
+ },
+ {
+  "key": "validation.employees.status",
+  "category": "validation",
+  "en": "Unknown employee status.",
+  "it": "Stato dell'operatore sconosciuto."
+ },
+ {
+  "key": "validation.employees.specializations",
+  "category": "validation",
+  "en": "Choose active employee specializations only.",
+  "it": "Scegli solo specializzazioni attive degli operatori."
+ },
+ {
+  "key": "validation.employees.administrator",
+  "category": "validation",
+  "en": "Choose an active administrator.",
+  "it": "Scegli un amministratore attivo."
+ },
+ {
+  "key": "errors.AUX-13029",
+  "category": "errors",
+  "en": "The employee does not exist or has been deleted.",
+  "it": "L'operatore non esiste o è stato eliminato."
+ },
+ {
+  "key": "errors.AUX-13030",
+  "category": "errors",
+  "en": "The default employee cannot be disabled or deleted: choose another default employee first.",
+  "it": "L'operatore predefinito non può essere disattivato né eliminato: scegli prima un altro operatore predefinito."
+ },
+ {
+  "key": "errors.AUX-13031",
+  "category": "errors",
+  "en": "Only an employee who can sign in can become the default employee.",
+  "it": "Solo un operatore che può accedere può diventare l'operatore predefinito."
+ }
+]

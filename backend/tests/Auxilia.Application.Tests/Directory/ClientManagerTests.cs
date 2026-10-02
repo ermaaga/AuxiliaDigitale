@@ -102,6 +102,18 @@ public sealed class ClientManagerTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task CreateAsync_ByAdministrator_WithoutEmployee_GoesToTheDefaultEmployee()
+    {
+        await CreateAsync();
+        data.DefaultEmployee = OtherEmployee;
+
+        await CreateAsync(Request(email: "luigi@example.test", fiscalCode: "VRDLGU80A01H501X"));
+        await CreateAsync(Request(email: "anna@example.test", fiscalCode: "BNCNNA80A41H501S", employee: Employee));
+
+        data.Profiles.Select(profile => profile.EmployeeUserId).ShouldBe([null, OtherEmployee, Employee]);
+    }
+
+    [Fact]
     public async Task CreateAsync_ByEmployee_CannotSignIn_IsNotInvited_AndIsAssignedToThatEmployee()
     {
         CallAs(Employee, TenantRole.Employee);
@@ -271,6 +283,8 @@ public sealed class ClientManagerTests : IAsyncDisposable
         data.LastFilter!.EmployeeUserId.ShouldBe(Employee);
         (await query.ListAsync(new ClientListQuery(null, null, null, null, null, null, null, "-email", 1, 25), Ct)).Value.TotalCount.ShouldBe(2);
         (data.LastFilter.EmployeeUserId, data.LastFilter.Sort, data.LastFilter.Descending).ShouldBe((null, ClientSort.Email, true));
+        (await query.ListAsync(new ClientListQuery(null, null, null, null, null, null, null, null, 1, 25, OtherEmployee), Ct)).Value.TotalCount.ShouldBe(1);
+        data.LastFilter.EmployeeUserId.ShouldBe(OtherEmployee);
 
         var invalid = await query.ListAsync(new ClientListQuery("team", null, null, null, null, null, "Gone", "age", 0, 500), Ct);
         invalid.Error!.ValidationErrors.Keys.ShouldBe(["page", "pageSize", "view", "sort", "status"], ignoreOrder: true);
@@ -318,6 +332,10 @@ internal sealed class InMemoryClientData : IClientDataFactory, IClientData
 
     public Task<IReadOnlyList<EmployeeName>> AssignableEmployeesAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<EmployeeName>>([]);
+
+    public Guid? DefaultEmployee { get; set; }
+
+    public Task<Guid?> DefaultEmployeeAsync(CancellationToken cancellationToken) => Task.FromResult(DefaultEmployee);
 
     public Task<IReadOnlyList<Specialization>> ClientSpecializationsAsync(CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<Specialization>>(Specializations.ToArray());

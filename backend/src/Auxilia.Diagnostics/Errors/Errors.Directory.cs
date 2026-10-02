@@ -31,7 +31,7 @@ public static partial class Errors
             Error.NotFound(EventCodes.Directory.ClientNotFound, "Client not found");
 
         public static Error FiscalCodeTaken() =>
-            Error.Conflict(EventCodes.Directory.FiscalCodeTaken, "Another client has this fiscal code");
+            Error.Conflict(EventCodes.Directory.FiscalCodeTaken, "Another person has this fiscal code");
 
         public static Error ClientEmployeeRequired() =>
             Error.Conflict(EventCodes.Directory.ClientEmployeeRequired, "Assign an employee before enabling the client's sign-in");
@@ -43,5 +43,22 @@ public static partial class Errors
         public static Error ClientSpecializationInvalid() =>
             Error.Validation(EventCodes.Directory.ClientSpecializationInvalid, "Every specialization must be an active Client specialization",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["specializationIds"] = ["validation.clients.specializations"] });
+
+        public static Error EmployeeNotFound() =>
+            Error.NotFound(EventCodes.Directory.EmployeeNotFound, "Employee not found");
+
+        public static Error EmployeeIsDefault() =>
+            Error.Conflict(EventCodes.Directory.EmployeeIsDefault, "The default employee cannot be disabled or deleted; choose another default employee first");
+
+        public static Error DefaultEmployeeInactive() =>
+            Error.Conflict(EventCodes.Directory.DefaultEmployeeInactive, "Only an employee who can sign in can become the default employee");
+
+        public static Error EmployeeSpecializationInvalid() =>
+            Error.Validation(EventCodes.Directory.EmployeeSpecializationInvalid, "Every specialization must be an active Employee specialization",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["specializationIds"] = ["validation.employees.specializations"] });
+
+        public static Error AdministratorInvalid() =>
+            Error.Validation(EventCodes.Directory.AdministratorInvalid, "The administrator must be an active user with the Administrator role",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["administratorUserId"] = ["validation.employees.administrator"] });
     }
 }

@@ -71,6 +71,7 @@ builder.Services.AddSingleton<IApiEndpoints, RolePermissionEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, SpecializationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ClientEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, EmployeeEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 

@@ -24,7 +24,7 @@ Status: [~] in progress (backend B-01 done; UI B-04) · Tasks: B-01, B-04, B-08 
 ## Acceptance criteria
 - [ ] One `/clients` page with views "My clients" (assigned to me), "All clients" and "Overview" (F07); columns configurable (F21) incl. custom fields.
 - [x] Filters and sorts listed above work server-side with paging. (B-01: `GET /clients`)
-- [ ] Create client (wizard): mandatory fields, CF regex + uniqueness inline check, e-mail as username (unique), custom fields; created by Admin → active; created by Employee → not active and assigned to that employee; no employee → default employee.
+- [ ] Create client (wizard): mandatory fields, CF regex + uniqueness inline check, e-mail as username (unique), custom fields; created by Admin → active; created by Employee → not active and assigned to that employee; no employee → default employee (API rules done in B-01; default employee B-02; wizard B-04)
 - [ ] Client 360° detail with tabs: overview, cases, documents, appointments, requests, notes/timeline, custom fields.
 - [x] Admin can change assigned employee (history kept) or remove it. (B-01 API)
 - [x] Admin can set a new password for a client (or send activation/reset link). (B-01 API: temporary password or reset link; activation link)

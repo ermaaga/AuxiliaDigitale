@@ -24,8 +24,9 @@ namespace Auxilia.Application.Directory;
 public interface IClientManager
 {
     /// <summary>
-    /// Administrator: the client can sign in and is assigned to the employee given, if any. Employee: the client cannot
-    /// sign in yet and is assigned to that employee. The activation e-mail leaves after the commit (D-06).
+    /// Administrator: the client can sign in and is assigned to the employee given, otherwise to the default employee
+    /// (Q31) if any. Employee: the client cannot sign in yet and is assigned to that employee. The activation e-mail
+    /// leaves after the commit (D-06).
     /// </summary>
     Task<Result<CreateClientResponse>> CreateAsync(CreateClientRequest request, CancellationToken cancellationToken);
 
@@ -136,6 +137,9 @@ internal sealed class ClientManager(
             }
 
             await using var store = await data.OpenAsync(cancellationToken);
+
+            // Q31: without an employee the client goes to the default employee, when there is one who can sign in.
+            employee ??= await store.DefaultEmployeeAsync(cancellationToken);
             if (await store.FiscalCodeTakenAsync(person.Value.FiscalCode!, null, cancellationToken))
             {
                 return Errors.Directory.FiscalCodeTaken();
@@ -455,7 +459,7 @@ internal sealed class ClientQueryService(IClientDataFactory data, IUserAccounts 
         }
 
         // "My clients" of a caller who is not an employee is empty, never everyone.
-        var mine = view == ViewMine ? currentUser.UserId ?? Guid.Empty : (Guid?)null;
+        var mine = view == ViewMine ? currentUser.UserId ?? Guid.Empty : query.EmployeeUserId;
         await using var store = await data.OpenAsync(cancellationToken);
         var (items, total) = await store.PageAsync(
             new ClientFilter(

@@ -69,6 +69,9 @@ public interface IClientData : IAsyncDisposable
     /// <summary>Users with the Employee role who can sign in, by name: who a client can be assigned to.</summary>
     Task<IReadOnlyList<EmployeeName>> AssignableEmployeesAsync(CancellationToken cancellationToken);
 
+    /// <summary>The default employee (Q31) when it can sign in; <c>null</c> otherwise.</summary>
+    Task<Guid?> DefaultEmployeeAsync(CancellationToken cancellationToken);
+
     /// <summary>Active specializations of the Client role (tracked, with members).</summary>
     Task<IReadOnlyList<Specialization>> ClientSpecializationsAsync(CancellationToken cancellationToken);
 

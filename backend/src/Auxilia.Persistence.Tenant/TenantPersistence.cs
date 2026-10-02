@@ -61,6 +61,7 @@ public static class TenantPersistence
         services.AddScoped<IRolePermissionDataFactory, RolePermissionDataFactory>();
         services.AddScoped<Application.Abstractions.Directory.ISpecializationDataFactory, Directory.SpecializationDataFactory>();
         services.AddScoped<Application.Abstractions.Directory.IClientDataFactory, Directory.ClientDataFactory>();
+        services.AddScoped<Application.Abstractions.Directory.IEmployeeDataFactory, Directory.EmployeeDataFactory>();
         services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
         services.AddScoped<ILocalizationDataFactory, LocalizationDataFactory>();
         services.AddScoped<ILocalizationReader, LocalizationReader>();

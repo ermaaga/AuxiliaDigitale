@@ -13,7 +13,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 59 | 12060 |
-| 13000–13999 | Directory | Directory (clients, employees) | 21 | 13022 |
+| 13000–13999 | Directory | Directory (clients, employees) | 33 | 13034 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
@@ -162,6 +162,18 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-13019 | Directory.ClientEmployeeRequired | – | Conflict | – | – |
 | AUX-13020 | Directory.EmployeeInvalid | – | Validation | – | – |
 | AUX-13021 | Directory.ClientSpecializationInvalid | – | Validation | – | – |
+| AUX-13022 | Directory.EmployeeCreated | – | – | Directory.CreateEmployee (success) | – |
+| AUX-13023 | Directory.EmployeeUpdated | – | – | Directory.UpdateEmployee (success) | – |
+| AUX-13024 | Directory.EmployeeDeleted | – | – | Directory.DeleteEmployee (success) | – |
+| AUX-13025 | Directory.EmployeeSignInChanged | – | – | Directory.ChangeEmployeeSignIn (success) | – |
+| AUX-13026 | Directory.DefaultEmployeeChanged | – | – | Directory.ChangeDefaultEmployee (success) | – |
+| AUX-13027 | Directory.EmployeeSpecializationsChanged | – | – | Directory.ChangeEmployeeSpecializations (success) | – |
+| AUX-13028 | Directory.EmployeeAdministratorChanged | – | – | Directory.ChangeEmployeeAdministrator (success) | – |
+| AUX-13029 | Directory.EmployeeNotFound | – | NotFound | – | – |
+| AUX-13030 | Directory.EmployeeIsDefault | – | Conflict | – | – |
+| AUX-13031 | Directory.DefaultEmployeeInactive | – | Conflict | – | – |
+| AUX-13032 | Directory.EmployeeSpecializationInvalid | – | Validation | – | – |
+| AUX-13033 | Directory.AdministratorInvalid | – | Validation | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

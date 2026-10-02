@@ -56,7 +56,7 @@ public static partial class EventCodes
         /// <summary>No client with this id (404).</summary>
         public const int ClientNotFound = 13017;
 
-        /// <summary>Another client has the fiscal code (409, Q54).</summary>
+        /// <summary>Another person (client or employee) has the fiscal code (409, Q54).</summary>
         public const int FiscalCodeTaken = 13018;
 
         /// <summary>Sign-in cannot be enabled for a client without an assigned employee (409, Q60).</summary>
@@ -67,5 +67,41 @@ public static partial class EventCodes
 
         /// <summary>A specialization to give to a client is not an active Client specialization (400).</summary>
         public const int ClientSpecializationInvalid = 13021;
+
+        /// <summary>An employee was created (person, employee profile and user account, F06).</summary>
+        public const int EmployeeCreated = 13022;
+
+        /// <summary>The personal data or user name of an employee changed.</summary>
+        public const int EmployeeUpdated = 13023;
+
+        /// <summary>An employee was deleted (soft delete): sign-in disabled, clients handed to the default employee.</summary>
+        public const int EmployeeDeleted = 13024;
+
+        /// <summary>An employee's sign-in was enabled or disabled.</summary>
+        public const int EmployeeSignInChanged = 13025;
+
+        /// <summary>Another employee became the default one (Q31).</summary>
+        public const int DefaultEmployeeChanged = 13026;
+
+        /// <summary>The specializations of an employee changed.</summary>
+        public const int EmployeeSpecializationsChanged = 13027;
+
+        /// <summary>The administrator an employee reports to changed or was removed (Q32).</summary>
+        public const int EmployeeAdministratorChanged = 13028;
+
+        /// <summary>No employee with this id (404).</summary>
+        public const int EmployeeNotFound = 13029;
+
+        /// <summary>The default employee cannot be disabled or deleted: choose another default first (409, Q31).</summary>
+        public const int EmployeeIsDefault = 13030;
+
+        /// <summary>Only an employee who can sign in can become the default one (409).</summary>
+        public const int DefaultEmployeeInactive = 13031;
+
+        /// <summary>A specialization to give to an employee is not an active Employee specialization (400).</summary>
+        public const int EmployeeSpecializationInvalid = 13032;
+
+        /// <summary>The administrator to report to is not an active user with the Administrator role (400, Q32).</summary>
+        public const int AdministratorInvalid = 13033;
     }
 }

@@ -1154,7 +1154,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone and status */
+        /** Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone, status and employee */
         get: operations["ListClients"];
         put?: never;
         /** Creates a client (e-mail = user name); by an Administrator it can sign in and gets the activation e-mail */
@@ -1281,6 +1281,163 @@ export interface paths {
         put?: never;
         /** E-mails a reset link, or sets a temporary password shown once (changed at the next sign-in) */
         post: operations["ResetClientPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employees filtered by name, surname, e-mail, user name, phone and status (active/inactive) */
+        get: operations["ListEmployees"];
+        put?: never;
+        /** Creates an employee (e-mail = user name); with sign-in enabled the activation e-mail leaves at once */
+        post: operations["CreateEmployee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/administrators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Administrators an employee can report to (Administrator role, can sign in) */
+        get: operations["ListEmployeeAdministrators"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An employee: personal data, account, default flag, administrator, specializations, workload */
+        get: operations["GetEmployee"];
+        /** Changes personal data and user name of an employee */
+        put: operations["UpdateEmployee"];
+        post?: never;
+        /** Deletes an employee (soft delete): sign-in disabled, clients handed to the default employee */
+        delete: operations["DeleteEmployee"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/sign-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Enables or disables the employee's sign-in; the default employee cannot be disabled */
+        put: operations["SetEmployeeSignIn"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Makes the employee the default one, who receives the clients created without an employee */
+        put: operations["SetDefaultEmployee"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/specializations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replaces the employee's Employee specializations */
+        put: operations["SetEmployeeSpecializations"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/administrator": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Sets the administrator the employee reports to */
+        put: operations["SetEmployeeAdministrator"];
+        post?: never;
+        /** The employee reports to no administrator from now on */
+        delete: operations["RemoveEmployeeAdministrator"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** E-mails a new activation link to an employee who has not activated the account */
+        post: operations["SendEmployeeInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/employees/{id}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** E-mails a reset link, or sets a temporary password shown once (changed at the next sign-in) */
+        post: operations["ResetEmployeePassword"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1432,6 +1589,22 @@ export interface components {
             /** Format: uuid */
             id: string;
         };
+        CreateEmployeeRequest: {
+            firstName: string;
+            lastName: string;
+            /** Format: date */
+            birthDate: null | string;
+            email: string;
+            phone: null | string;
+            fiscalCode: null | string;
+            canSignIn: boolean;
+        };
+        CreateEmployeeResponse: {
+            /** Format: uuid */
+            id: string;
+            invitationSent: boolean;
+            invitationErrorCode: null | string;
+        };
         CreateMessagingAccountRequest: {
             channel: string;
             provider: string;
@@ -1499,6 +1672,63 @@ export interface components {
             code: string;
             module: string;
             nameKey: string;
+        };
+        EmployeeAdministratorResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
+        };
+        EmployeeDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            personId: string;
+            firstName: string;
+            lastName: string;
+            email: null | string;
+            /** Format: date */
+            birthDate: null | string;
+            phone: null | string;
+            fiscalCode: null | string;
+            userName: string;
+            canSignIn: boolean;
+            isActivated: boolean;
+            isDefault: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            administrator: null | components["schemas"]["EmployeeAdministratorResponse"];
+            specializations: components["schemas"]["EmployeeSpecializationResponse"][];
+            workload: components["schemas"]["EmployeeWorkloadResponse"];
+        };
+        EmployeeInvitationResponse: {
+            sent: boolean;
+            errorCode: null | string;
+        };
+        EmployeeListItemResponse: {
+            /** Format: uuid */
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: null | string;
+            userName: string;
+            phone: null | string;
+            canSignIn: boolean;
+            isDefault: boolean;
+            /** Format: int32 */
+            assignedClients: number | string;
+            specializations: components["schemas"]["EmployeeSpecializationResponse"][];
+        };
+        EmployeePasswordResetResponse: {
+            temporaryPassword: null | string;
+        };
+        EmployeeSpecializationResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        EmployeeWorkloadResponse: {
+            /** Format: int32 */
+            assignedClients: number | string;
         };
         EnableTenantDebugLoggingRequest: {
             /** Format: date-time */
@@ -1663,6 +1893,15 @@ export interface components {
             /** Format: int64 */
             totalCount: number | string;
         };
+        PagedResponseOfEmployeeListItemResponse: {
+            items: components["schemas"]["EmployeeListItemResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
         PagedResponseOfLoginAttemptResponse: {
             items: components["schemas"]["LoginAttemptResponse"][];
             /** Format: int32 */
@@ -1774,6 +2013,9 @@ export interface components {
         ResetClientPasswordRequest: {
             sendLink: boolean;
         };
+        ResetEmployeePasswordRequest: {
+            sendLink: boolean;
+        };
         ResetPasswordRequest: {
             token: string;
             password: string;
@@ -1830,6 +2072,16 @@ export interface components {
             canSignIn: boolean;
         };
         SetClientSpecializationsRequest: {
+            specializationIds: string[];
+        };
+        SetEmployeeAdministratorRequest: {
+            /** Format: uuid */
+            administratorUserId: string;
+        };
+        SetEmployeeSignInRequest: {
+            canSignIn: boolean;
+        };
+        SetEmployeeSpecializationsRequest: {
             specializationIds: string[];
         };
         SetGridLayoutRequest: {
@@ -1983,6 +2235,16 @@ export interface components {
             dashboardCounter: boolean;
             /** Format: int32 */
             order: number | string;
+        };
+        UpdateEmployeeRequest: {
+            firstName: string;
+            lastName: string;
+            /** Format: date */
+            birthDate: null | string;
+            email: string;
+            phone: null | string;
+            fiscalCode: null | string;
+            userName: string;
         };
         UpdateMessagingAccountRequest: {
             name: string;
@@ -6043,6 +6305,7 @@ export interface operations {
                 "filter[userName]"?: string;
                 "filter[phone]"?: string;
                 "filter[status]"?: string;
+                "filter[employeeUserId]"?: string;
                 sort?: string;
                 page?: number | string;
                 pageSize?: number | string;
@@ -6491,6 +6754,534 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClientPasswordResetResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListEmployees: {
+        parameters: {
+            query?: {
+                "filter[fullName]"?: string;
+                "filter[lastName]"?: string;
+                "filter[email]"?: string;
+                "filter[userName]"?: string;
+                "filter[phone]"?: string;
+                "filter[status]"?: string;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfEmployeeListItemResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEmployeeRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateEmployeeResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListEmployeeAdministrators: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeAdministratorResponse"][];
+                };
+            };
+        };
+    };
+    GetEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmployeeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetEmployeeSignIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetEmployeeSignInRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetDefaultEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetEmployeeSpecializations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetEmployeeSpecializationsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetEmployeeAdministrator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetEmployeeAdministratorRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RemoveEmployeeAdministrator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SendEmployeeInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeInvitationResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ResetEmployeePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetEmployeePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeePasswordResetResponse"];
                 };
             };
             /** @description Bad Request */

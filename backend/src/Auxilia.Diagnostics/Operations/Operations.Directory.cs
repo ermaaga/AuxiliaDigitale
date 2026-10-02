@@ -25,5 +25,19 @@ public static partial class Operations
         public static readonly OperationDescriptor ChangeClientAssignment = new("Directory.ChangeClientAssignment", EventCodes.Directory.ClientAssignmentChanged);
 
         public static readonly OperationDescriptor ChangeClientSpecializations = new("Directory.ChangeClientSpecializations", EventCodes.Directory.ClientSpecializationsChanged);
+
+        public static readonly OperationDescriptor CreateEmployee = new("Directory.CreateEmployee", EventCodes.Directory.EmployeeCreated);
+
+        public static readonly OperationDescriptor UpdateEmployee = new("Directory.UpdateEmployee", EventCodes.Directory.EmployeeUpdated);
+
+        public static readonly OperationDescriptor DeleteEmployee = new("Directory.DeleteEmployee", EventCodes.Directory.EmployeeDeleted);
+
+        public static readonly OperationDescriptor ChangeEmployeeSignIn = new("Directory.ChangeEmployeeSignIn", EventCodes.Directory.EmployeeSignInChanged);
+
+        public static readonly OperationDescriptor ChangeDefaultEmployee = new("Directory.ChangeDefaultEmployee", EventCodes.Directory.DefaultEmployeeChanged);
+
+        public static readonly OperationDescriptor ChangeEmployeeSpecializations = new("Directory.ChangeEmployeeSpecializations", EventCodes.Directory.EmployeeSpecializationsChanged);
+
+        public static readonly OperationDescriptor ChangeEmployeeAdministrator = new("Directory.ChangeEmployeeAdministrator", EventCodes.Directory.EmployeeAdministratorChanged);
     }
 }
