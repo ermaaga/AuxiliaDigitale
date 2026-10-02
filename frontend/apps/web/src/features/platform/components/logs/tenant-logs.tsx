@@ -309,7 +309,7 @@ function LogEventRow({
           {event.eventCode ? <code className="text-xs">{event.eventCode}</code> : null}
           <span className="min-w-0 flex-1 break-words">{event.message}</span>
         </summary>
-        <dl className="grid gap-x-4 gap-y-2 border-t bg-muted/30 px-3 py-3 text-sm sm:grid-cols-[max-content_1fr]">
+        <dl className="grid gap-x-4 gap-y-2 border-t px-3 py-3 text-sm sm:grid-cols-[max-content_1fr]">
           {event.traceId ? (
             <Detail label={t("app.platform.logs.traceId")}>
               <span className="flex flex-wrap items-center gap-2">
