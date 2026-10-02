@@ -1,6 +1,6 @@
 # F05 — Client management
 
-Status: [ ] not started · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
+Status: [~] in progress (backend B-01 done; UI B-04) · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
 
 ## Legacy behaviour
 **Lists**
@@ -23,13 +23,13 @@ Status: [ ] not started · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29
 
 ## Acceptance criteria
 - [ ] One `/clients` page with views "My clients" (assigned to me), "All clients" and "Overview" (F07); columns configurable (F21) incl. custom fields.
-- [ ] Filters and sorts listed above work server-side with paging.
+- [x] Filters and sorts listed above work server-side with paging. (B-01: `GET /clients`)
 - [ ] Create client (wizard): mandatory fields, CF regex + uniqueness inline check, e-mail as username (unique), custom fields; created by Admin → active; created by Employee → not active and assigned to that employee; no employee → default employee.
 - [ ] Client 360° detail with tabs: overview, cases, documents, appointments, requests, notes/timeline, custom fields.
-- [ ] Admin can change assigned employee (history kept) or remove it.
-- [ ] Admin can set a new password for a client (or send activation/reset link).
-- [ ] Employee can set the client's specialization(s).
-- [ ] Enabling a client without an assigned employee is refused with a coded error.
+- [x] Admin can change assigned employee (history kept) or remove it. (B-01 API)
+- [x] Admin can set a new password for a client (or send activation/reset link). (B-01 API: temporary password or reset link; activation link)
+- [x] Employee can set the client's specialization(s). (B-01 API, many — Q30)
+- [x] Enabling a client without an assigned employee is refused with a coded error. (`AUX-13019`)
 - [ ] Client status recomputed on case create/delete/complete and by the expiry job, following Q03.
-- [ ] Delete is a soft delete with confirmation; deleted clients disappear from lists.
+- [~] Delete is a soft delete with confirmation; deleted clients disappear from lists. (B-01 API; confirmation in B-04)
 - [ ] Creating a case from the client requires an assigned employee (admin) — or auto-assigns the default one.

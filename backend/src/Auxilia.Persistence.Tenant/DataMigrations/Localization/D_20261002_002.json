@@ -1,0 +1,122 @@
+[
+ {
+  "key": "permissions.directory.clients.assign.description",
+  "category": "permissions",
+  "en": "Assign or remove the employee in charge of a client",
+  "it": "Assegnare o togliere l'operatore che segue un cliente"
+ },
+ {
+  "key": "permissions.directory.clients.delete.description",
+  "category": "permissions",
+  "en": "Delete clients",
+  "it": "Eliminare clienti"
+ },
+ {
+  "key": "permissions.directory.clients.credentials.description",
+  "category": "permissions",
+  "en": "Reset a client's password (reset link or temporary password)",
+  "it": "Reimpostare la password di un cliente (link di reimpostazione o password temporanea)"
+ },
+ {
+  "key": "grids.directory.clients.name",
+  "category": "grids",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "app.clients.fiscalCode",
+  "category": "app",
+  "en": "Fiscal code",
+  "it": "Codice fiscale"
+ },
+ {
+  "key": "app.clients.employee",
+  "category": "app",
+  "en": "Employee in charge",
+  "it": "Operatore assegnato"
+ },
+ {
+  "key": "app.clients.canSignIn",
+  "category": "app",
+  "en": "Can sign in",
+  "it": "Può accedere"
+ },
+ {
+  "key": "validation.person.firstName",
+  "category": "validation",
+  "en": "Enter the first name (at most 100 characters).",
+  "it": "Inserisci il nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.person.lastName",
+  "category": "validation",
+  "en": "Enter the surname (at most 100 characters).",
+  "it": "Inserisci il cognome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.person.email",
+  "category": "validation",
+  "en": "Enter a valid e-mail address.",
+  "it": "Inserisci un indirizzo e-mail valido."
+ },
+ {
+  "key": "validation.person.birthDate",
+  "category": "validation",
+  "en": "Enter a birth date between 1900 and today.",
+  "it": "Inserisci una data di nascita tra il 1900 e oggi."
+ },
+ {
+  "key": "validation.person.phone",
+  "category": "validation",
+  "en": "The phone number has 8 to 20 characters: digits, spaces, +, -, ( and ).",
+  "it": "Il telefono ha da 8 a 20 caratteri: cifre, spazi, +, -, ( e )."
+ },
+ {
+  "key": "validation.person.fiscalCode",
+  "category": "validation",
+  "en": "Enter a valid Italian fiscal code (16 characters).",
+  "it": "Inserisci un codice fiscale italiano valido (16 caratteri)."
+ },
+ {
+  "key": "validation.clients.employee",
+  "category": "validation",
+  "en": "Choose an active employee.",
+  "it": "Scegli un operatore attivo."
+ },
+ {
+  "key": "validation.clients.specializations",
+  "category": "validation",
+  "en": "Choose active client specializations only.",
+  "it": "Scegli solo specializzazioni attive dei clienti."
+ },
+ {
+  "key": "validation.clients.view",
+  "category": "validation",
+  "en": "Unknown list view.",
+  "it": "Vista dell'elenco sconosciuta."
+ },
+ {
+  "key": "validation.clients.status",
+  "category": "validation",
+  "en": "Unknown client status.",
+  "it": "Stato del cliente sconosciuto."
+ },
+ {
+  "key": "errors.AUX-13017",
+  "category": "errors",
+  "en": "The client does not exist or has been deleted.",
+  "it": "Il cliente non esiste o è stato eliminato."
+ },
+ {
+  "key": "errors.AUX-13018",
+  "category": "errors",
+  "en": "Another client already has this fiscal code.",
+  "it": "Un altro cliente ha già questo codice fiscale."
+ },
+ {
+  "key": "errors.AUX-13019",
+  "category": "errors",
+  "en": "Assign an employee to the client before enabling sign-in.",
+  "it": "Assegna un operatore al cliente prima di abilitarne l'accesso."
+ }
+]

@@ -30,6 +30,12 @@ internal sealed class IdentityData(ITenantDbContext db) : IIdentityData
     public Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken) =>
         db.Set<Person>().AnyAsync(person => person.Id == personId, cancellationToken);
 
+    public Task<User?> FindByPersonAsync(Guid personId, CancellationToken cancellationToken) =>
+        db.Set<User>().SingleOrDefaultAsync(user => user.PersonId == personId, cancellationToken);
+
+    public async Task<IReadOnlyList<User>> FindManyAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        await db.Set<User>().AsNoTracking().Where(user => userIds.Contains(user.Id)).ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<User>> UsersWithRoleAsync(TenantRole role, CancellationToken cancellationToken) =>
         await db.Set<User>()
             .Where(user => EF.Property<List<UserRole>>(user, "roles").Any(item => item.Role == role))

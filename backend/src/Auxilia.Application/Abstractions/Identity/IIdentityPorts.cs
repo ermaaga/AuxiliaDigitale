@@ -35,6 +35,12 @@ public interface IIdentityData : IAsyncDisposable
 
     Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken);
 
+    /// <summary>The account of the person (tracked), if any.</summary>
+    Task<User?> FindByPersonAsync(Guid personId, CancellationToken cancellationToken);
+
+    /// <summary>The accounts among <paramref name="userIds"/> that exist (read-only).</summary>
+    Task<IReadOnlyList<User>> FindManyAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
     /// <summary>Users that have the role (tracked), by user name.</summary>
     Task<IReadOnlyList<User>> UsersWithRoleAsync(Auxilia.SharedKernel.Tenancy.TenantRole role, CancellationToken cancellationToken);
 

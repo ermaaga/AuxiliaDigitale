@@ -26,6 +26,9 @@ public interface IUserAccountManager
     Task<Result> SetActiveAsync(Guid userId, bool isActive, CancellationToken cancellationToken);
 
     Task<Result> SetRolesAsync(Guid userId, IReadOnlyCollection<TenantRole> roles, CancellationToken cancellationToken);
+
+    /// <summary>Changes user name and e-mail; the user name stays unique (Q52).</summary>
+    Task<Result> UpdateAccountAsync(Guid userId, string userName, string? email, CancellationToken cancellationToken);
 }
 
 /// <param name="UserName">Unique, case-insensitive (for clients it is the e-mail, F05).</param>
@@ -119,6 +122,30 @@ internal sealed class UserAccountManager : IUserAccountManager
             }
 
             return Task.FromResult(result);
+        }, cancellationToken);
+
+    public Task<Result> UpdateAccountAsync(Guid userId, string userName, string? email, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Identity.UpdateUserAccount, new { UserId = userId }, async _ =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            if (await store.FindAsync(userId, cancellationToken) is not { } user)
+            {
+                return Errors.Identity.UserNotFound();
+            }
+
+            var name = userName?.Trim() ?? string.Empty;
+            if (!string.Equals(user.UserName, name, StringComparison.OrdinalIgnoreCase) && await store.UserNameExistsAsync(name, cancellationToken))
+            {
+                return Errors.Identity.UserNameTaken();
+            }
+
+            var changed = user.ChangeAccount(name, email);
+            if (changed.IsSuccess)
+            {
+                await store.SaveChangesAsync(cancellationToken);
+            }
+
+            return changed;
         }, cancellationToken);
 
     private Task<Result> ChangeAsync(OperationDescriptor operation, Guid userId, Func<User, Task<Result>> change, CancellationToken cancellationToken) =>

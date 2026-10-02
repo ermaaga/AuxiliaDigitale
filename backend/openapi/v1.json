@@ -5130,6 +5130,697 @@
           }
         }
       }
+    },
+    "/api/v1/clients": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone and status",
+        "operationId": "ListClients",
+        "parameters": [
+          {
+            "name": "view",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[fullName]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[lastName]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[email]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[userName]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[phone]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter[status]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseOfClientListItemResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Creates a client (e-mail = user name); by an Administrator it can sign in and gets the activation e-mail",
+        "operationId": "CreateClient",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClientRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateClientResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/assignable-employees": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Employees a client can be assigned to (Employee role, can sign in)",
+        "operationId": "ListAssignableEmployees",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientEmployeeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "A client: personal data, account, employee in charge with history, specializations",
+        "operationId": "GetClient",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Changes personal data, user name and custom fields of a client",
+        "operationId": "UpdateClient",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClientRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Deletes a client (soft delete): hidden from the lists, sign-in disabled",
+        "operationId": "DeleteClient",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}/sign-in": {
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Enables or disables the client\u0027s sign-in; enabling needs an employee in charge",
+        "operationId": "SetClientSignIn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetClientSignInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}/employee": {
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Hands the client to an employee (the previous assignment ends, history kept)",
+        "operationId": "AssignClientEmployee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignClientEmployeeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Nobody in charge of the client from now on",
+        "operationId": "UnassignClientEmployee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}/specializations": {
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Replaces the client\u0027s Client specializations",
+        "operationId": "SetClientSpecializations",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetClientSpecializationsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}/invitation": {
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "E-mails a new activation link to a client who has not activated the account",
+        "operationId": "SendClientInvitation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientInvitationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clients/{id}/password-reset": {
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "E-mails a reset link, or sets a temporary password shown once (changed at the next sign-in)",
+        "operationId": "ResetClientPassword",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetClientPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientPasswordResetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5161,6 +5852,18 @@
               "type": "string",
               "format": "uuid"
             }
+          }
+        }
+      },
+      "AssignClientEmployeeRequest": {
+        "required": [
+          "employeeUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "employeeUserId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -5274,6 +5977,372 @@
         "properties": {
           "planCode": {
             "type": "string"
+          }
+        }
+      },
+      "ClientAccountResponse": {
+        "required": [
+          "userId",
+          "userName",
+          "canSignIn",
+          "isActivated"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "canSignIn": {
+            "type": "boolean"
+          },
+          "isActivated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClientAssignmentResponse": {
+        "required": [
+          "employeeUserId",
+          "employeeName",
+          "assignedAt",
+          "endedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "employeeUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "employeeName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "assignedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "ClientDetailResponse": {
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "birthDate",
+          "phone",
+          "fiscalCode",
+          "status",
+          "statusChangedAt",
+          "customFields",
+          "account",
+          "employee",
+          "assignments",
+          "specializations"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscalCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "customFields": {
+            "$ref": "#/components/schemas/JsonElement"
+          },
+          "account": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ClientAccountResponse"
+              }
+            ]
+          },
+          "employee": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ClientEmployeeResponse"
+              }
+            ]
+          },
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientAssignmentResponse"
+            }
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientSpecializationResponse"
+            }
+          }
+        }
+      },
+      "ClientEmployeeResponse": {
+        "required": [
+          "userId",
+          "fullName"
+        ],
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fullName": {
+            "type": "string"
+          }
+        }
+      },
+      "ClientInvitationResponse": {
+        "required": [
+          "sent",
+          "errorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean"
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ClientListItemResponse": {
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "userName",
+          "phone",
+          "fiscalCode",
+          "status",
+          "canSignIn",
+          "employee",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "userName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscalCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "canSignIn": {
+            "type": "boolean"
+          },
+          "employee": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ClientEmployeeResponse"
+              }
+            ]
+          },
+          "customFields": {
+            "$ref": "#/components/schemas/JsonElement"
+          }
+        }
+      },
+      "ClientPasswordResetResponse": {
+        "required": [
+          "temporaryPassword"
+        ],
+        "type": "object",
+        "properties": {
+          "temporaryPassword": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "ClientSpecializationResponse": {
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateClientRequest": {
+        "required": [
+          "firstName",
+          "lastName",
+          "birthDate",
+          "email",
+          "phone",
+          "fiscalCode",
+          "customFields",
+          "employeeUserId"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscalCode": {
+            "type": "string"
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          },
+          "employeeUserId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "CreateClientResponse": {
+        "required": [
+          "id",
+          "invitationSent",
+          "invitationErrorCode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "invitationSent": {
+            "type": "boolean"
+          },
+          "invitationErrorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -6255,6 +7324,47 @@
           }
         }
       },
+      "PagedResponseOfClientListItemResponse": {
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "totalCount"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientListItemResponse"
+            }
+          },
+          "page": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "pageSize": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "totalCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
       "PagedResponseOfLoginAttemptResponse": {
         "required": [
           "items",
@@ -6740,6 +7850,17 @@
           }
         }
       },
+      "ResetClientPasswordRequest": {
+        "required": [
+          "sendLink"
+        ],
+        "type": "object",
+        "properties": {
+          "sendLink": {
+            "type": "boolean"
+          }
+        }
+      },
       "ResetPasswordRequest": {
         "required": [
           "token",
@@ -6952,6 +8073,32 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "SetClientSignInRequest": {
+        "required": [
+          "canSignIn"
+        ],
+        "type": "object",
+        "properties": {
+          "canSignIn": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetClientSpecializationsRequest": {
+        "required": [
+          "specializationIds"
+        ],
+        "type": "object",
+        "properties": {
+          "specializationIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -7548,6 +8695,59 @@
           }
         }
       },
+      "UpdateClientRequest": {
+        "required": [
+          "firstName",
+          "lastName",
+          "birthDate",
+          "email",
+          "phone",
+          "fiscalCode",
+          "userName",
+          "customFields"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fiscalCode": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "customFields": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/JsonElement"
+              }
+            ]
+          }
+        }
+      },
       "UpdateCustomFieldRequest": {
         "required": [
           "label",
@@ -7721,6 +8921,9 @@
     },
     {
       "name": "Directory"
+    },
+    {
+      "name": "Clients"
     }
   ]
 }

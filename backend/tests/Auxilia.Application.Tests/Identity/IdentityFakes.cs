@@ -28,6 +28,12 @@ internal sealed class InMemoryIdentityData : IIdentityDataFactory, IIdentityData
 
     public Task<bool> PersonExistsAsync(Guid personId, CancellationToken cancellationToken) => Task.FromResult(People.Contains(personId));
 
+    public Task<User?> FindByPersonAsync(Guid personId, CancellationToken cancellationToken) =>
+        Task.FromResult(Users.SingleOrDefault(user => user.PersonId == personId));
+
+    public Task<IReadOnlyList<User>> FindManyAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<User>>(Users.Where(user => userIds.Contains(user.Id)).ToArray());
+
     public Task<IReadOnlyList<User>> UsersWithRoleAsync(TenantRole role, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<User>>(Users.Where(user => user.Roles.Contains(role)).OrderBy(user => user.UserName, StringComparer.Ordinal).ToArray());
 

@@ -414,30 +414,32 @@ test("console journey of a System user", async ({ page }) => {
     const name = t("grids.identity.loginAttempts.name");
     await expect(page.getByRole("heading", { name, level: 2 })).toBeVisible();
     await expectAccessible(page, "grids");
+    // Other grids repeat column names (directory.clients has "Username" too): act inside this grid only.
+    const grid = page.getByRole("region", { name });
 
-    const ipAddress = page.getByRole("checkbox", {
+    const ipAddress = grid.getByRole("checkbox", {
       name: t("app.identity.loginAttempts.ipAddress"),
     });
     await ipAddress.click();
-    await page
+    await grid
       .getByRole("button", { name: t("app.platform.grids.moveUp", { column: t("Username") }) })
       .click();
-    await page.getByRole("button", { name: t("Save"), exact: true }).click();
+    await grid.getByRole("button", { name: t("Save"), exact: true }).click();
     await expect(page.getByText(t("app.platform.grids.saved"))).toBeVisible();
-    await expect(page.getByText(t("app.platform.grids.customized"))).toBeVisible();
-    const columns = page.getByRole("list", {
+    await expect(grid.getByText(t("app.platform.grids.customized"))).toBeVisible();
+    const columns = grid.getByRole("list", {
       name: t("app.platform.grids.columnsOf", { grid: name, role: t("Administrator") }),
     });
     await expect(columns.getByRole("listitem").first()).toContainText(t("Username"));
     await expect(ipAddress).not.toBeChecked();
 
-    await page.getByRole("button", { name: t("app.platform.grids.reset") }).click();
+    await grid.getByRole("button", { name: t("app.platform.grids.reset") }).click();
     await page
       .getByRole("alertdialog")
       .getByRole("button", { name: t("app.platform.grids.reset") })
       .click();
     await expect(page.getByText(t("app.platform.grids.resetDone"))).toBeVisible();
-    await expect(page.getByText(t("app.platform.grids.default"), { exact: true })).toBeVisible();
+    await expect(grid.getByText(t("app.platform.grids.default"), { exact: true })).toBeVisible();
     await expect(columns.getByRole("listitem").first()).toContainText(t("Date"));
   });
 

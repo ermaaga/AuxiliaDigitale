@@ -56,6 +56,7 @@ public sealed class IdentityModule : IModuleDescriptor
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuthenticationMethod, EmailOtpAuthenticationMethod>());
         services.TryAddScoped<ILoginAuditQueryService, LoginAuditQueryService>();
         services.TryAddScoped<IUserAccountManager, UserAccountManager>();
+        services.TryAddScoped<Public.IUserAccounts, UserAccounts>();
         services.TryAddScoped<IPasswordAuthenticator, PasswordAuthenticator>();
         services.TryAddScoped<ClientApplicationValidator>();
         services.TryAddScoped<ISessionManager, SessionManager>();

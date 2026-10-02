@@ -1147,6 +1147,146 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Clients, all or mine (view=mine), filtered by name, surname, e-mail, user name, phone and status */
+        get: operations["ListClients"];
+        put?: never;
+        /** Creates a client (e-mail = user name); by an Administrator it can sign in and gets the activation e-mail */
+        post: operations["CreateClient"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/assignable-employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employees a client can be assigned to (Employee role, can sign in) */
+        get: operations["ListAssignableEmployees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A client: personal data, account, employee in charge with history, specializations */
+        get: operations["GetClient"];
+        /** Changes personal data, user name and custom fields of a client */
+        put: operations["UpdateClient"];
+        post?: never;
+        /** Deletes a client (soft delete): hidden from the lists, sign-in disabled */
+        delete: operations["DeleteClient"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/sign-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Enables or disables the client's sign-in; enabling needs an employee in charge */
+        put: operations["SetClientSignIn"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/employee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Hands the client to an employee (the previous assignment ends, history kept) */
+        put: operations["AssignClientEmployee"];
+        post?: never;
+        /** Nobody in charge of the client from now on */
+        delete: operations["UnassignClientEmployee"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/specializations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replaces the client's Client specializations */
+        put: operations["SetClientSpecializations"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** E-mails a new activation link to a client who has not activated the account */
+        post: operations["SendClientInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** E-mails a reset link, or sets a temporary password shown once (changed at the next sign-in) */
+        post: operations["ResetClientPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1157,6 +1297,10 @@ export interface components {
         };
         AddSpecializationMembersRequest: {
             userIds: string[];
+        };
+        AssignClientEmployeeRequest: {
+            /** Format: uuid */
+            employeeUserId: string;
         };
         BrandingBackgroundResponse: {
             kind: string;
@@ -1185,6 +1329,90 @@ export interface components {
         };
         ChangeTenantPlanRequest: {
             planCode: string;
+        };
+        ClientAccountResponse: {
+            /** Format: uuid */
+            userId: string;
+            userName: string;
+            canSignIn: boolean;
+            isActivated: boolean;
+        };
+        ClientAssignmentResponse: {
+            /** Format: uuid */
+            employeeUserId: string;
+            employeeName: null | string;
+            /** Format: date-time */
+            assignedAt: string;
+            /** Format: date-time */
+            endedAt: null | string;
+        };
+        ClientDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: null | string;
+            /** Format: date */
+            birthDate: null | string;
+            phone: null | string;
+            fiscalCode: null | string;
+            status: string;
+            /** Format: date-time */
+            statusChangedAt: string;
+            customFields: components["schemas"]["JsonElement"];
+            account: null | components["schemas"]["ClientAccountResponse"];
+            employee: null | components["schemas"]["ClientEmployeeResponse"];
+            assignments: components["schemas"]["ClientAssignmentResponse"][];
+            specializations: components["schemas"]["ClientSpecializationResponse"][];
+        };
+        ClientEmployeeResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
+        };
+        ClientInvitationResponse: {
+            sent: boolean;
+            errorCode: null | string;
+        };
+        ClientListItemResponse: {
+            /** Format: uuid */
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: null | string;
+            userName: string;
+            phone: null | string;
+            fiscalCode: null | string;
+            status: string;
+            canSignIn: boolean;
+            employee: null | components["schemas"]["ClientEmployeeResponse"];
+            customFields: components["schemas"]["JsonElement"];
+        };
+        ClientPasswordResetResponse: {
+            temporaryPassword: null | string;
+        };
+        ClientSpecializationResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        CreateClientRequest: {
+            firstName: string;
+            lastName: string;
+            /** Format: date */
+            birthDate: null | string;
+            email: string;
+            phone: null | string;
+            fiscalCode: string;
+            customFields: null | components["schemas"]["JsonElement"];
+            /** Format: uuid */
+            employeeUserId: null | string;
+        };
+        CreateClientResponse: {
+            /** Format: uuid */
+            id: string;
+            invitationSent: boolean;
+            invitationErrorCode: null | string;
         };
         CreateCustomFieldRequest: {
             entityType: string;
@@ -1426,6 +1654,15 @@ export interface components {
             /** Format: date-time */
             completedAt: null | string;
         };
+        PagedResponseOfClientListItemResponse: {
+            items: components["schemas"]["ClientListItemResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
         PagedResponseOfLoginAttemptResponse: {
             items: components["schemas"]["LoginAttemptResponse"][];
             /** Format: int32 */
@@ -1534,6 +1771,9 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
+        ResetClientPasswordRequest: {
+            sendLink: boolean;
+        };
         ResetPasswordRequest: {
             token: string;
             password: string;
@@ -1585,6 +1825,12 @@ export interface components {
             messageId: string;
             sent: boolean;
             errorCode: null | string;
+        };
+        SetClientSignInRequest: {
+            canSignIn: boolean;
+        };
+        SetClientSpecializationsRequest: {
+            specializationIds: string[];
         };
         SetGridLayoutRequest: {
             columns: components["schemas"]["GridLayoutColumnRequest"][];
@@ -1715,6 +1961,17 @@ export interface components {
             languageCode: string;
             value: string;
             isCustomized: boolean;
+        };
+        UpdateClientRequest: {
+            firstName: string;
+            lastName: string;
+            /** Format: date */
+            birthDate: null | string;
+            email: string;
+            phone: null | string;
+            fiscalCode: string;
+            userName: string;
+            customFields: null | components["schemas"]["JsonElement"];
         };
         UpdateCustomFieldRequest: {
             label: string;
@@ -5767,6 +6024,486 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListClients: {
+        parameters: {
+            query?: {
+                view?: string;
+                "filter[fullName]"?: string;
+                "filter[lastName]"?: string;
+                "filter[email]"?: string;
+                "filter[userName]"?: string;
+                "filter[phone]"?: string;
+                "filter[status]"?: string;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfClientListItemResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateClient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateClientRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateClientResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListAssignableEmployees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientEmployeeResponse"][];
+                };
+            };
+        };
+    };
+    GetClient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateClient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateClientRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteClient: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetClientSignIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetClientSignInRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AssignClientEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignClientEmployeeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UnassignClientEmployee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetClientSpecializations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetClientSpecializationsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SendClientInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientInvitationResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ResetClientPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetClientPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientPasswordResetResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

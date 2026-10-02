@@ -8,6 +8,8 @@ public static partial class Operations
 
         public static readonly OperationDescriptor SetPassword = new("Identity.SetPassword", EventCodes.Identity.PasswordChanged);
 
+        public static readonly OperationDescriptor UpdateUserAccount = new("Identity.UpdateUserAccount", EventCodes.Identity.UserAccountUpdated);
+
         public static readonly OperationDescriptor SetUserActive = new("Identity.SetUserActive", EventCodes.Identity.UserActivationChanged);
 
         public static readonly OperationDescriptor SetUserRoles = new("Identity.SetUserRoles", EventCodes.Identity.UserRolesChanged);
