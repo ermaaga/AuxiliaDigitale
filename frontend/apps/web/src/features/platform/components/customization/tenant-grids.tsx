@@ -69,48 +69,54 @@ function GridCard({ slug, grid }: { slug: string; grid: Grid }) {
   const layout = grid.layouts.find((item) => item.role === role);
   const name = t.has(grid.nameKey) ? t(grid.nameKey) : grid.key;
   const selectId = `grid-role-${grid.key.replaceAll(".", "-")}`;
+  const headingId = `grid-${grid.key.replaceAll(".", "-")}`;
 
+  // One region per grid: several grids repeat column names (e.g. "Username"), so their controls are told apart.
   return (
-    <Card>
-      <CardHeader className="flex flex-row flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1.5">
-          <CardTitle>
-            <h2 className="text-base font-semibold">{name}</h2>
-          </CardTitle>
-          <CardDescription>
-            <code>{grid.key}</code>
-          </CardDescription>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Label htmlFor={selectId}>{t("Role")}</Label>
-          <Select value={role} onValueChange={setRole}>
-            <SelectTrigger id={selectId} className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {grid.layouts.map((item) => (
-                <SelectItem key={item.role} value={item.role}>
-                  {roleLabel(t, item.role)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {layout ? (
-          <LayoutEditor
-            key={`${role}:${JSON.stringify(layout.columns)}`}
-            slug={slug}
-            grid={grid}
-            name={name}
-            role={role}
-            initial={layout.columns}
-            isCustomized={layout.isCustomized}
-          />
-        ) : null}
-      </CardContent>
-    </Card>
+    <section aria-labelledby={headingId}>
+      <Card>
+        <CardHeader className="flex flex-row flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1.5">
+            <CardTitle>
+              <h2 id={headingId} className="text-base font-semibold">
+                {name}
+              </h2>
+            </CardTitle>
+            <CardDescription>
+              <code>{grid.key}</code>
+            </CardDescription>
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor={selectId}>{t("Role")}</Label>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger id={selectId} className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {grid.layouts.map((item) => (
+                  <SelectItem key={item.role} value={item.role}>
+                    {roleLabel(t, item.role)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {layout ? (
+            <LayoutEditor
+              key={`${role}:${JSON.stringify(layout.columns)}`}
+              slug={slug}
+              grid={grid}
+              name={name}
+              role={role}
+              initial={layout.columns}
+              isCustomized={layout.isCustomized}
+            />
+          ) : null}
+        </CardContent>
+      </Card>
+    </section>
   );
 }
 
