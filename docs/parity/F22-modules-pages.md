@@ -26,6 +26,7 @@ Default grants (seed) — Administrator (A), Employee (E), Client (C):
 | `directory.registrations.review` | A, E | RegistrationRequests (F03) |
 | `cases.cases.view` | A, E, C | Subscriptions / Subscription (F09; clients see their own) |
 | `cases.cases.manage` | A, E | Subscriptions (F09) |
+| `cases.cases.delete` | A, E | delete cases (employees not completed ones, F10; B-08) |
 | `cases.services.view` | A, E | service choice when opening a case (F08, F09; B-07) |
 | `cases.services.manage` | A | Memberships (F08) |
 | `scheduling.appointments.view` / `.manage` | A, E, C | Appointments (F13) |

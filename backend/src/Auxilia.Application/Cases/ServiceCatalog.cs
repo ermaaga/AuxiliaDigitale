@@ -25,7 +25,7 @@ public interface IServiceCatalogManager
 
     Task<Result> UpdateServiceAsync(Guid id, UpdateServiceRequest request, CancellationToken cancellationToken);
 
-    /// <summary>Soft delete (Q28): hidden everywhere. Services with cases will be refused (B-08); deactivate them instead.</summary>
+    /// <summary>Soft delete (Q28): hidden everywhere. A service with cases is refused (<c>AUX-14026</c>): deactivate it instead.</summary>
     Task<Result> DeleteServiceAsync(Guid id, CancellationToken cancellationToken);
 }
 
@@ -192,6 +192,11 @@ internal sealed class ServiceCatalogManager(IOperationRunner operations, IServic
             if (await store.FindAsync(id, cancellationToken) is not { } service)
             {
                 return Errors.Cases.ServiceNotFound();
+            }
+
+            if (await store.ServiceHasCasesAsync(id, cancellationToken))
+            {
+                return Errors.Cases.ServiceInUse();
             }
 
             store.Remove(service);

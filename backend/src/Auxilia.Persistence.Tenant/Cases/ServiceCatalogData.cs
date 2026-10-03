@@ -88,6 +88,9 @@ internal sealed class ServiceCatalogData(ITenantDbContext db) : IServiceCatalogD
     public Task<bool> NameTakenAsync(string name, Guid? exceptId, CancellationToken cancellationToken) =>
         db.Set<Service>().AnyAsync(service => service.Name == name && service.Id != exceptId, cancellationToken);
 
+    public Task<bool> ServiceHasCasesAsync(Guid id, CancellationToken cancellationToken) =>
+        db.Set<Case>().AnyAsync(@case => @case.ServiceId == id, cancellationToken);
+
     public Task<bool> IsActiveCategoryAsync(Guid id, CancellationToken cancellationToken) =>
         db.Set<ServiceCategory>().AnyAsync(category => category.Id == id && category.IsActive, cancellationToken);
 

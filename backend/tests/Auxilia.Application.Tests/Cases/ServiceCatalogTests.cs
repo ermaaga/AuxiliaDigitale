@@ -85,6 +85,9 @@ public sealed class ServiceCatalogTests : IAsyncDisposable
         (await manager.DeleteServiceAsync(Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Cases.ServiceNotFound);
         (await query.GetAsync(Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Cases.ServiceNotFound);
 
+        data.WithCases.Add(first);
+        (await manager.DeleteServiceAsync(first, Ct)).Error!.Code.ShouldBe(EventCodes.Cases.ServiceInUse);
+        data.WithCases.Clear();
         (await manager.DeleteServiceAsync(first, Ct)).IsSuccess.ShouldBeTrue();
         (await query.GetAsync(first, Ct)).IsFailure.ShouldBeTrue();
         (await manager.CreateServiceAsync(Request(), Ct)).IsSuccess.ShouldBeTrue();
@@ -141,6 +144,9 @@ internal sealed class InMemoryServiceCatalog : IServiceCatalogDataFactory, IServ
 
     public HashSet<Guid> ActiveSpecializations { get; } = [];
 
+    /// <summary>Services with cases not deleted.</summary>
+    public HashSet<Guid> WithCases { get; } = [];
+
     public ServiceFilter? LastFilter { get; private set; }
 
     public Guid AddSpecialization()
@@ -181,6 +187,8 @@ internal sealed class InMemoryServiceCatalog : IServiceCatalogDataFactory, IServ
 
     public Task<bool> NameTakenAsync(string name, Guid? exceptId, CancellationToken cancellationToken) =>
         Task.FromResult(Live.Any(service => string.Equals(service.Name, name, StringComparison.OrdinalIgnoreCase) && service.Id != exceptId));
+
+    public Task<bool> ServiceHasCasesAsync(Guid id, CancellationToken cancellationToken) => Task.FromResult(WithCases.Contains(id));
 
     public Task<bool> IsActiveCategoryAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(Categories.Any(category => category.Id == id && category.IsActive));

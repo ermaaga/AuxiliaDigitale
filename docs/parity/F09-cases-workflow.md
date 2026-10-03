@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [ ] not started · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [~] in progress (domain and API B-08 done; lists B-09, pages B-14, expiry reminder B-25) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).
@@ -26,11 +26,19 @@ Status: [ ] not started · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q0
 
 **Delete**: hard delete + client status recomputed.
 
+## Backend (B-08)
+`cases.cases` (number `{year}-{sequence}` from `cases.case_numbers`, price snapshot + currency, specialization, status,
+outcome, active, started/due/expires dates, custom fields, soft delete), `cases.case_status_history` (sequence, from, to,
+who, when, note), `cases.case_payments`. API (module `cases`): `POST /cases`, `GET/PUT/DELETE /cases/{id}`,
+`POST /cases/{id}/advance|back|complete|payments`; every write answers with the case. Completing records the amount
+received as a payment (default: price minus what was already paid). Client status (Q03) recomputed on open, complete and
+delete through `Directory.Public.IClientDirectory`. Soft deletes keep the owned rows (timeline, payments).
+
 ## Acceptance criteria
-- [ ] Domain: `Advance()` Inserted→InProgress→Sent→Completed; `GoBack()` only from InProgress/Sent; Completed is terminal (any change → `409` coded error).
-- [ ] Completing requires amount paid (default = service price) and rejected flag; sets `closed_at`/`expires_on = today`, records a payment and a history row; recomputes client status.
-- [ ] Every transition writes `case_status_history` (who, when, from, to, note) shown as a timeline.
-- [ ] Create case: default employee assignment, price snapshot, specialization default from service, case number `{year}-{seq}`; client becomes active.
+- [x] Domain: `Advance()` Inserted→InProgress→Sent→Completed; `GoBack()` only from InProgress/Sent; Completed is terminal (any change → `409` coded error).
+- [x] Completing requires amount paid (default = service price) and rejected flag; sets `closed_at`/`expires_on = today`, records a payment and a history row; recomputes client status.
+- [x] Every transition writes `case_status_history` (who, when, from, to, note) shown as a timeline. *(API; timeline UI with B-14)*
+- [x] Create case: default employee assignment, price snapshot, specialization default from service, case number `{year}-{seq}`; client becomes active.
 - [ ] Case detail shows contextual content per status exactly as listed above.
 - [ ] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off).
 - [ ] Client sees own cases with Active/Expired/Inactive badge.
