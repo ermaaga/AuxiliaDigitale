@@ -65,17 +65,19 @@ public sealed class ApiDatabase : IAsyncLifetime
         var tenantB = await AddTenantAsync(catalog, protector, TenantB, database: "tenant_b", tenant => tenant.Activate());
         catalog.TenantDomains.Add(new TenantDomain(Guid.CreateVersion7(), tenantB.Id, TenantBCustomHost));
 
-        // Modules (ARCHITECTURE §5.2): identity is Core; cases, directory and documents are in the standard plan for staff only;
-        // cases is disabled for tenant B by an override.
+        // Modules (ARCHITECTURE §5.2): identity is Core; cases, directory and documents are in the standard plan for staff only,
+        // scheduling for every role; cases is disabled for tenant B by an override.
         catalog.Modules.Add(new PlatformModule("identity", ModuleKind.Core, "modules.identity.name", 12000));
         catalog.Modules.Add(new PlatformModule("cases", ModuleKind.Optional, "modules.cases.name", 14000));
         catalog.Modules.Add(new PlatformModule("directory", ModuleKind.Optional, "modules.directory.name", 13000));
         catalog.Modules.Add(new PlatformModule("documents", ModuleKind.Optional, "modules.documents.name", 16000));
+        catalog.Modules.Add(new PlatformModule("scheduling", ModuleKind.Optional, "modules.scheduling.name", 15000));
         await catalog.SaveChangesAsync();
         var standard = await catalog.Plans.Include(plan => plan.Modules).SingleAsync(plan => plan.Id == Plan.StandardId);
         standard.SetModule("cases", [TenantRole.Administrator, TenantRole.Employee]);
         standard.SetModule("directory", [TenantRole.Administrator, TenantRole.Employee]);
         standard.SetModule("documents", [TenantRole.Administrator, TenantRole.Employee]);
+        standard.SetModule("scheduling", [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]);
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantA.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantB.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantModuleOverrides.Add(new TenantModuleOverride(tenantB.Id, "cases", isEnabled: false, []));

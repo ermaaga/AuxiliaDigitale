@@ -135,6 +135,7 @@ public sealed class LocalizationPersistenceTests(TenantDatabaseFixture database)
         await new D_20261003_011_SeedDocumentPagesTranslations().ApplyAsync(db, Ct);
         await new D_20261003_012_SeedCasePagesTranslations().ApplyAsync(db, Ct);
         await new D_20261003_013_SeedServicePagesTranslations().ApplyAsync(db, Ct);
+        await new D_20261003_014_SeedAppointmentTranslations().ApplyAsync(db, Ct);
     }
 
     private ServiceProvider Services()

@@ -17,6 +17,9 @@ public static class RealtimeEvents
 
     /// <summary>A document uploaded by the user was checked (F14, Q13: the uploader is told, not the client).</summary>
     public const string DocumentProcessed = "DocumentProcessed";
+
+    /// <summary>An appointment of the user changed (F13): told to the other party (client or employee), never to the actor.</summary>
+    public const string AppointmentChanged = "AppointmentChanged";
 }
 
 /// <param name="Reason">Why the session ended: <c>Logout</c>, <c>SingleSession</c>, <c>SecurityStampChanged</c>, <c>RefreshTokenReuse</c>, <c>Revoked</c>.</param>
@@ -27,3 +30,6 @@ public sealed record RegistrationRequestedEvent(Guid RegistrationId, string Full
 
 /// <param name="Status"><c>Available</c> or <c>Damaged</c>.</param>
 public sealed record DocumentProcessedEvent(Guid DocumentId, string FileName, string Status);
+
+/// <param name="Change"><c>Scheduled</c>, <c>Requested</c>, <c>Updated</c>, <c>Approved</c>, <c>Rejected</c>, <c>Completed</c>, <c>Cancelled</c> or <c>Deleted</c>.</param>
+public sealed record AppointmentChangedEvent(Guid AppointmentId, string Change, DateTimeOffset StartsAt);
