@@ -60,7 +60,7 @@ test("an Administrator runs a case from opening to completion", async ({ page })
     await expect(toast(page, t("app.cases.advanced"))).toBeVisible();
     await page
       .getByRole("list", { name: t("app.cases.folders") })
-      .getByRole("button", { name: service.folder })
+      .getByRole("button", { name: service.folder, exact: true })
       .click();
     await page.getByRole("button", { name: t("UploadDocument") }).click();
     await page.getByLabel(t("SelectFiles"), { exact: true }).setInputFiles(pdf);
