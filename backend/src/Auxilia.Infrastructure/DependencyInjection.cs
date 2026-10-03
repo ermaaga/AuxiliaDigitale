@@ -4,10 +4,14 @@ using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Logging;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Realtime;
+using Auxilia.Application.Abstractions.Storage;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Infrastructure.Adapters.Captcha.Altcha;
 using Auxilia.Infrastructure.Adapters.Captcha.None;
 using Auxilia.Infrastructure.Adapters.Channels.Smtp;
+using Auxilia.Infrastructure.Adapters.Storage.AzureBlob;
+using Auxilia.Infrastructure.Adapters.Storage.Ftp;
+using Auxilia.Infrastructure.Adapters.Storage.Local;
 using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Logging;
@@ -52,6 +56,12 @@ public static class DependencyInjection
         services.AddOptions<AltchaOptions>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, NoCaptchaVerifier>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, AltchaCaptchaVerifier>());
+
+        // File storage of the documents (ARCHITECTURE §6): the provider is a tenant setting; local root from Storage:Local.
+        services.AddOptions<LocalStorageOptions>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IFileStorage, LocalFileStorage>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IFileStorage, FtpFileStorage>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IFileStorage, AzureBlobFileStorage>());
 
         // Uploaded pictures are decoded and re-encoded by the server (F04).
         services.TryAddSingleton<IImageProcessor, SkiaImageProcessor>();

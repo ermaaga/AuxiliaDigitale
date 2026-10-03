@@ -1,0 +1,104 @@
+[
+ {
+  "key": "settings.documents.storage.ftp.host.description",
+  "category": "settings",
+  "en": "FTP server of the documents (provider ftp), e.g. ftp.example.com",
+  "it": "Server FTP dei documenti (provider ftp), ad es. ftp.example.com"
+ },
+ {
+  "key": "settings.documents.storage.ftp.port.description",
+  "category": "settings",
+  "en": "Port of the FTP server",
+  "it": "Porta del server FTP"
+ },
+ {
+  "key": "settings.documents.storage.ftp.user.description",
+  "category": "settings",
+  "en": "User name on the FTP server",
+  "it": "Nome utente sul server FTP"
+ },
+ {
+  "key": "settings.documents.storage.ftp.password.description",
+  "category": "settings",
+  "en": "Password on the FTP server (stored encrypted)",
+  "it": "Password sul server FTP (salvata cifrata)"
+ },
+ {
+  "key": "settings.documents.storage.ftp.path.description",
+  "category": "settings",
+  "en": "Folder on the FTP server where the documents are written",
+  "it": "Cartella del server FTP in cui vengono scritti i documenti"
+ },
+ {
+  "key": "settings.documents.storage.ftp.tls.description",
+  "category": "settings",
+  "en": "Use explicit FTPS (encrypted connection)",
+  "it": "Usa FTPS esplicito (connessione cifrata)"
+ },
+ {
+  "key": "settings.documents.storage.azure.connectionString.description",
+  "category": "settings",
+  "en": "Connection string of the Azure Storage account (provider azure-blob, stored encrypted)",
+  "it": "Stringa di connessione dell'account Azure Storage (provider azure-blob, salvata cifrata)"
+ },
+ {
+  "key": "settings.documents.storage.azure.container.description",
+  "category": "settings",
+  "en": "Blob container of the documents",
+  "it": "Container blob dei documenti"
+ },
+ {
+  "key": "validation.documents.file",
+  "category": "validation",
+  "en": "Choose a file that is not empty and has a name.",
+  "it": "Scegli un file non vuoto e con un nome."
+ },
+ {
+  "key": "validation.documents.fileType",
+  "category": "validation",
+  "en": "This file type is not accepted.",
+  "it": "Questo tipo di file non è accettato."
+ },
+ {
+  "key": "validation.documents.fileContent",
+  "category": "validation",
+  "en": "The content of the file does not match its type.",
+  "it": "Il contenuto del file non corrisponde al suo tipo."
+ },
+ {
+  "key": "validation.documents.fileSize",
+  "category": "validation",
+  "en": "The file is larger than the size allowed.",
+  "it": "Il file supera la dimensione consentita."
+ },
+ {
+  "key": "errors.AUX-16001",
+  "category": "errors",
+  "en": "This file type is not accepted.",
+  "it": "Questo tipo di file non è accettato."
+ },
+ {
+  "key": "errors.AUX-16002",
+  "category": "errors",
+  "en": "The content of the file does not match its type.",
+  "it": "Il contenuto del file non corrisponde al suo tipo."
+ },
+ {
+  "key": "errors.AUX-16003",
+  "category": "errors",
+  "en": "The file is larger than the size allowed.",
+  "it": "Il file supera la dimensione consentita."
+ },
+ {
+  "key": "errors.AUX-16004",
+  "category": "errors",
+  "en": "The file is empty or has no name.",
+  "it": "Il file è vuoto o senza nome."
+ },
+ {
+  "key": "errors.AUX-16005",
+  "category": "errors",
+  "en": "The document storage is not available at the moment.",
+  "it": "L'archivio dei documenti non è disponibile al momento."
+ }
+]

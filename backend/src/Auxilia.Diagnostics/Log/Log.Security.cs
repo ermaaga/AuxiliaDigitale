@@ -114,5 +114,13 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.CaptchaKeyEphemeral, EventName = "Security.CaptchaKeyEphemeral",
             Level = LogLevel.Warning, Message = "Captcha:Altcha:Key is not configured: challenges are signed with a random key until restart (one node only)")]
         public static partial void CaptchaKeyEphemeral(ILogger logger);
+
+        [LoggerMessage(EventId = EventCodes.Security.UploadRejected, EventName = "Security.UploadRejected",
+            Level = LogLevel.Warning, Message = "Upload of a {Extension} file rejected: {Reason}")]
+        public static partial void UploadRejected(ILogger logger, string extension, string reason);
+
+        [LoggerMessage(EventId = EventCodes.Security.StorageKeyRejected, EventName = "Security.StorageKeyRejected",
+            Level = LogLevel.Warning, Message = "Storage key outside tenant {TenantSlug} refused")]
+        public static partial void StorageKeyRejected(ILogger logger, string tenantSlug);
     }
 }

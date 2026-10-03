@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [ ] not started · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
+Status: [~] in progress (storage B-11 done; documents B-12, pages B-13) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.
@@ -17,8 +17,18 @@ Employee `/employee/documents` (module `Documents`): same with access filter (F1
 **Download**: bytes → browser; "FileNotFound" toast when storage returns nothing.
 **Delete**: removes file from storage and row.
 
+## Storage (B-11)
+Port `IFileStorage` with adapters `local` (`Storage:Local:RootPath`), `ftp` (FluentFTP, explicit FTPS by default) and
+`azure-blob`; the provider is the tenant setting `documents.storage.provider`, the connection the settings
+`documents.storage.ftp.*` / `documents.storage.azure.*` (password and connection string encrypted). `Documents.Public.IFileStore`:
+`StageAsync` (name sanitised as Q51, whitelist of types with magic-byte check, size ≤ `documents.maxUploadMb` while
+streaming, SHA-256) writes `tenants/{slug}/staging/{id}`; `CommitAsync` moves it to `tenants/{slug}/{area}/{yyyy}/{MM}/{id}.{ext}`
+after the transaction; read and delete only accept keys of the current tenant. Rejections are security events
+`AUX-29028`/`AUX-29029`. Staging leftovers: storage lifecycle rule (or the `documents.staging-cleanup` job) with B-12.
+Change from the legacy: the provider is chosen per tenant, not by which configuration exists first.
+
 ## Acceptance criteria
-- [ ] Storage providers Local/FTP/Azure selectable by configuration (same precedence), keys prefixed `tenants/{slug}/documents/`, SHA-256 stored.
+- [x] Storage providers Local/FTP/Azure selectable by configuration (tenant setting instead of precedence), keys prefixed `tenants/{slug}/documents/`, SHA-256 computed (stored with the document, B-12).
 - [ ] Multi-file drag & drop + clipboard paste + progress; max size per tenant (default 60 MB); whitelist + magic bytes.
 - [ ] Metadata rules: reference year ≥ current−10; custom name single-file only with extension kept; sanitization as legacy.
 - [ ] Duplicate names detected against existing documents of the same owner/case/folder.

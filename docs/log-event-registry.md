@@ -16,7 +16,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
-| 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
+| 16000–16999 | Documents | Documents / Storage | 7 | 16008 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 27 | 29028 |
+| 29000–29999 | Security | Security events | 29 | 29030 |
 
 ## Codes
 
@@ -227,6 +227,13 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-14031 | Cases.ServiceFolderInvalid | – | Validation | – | – |
 | AUX-14032 | Cases.ServiceFolderNotFound | – | NotFound | – | – |
 | AUX-14033 | Cases.ServiceFolderNameTaken | – | Conflict | – | – |
+| AUX-16001 | Documents.FileTypeNotAllowed | – | Validation | – | – |
+| AUX-16002 | Documents.FileContentMismatch | – | Validation | – | – |
+| AUX-16003 | Documents.FileTooLarge | – | Validation | – | – |
+| AUX-16004 | Documents.FileInvalid | – | Validation | – | – |
+| AUX-16005 | Documents.StorageUnavailable | Error | Failure | – | Storage provider {Provider} is not configured or has no adapter |
+| AUX-16006 | Documents.StorageOperationFailed | Error | – | – | Storage {Provider} failed to {Action} {Key} |
+| AUX-16007 | Documents.FileCommitted | Information | – | – | File {Key} committed ({Size} bytes, {ContentType}) |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
@@ -333,3 +340,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29025 | Security.TenantLogLevelChanged | Warning | – | – | Debug logging of tenant {TenantSlug} set until {DebugUntil} (empty: disabled) |
 | AUX-29026 | Security.CaptchaRejected | Warning | – | – | Captcha {Provider} rejected for client {ClientId} |
 | AUX-29027 | Security.CaptchaKeyEphemeral | Warning | – | – | Captcha:Altcha:Key is not configured: challenges are signed with a random key until restart (one node only) |
+| AUX-29028 | Security.UploadRejected | Warning | – | – | Upload of a {Extension} file rejected: {Reason} |
+| AUX-29029 | Security.StorageKeyRejected | Warning | – | – | Storage key outside tenant {TenantSlug} refused |

@@ -1,5 +1,6 @@
 using Auxilia.Application;
 using Auxilia.Infrastructure;
+using Auxilia.Infrastructure.Adapters.Storage.Local;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
@@ -25,6 +26,7 @@ public static class WorkerServices
 
         services.AddApplication();
         services.AddInfrastructure();
+        services.Configure<LocalStorageOptions>(configuration.GetSection(LocalStorageOptions.SectionName));
         services.AddTenantLogLevelSync();
 
         // Same Catalog and tenant databases as the Api (user-secrets / environment, never committed).
