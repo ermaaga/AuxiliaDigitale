@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [~] in progress (domain and API B-08 done; lists B-09, pages B-14, expiry reminder B-25) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [~] in progress (domain, API and lists B-08/B-09 done; pages B-14, expiry reminder B-25) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).
@@ -33,6 +33,10 @@ who, when, note), `cases.case_payments`. API (module `cases`): `POST /cases`, `G
 `POST /cases/{id}/advance|back|complete|payments`; every write answers with the case. Completing records the amount
 received as a payment (default: price minus what was already paid). Client status (Q03) recomputed on open, complete and
 delete through `Directory.Public.IClientDirectory`. Soft deletes keep the owned rows (timeline, payments).
+Lists (B-09): `GET /cases` with `filter[clientName|serviceName|clientId|serviceId|status]`, `showAll`, `showCompleted`
+(off by default for employees only), sort `startedOn` (default descending) / `client` / `service` / `expiresOn` /
+`amountPaid` / `number`; rows carry `validity` (Active / Expired / Inactive, the client badge). The same endpoint gives
+the cases of a client (360°) and of a service (service detail). Grid `cases.cases`.
 
 ## Acceptance criteria
 - [x] Domain: `Advance()` Inserted→InProgress→Sent→Completed; `GoBack()` only from InProgress/Sent; Completed is terminal (any change → `409` coded error).
@@ -40,7 +44,7 @@ delete through `Directory.Public.IClientDirectory`. Soft deletes keep the owned 
 - [x] Every transition writes `case_status_history` (who, when, from, to, note) shown as a timeline. *(API; timeline UI with B-14)*
 - [x] Create case: default employee assignment, price snapshot, specialization default from service, case number `{year}-{seq}`; client becomes active.
 - [ ] Case detail shows contextual content per status exactly as listed above.
-- [ ] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off).
+- [x] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off). *(API `GET /cases`; page B-14)*
 - [ ] Client sees own cases with Active/Expired/Inactive badge.
 - [ ] Soft delete with confirmation; employees cannot delete Completed cases (F10).
 - [ ] Manual action "Send expiry reminder" e-mail (F11, Q24).

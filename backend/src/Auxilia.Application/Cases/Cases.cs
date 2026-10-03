@@ -6,6 +6,7 @@ using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
 using Auxilia.Contracts.Cases;
+using Auxilia.Contracts.Common;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Cases;
 using Auxilia.SharedKernel.Results;
@@ -46,6 +47,9 @@ public interface ICaseManager
 
 public interface ICaseQueryService
 {
+    /// <summary>The cases the caller may see (F10 in the query), with the legacy filters, toggles and sorts.</summary>
+    Task<Result<PagedResponse<CaseListItemResponse>>> ListAsync(CaseListQuery query, CancellationToken cancellationToken);
+
     /// <summary>The case with its timeline and payments; <c>AUX-14022</c> when the caller cannot see it (Q10).</summary>
     Task<Result<CaseResponse>> GetAsync(Guid id, CancellationToken cancellationToken);
 }
@@ -66,6 +70,27 @@ internal sealed class CaseAccessPolicy(ICurrentUser currentUser, ICaseDataFactor
         CasesPermissions.DeleteCases => await CanDeleteAsync(resource, cancellationToken),
         _ => false,
     };
+
+    /// <summary>The same visibility as <see cref="CanSeeAsync"/>, as a query filter for the lists (never post-filtering).</summary>
+    public async Task<CaseScope> ScopeAsync(CancellationToken cancellationToken)
+    {
+        if (Has(TenantRole.Administrator))
+        {
+            return new CaseScope(true, null, null);
+        }
+
+        if (Has(TenantRole.Employee))
+        {
+            return new CaseScope(false, currentUser.UserId, null);
+        }
+
+        return Has(TenantRole.Client) && (await CallerAsync(cancellationToken)).PersonId is { } personId
+            ? new CaseScope(false, null, personId)
+            : CaseScope.None;
+    }
+
+    /// <summary>Employees only (not Administrators): the "show all" / "show completed" toggles start off (F09).</summary>
+    public bool IsEmployeeOnly => Has(TenantRole.Employee) && !Has(TenantRole.Administrator);
 
     public async Task<bool> CanSeeAsync(CaseResource resource, CancellationToken cancellationToken)
     {
@@ -329,8 +354,91 @@ internal sealed class CaseManager(
         await clients.UpdateStatusAsync(clientId, await store.HasOpenCasesAsync(clientId, Today, cancellationToken), cancellationToken);
 }
 
-internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy policy, IPermissionAccess permissions) : ICaseQueryService
+internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy policy, IPermissionAccess permissions, TimeProvider clock) : ICaseQueryService
 {
+    public const int MaxPageSize = 100;
+    public const int MaxFilterLength = 200;
+
+    private static readonly Dictionary<string, CaseSort> Sorts = new(StringComparer.Ordinal)
+    {
+        ["startedOn"] = CaseSort.StartedOn,
+        ["client"] = CaseSort.Client,
+        ["service"] = CaseSort.Service,
+        ["expiresOn"] = CaseSort.ExpiresOn,
+        ["amountPaid"] = CaseSort.AmountPaid,
+        ["number"] = CaseSort.Number,
+    };
+
+    public async Task<Result<PagedResponse<CaseListItemResponse>>> ListAsync(CaseListQuery query, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        var errors = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        if (query.Page < 1)
+        {
+            errors["page"] = ["validation.paging.page"];
+        }
+
+        if (query.PageSize is < 1 or > MaxPageSize)
+        {
+            errors["pageSize"] = ["validation.paging.pageSize"];
+        }
+
+        var sortField = query.Sort?.TrimStart('-');
+        var sort = CaseSort.StartedOn;
+        if (!string.IsNullOrEmpty(sortField) && !Sorts.TryGetValue(sortField, out sort))
+        {
+            errors["sort"] = ["validation.paging.sort"];
+        }
+
+        CaseStatus? status = null;
+        if (!string.IsNullOrEmpty(query.Status))
+        {
+            if (Enum.TryParse<CaseStatus>(query.Status, ignoreCase: false, out var parsed) && Enum.IsDefined(parsed))
+            {
+                status = parsed;
+            }
+            else
+            {
+                errors["status"] = ["validation.cases.status"];
+            }
+        }
+
+        if (query.ClientName is { Length: > MaxFilterLength } || query.ServiceName is { Length: > MaxFilterLength })
+        {
+            errors["search"] = ["validation.paging.search"];
+        }
+
+        if (errors.Count > 0)
+        {
+            return Errors.Host.ValidationFailed(errors);
+        }
+
+        // Legacy: the newest first unless a sort is chosen.
+        var descending = string.IsNullOrEmpty(query.Sort) || query.Sort.StartsWith('-');
+        var employeeOnly = policy.IsEmployeeOnly;
+        var scope = await policy.ScopeAsync(cancellationToken);
+        await using var store = await data.OpenAsync(cancellationToken);
+        var (items, total) = await store.PageAsync(
+            new CaseFilter(
+                scope,
+                Text(query.ClientName),
+                Text(query.ServiceName),
+                query.ClientId,
+                query.ServiceId,
+                status,
+                OnlyHeldOrUnspecialized: employeeOnly && !(query.ShowAll ?? false),
+                IncludeCompleted: query.ShowCompleted ?? !employeeOnly,
+                sort,
+                descending,
+                (query.Page - 1) * query.PageSize,
+                query.PageSize),
+            cancellationToken);
+
+        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        return new PagedResponse<CaseListItemResponse>(items.Select(row => ToResponse(row, today)).ToArray(), query.Page, query.PageSize, total);
+    }
+
     public async Task<Result<CaseResponse>> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var store = await data.OpenAsync(cancellationToken);
@@ -377,5 +485,32 @@ internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy p
             payments.Select(payment => new CasePaymentResponse(payment.Id, payment.Amount, payment.PaidOn, payment.Note, payment.RecordedAt, User(payment.RecordedByUserId))).ToArray(),
             canManage,
             canDelete);
+    }
+
+    /// <summary>Legacy client badge: inactive, expired (expiry date passed) or active.</summary>
+    public static string Validity(bool isActive, DateOnly? expiresOn, DateOnly today) =>
+        !isActive ? "Inactive" : expiresOn is { } expires && expires < today ? "Expired" : "Active";
+
+    private static string? Text(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static CaseListItemResponse ToResponse(CaseRow row, DateOnly today)
+    {
+        using var customFields = JsonDocument.Parse(row.CustomFields);
+        return new CaseListItemResponse(
+            row.Id,
+            row.Number,
+            new CaseClientResponse(row.ClientId, row.ClientName),
+            new CaseServiceRefResponse(row.ServiceId, row.ServiceName),
+            row.SpecializationId is { } specialization ? new CaseSpecializationResponse(specialization, row.SpecializationName ?? string.Empty, row.SpecializationPrivate) : null,
+            row.Status.ToString(),
+            row.IsRejected,
+            Validity(row.IsActive, row.ExpiresOn, today),
+            row.StartedOn,
+            row.DueOn,
+            row.ExpiresOn,
+            row.Price,
+            row.Currency,
+            row.AmountPaid,
+            customFields.RootElement.Clone());
     }
 }

@@ -72,3 +72,47 @@ public sealed record CaseResponse(
     IReadOnlyList<CasePaymentResponse> Payments,
     bool CanManage,
     bool CanDelete);
+
+/// <summary>
+/// A row of the case lists (F09): <c>validity</c> is what clients see — <c>Active</c>, <c>Expired</c> (expiry date
+/// passed) or <c>Inactive</c>; <c>customFields</c> is a JSON object (F20).
+/// </summary>
+public sealed record CaseListItemResponse(
+    Guid Id,
+    string Number,
+    CaseClientResponse Client,
+    CaseServiceRefResponse Service,
+    CaseSpecializationResponse? Specialization,
+    string Status,
+    bool IsRejected,
+    string Validity,
+    DateOnly StartedOn,
+    DateOnly? DueOn,
+    DateOnly? ExpiresOn,
+    decimal Price,
+    string Currency,
+    decimal AmountPaid,
+    JsonElement CustomFields);
+
+public sealed record CaseServiceRefResponse(Guid Id, string Name);
+
+/// <summary>
+/// The case lists (F09, F10). Every caller sees only what F10 allows (Administrators everything, employees D-04,
+/// clients their own). <c>clientName</c> matches name or surname, <c>serviceName</c> the service; <c>clientId</c> /
+/// <c>serviceId</c> give the cases of one client (360°) or one service (service detail); <c>status</c> one status.
+/// <c>showAll</c> off restricts an employee to cases without a specialization or with one held; <c>showCompleted</c>
+/// off hides completed cases (both default off for employees, on for everyone else). <c>sort</c> one of
+/// <c>startedOn</c> (default, descending), <c>client</c>, <c>service</c>, <c>expiresOn</c>, <c>amountPaid</c>,
+/// <c>number</c>; <c>-</c> for descending.
+/// </summary>
+public sealed record CaseListQuery(
+    string? ClientName,
+    string? ServiceName,
+    Guid? ClientId,
+    Guid? ServiceId,
+    string? Status,
+    bool? ShowAll,
+    bool? ShowCompleted,
+    string? Sort,
+    int Page,
+    int PageSize);

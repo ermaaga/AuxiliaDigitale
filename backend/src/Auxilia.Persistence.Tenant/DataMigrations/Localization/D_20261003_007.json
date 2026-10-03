@@ -1,0 +1,20 @@
+[
+ {
+  "key": "grids.cases.cases.name",
+  "category": "grids",
+  "en": "Cases",
+  "it": "Pratiche"
+ },
+ {
+  "key": "app.cases.service",
+  "category": "app",
+  "en": "Service",
+  "it": "Servizio"
+ },
+ {
+  "key": "validation.cases.status",
+  "category": "validation",
+  "en": "Choose Inserted, InProgress, Sent or Completed.",
+  "it": "Scegli Inserita, In elaborazione, Inviata o Conclusa."
+ }
+]

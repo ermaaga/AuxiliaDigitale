@@ -1758,6 +1758,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The cases the caller may see (F10), filtered by client, service and status, with the show all / show completed toggles */
+        get: operations["ListCases"];
+        put?: never;
+        /** Opens a case for a client and an active service (price snapshot, number {year}-{sequence}) */
+        post: operations["OpenCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/cases/{id}": {
         parameters: {
             query?: never;
@@ -1772,23 +1790,6 @@ export interface paths {
         post?: never;
         /** Deletes a case (soft delete) and recomputes the client status */
         delete: operations["DeleteCase"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/cases": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Opens a case for a client and an active service (price snapshot, number {year}-{sequence}) */
-        post: operations["OpenCase"];
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1923,6 +1924,29 @@ export interface components {
             id: string;
             fullName: string;
         };
+        CaseListItemResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            client: components["schemas"]["CaseClientResponse"];
+            service: components["schemas"]["CaseServiceRefResponse"];
+            specialization: null | components["schemas"]["CaseSpecializationResponse"];
+            status: string;
+            isRejected: boolean;
+            validity: string;
+            /** Format: date */
+            startedOn: string;
+            /** Format: date */
+            dueOn: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: double */
+            price: number | string;
+            currency: string;
+            /** Format: double */
+            amountPaid: number | string;
+            customFields: components["schemas"]["JsonElement"];
+        };
         CasePaymentResponse: {
             /** Format: uuid */
             id: string;
@@ -1963,6 +1987,11 @@ export interface components {
             payments: components["schemas"]["CasePaymentResponse"][];
             canManage: boolean;
             canDelete: boolean;
+        };
+        CaseServiceRefResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
         };
         CaseServiceResponse: {
             /** Format: uuid */
@@ -2462,6 +2491,15 @@ export interface components {
             queuedAt: string;
             /** Format: date-time */
             completedAt: null | string;
+        };
+        PagedResponseOfCaseListItemResponse: {
+            items: components["schemas"]["CaseListItemResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
         };
         PagedResponseOfClientListItemResponse: {
             items: components["schemas"]["ClientListItemResponse"][];
@@ -9162,6 +9200,106 @@ export interface operations {
             };
         };
     };
+    ListCases: {
+        parameters: {
+            query?: {
+                "filter[clientName]"?: string;
+                "filter[serviceName]"?: string;
+                "filter[clientId]"?: string;
+                "filter[serviceId]"?: string;
+                "filter[status]"?: string;
+                showAll?: boolean;
+                showCompleted?: boolean;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfCaseListItemResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    OpenCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenCaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     GetCase: {
         parameters: {
             query?: never;
@@ -9275,48 +9413,6 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["ProblemDetails"];
-                };
-            };
-        };
-    };
-    OpenCase: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OpenCaseRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CaseResponse"];
-                };
-            };
-            /** @description Bad Request */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
-                };
-            };
-            /** @description Forbidden */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };
