@@ -18,7 +18,7 @@ Status: [~] in progress (template B-10, documents in folders + ZIP B-12, case us
 (the ZIP keeps paths); at most 10 levels and 500 folders per service. B-12 links documents with `ON DELETE SET NULL`.
 
 ## Acceptance criteria
-- [ ] Service detail: folder template editor (add root/child, rename, reorder, delete recursive with confirmation). *(API B-10; editor B-15)*
+- [x] Service detail: folder template editor (add root/child, rename, reorder, delete recursive with confirmation). *(API B-10; editor B-15, reorder with move up/down buttons)*
 - [x] Case documents tab: tree navigation filters documents; upload into selected folder; move document between folders (or to none); folder column with full path. *(B-14, ZIP of the case and of each folder with confirmation)*
 - [x] ZIP download of the whole case or any folder subtree, same path and duplicate-name rules, streamed server-side, respects F10 visibility. *(built in a temporary file, then streamed)*
 - [x] Template changes do not delete documents (documents of removed folders become "no folder").

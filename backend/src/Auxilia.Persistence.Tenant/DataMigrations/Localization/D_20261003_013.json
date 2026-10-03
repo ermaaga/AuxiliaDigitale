@@ -1,0 +1,152 @@
+[
+ {
+  "key": "app.services.back",
+  "category": "app",
+  "en": "Back to services",
+  "it": "Torna alle tipologie pratiche"
+ },
+ {
+  "key": "app.services.categories",
+  "category": "app",
+  "en": "Categories",
+  "it": "Categorie"
+ },
+ {
+  "key": "app.services.categoriesDescription",
+  "category": "app",
+  "en": "Group the services into categories. A category used by services cannot be deleted: deactivate it instead.",
+  "it": "Raggruppa le tipologie pratiche in categorie. Una categoria usata da tipologie pratiche non si può eliminare: disattivala."
+ },
+ {
+  "key": "app.services.categoryActive",
+  "category": "app",
+  "en": "Category {name} active",
+  "it": "Categoria {name} attiva"
+ },
+ {
+  "key": "app.services.categoryDeleted",
+  "category": "app",
+  "en": "Category deleted",
+  "it": "Categoria eliminata"
+ },
+ {
+  "key": "app.services.categorySaved",
+  "category": "app",
+  "en": "Category saved",
+  "it": "Categoria salvata"
+ },
+ {
+  "key": "app.services.created",
+  "category": "app",
+  "en": "Service created",
+  "it": "Tipologia pratica creata"
+ },
+ {
+  "key": "app.services.days",
+  "category": "app",
+  "en": "{count, plural, one {# day} other {# days}}",
+  "it": "{count, plural, one {# giorno} other {# giorni}}"
+ },
+ {
+  "key": "app.services.deleteCategory",
+  "category": "app",
+  "en": "Delete category {name}",
+  "it": "Elimina la categoria {name}"
+ },
+ {
+  "key": "app.services.deleteCategoryConfirm",
+  "category": "app",
+  "en": "Delete the category {name}?",
+  "it": "Eliminare la categoria {name}?"
+ },
+ {
+  "key": "app.services.deleteConfirm",
+  "category": "app",
+  "en": "Delete the service {name} permanently? A service used by cases cannot be deleted: deactivate it instead.",
+  "it": "Eliminare in modo permanente la tipologia pratica {name}? Una tipologia usata da pratiche non si può eliminare: disattivala."
+ },
+ {
+  "key": "app.services.deleted",
+  "category": "app",
+  "en": "Service deleted",
+  "it": "Tipologia pratica eliminata"
+ },
+ {
+  "key": "app.services.folderCreated",
+  "category": "app",
+  "en": "Folder added",
+  "it": "Cartella aggiunta"
+ },
+ {
+  "key": "app.services.folderDeleted",
+  "category": "app",
+  "en": "Folder deleted",
+  "it": "Cartella eliminata"
+ },
+ {
+  "key": "app.services.folderRenamed",
+  "category": "app",
+  "en": "Folder renamed",
+  "it": "Cartella rinominata"
+ },
+ {
+  "key": "app.services.moveFolderDown",
+  "category": "app",
+  "en": "Move {name} down",
+  "it": "Sposta {name} in basso"
+ },
+ {
+  "key": "app.services.moveFolderUp",
+  "category": "app",
+  "en": "Move {name} up",
+  "it": "Sposta {name} in alto"
+ },
+ {
+  "key": "app.services.new",
+  "category": "app",
+  "en": "New service",
+  "it": "Nuovo servizio"
+ },
+ {
+  "key": "app.services.newCategory",
+  "category": "app",
+  "en": "New category",
+  "it": "Nuova categoria"
+ },
+ {
+  "key": "app.services.newDescription",
+  "category": "app",
+  "en": "Name, price and duration of the new service; the folders are defined after creation.",
+  "it": "Nome, prezzo e durata della nuova tipologia pratica; le cartelle si definiscono dopo la creazione."
+ },
+ {
+  "key": "app.services.notFound",
+  "category": "app",
+  "en": "The service does not exist or has been deleted.",
+  "it": "La tipologia pratica non esiste o è stata eliminata."
+ },
+ {
+  "key": "app.services.renameCategory",
+  "category": "app",
+  "en": "Name of category {name}",
+  "it": "Nome della categoria {name}"
+ },
+ {
+  "key": "app.services.saved",
+  "category": "app",
+  "en": "Service saved",
+  "it": "Tipologia pratica salvata"
+ },
+ {
+  "key": "app.services.servicesCount",
+  "category": "app",
+  "en": "Services in the category",
+  "it": "Tipologie pratiche nella categoria"
+ },
+ {
+  "key": "app.services.tabs.data",
+  "category": "app",
+  "en": "Data",
+  "it": "Dati"
+ }
+]
