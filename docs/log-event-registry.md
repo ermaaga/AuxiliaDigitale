@@ -14,7 +14,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
-| 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
+| 14000–14999 | Cases | Cases (services, cases, payments) | 13 | 14014 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
@@ -194,6 +194,19 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-13041 | Directory.RegistrationProcessed | – | Conflict | – | – |
 | AUX-13042 | Directory.RegistrationInvalid | – | Validation | – | – |
 | AUX-13043 | Directory.RegistrationCaptchaInvalid | – | Validation | – | – |
+| AUX-14001 | Cases.ServiceCategoryCreated | – | – | Cases.CreateServiceCategory (success) | – |
+| AUX-14002 | Cases.ServiceCategoryUpdated | – | – | Cases.UpdateServiceCategory (success) | – |
+| AUX-14003 | Cases.ServiceCategoryDeleted | – | – | Cases.DeleteServiceCategory (success) | – |
+| AUX-14004 | Cases.ServiceCategoryInvalid | – | Validation | – | – |
+| AUX-14005 | Cases.ServiceCategoryNotFound | – | NotFound | – | – |
+| AUX-14006 | Cases.ServiceCategoryNameTaken | – | Conflict | – | – |
+| AUX-14007 | Cases.ServiceCategoryInUse | – | Conflict | – | – |
+| AUX-14008 | Cases.ServiceCreated | – | – | Cases.CreateService (success) | – |
+| AUX-14009 | Cases.ServiceUpdated | – | – | Cases.UpdateService (success) | – |
+| AUX-14010 | Cases.ServiceDeleted | – | – | Cases.DeleteService (success) | – |
+| AUX-14011 | Cases.ServiceInvalid | – | Validation | – | – |
+| AUX-14012 | Cases.ServiceNotFound | – | NotFound | – | – |
+| AUX-14013 | Cases.ServiceNameTaken | – | Conflict | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

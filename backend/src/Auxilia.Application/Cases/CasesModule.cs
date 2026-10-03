@@ -4,6 +4,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Cases;
 
@@ -30,7 +31,26 @@ public sealed class CasesModule : IModuleDescriptor
 
     public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("case")];
 
+    /// <summary>The service list (F08, F21): the columns of the legacy grid plus the category (Q26).</summary>
+    public IReadOnlyList<GridDefinition> Grids { get; } =
+    [
+        new(
+            "cases.services",
+            [
+                new("name", "Name", Sortable: true, Filterable: true, CanHide: false),
+                new("description", "Description", VisibleByDefault: false),
+                new("category", "app.services.category", Filterable: true),
+                new("specialization", "Specialization", Filterable: true),
+                new("price", "Price", Sortable: true),
+                new("durationDays", "DurationDays", Sortable: true),
+                new("status", "Status", Filterable: true),
+            ],
+            [TenantRole.Administrator]),
+    ];
+
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddScoped<IServiceCatalogManager, ServiceCatalogManager>();
+        services.TryAddScoped<IServiceCatalogQueryService, ServiceCatalogQueryService>();
     }
 }

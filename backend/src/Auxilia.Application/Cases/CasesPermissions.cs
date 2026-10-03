@@ -12,6 +12,9 @@ public static class CasesPermissions
     /// <summary>Create cases, record payments, advance and complete them (F09).</summary>
     public const string ManageCases = "cases.cases.manage";
 
+    /// <summary>Read the service catalog: staff choose a service when they open a case (F08, F09).</summary>
+    public const string ViewServices = "cases.services.view";
+
     /// <summary>Service catalog and categories (F08).</summary>
     public const string ManageServices = "cases.services.manage";
 
@@ -19,6 +22,7 @@ public static class CasesPermissions
     [
         new(ViewCases, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
         new(ManageCases, [TenantRole.Administrator, TenantRole.Employee]),
+        new(ViewServices, [TenantRole.Administrator, TenantRole.Employee]),
         new(ManageServices, [TenantRole.Administrator]),
     ];
 }
