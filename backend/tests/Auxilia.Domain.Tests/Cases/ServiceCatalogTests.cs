@@ -65,3 +65,28 @@ public sealed class ServiceCatalogTests
         category.IsActive.ShouldBeFalse();
     }
 }
+
+public sealed class ServiceFolderDomainTests
+{
+    [Theory]
+    [InlineData("")]
+    [InlineData("a/b")]
+    [InlineData("a\\b")]
+    [InlineData("..")]
+    public void Name_WithoutPathSeparators_AndNotEmpty(string name)
+    {
+        ServiceFolder.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), null, name, 0).Error!.ValidationErrors.Keys.ShouldBe(["name"]);
+    }
+
+    [Fact]
+    public void Rename_AndMove()
+    {
+        var folder = ServiceFolder.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), null, " Documenti ", 2).Value;
+
+        folder.Rename(new string('x', ServiceFolder.NameMaxLength + 1)).IsFailure.ShouldBeTrue();
+        folder.Rename("Archivio").IsSuccess.ShouldBeTrue();
+        folder.MoveTo(0);
+
+        (folder.Name, folder.SortOrder, folder.ParentId).ShouldBe(("Archivio", 0, (Guid?)null));
+    }
+}

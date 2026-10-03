@@ -111,6 +111,47 @@ public sealed class ServiceEndpointsTests(ServiceEndpointsTests.Factory factory)
         (await SendAsync(HttpMethod.Get, "/api/v1/services?sort=age&pageSize=500", admin)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
+    [Fact]
+    public async Task FolderTemplate_AdministratorEditsIt_EmployeeReadsIt()
+    {
+        var (admin, employee, _) = await UsersAsync();
+        using var created = await SendAsync(HttpMethod.Post, "/api/v1/services", admin,
+            new CreateServiceRequest("Folders " + Guid.NewGuid().ToString("N")[..6], null, 1m, 1, null, null));
+        var service = (await created.Content.ReadFromJsonAsync<ServiceResponse>(Ct))!.Id;
+        var path = $"/api/v1/services/{service}/folders";
+
+        static async Task<ServiceFolderResponse[]> TreeAsync(HttpResponseMessage response, HttpStatusCode status = HttpStatusCode.OK)
+        {
+            using (response)
+            {
+                response.StatusCode.ShouldBe(status, await response.Content.ReadAsStringAsync(Ct));
+                return (await response.Content.ReadFromJsonAsync<ServiceFolderResponse[]>(Ct))!;
+            }
+        }
+
+        var documents = (await TreeAsync(await SendAsync(HttpMethod.Post, path, admin, new CreateServiceFolderRequest("Documenti", null)), HttpStatusCode.Created)).Single().Id;
+        var receipts = (await TreeAsync(await SendAsync(HttpMethod.Post, path, admin, new CreateServiceFolderRequest("Ricevute", null)), HttpStatusCode.Created))
+            .Single(folder => folder.Name == "Ricevute").Id;
+        var identity = (await TreeAsync(await SendAsync(HttpMethod.Post, path, admin, new CreateServiceFolderRequest("Identità", documents)), HttpStatusCode.Created))
+            .Single(folder => folder.Name == "Identità").Id;
+        await TreeAsync(await SendAsync(HttpMethod.Post, path, admin, new CreateServiceFolderRequest("Carta", identity)), HttpStatusCode.Created);
+
+        var tree = await TreeAsync(await SendAsync(HttpMethod.Get, path, employee));
+        tree.Select(folder => folder.Path).ShouldBe(["Documenti", "Documenti / Identità", "Documenti / Identità / Carta", "Ricevute"]);
+        (await SendAsync(HttpMethod.Post, path, employee, new CreateServiceFolderRequest("X", null))).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, path, admin, new CreateServiceFolderRequest("documenti", null)),
+            HttpStatusCode.Conflict, EventCodes.Cases.ServiceFolderNameTaken);
+        (await TreeAsync(await SendAsync(HttpMethod.Put, $"{path}/order", admin, new ReorderServiceFoldersRequest(null, [receipts, documents]))))
+            .Select(folder => folder.Name).First().ShouldBe("Ricevute");
+        (await TreeAsync(await SendAsync(HttpMethod.Put, $"{path}/{receipts}", admin, new RenameServiceFolderRequest("Pagamenti"))))
+            .First().Path.ShouldBe("Pagamenti");
+
+        // The subtree goes with its root.
+        (await TreeAsync(await SendAsync(HttpMethod.Delete, $"{path}/{documents}", admin))).Select(folder => folder.Name).ShouldBe(["Pagamenti"]);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Get, $"/api/v1/services/{Guid.NewGuid()}/folders", admin), HttpStatusCode.NotFound, EventCodes.Cases.ServiceNotFound);
+    }
+
     private async Task<(string Admin, string Employee, string Client)> UsersAsync()
     {
         var (_, adminName) = await factory.AddUserAsync([TenantRole.Administrator], Password);

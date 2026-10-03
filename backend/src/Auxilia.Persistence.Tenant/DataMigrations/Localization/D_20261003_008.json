@@ -1,0 +1,44 @@
+[
+ {
+  "key": "validation.serviceFolders.name",
+  "category": "validation",
+  "en": "Enter a folder name (at most 100 characters, no / or \\).",
+  "it": "Inserisci il nome della cartella (al massimo 100 caratteri, senza / o \\)."
+ },
+ {
+  "key": "validation.serviceFolders.parent",
+  "category": "validation",
+  "en": "Choose a folder of this service.",
+  "it": "Scegli una cartella di questo servizio."
+ },
+ {
+  "key": "validation.serviceFolders.depth",
+  "category": "validation",
+  "en": "Folders can be nested at most 10 levels deep.",
+  "it": "Le cartelle possono avere al massimo 10 livelli."
+ },
+ {
+  "key": "validation.serviceFolders.tooMany",
+  "category": "validation",
+  "en": "A service can have at most 500 folders.",
+  "it": "Un servizio può avere al massimo 500 cartelle."
+ },
+ {
+  "key": "validation.serviceFolders.order",
+  "category": "validation",
+  "en": "List every folder of this level once.",
+  "it": "Indica ogni cartella di questo livello una sola volta."
+ },
+ {
+  "key": "errors.AUX-14032",
+  "category": "errors",
+  "en": "The folder does not exist.",
+  "it": "La cartella non esiste."
+ },
+ {
+  "key": "errors.AUX-14033",
+  "category": "errors",
+  "en": "A folder with this name already exists here.",
+  "it": "Esiste già una cartella con questo nome in questa posizione."
+ }
+]

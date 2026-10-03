@@ -140,6 +140,8 @@ internal sealed class InMemoryServiceCatalog : IServiceCatalogDataFactory, IServ
 
     public List<Service> Services { get; } = [];
 
+    public List<ServiceFolder> Folders { get; } = [];
+
     public HashSet<Guid> Deleted { get; } = [];
 
     public HashSet<Guid> ActiveSpecializations { get; } = [];
@@ -195,6 +197,13 @@ internal sealed class InMemoryServiceCatalog : IServiceCatalogDataFactory, IServ
 
     public Task<bool> IsActiveEmployeeSpecializationAsync(Guid id, CancellationToken cancellationToken) =>
         Task.FromResult(ActiveSpecializations.Contains(id));
+
+    public Task<IReadOnlyList<ServiceFolder>> FoldersAsync(Guid serviceId, bool readOnly, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ServiceFolder>>(Folders.Where(folder => folder.ServiceId == serviceId).ToArray());
+
+    public void Add(ServiceFolder folder) => Folders.Add(folder);
+
+    public void Remove(ServiceFolder folder) => Folders.Remove(folder);
 
     public void Add(ServiceCategory category) => Categories.Add(category);
 
