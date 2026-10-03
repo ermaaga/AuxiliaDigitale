@@ -12,6 +12,9 @@ export const E2E = {
   otherTenant: "beta",
   userName: "mario.rossi",
   systemEmail: "ops@example.test",
+  /** Client pages (B-04): an Administrator only and an Employee only. */
+  administrator: { userName: "anna.bianchi", fullName: "Anna Bianchi" },
+  employee: { userName: "paola.neri", fullName: "Paola Neri" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

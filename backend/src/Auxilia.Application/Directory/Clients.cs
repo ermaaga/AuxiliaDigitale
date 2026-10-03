@@ -59,6 +59,9 @@ public interface IClientQueryService
 
     /// <summary>Employees a client can be assigned to (Employee role, can sign in), by name.</summary>
     Task<IReadOnlyList<ClientEmployeeResponse>> AssignableEmployeesAsync(CancellationToken cancellationToken);
+
+    /// <summary>The active specializations of the Client role, by name: what a client can be given (Q30).</summary>
+    Task<IReadOnlyList<ClientSpecializationResponse>> SpecializationsAsync(CancellationToken cancellationToken);
 }
 
 /// <summary>Validation shared by create and update: the fields every client needs (legacy staff form), on top of the person rules.</summary>
@@ -530,6 +533,14 @@ internal sealed class ClientQueryService(IClientDataFactory data, IUserAccounts 
         await using var store = await data.OpenAsync(cancellationToken);
         return (await store.AssignableEmployeesAsync(cancellationToken))
             .Select(employee => new ClientEmployeeResponse(employee.UserId, employee.FullName))
+            .ToArray();
+    }
+
+    public async Task<IReadOnlyList<ClientSpecializationResponse>> SpecializationsAsync(CancellationToken cancellationToken)
+    {
+        await using var store = await data.OpenAsync(cancellationToken);
+        return (await store.ClientSpecializationsAsync(cancellationToken))
+            .Select(specialization => new ClientSpecializationResponse(specialization.Id, specialization.Name))
             .ToArray();
     }
 

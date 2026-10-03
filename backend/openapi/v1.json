@@ -5812,6 +5812,30 @@
         }
       }
     },
+    "/api/v1/clients/specializations": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Active specializations of the Client role a client can be given",
+        "operationId": "ListClientSpecializations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClientSpecializationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/clients/{id}": {
       "get": {
         "tags": [

@@ -43,6 +43,19 @@ values ('0199aaaa-0000-7000-8000-000000000002', '0199aaaa-0000-7000-8000-0000000
         'mario.rossi@example.test', 'it', true, 'Identity', '00000000000000000000000000000001', 0, 0, now());
 insert into identity.user_roles(user_id, role)
 values ('0199aaaa-0000-7000-8000-000000000002', 'Administrator'), ('0199aaaa-0000-7000-8000-000000000002', 'Employee');
+
+-- The client pages (B-04): an Administrator only and an Employee only, with their own passwords (set by the spec).
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000011', 'Anna', 'Bianchi', 'anna.bianchi@example.test', now()),
+       ('0199aaaa-0000-7000-8000-000000000021', 'Paola', 'Neri', 'paola.neri@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000012', '0199aaaa-0000-7000-8000-000000000011', 'anna.bianchi',
+        'anna.bianchi@example.test', 'it', true, 'Identity', '00000000000000000000000000000011', 0, 0, now()),
+       ('0199aaaa-0000-7000-8000-000000000022', '0199aaaa-0000-7000-8000-000000000021', 'paola.neri',
+        'paola.neri@example.test', 'it', true, 'Identity', '00000000000000000000000000000021', 0, 0, now());
+insert into identity.user_roles(user_id, role)
+values ('0199aaaa-0000-7000-8000-000000000012', 'Administrator'), ('0199aaaa-0000-7000-8000-000000000022', 'Employee');
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then
