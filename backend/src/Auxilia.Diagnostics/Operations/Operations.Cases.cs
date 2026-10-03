@@ -29,5 +29,13 @@ public static partial class Operations
         public static readonly OperationDescriptor UpdateCase = new("Cases.UpdateCase", EventCodes.Cases.CaseUpdated);
 
         public static readonly OperationDescriptor DeleteCase = new("Cases.DeleteCase", EventCodes.Cases.CaseDeleted);
+
+        public static readonly OperationDescriptor CreateServiceFolder = new("Cases.CreateServiceFolder", EventCodes.Cases.ServiceFolderCreated);
+
+        public static readonly OperationDescriptor RenameServiceFolder = new("Cases.RenameServiceFolder", EventCodes.Cases.ServiceFolderRenamed);
+
+        public static readonly OperationDescriptor ReorderServiceFolders = new("Cases.ReorderServiceFolders", EventCodes.Cases.ServiceFoldersReordered);
+
+        public static readonly OperationDescriptor DeleteServiceFolder = new("Cases.DeleteServiceFolder", EventCodes.Cases.ServiceFolderDeleted);
     }
 }

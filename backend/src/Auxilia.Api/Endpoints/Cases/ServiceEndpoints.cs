@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Auxilia.Api.Endpoints.Cases;
 
 /// <summary>
-/// The service catalog (F08, Q26–Q28): services and their categories. Staff read it (to open cases), Administrators
+/// The service catalog (F08, Q26–Q28): services, their categories and their folder templates (F33). Staff read it (to open cases), Administrators
 /// manage it. Module <c>cases</c>: 404 when not visible to the caller's role.
 /// </summary>
 internal sealed class ServiceEndpoints : IModuleEndpoints
@@ -89,6 +89,48 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        var folders = services.MapGroup("/{id:guid}/folders").WithTags("Services");
+
+        folders.MapGet("/", FoldersAsync)
+            .RequirePermission(CasesPermissions.ViewServices)
+            .WithName("ListServiceFolders")
+            .WithSummary("The folder template of a service in tree order, with depth and path")
+            .Produces<IReadOnlyList<ServiceFolderResponse>>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        folders.MapPost("/", CreateFolderAsync)
+            .RequirePermission(CasesPermissions.ManageServices)
+            .WithName("CreateServiceFolder")
+            .WithSummary("Adds a folder at the end of its siblings (root when parentId is null); answers with the template")
+            .Produces<IReadOnlyList<ServiceFolderResponse>>(StatusCodes.Status201Created)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        folders.MapPut("/order", ReorderFoldersAsync)
+            .RequirePermission(CasesPermissions.ManageServices)
+            .WithName("ReorderServiceFolders")
+            .WithSummary("Sets the order of every folder under one parent; answers with the template")
+            .Produces<IReadOnlyList<ServiceFolderResponse>>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        folders.MapPut("/{folderId:guid}", RenameFolderAsync)
+            .RequirePermission(CasesPermissions.ManageServices)
+            .WithName("RenameServiceFolder")
+            .WithSummary("Renames a folder (unique among its siblings); answers with the template")
+            .Produces<IReadOnlyList<ServiceFolderResponse>>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        folders.MapDelete("/{folderId:guid}", DeleteFolderAsync)
+            .RequirePermission(CasesPermissions.ManageServices)
+            .WithName("DeleteServiceFolder")
+            .WithSummary("Deletes a folder and its subfolders; answers with the template")
+            .Produces<IReadOnlyList<ServiceFolderResponse>>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         services.MapDelete("/{id:guid}", DeleteAsync)
             .RequirePermission(CasesPermissions.ManageServices)
             .WithName("DeleteService")
@@ -151,6 +193,34 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
 
     private static async Task<IResult> DeleteAsync(Guid id, IServiceCatalogManager manager, CancellationToken cancellationToken) =>
         (await manager.DeleteServiceAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
+
+    private static async Task<IResult> FoldersAsync(Guid id, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
+        (await folders.ListAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> CreateFolderAsync(
+        Guid id, CreateServiceFolderRequest request, IServiceFolderManager manager, IServiceFolderQueryService folders, CancellationToken cancellationToken)
+    {
+        var created = await manager.CreateAsync(id, request, cancellationToken);
+        return created.IsFailure
+            ? created.Error!.ToProblem()
+            : (await folders.ListAsync(id, cancellationToken)).ToHttpResult(tree => TypedResults.Created($"/api/v1/services/{id}/folders", tree));
+    }
+
+    private static async Task<IResult> RenameFolderAsync(
+        Guid id, Guid folderId, RenameServiceFolderRequest request, IServiceFolderManager manager, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
+        await TreeAfterAsync(await manager.RenameAsync(id, folderId, request.Name, cancellationToken), id, folders, cancellationToken);
+
+    private static async Task<IResult> ReorderFoldersAsync(
+        Guid id, ReorderServiceFoldersRequest request, IServiceFolderManager manager, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
+        await TreeAfterAsync(await manager.ReorderAsync(id, request, cancellationToken), id, folders, cancellationToken);
+
+    private static async Task<IResult> DeleteFolderAsync(
+        Guid id, Guid folderId, IServiceFolderManager manager, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
+        await TreeAfterAsync(await manager.DeleteAsync(id, folderId, cancellationToken), id, folders, cancellationToken);
+
+    /// <summary>A change of the template answers with the template as it is now.</summary>
+    private static async Task<IResult> TreeAfterAsync(Result change, Guid id, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
+        change.IsFailure ? change.Error!.ToProblem() : (await folders.ListAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);
 
     private static async Task<ServiceCategoryResponse?> CategoryAsync(IServiceCatalogQueryService catalog, Guid id, CancellationToken cancellationToken) =>
         (await catalog.CategoriesAsync(cancellationToken)).SingleOrDefault(category => category.Id == id);

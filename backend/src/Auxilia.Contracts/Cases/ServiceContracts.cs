@@ -59,3 +59,17 @@ public sealed record ServiceListQuery(
     string? Sort,
     int Page,
     int PageSize);
+
+/// <summary>
+/// A folder of a service template (F33), in tree order (depth first, siblings by <c>sortOrder</c>): <c>depth</c> 1 for
+/// the root folders, <c>path</c> the names from the root (<c>A / B / C</c>).
+/// </summary>
+public sealed record ServiceFolderResponse(Guid Id, Guid? ParentId, string Name, int SortOrder, int Depth, string Path);
+
+/// <summary>A new folder at the end of its siblings; <c>parentId</c> null for the root.</summary>
+public sealed record CreateServiceFolderRequest(string Name, Guid? ParentId);
+
+public sealed record RenameServiceFolderRequest(string Name);
+
+/// <summary>Every folder under <c>parentId</c> (null for the root), in the new order.</summary>
+public sealed record ReorderServiceFoldersRequest(Guid? ParentId, IReadOnlyList<Guid> FolderIds);

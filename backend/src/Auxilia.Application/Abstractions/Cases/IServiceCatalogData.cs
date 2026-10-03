@@ -70,6 +70,13 @@ public interface IServiceCatalogData : IAsyncDisposable
     /// <summary>An active specialization of the Employee role (Directory, F12) has the id.</summary>
     Task<bool> IsActiveEmployeeSpecializationAsync(Guid id, CancellationToken cancellationToken);
 
+    /// <summary>Every folder of the template of the service (tracked unless <paramref name="readOnly"/>).</summary>
+    Task<IReadOnlyList<ServiceFolder>> FoldersAsync(Guid serviceId, bool readOnly, CancellationToken cancellationToken);
+
+    void Add(ServiceFolder folder);
+
+    void Remove(ServiceFolder folder);
+
     void Add(ServiceCategory category);
 
     void Add(Service service);

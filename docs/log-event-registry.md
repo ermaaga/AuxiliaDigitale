@@ -14,7 +14,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
-| 14000–14999 | Cases | Cases (services, cases, payments) | 26 | 14027 |
+| 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
@@ -220,6 +220,13 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-14024 | Cases.CaseCompletionRequired | – | Conflict | – | – |
 | AUX-14025 | Cases.CaseCannotGoBack | – | Conflict | – | – |
 | AUX-14026 | Cases.ServiceInUse | – | Conflict | – | – |
+| AUX-14027 | Cases.ServiceFolderCreated | – | – | Cases.CreateServiceFolder (success) | – |
+| AUX-14028 | Cases.ServiceFolderRenamed | – | – | Cases.RenameServiceFolder (success) | – |
+| AUX-14029 | Cases.ServiceFoldersReordered | – | – | Cases.ReorderServiceFolders (success) | – |
+| AUX-14030 | Cases.ServiceFolderDeleted | – | – | Cases.DeleteServiceFolder (success) | – |
+| AUX-14031 | Cases.ServiceFolderInvalid | – | Validation | – | – |
+| AUX-14032 | Cases.ServiceFolderNotFound | – | NotFound | – | – |
+| AUX-14033 | Cases.ServiceFolderNameTaken | – | Conflict | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

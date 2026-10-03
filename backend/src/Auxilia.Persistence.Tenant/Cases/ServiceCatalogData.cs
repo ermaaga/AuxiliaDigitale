@@ -98,6 +98,16 @@ internal sealed class ServiceCatalogData(ITenantDbContext db) : IServiceCatalogD
         db.Set<Specialization>().AnyAsync(
             specialization => specialization.Id == id && specialization.IsActive && specialization.Role == TenantRole.Employee, cancellationToken);
 
+    public async Task<IReadOnlyList<ServiceFolder>> FoldersAsync(Guid serviceId, bool readOnly, CancellationToken cancellationToken)
+    {
+        var folders = readOnly ? db.Set<ServiceFolder>().AsNoTracking() : db.Set<ServiceFolder>();
+        return await folders.Where(folder => folder.ServiceId == serviceId).ToListAsync(cancellationToken);
+    }
+
+    public void Add(ServiceFolder folder) => db.Set<ServiceFolder>().Add(folder);
+
+    public void Remove(ServiceFolder folder) => db.Set<ServiceFolder>().Remove(folder);
+
     public void Add(ServiceCategory category) => db.Set<ServiceCategory>().Add(category);
 
     public void Add(Service service) => db.Set<Service>().Add(service);

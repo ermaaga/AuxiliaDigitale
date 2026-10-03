@@ -82,5 +82,26 @@ public static partial class EventCodes
 
         /// <summary>A service with cases cannot be deleted: deactivate it (409, Q28).</summary>
         public const int ServiceInUse = 14026;
+
+        /// <summary>A folder was added to the folder template of a service (F33).</summary>
+        public const int ServiceFolderCreated = 14027;
+
+        /// <summary>A folder of a service template was renamed.</summary>
+        public const int ServiceFolderRenamed = 14028;
+
+        /// <summary>The folders under one parent of a service template were reordered.</summary>
+        public const int ServiceFoldersReordered = 14029;
+
+        /// <summary>A folder of a service template was deleted with its subfolders (documents keep no folder).</summary>
+        public const int ServiceFolderDeleted = 14030;
+
+        /// <summary>A value of a service folder is not valid (400, field errors).</summary>
+        public const int ServiceFolderInvalid = 14031;
+
+        /// <summary>No folder with this id in the service (404).</summary>
+        public const int ServiceFolderNotFound = 14032;
+
+        /// <summary>A folder under the same parent already has this name (409).</summary>
+        public const int ServiceFolderNameTaken = 14033;
     }
 }

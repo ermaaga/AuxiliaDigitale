@@ -68,6 +68,8 @@ public sealed class CasesModule : IModuleDescriptor
     {
         services.TryAddScoped<IServiceCatalogManager, ServiceCatalogManager>();
         services.TryAddScoped<IServiceCatalogQueryService, ServiceCatalogQueryService>();
+        services.TryAddScoped<IServiceFolderManager, ServiceFolderManager>();
+        services.TryAddScoped<IServiceFolderQueryService, ServiceFolderQueryService>();
         services.TryAddScoped<CaseAccessPolicy>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IResourceAccessPolicy<CaseResource>, CaseAccessPolicy>(provider => provider.GetRequiredService<CaseAccessPolicy>()));
         services.TryAddScoped<ICaseManager, CaseManager>();

@@ -51,5 +51,15 @@ public static partial class Errors
 
         public static Error ServiceInUse() =>
             Error.Conflict(EventCodes.Cases.ServiceInUse, "The service has cases: deactivate it instead");
+
+        public static Error ServiceFolderInvalid(string field, string messageKey) =>
+            Error.Validation(EventCodes.Cases.ServiceFolderInvalid, $"The folder {field} is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
+
+        public static Error ServiceFolderNotFound() =>
+            Error.NotFound(EventCodes.Cases.ServiceFolderNotFound, "Folder not found");
+
+        public static Error ServiceFolderNameTaken() =>
+            Error.Conflict(EventCodes.Cases.ServiceFolderNameTaken, "A folder with this name already exists here");
     }
 }
