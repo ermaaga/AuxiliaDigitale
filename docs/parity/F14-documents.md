@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [~] in progress (storage B-11 and documents API B-12 done; pages B-13) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
+Status: [~] in progress (storage B-11, API B-12 and pages B-13 done; case documents tab B-14, legacy areas E-04) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.
@@ -41,12 +41,21 @@ Uploads are staged, committed inside the operation (removed again if it fails) a
 (`ProcessDocumentCommand`, queue `auxilia.documents`: checksum of the stored file), which pushes `DocumentProcessed` to the
 uploader (Q13). Names unique per client, case and folder (Q51 fix).
 
+## Pages (B-13)
+`/{tenant}/documents` (nav `documents`) and the client 360° tab `?tab=documents` share `features/documents`
+(`DocumentsPanel`): uploader (choose, drag & drop, paste with Ctrl/Cmd+V, up to 50 files, progress through
+XMLHttpRequest, same metadata, custom name for one file, per-file errors), list (filters client, file name, year,
+area; legacy sorts; status badge), detail drawer (image preview, PDF preview in a new tab — the app never frames files,
+`X-Frame-Options: DENY` —, metadata edit keeping the extension, download, delete with confirmation) and the areas
+dialog (`documents.areas.manage`). Lists refresh every 3 s while a document is `Processing` until the realtime client
+(B-21) delivers `DocumentProcessed`.
+
 ## Acceptance criteria
 - [x] Storage providers Local/FTP/Azure selectable by configuration (tenant setting instead of precedence), keys prefixed `tenants/{slug}/documents/`, SHA-256 computed (stored with the document, B-12).
-- [ ] Multi-file drag & drop + clipboard paste + progress; max size per tenant (default 60 MB); whitelist + magic bytes.
+- [x] Multi-file drag & drop + clipboard paste + progress; max size per tenant (default 60 MB); whitelist + magic bytes.
 - [x] Metadata rules: reference year ≥ current−10; custom name single-file only with extension kept; sanitization as legacy.
 - [x] Duplicate names detected against existing documents of the same owner/case/folder.
-- [x] Lists with the filters/sorts above, per client and global, access rules F10. *(API; pages B-13)*
-- [ ] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm).
+- [x] Lists with the filters/sorts above, per client and global, access rules F10.
+- [x] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm). *(PDF preview in a new tab)*
 - [x] Async processing path via Worker notifies the **uploader** (`DocumentProcessed`) and refreshes lists. *(event; list refresh in B-13)*
 - [ ] Areas become a managed lookup seeded from legacy distinct values. *(lookup and API B-12; seed from the legacy values with the import E-04)*
