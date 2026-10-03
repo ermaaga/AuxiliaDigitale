@@ -1,0 +1,98 @@
+[
+ {
+  "key": "permissions.cases.services.view.description",
+  "category": "permissions",
+  "en": "See the service catalog (to open cases)",
+  "it": "Vedere il catalogo dei servizi (per aprire pratiche)"
+ },
+ {
+  "key": "grids.cases.services.name",
+  "category": "grids",
+  "en": "Services",
+  "it": "Servizi"
+ },
+ {
+  "key": "app.services.category",
+  "category": "app",
+  "en": "Category",
+  "it": "Categoria"
+ },
+ {
+  "key": "validation.serviceCategories.name",
+  "category": "validation",
+  "en": "Enter the category name (at most 100 characters).",
+  "it": "Inserisci il nome della categoria (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.serviceCategories.description",
+  "category": "validation",
+  "en": "The description can be at most 1000 characters.",
+  "it": "La descrizione può avere al massimo 1000 caratteri."
+ },
+ {
+  "key": "validation.services.name",
+  "category": "validation",
+  "en": "Enter the service name (at most 200 characters).",
+  "it": "Inserisci il nome del servizio (al massimo 200 caratteri)."
+ },
+ {
+  "key": "validation.services.description",
+  "category": "validation",
+  "en": "The description can be at most 2000 characters.",
+  "it": "La descrizione può avere al massimo 2000 caratteri."
+ },
+ {
+  "key": "validation.services.price",
+  "category": "validation",
+  "en": "Enter a price of zero or more, with at most two decimals.",
+  "it": "Inserisci un prezzo pari o superiore a zero, con al massimo due decimali."
+ },
+ {
+  "key": "validation.services.durationDays",
+  "category": "validation",
+  "en": "Enter a duration between 1 and 3650 days.",
+  "it": "Inserisci una durata tra 1 e 3650 giorni."
+ },
+ {
+  "key": "validation.services.category",
+  "category": "validation",
+  "en": "Choose an active category.",
+  "it": "Scegli una categoria attiva."
+ },
+ {
+  "key": "validation.services.specialization",
+  "category": "validation",
+  "en": "Choose an active employee specialization.",
+  "it": "Scegli una specializzazione attiva degli operatori."
+ },
+ {
+  "key": "errors.AUX-14005",
+  "category": "errors",
+  "en": "The category does not exist.",
+  "it": "La categoria non esiste."
+ },
+ {
+  "key": "errors.AUX-14006",
+  "category": "errors",
+  "en": "Another active category already has this name.",
+  "it": "Un'altra categoria attiva ha già questo nome."
+ },
+ {
+  "key": "errors.AUX-14007",
+  "category": "errors",
+  "en": "The category is used by some services: deactivate it instead.",
+  "it": "La categoria è usata da alcuni servizi: disattivala invece di eliminarla."
+ },
+ {
+  "key": "errors.AUX-14012",
+  "category": "errors",
+  "en": "The service does not exist or has been deleted.",
+  "it": "Il servizio non esiste o è stato eliminato."
+ },
+ {
+  "key": "errors.AUX-14013",
+  "category": "errors",
+  "en": "Another service already has this name.",
+  "it": "Un altro servizio ha già questo nome."
+ }
+]
