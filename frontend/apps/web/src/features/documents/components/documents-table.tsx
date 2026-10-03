@@ -9,25 +9,57 @@ import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import type { DataTableColumn } from "@/components/data-table/table-model";
 import { useTableState } from "@/components/data-table/use-table-state";
 
-import { useDocumentAreas, useDocuments, type DocumentListItem } from "../api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@auxilia/ui/components/select";
+
+import { useNotify } from "@/lib/notify";
+
+import {
+  moveDocument,
+  useDocumentAreas,
+  useDocumentMutation,
+  useDocuments,
+  type DocumentListItem,
+} from "../api";
 import { formatSize, referenceYears } from "../schemas/document";
 import { DocumentDrawer } from "./document-drawer";
 import { DocumentStatusBadge } from "./document-status-badge";
 
+/** A folder of the case's service with its path (F33). */
+export type FolderChoice = { id: string; path: string };
+
+const NO_FOLDER = "none";
+
 /**
  * The document lists (F14, one list for every staff role; the API applies F10): filters by client, file name,
  * reference year and area, sorted and paged by the API; a row opens the detail drawer. `clientId` restricts the
- * list to one client (client 360°), and hides the client column and filter.
+ * list to one client (client 360°), and hides the client column and filter; `caseId` to one case and `folderId` to one
+ * of its folders. With `folders` (a case) each row shows its folder and can be moved to another one (F33).
  */
 export function DocumentsTable({
   tenant,
   label,
   clientId,
+  caseId,
+  folderId,
+  folders,
 }: {
   tenant: string;
   label: string;
   clientId?: string;
+  caseId?: string;
+  folderId?: string;
+  folders?: readonly FolderChoice[];
 }) {
+  const notify = useNotify();
+  const move = useDocumentMutation(tenant, (input: { id: string; folderId: string | null }) =>
+    moveDocument(input.id, input.folderId),
+  );
   const t = useTranslations();
   const locale = useLocale();
   const format = useFormatter();
@@ -40,6 +72,8 @@ export function DocumentsTable({
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
     "filter[clientId]": clientId,
+    "filter[caseId]": caseId,
+    "filter[folderId]": folderId,
     "filter[clientName]": clientId ? undefined : table.filters.clientName,
     "filter[fileName]": table.filters.fileName,
     "filter[referenceYear]": Number.isInteger(year) ? year : undefined,
@@ -76,6 +110,42 @@ export function DocumentsTable({
             cell: (row: DocumentListItem) => row.client.fullName,
           },
         ]),
+    ...(folders
+      ? [
+          {
+            id: "folder",
+            header: t("Folder"),
+            cell: (row: DocumentListItem) => (
+              <Select
+                value={row.folderId ?? NO_FOLDER}
+                onValueChange={(value) =>
+                  void move
+                    .mutateAsync({ id: row.id, folderId: value === NO_FOLDER ? null : value })
+                    .then(
+                      () => notify.success("app.documents.moved"),
+                      (error: unknown) => notify.error(error),
+                    )
+                }
+              >
+                <SelectTrigger
+                  className="w-48"
+                  aria-label={t("app.documents.moveTo", { name: row.fileName })}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_FOLDER}>{t("AllDocuments")}</SelectItem>
+                  {folders.map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id}>
+                      {folder.path}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ),
+          },
+        ]
+      : []),
     {
       id: "referenceYear",
       header: t("ReferenceYear"),
@@ -83,11 +153,16 @@ export function DocumentsTable({
       cell: (row) => row.referenceYear,
     },
     { id: "area", header: t("Area"), sortField: "area", cell: (row) => row.area?.name ?? "—" },
-    {
-      id: "case",
-      header: t("app.documents.case"),
-      cell: (row) => (row.case ? `${row.case.number} · ${row.case.serviceName}` : "—"),
-    },
+    ...(caseId
+      ? []
+      : [
+          {
+            id: "case",
+            header: t("app.documents.case"),
+            cell: (row: DocumentListItem) =>
+              row.case ? `${row.case.number} · ${row.case.serviceName}` : "—",
+          },
+        ]),
     { id: "description", header: t("Description"), cell: (row) => row.description ?? "—" },
     {
       id: "size",

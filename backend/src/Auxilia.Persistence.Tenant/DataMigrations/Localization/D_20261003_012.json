@@ -1,0 +1,224 @@
+[
+ {
+  "key": "app.cases.progress",
+  "category": "app",
+  "en": "Progress of the case",
+  "it": "Avanzamento della pratica"
+ },
+ {
+  "key": "app.cases.stepDone",
+  "category": "app",
+  "en": "done",
+  "it": "completato"
+ },
+ {
+  "key": "app.cases.newDescription",
+  "category": "app",
+  "en": "The price of the service is fixed now; the client goes to the default employee when nobody is in charge.",
+  "it": "Il prezzo del servizio viene fissato adesso; se il cliente non è seguito da nessuno passa all'operatore predefinito."
+ },
+ {
+  "key": "app.cases.days",
+  "category": "app",
+  "en": "{days, plural, one {# day} other {# days}}",
+  "it": "{days, plural, one {# giorno} other {# giorni}}"
+ },
+ {
+  "key": "app.cases.chooseService",
+  "category": "app",
+  "en": "Choose a service",
+  "it": "Scegli un servizio"
+ },
+ {
+  "key": "app.cases.dueOn",
+  "category": "app",
+  "en": "Due date",
+  "it": "Scadenza"
+ },
+ {
+  "key": "app.cases.employeeHint",
+  "category": "app",
+  "en": "Optional: the client is handed to this employee.",
+  "it": "Facoltativo: il cliente viene affidato a questo operatore."
+ },
+ {
+  "key": "app.cases.defaultEmployee",
+  "category": "app",
+  "en": "Employee in charge or default",
+  "it": "Operatore attuale o predefinito"
+ },
+ {
+  "key": "app.cases.opened",
+  "category": "app",
+  "en": "Case opened",
+  "it": "Pratica aperta"
+ },
+ {
+  "key": "app.cases.complete",
+  "category": "app",
+  "en": "Complete",
+  "it": "Concludi"
+ },
+ {
+  "key": "app.cases.completeDescription",
+  "category": "app",
+  "en": "Price {price}, already received {paid}. A completed case cannot change any more.",
+  "it": "Prezzo {price}, già ricevuti {paid}. Una pratica conclusa non può più cambiare."
+ },
+ {
+  "key": "app.cases.amountReceived",
+  "category": "app",
+  "en": "Amount received now",
+  "it": "Importo ricevuto adesso"
+ },
+ {
+  "key": "app.cases.rejectedHint",
+  "category": "app",
+  "en": "The case ends with a rejection",
+  "it": "La pratica si chiude con esito negativo"
+ },
+ {
+  "key": "app.cases.payments",
+  "category": "app",
+  "en": "Payments",
+  "it": "Pagamenti"
+ },
+ {
+  "key": "app.cases.balance",
+  "category": "app",
+  "en": "Balance due",
+  "it": "Residuo da pagare"
+ },
+ {
+  "key": "app.cases.paidOn",
+  "category": "app",
+  "en": "Payment date",
+  "it": "Data del pagamento"
+ },
+ {
+  "key": "app.cases.noPayments",
+  "category": "app",
+  "en": "No payment yet.",
+  "it": "Nessun pagamento finora."
+ },
+ {
+  "key": "app.cases.addPayment",
+  "category": "app",
+  "en": "Record payment",
+  "it": "Registra pagamento"
+ },
+ {
+  "key": "app.cases.paymentRecorded",
+  "category": "app",
+  "en": "Payment recorded",
+  "it": "Pagamento registrato"
+ },
+ {
+  "key": "app.cases.timeline",
+  "category": "app",
+  "en": "Timeline",
+  "it": "Cronologia"
+ },
+ {
+  "key": "app.cases.changed",
+  "category": "app",
+  "en": "From {from} to {to}",
+  "it": "Da {from} a {to}"
+ },
+ {
+  "key": "app.cases.openedOn",
+  "category": "app",
+  "en": "Case opened",
+  "it": "Pratica aperta"
+ },
+ {
+  "key": "app.cases.folders",
+  "category": "app",
+  "en": "Folders of the case",
+  "it": "Cartelle della pratica"
+ },
+ {
+  "key": "app.cases.downloadZip",
+  "category": "app",
+  "en": "Download {name} as ZIP",
+  "it": "Scarica {name} come ZIP"
+ },
+ {
+  "key": "app.cases.back",
+  "category": "app",
+  "en": "Back to the cases",
+  "it": "Torna alle pratiche"
+ },
+ {
+  "key": "app.cases.notFound",
+  "category": "app",
+  "en": "The case does not exist or you cannot see it.",
+  "it": "La pratica non esiste o non puoi vederla."
+ },
+ {
+  "key": "app.cases.forward",
+  "category": "app",
+  "en": "Next step",
+  "it": "Passo successivo"
+ },
+ {
+  "key": "app.cases.advanced",
+  "category": "app",
+  "en": "Case moved forward",
+  "it": "Pratica avanzata"
+ },
+ {
+  "key": "app.cases.movedBack",
+  "category": "app",
+  "en": "Case moved back",
+  "it": "Pratica riportata indietro"
+ },
+ {
+  "key": "app.cases.deleteConfirm",
+  "category": "app",
+  "en": "Delete the case {number}?",
+  "it": "Eliminare la pratica {number}?"
+ },
+ {
+  "key": "app.cases.private",
+  "category": "app",
+  "en": "private",
+  "it": "privata"
+ },
+ {
+  "key": "app.cases.openClient",
+  "category": "app",
+  "en": "Open the client",
+  "it": "Apri il cliente"
+ },
+ {
+  "key": "app.cases.summary",
+  "category": "app",
+  "en": "Summary",
+  "it": "Riepilogo"
+ },
+ {
+  "key": "app.cases.outcome",
+  "category": "app",
+  "en": "Outcome",
+  "it": "Esito"
+ },
+ {
+  "key": "app.cases.documentsHint",
+  "category": "app",
+  "en": "The documents of the case are in the client's Documents tab.",
+  "it": "I documenti della pratica sono nel tab Documenti del cliente."
+ },
+ {
+  "key": "app.documents.moved",
+  "category": "app",
+  "en": "Document moved",
+  "it": "Documento spostato"
+ },
+ {
+  "key": "app.documents.moveTo",
+  "category": "app",
+  "en": "Folder of {name}",
+  "it": "Cartella di {name}"
+ }
+]

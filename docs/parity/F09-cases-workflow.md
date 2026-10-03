@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [~] in progress (domain, API and lists B-08/B-09 done; pages B-14, expiry reminder B-25) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [~] in progress (domain, API, lists and pages B-08/B-09/B-14 done; expiry reminder B-25, checklist B-26) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).
@@ -38,13 +38,19 @@ Lists (B-09): `GET /cases` with `filter[clientName|serviceName|clientId|serviceI
 `amountPaid` / `number`; rows carry `validity` (Active / Expired / Inactive, the client badge). The same endpoint gives
 the cases of a client (360°) and of a service (service detail). Grid `cases.cases`.
 
+## Pages (B-14)
+`/{tenant}/cases` (list with the employee toggles in the URL, quick creation dialog) and `/{tenant}/cases/{id}`: header
+"service — client", status stepper, back / next step (confirmation) / complete (dialog: amount received from what is still
+due, rejected, note), content per status (Inserted: service; InProgress: folders and documents of the case, F33; Sent and
+Completed: summary), payments with balance due and new payment, timeline. Client 360° tab `?tab=cases`.
+
 ## Acceptance criteria
 - [x] Domain: `Advance()` Inserted→InProgress→Sent→Completed; `GoBack()` only from InProgress/Sent; Completed is terminal (any change → `409` coded error).
 - [x] Completing requires amount paid (default = service price) and rejected flag; sets `closed_at`/`expires_on = today`, records a payment and a history row; recomputes client status.
-- [x] Every transition writes `case_status_history` (who, when, from, to, note) shown as a timeline. *(API; timeline UI with B-14)*
+- [x] Every transition writes `case_status_history` (who, when, from, to, note) shown as a timeline.
 - [x] Create case: default employee assignment, price snapshot, specialization default from service, case number `{year}-{seq}`; client becomes active.
-- [ ] Case detail shows contextual content per status exactly as listed above.
-- [x] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off). *(API `GET /cases`; page B-14)*
+- [x] Case detail shows contextual content per status exactly as listed above. *(Sent: the documents stay reachable from the client's Documents tab)*
+- [x] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off).
 - [ ] Client sees own cases with Active/Expired/Inactive badge.
 - [ ] Soft delete with confirmation; employees cannot delete Completed cases (F10).
 - [ ] Manual action "Send expiry reminder" e-mail (F11, Q24).
