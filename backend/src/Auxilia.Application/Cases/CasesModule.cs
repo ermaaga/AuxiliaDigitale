@@ -35,6 +35,21 @@ public sealed class CasesModule : IModuleDescriptor
     /// <summary>The service list (F08, F21): the columns of the legacy grid plus the category (Q26).</summary>
     public IReadOnlyList<GridDefinition> Grids { get; } =
     [
+        // The case lists (F09, F21): the columns of the legacy grids plus the number; custom fields appended by the web app.
+        new(
+            "cases.cases",
+            [
+                new("number", "Number", Sortable: true),
+                new("client", "Client", Sortable: true, Filterable: true, CanHide: false),
+                new("service", "app.cases.service", Sortable: true, Filterable: true),
+                new("startedOn", "StartDate", Sortable: true),
+                new("expiresOn", "EndDate", Sortable: true),
+                new("amountPaid", "AmountPaid", Sortable: true),
+                new("status", "Status", Filterable: true),
+                new("specialization", "Specialization", VisibleByDefault: false),
+            ],
+            [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
+
         new(
             "cases.services",
             [

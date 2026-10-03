@@ -2,14 +2,17 @@ using Auxilia.Api.Authorization;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Application.Cases;
 using Auxilia.Contracts.Cases;
+using Auxilia.Contracts.Common;
 using Auxilia.SharedKernel.Results;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auxilia.Api.Endpoints.Cases;
 
 /// <summary>
 /// Cases (F09): open, detail with timeline and payments, one status forward or back, complete, payments, due date and
 /// custom fields, soft delete. Visibility and management follow F10 (D-04): a case the caller cannot see is 404 (Q10),
-/// one it sees but may not change is 403. Lists arrive with B-09. Module <c>cases</c>: 404 when not visible to the role.
+/// one it sees but may not change is 403; the lists apply the same rules in the query (B-09). Module <c>cases</c>: 404 when not visible to the role.
 /// </summary>
 internal sealed class CaseEndpoints : IModuleEndpoints
 {
@@ -18,6 +21,15 @@ internal sealed class CaseEndpoints : IModuleEndpoints
     public void Map(RouteGroupBuilder module)
     {
         var cases = module.MapGroup("/cases").WithTags("Cases");
+
+        cases.MapGet("/", ListAsync)
+            .RequirePermission(CasesPermissions.ViewCases)
+            .WithName("ListCases")
+            .WithSummary("The cases the caller may see (F10), filtered by client, service and status, with the show all / show completed toggles")
+            .Produces<PagedResponse<CaseListItemResponse>>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden);
 
         cases.MapGet("/{id:guid}", GetAsync)
             .RequirePermission(CasesPermissions.ViewCases)
@@ -85,6 +97,23 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound);
     }
+
+    private static async Task<IResult> ListAsync(
+        ICaseQueryService cases,
+        [FromQuery(Name = "filter[clientName]")] string? clientName,
+        [FromQuery(Name = "filter[serviceName]")] string? serviceName,
+        [FromQuery(Name = "filter[clientId]")] Guid? clientId,
+        [FromQuery(Name = "filter[serviceId]")] Guid? serviceId,
+        [FromQuery(Name = "filter[status]")] string? status,
+        bool? showAll,
+        bool? showCompleted,
+        string? sort,
+        int? page,
+        int? pageSize,
+        CancellationToken cancellationToken) =>
+        (await cases.ListAsync(
+            new CaseListQuery(clientName, serviceName, clientId, serviceId, status, showAll, showCompleted, sort, page ?? 1, pageSize ?? 25), cancellationToken))
+            .ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> GetAsync(Guid id, ICaseQueryService cases, CancellationToken cancellationToken) =>
         (await cases.GetAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);

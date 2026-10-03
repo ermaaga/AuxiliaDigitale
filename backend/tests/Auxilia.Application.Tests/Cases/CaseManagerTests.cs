@@ -70,7 +70,7 @@ public sealed class CaseManagerTests : IAsyncDisposable
                 ? Result.Success()
                 : Result.Failure(Errors.Identity.PermissionDenied()));
         manager = new CaseManager(ManagerHarness.Runner(), data, clients, customFields, guard, policy, caller, clock);
-        query = new CaseQueryService(data, policy, permissions);
+        query = new CaseQueryService(data, policy, permissions, clock);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -231,6 +231,57 @@ public sealed class CaseManagerTests : IAsyncDisposable
         (await manager.DeleteAsync(unknown, Ct)).Error!.Code.ShouldBe(EventCodes.Cases.CaseNotFound);
         (await query.GetAsync(unknown, Ct)).Error!.Code.ShouldBe(EventCodes.Cases.CaseNotFound);
     }
+
+    [Fact]
+    public async Task List_ScopeFollowsTheRole_AndTheTogglesStartOffOnlyForEmployees()
+    {
+        await OpenAsync();
+
+        var page = (await query.ListAsync(new CaseListQuery(null, null, null, null, null, null, null, null, 1, 25), Ct)).Value;
+        page.Items.ShouldHaveSingleItem().Validity.ShouldBe("Active");
+        var admin = data.LastFilter!;
+        (admin.Scope, admin.OnlyHeldOrUnspecialized, admin.IncludeCompleted, admin.Sort, admin.Descending)
+            .ShouldBe((new CaseScope(true, null, null), false, true, CaseSort.StartedOn, true));
+
+        CallAs(Employee, TenantRole.Employee);
+        await query.ListAsync(new CaseListQuery(null, null, null, null, null, null, null, "client", 1, 25), Ct);
+        var employee = data.LastFilter!;
+        (employee.Scope, employee.OnlyHeldOrUnspecialized, employee.IncludeCompleted, employee.Sort, employee.Descending)
+            .ShouldBe((new CaseScope(false, Employee, null), true, false, CaseSort.Client, false));
+        await query.ListAsync(new CaseListQuery(" rossi ", "ISEE", Client, service, "Sent", true, true, "-amountPaid", 2, 10), Ct);
+        var toggled = data.LastFilter!;
+        (toggled.OnlyHeldOrUnspecialized, toggled.IncludeCompleted, toggled.ClientName, toggled.Status, toggled.Sort, toggled.Descending, toggled.Skip)
+            .ShouldBe((false, true, "rossi", (CaseStatus?)CaseStatus.Sent, CaseSort.AmountPaid, true, 10));
+
+        CallAs(ClientUser, TenantRole.Client);
+        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, clock)
+            .ListAsync(new CaseListQuery(null, null, null, null, null, null, null, null, 1, 25), Ct);
+        data.LastFilter!.Scope.ShouldBe(new CaseScope(false, null, Client));
+
+        caller.Roles.Returns([]);
+        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, clock)
+            .ListAsync(new CaseListQuery(null, null, null, null, null, null, null, null, 1, 25), Ct);
+        data.LastFilter!.Scope.ShouldBe(CaseScope.None);
+    }
+
+    [Fact]
+    public async Task List_InvalidQuery_IsRefused()
+    {
+        var invalid = await query.ListAsync(new CaseListQuery(new string('x', 201), null, null, null, "Gone", null, null, "age", 0, 500), Ct);
+
+        invalid.Error!.ValidationErrors.Keys.ShouldBe(["page", "pageSize", "sort", "status", "search"], ignoreOrder: true);
+    }
+
+    [Theory]
+    [InlineData(true, null, "Active")]
+    [InlineData(true, "2026-09-30", "Active")]
+    [InlineData(true, "2026-09-29", "Expired")]
+    [InlineData(false, null, "Inactive")]
+    public void Validity_IsTheLegacyClientBadge(bool isActive, string? expiresOn, string validity)
+    {
+        CaseQueryService.Validity(isActive, expiresOn is null ? null : DateOnly.Parse(expiresOn, System.Globalization.CultureInfo.InvariantCulture), new DateOnly(2026, 9, 30))
+            .ShouldBe(validity);
+    }
 }
 
 /// <summary>Cases in memory, with the services, specializations and callers the access rules need.</summary>
@@ -249,6 +300,8 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
 
     public Dictionary<Guid, CaseCaller> Callers { get; } = [];
 
+    public CaseFilter? LastFilter { get; private set; }
+
     public Guid AddService(decimal price, Guid? specializationId)
     {
         var id = Guid.CreateVersion7();
@@ -257,6 +310,19 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
     }
 
     public Task<ICaseData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<ICaseData>(this);
+
+    /// <summary>Applies no filter (the SQL is tested on PostgreSQL); records what was asked.</summary>
+    public Task<(IReadOnlyList<CaseRow> Items, int Total)> PageAsync(CaseFilter filter, CancellationToken cancellationToken)
+    {
+        LastFilter = filter;
+        var rows = Cases.Where(@case => !Deleted.Contains(@case.Id))
+            .Select(@case => new CaseRow(
+                @case.Id, @case.Number, @case.ClientId, "Mario Rossi", @case.ServiceId, Services[@case.ServiceId].Name, @case.SpecializationId,
+                @case.SpecializationId is null ? null : "Spec", false, @case.Status, @case.IsRejected, @case.IsActive, @case.StartedOn, @case.DueOn,
+                @case.ExpiresOn, @case.Price, @case.Currency, @case.AmountPaid, @case.CustomFields))
+            .ToArray();
+        return Task.FromResult<(IReadOnlyList<CaseRow>, int)>((rows, rows.Length));
+    }
 
     public Task<int> NextNumberAsync(int year, CancellationToken cancellationToken)
     {

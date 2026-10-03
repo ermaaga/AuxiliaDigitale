@@ -1,6 +1,6 @@
 # F10 — Private cases and employee visibility rules
 
-Status: [ ] not started · Tasks: B-09, B-12, B-14 · Quirks: Q09, Q10, Q11 · **Decision D-04: code semantics confirmed**
+Status: [~] in progress (cases B-08/B-09 done; documents B-12, pages B-14, exports/dashboards B-22/B-23) · Tasks: B-09, B-12, B-14 · Quirks: Q09, Q10, Q11 · **Decision D-04: code semantics confirmed**
 
 ## Legacy behaviour (code = source of truth)
 Let `S(e)` = specializations assigned to employee `e` (`UserRoleSpecializations`).
@@ -22,9 +22,15 @@ case visible ⇔ `case.SpecializationId == null` ∨ `!case.Specialization.Priva
 
 **Documentation divergence**: `documentations/PRIVATE_SUBSCRIPTIONS.md` and `data-model.md` state "only the assigned employee can see private cases". The code does **not** check the assigned employee for cases.
 
+## Backend (B-08, B-09)
+`CaseAccessPolicy` holds the rules: `CanSeeAsync`/`CanManageAsync`/`CanDeleteAsync` for one case (detail and writes,
+through `IAccessGuard`) and `ScopeAsync` for the lists, translated into SQL by `ICaseData.PageAsync` (no
+post-filtering). "Show all" off = `OnlyHeldOrUnspecialized`; with "show all" on the D-04 visibility still applies (the
+legacy list also showed private cases of specializations not held: D-04 confirms the code rule of visibility).
+
 ## Acceptance criteria (D-04: code semantics)
 - [ ] Rules implemented as a query-level policy (`VisibleTo(user)`), never as UI filtering; applied to lists, detail, documents, downloads, ZIP, search, exports, dashboards counts.
-- [ ] Non-visible case/document by id → `404` (Q10).
+- [x] Non-visible case/document by id → `404` (Q10). *(cases; documents with B-12)*
 - [ ] Test matrix (Application + Api integration): {no spec, non-private spec, private spec held, private spec not held} × {case, case document, client document with/without assignment} × {Admin, Employee}.
 - [ ] Employee can manage only per `CanManageSubscription`/`CanManageDocument`; forbidden actions return `403` with code.
-- [ ] Employee can create cases only for allowed services.
+- [x] Employee can create cases only for allowed services.

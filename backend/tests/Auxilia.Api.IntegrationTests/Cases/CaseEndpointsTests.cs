@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using Auxilia.Api.IntegrationTests.Identity;
 using Auxilia.Contracts.Cases;
+using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Directory;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Directory;
@@ -129,6 +130,61 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
         // Only deleted cases left: the service can go.
         (await SendAsync(HttpMethod.Delete, $"/api/v1/services/{serviceId}", admin)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
     }
+
+    [Fact]
+    public async Task Lists_ApplyF10InTheQuery_WithTheEmployeeToggles()
+    {
+        var admin = await SignInAsync(TenantRole.Administrator);
+        var (employeeId, employeeName) = await factory.AddUserAsync([TenantRole.Employee], Password);
+        var employee = await factory.SignInAsync(employeeName, Password, Ct);
+        var publicNotHeld = await Factory.AddSpecializationAsync(isPrivate: false, member: null);
+        var privateHeld = await Factory.AddSpecializationAsync(isPrivate: true, member: employeeId);
+        var privateNotHeld = await Factory.AddSpecializationAsync(isPrivate: true, member: null);
+        var (clientId, _) = await Factory.AddClientAsync();
+        var plainService = await ServiceAsync(admin, null, 10m);
+
+        async Task<Guid> CaseAsync(Guid? specialization, DateOnly startedOn) =>
+            (await OpenAsync(admin, new OpenCaseRequest(clientId, specialization is null ? plainService : await ServiceAsync(admin, specialization, 20m), startedOn, null, null, null, null))).Id;
+
+        var none = await CaseAsync(null, new DateOnly(2026, 1, 1));
+        var publicCase = await CaseAsync(publicNotHeld, new DateOnly(2026, 2, 1));
+        var heldCase = await CaseAsync(privateHeld, new DateOnly(2026, 3, 1));
+        var hiddenCase = await CaseAsync(privateNotHeld, new DateOnly(2026, 4, 1));
+        var completed = await CaseAsync(null, new DateOnly(2026, 5, 1));
+        await ChangeAsync(admin, completed, "advance", null);
+        await ChangeAsync(admin, completed, "advance", null);
+        await ChangeAsync(admin, completed, "complete", new CompleteCaseRequest(10m, false, null));
+
+        var mine = $"filter[clientId]={clientId}&pageSize=100";
+        (await CaseIdsAsync(admin, mine)).ShouldBe([completed, hiddenCase, heldCase, publicCase, none]);
+
+        // Employee defaults: show all off (no specialization or held) and show completed off.
+        (await CaseIdsAsync(employee, mine)).ShouldBe([heldCase, none]);
+        (await CaseIdsAsync(employee, mine + "&showAll=true")).ShouldBe([heldCase, publicCase, none]);
+        (await CaseIdsAsync(employee, mine + "&showAll=true&showCompleted=true&sort=startedOn")).ShouldBe([none, publicCase, heldCase, completed]);
+
+        // The detail follows the same rule; visible but not held is read-only.
+        (await DetailAsync(employee, publicCase)).CanManage.ShouldBeFalse();
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/cases/{publicCase}/advance", employee), HttpStatusCode.Forbidden, EventCodes.Identity.PermissionDenied);
+        (await DetailAsync(employee, heldCase)).CanManage.ShouldBeTrue();
+        (await SendAsync(HttpMethod.Get, $"/api/v1/cases/{hiddenCase}", employee)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
+        // Filters and sorts.
+        (await CaseIdsAsync(admin, $"filter[serviceId]={plainService}&pageSize=100")).ShouldBe([completed, none]);
+        (await CaseIdsAsync(admin, mine + "&filter[status]=Completed")).ShouldBe([completed]);
+        var page = await ListAsync(admin, $"filter[clientId]={clientId}&sort=-amountPaid&pageSize=1");
+        (page.TotalCount, page.Items.ShouldHaveSingleItem().Id, page.Items[0].AmountPaid, page.Items[0].Validity).ShouldBe((5, completed, 10m, "Active"));
+        (await SendAsync(HttpMethod.Get, "/api/v1/cases?sort=age&filter[status]=Gone", admin)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
+
+    private async Task<PagedResponse<CaseListItemResponse>> ListAsync(string token, string query)
+    {
+        using var response = await SendAsync(HttpMethod.Get, "/api/v1/cases?" + query, token);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, await response.Content.ReadAsStringAsync(Ct));
+        return (await response.Content.ReadFromJsonAsync<PagedResponse<CaseListItemResponse>>(Ct))!;
+    }
+
+    private async Task<Guid[]> CaseIdsAsync(string token, string query) => (await ListAsync(token, query)).Items.Select(item => item.Id).ToArray();
 
     private async Task<string> SignInAsync(TenantRole role)
     {

@@ -17,6 +17,115 @@ internal sealed class CaseDataFactory(ITenantDbContextFactory databases) : ICase
 /// <inheritdoc cref="ICaseData"/>
 internal sealed class CaseData(ITenantDbContext db) : ICaseData
 {
+    public async Task<(IReadOnlyList<CaseRow> Items, int Total)> PageAsync(CaseFilter filter, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+
+        // Cases are the root and people are joined: their soft-delete filters apply (no deleted case, no deleted client).
+        var specializations = db.Set<Specialization>();
+        var cases =
+            from @case in db.Set<Case>().AsNoTracking()
+            join person in db.Set<Person>() on @case.ClientId equals person.Id
+            join service in db.Set<Service>() on @case.ServiceId equals service.Id
+            select new { @case, person, service };
+
+        var scope = filter.Scope;
+        if (scope.ClientId is { } clientId)
+        {
+            cases = cases.Where(row => row.@case.ClientId == clientId);
+        }
+        else if (scope.EmployeeUserId is { } employeeUserId)
+        {
+            // F10 (D-04): no specialization, a non-private one, or one the employee holds.
+            cases = cases.Where(row => row.@case.SpecializationId == null
+                || specializations.Any(item => item.Id == row.@case.SpecializationId && (!item.IsPrivate || item.Members.Any(member => member.UserId == employeeUserId))));
+            if (filter.OnlyHeldOrUnspecialized)
+            {
+                cases = cases.Where(row => row.@case.SpecializationId == null
+                    || specializations.Any(item => item.Id == row.@case.SpecializationId && item.Members.Any(member => member.UserId == employeeUserId)));
+            }
+        }
+        else if (!scope.Everything)
+        {
+            cases = cases.Where(_ => false);
+        }
+
+        if (filter.ClientId is { } onlyClient)
+        {
+            cases = cases.Where(row => row.@case.ClientId == onlyClient);
+        }
+
+        if (filter.ServiceId is { } onlyService)
+        {
+            cases = cases.Where(row => row.@case.ServiceId == onlyService);
+        }
+
+        if (filter.Status is { } status)
+        {
+            cases = cases.Where(row => row.@case.Status == status);
+        }
+
+        if (!filter.IncludeCompleted)
+        {
+            cases = cases.Where(row => row.@case.Status != CaseStatus.Completed);
+        }
+
+        if (Pattern(filter.ClientName) is { } clientName)
+        {
+            cases = cases.Where(row => EF.Functions.ILike(row.person.FirstName + " " + row.person.LastName, clientName, "\\")
+                || EF.Functions.ILike(row.person.LastName + " " + row.person.FirstName, clientName, "\\"));
+        }
+
+        if (Pattern(filter.ServiceName) is { } serviceName)
+        {
+            cases = cases.Where(row => EF.Functions.ILike(row.service.Name, serviceName, "\\"));
+        }
+
+        var total = await cases.CountAsync(cancellationToken);
+        var sorted = (filter.Sort, filter.Descending) switch
+        {
+            (CaseSort.Client, false) => cases.OrderBy(row => row.person.LastName).ThenBy(row => row.person.FirstName),
+            (CaseSort.Client, true) => cases.OrderByDescending(row => row.person.LastName).ThenByDescending(row => row.person.FirstName),
+            (CaseSort.Service, false) => cases.OrderBy(row => row.service.Name),
+            (CaseSort.Service, true) => cases.OrderByDescending(row => row.service.Name),
+            (CaseSort.ExpiresOn, false) => cases.OrderBy(row => row.@case.ExpiresOn),
+            (CaseSort.ExpiresOn, true) => cases.OrderByDescending(row => row.@case.ExpiresOn),
+            (CaseSort.AmountPaid, false) => cases.OrderBy(row => row.@case.Payments.Sum(payment => payment.Amount)),
+            (CaseSort.AmountPaid, true) => cases.OrderByDescending(row => row.@case.Payments.Sum(payment => payment.Amount)),
+            (CaseSort.Number, false) => cases.OrderBy(row => row.@case.Number),
+            (CaseSort.Number, true) => cases.OrderByDescending(row => row.@case.Number),
+            (_, false) => cases.OrderBy(row => row.@case.StartedOn).ThenBy(row => row.@case.Number),
+            (_, true) => cases.OrderByDescending(row => row.@case.StartedOn).ThenByDescending(row => row.@case.Number),
+        };
+
+        var items = await sorted
+            .ThenBy(row => row.@case.Id)
+            .Skip(filter.Skip)
+            .Take(filter.Take)
+            .Select(row => new CaseRow(
+                row.@case.Id,
+                row.@case.Number,
+                row.@case.ClientId,
+                row.person.FirstName + " " + row.person.LastName,
+                row.@case.ServiceId,
+                row.service.Name,
+                row.@case.SpecializationId,
+                specializations.Where(item => item.Id == row.@case.SpecializationId).Select(item => item.Name).FirstOrDefault(),
+                specializations.Where(item => item.Id == row.@case.SpecializationId).Select(item => item.IsPrivate).FirstOrDefault(),
+                row.@case.Status,
+                row.@case.IsRejected,
+                row.@case.IsActive,
+                row.@case.StartedOn,
+                row.@case.DueOn,
+                row.@case.ExpiresOn,
+                row.@case.Price,
+                row.@case.Currency,
+                row.@case.Payments.Sum(payment => payment.Amount),
+                row.@case.CustomFields))
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
+
     public async Task<int> NextNumberAsync(int year, CancellationToken cancellationToken) =>
         // The upsert locks the year's row until the operation's transaction ends: concurrent cases get distinct numbers.
         // Not composable SQL: read as a list.
@@ -103,4 +212,10 @@ internal sealed class CaseData(ITenantDbContext db) : ICaseData
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();
+
+    /// <summary>A "contains" ILIKE pattern with the wildcards of the text escaped; <c>null</c> for no filter.</summary>
+    private static string? Pattern(string? text) =>
+        string.IsNullOrWhiteSpace(text)
+            ? null
+            : "%" + text.Trim().Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal).Replace("_", "\\_", StringComparison.Ordinal) + "%";
 }

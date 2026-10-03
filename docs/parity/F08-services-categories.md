@@ -21,7 +21,7 @@ Grid `cases.services`. B-08 must refuse deleting a service that has cases.
 - [ ] `/services` list with name, category, specialization, price, duration, active; filters; export.
 - [x] Create/edit service incl. category and specialization (specialization saved on create — Q27). *(API; form with B-15)*
 - [ ] Deactivate instead of delete when cases exist; delete allowed only when unused (Q28).
-- [ ] Service detail shows its cases (paged, export, click → case).
+- [ ] Service detail shows its cases (paged, export, click → case). *(API `GET /cases?filter[serviceId]=` B-09; page B-15, export B-22)*
 - [ ] Categories CRUD page (Q26).
 - [x] Price stored as `numeric(12,2)` + currency EUR.
 - [ ] Folder template editor on service detail (F33).
