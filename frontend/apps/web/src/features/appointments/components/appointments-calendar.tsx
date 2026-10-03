@@ -123,6 +123,8 @@ export default function AppointmentsCalendar({
         timeZone="UTC"
         now={`${now.date}T${now.time}:00`}
         initialView={initialView}
+        // Text buttons (the locale's "previous"/"next"): the icon spans have no accessible name.
+        buttonIcons={false}
         headerToolbar={{
           left: "prev,next today",
           center: "title",

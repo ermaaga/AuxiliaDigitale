@@ -69,3 +69,10 @@
 .fc .fc-daygrid-dot-event .fc-event-title {
   color: var(--foreground);
 }
+/* Days of the other months: muted text instead of FullCalendar's 0.3 opacity (contrast ≥ 4.5:1). */
+.fc .fc-day-other .fc-daygrid-day-top {
+  opacity: 1;
+}
+.fc .fc-day-other .fc-daygrid-day-number {
+  color: var(--muted-foreground);
+}
