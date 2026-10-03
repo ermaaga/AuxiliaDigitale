@@ -16,7 +16,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
-| 16000–16999 | Documents | Documents / Storage | 7 | 16008 |
+| 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
@@ -234,6 +234,21 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-16005 | Documents.StorageUnavailable | Error | Failure | – | Storage provider {Provider} is not configured or has no adapter |
 | AUX-16006 | Documents.StorageOperationFailed | Error | – | – | Storage {Provider} failed to {Action} {Key} |
 | AUX-16007 | Documents.FileCommitted | Information | – | – | File {Key} committed ({Size} bytes, {ContentType}) |
+| AUX-16008 | Documents.DocumentsUploaded | – | – | Documents.Upload (success) | – |
+| AUX-16009 | Documents.DocumentUpdated | – | – | Documents.Update (success) | – |
+| AUX-16010 | Documents.DocumentMoved | – | – | Documents.Move (success) | – |
+| AUX-16011 | Documents.DocumentDeleted | – | – | Documents.Delete (success) | – |
+| AUX-16012 | Documents.DocumentInvalid | – | Validation | – | – |
+| AUX-16013 | Documents.DocumentNotFound | – | NotFound | – | – |
+| AUX-16014 | Documents.DocumentNameTaken | – | Conflict | – | – |
+| AUX-16015 | Documents.DocumentAreaCreated | – | – | Documents.CreateArea (success) | – |
+| AUX-16016 | Documents.DocumentAreaUpdated | – | – | Documents.UpdateArea (success) | – |
+| AUX-16017 | Documents.DocumentAreaInvalid | – | Validation | – | – |
+| AUX-16018 | Documents.DocumentAreaNotFound | – | NotFound | – | – |
+| AUX-16019 | Documents.DocumentAreaNameTaken | – | Conflict | – | – |
+| AUX-16020 | Documents.DocumentProcessed | – | – | Documents.Process (success) | – |
+| AUX-16021 | Documents.DocumentFileMissing | – | NotFound | – | – |
+| AUX-16022 | Documents.DocumentIntegrityFailed | Warning | – | – | Document {DocumentId}: the stored file is missing or does not match the upload checksum |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

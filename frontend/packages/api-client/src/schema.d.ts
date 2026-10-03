@@ -1916,6 +1916,129 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Documents the caller may see (F10), filtered by client, case, folder, name, year, area, description and uploader */
+        get: operations["ListDocuments"];
+        put?: never;
+        /** Uploads files for a client, optionally a case and a folder of its service, with the same metadata */
+        post: operations["UploadDocuments"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/zip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A ZIP of the documents of a case, or of one folder subtree (folder paths kept) */
+        get: operations["DownloadCaseDocumentsZip"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A document with its folder path and what the caller may do */
+        get: operations["GetDocument"];
+        /** Changes name (extension kept), reference year, area, description and custom fields */
+        put: operations["UpdateDocument"];
+        post?: never;
+        /** Deletes a document and its file */
+        delete: operations["DeleteDocument"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The file; inline=true shows PDF and images in the browser, any other type is downloaded */
+        get: operations["DownloadDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/{id}/folder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Moves a case document to another folder of the case's service, or to none */
+        put: operations["MoveDocument"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/document-areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every document area by name, inactive ones included, with the number of documents */
+        get: operations["ListDocumentAreas"];
+        put?: never;
+        /** Creates a document area (name unique among the active ones) */
+        post: operations["CreateDocumentArea"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/document-areas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames or (de)activates a document area */
+        put: operations["UpdateDocumentArea"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2203,6 +2326,9 @@ export interface components {
             /** Format: uuid */
             id: string;
         };
+        CreateDocumentAreaRequest: {
+            name: string;
+        };
         CreateEmployeeRequest: {
             firstName: string;
             lastName: string;
@@ -2307,6 +2433,83 @@ export interface components {
             code: string;
             module: string;
             nameKey: string;
+        };
+        DocumentAreaRefResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        DocumentAreaResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            isActive: boolean;
+            /** Format: int32 */
+            documentCount: number | string;
+        };
+        DocumentCaseResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            serviceName: string;
+        };
+        DocumentClientResponse: {
+            /** Format: uuid */
+            id: string;
+            fullName: string;
+        };
+        DocumentFolderResponse: {
+            /** Format: uuid */
+            id: string;
+            path: string;
+        };
+        DocumentListItemResponse: {
+            /** Format: uuid */
+            id: string;
+            client: components["schemas"]["DocumentClientResponse"];
+            case: null | components["schemas"]["DocumentCaseResponse"];
+            /** Format: uuid */
+            folderId: null | string;
+            fileName: string;
+            contentType: string;
+            /** Format: int64 */
+            size: number | string;
+            /** Format: int32 */
+            referenceYear: number | string;
+            area: null | components["schemas"]["DocumentAreaRefResponse"];
+            description: null | string;
+            uploadedBy: null | components["schemas"]["DocumentUserResponse"];
+            /** Format: date-time */
+            uploadedAt: string;
+            status: string;
+        };
+        DocumentResponse: {
+            /** Format: uuid */
+            id: string;
+            client: components["schemas"]["DocumentClientResponse"];
+            case: null | components["schemas"]["DocumentCaseResponse"];
+            folder: null | components["schemas"]["DocumentFolderResponse"];
+            fileName: string;
+            contentType: string;
+            /** Format: int64 */
+            size: number | string;
+            sha256: string;
+            /** Format: int32 */
+            referenceYear: number | string;
+            area: null | components["schemas"]["DocumentAreaRefResponse"];
+            description: null | string;
+            customFields: components["schemas"]["JsonElement"];
+            uploadedBy: null | components["schemas"]["DocumentUserResponse"];
+            /** Format: date-time */
+            uploadedAt: string;
+            status: string;
+            canEdit: boolean;
+            canManage: boolean;
+        };
+        DocumentUserResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
         };
         EmployeeAdministratorResponse: {
             /** Format: uuid */
@@ -2415,6 +2618,7 @@ export interface components {
         };
         /** Format: binary */
         IFormFile: string;
+        IFormFileCollection: null | components["schemas"]["IFormFile"][];
         JsonElement: unknown;
         LanguageResponse: {
             code: string;
@@ -2486,6 +2690,10 @@ export interface components {
         ModuleOverrideResponse: {
             isEnabled: boolean;
             roles: string[];
+        };
+        MoveDocumentRequest: {
+            /** Format: uuid */
+            folderId: null | string;
         };
         MyGridLayoutResponse: {
             gridKey: string;
@@ -2561,6 +2769,15 @@ export interface components {
         };
         PagedResponseOfClientListItemResponse: {
             items: components["schemas"]["ClientListItemResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
+        PagedResponseOfDocumentListItemResponse: {
+            items: components["schemas"]["DocumentListItemResponse"][];
             /** Format: int32 */
             page: number | string;
             /** Format: int32 */
@@ -3051,6 +3268,19 @@ export interface components {
             /** Format: int32 */
             order: number | string;
         };
+        UpdateDocumentAreaRequest: {
+            name: string;
+            isActive: boolean;
+        };
+        UpdateDocumentRequest: {
+            fileName: string;
+            /** Format: int32 */
+            referenceYear: number | string;
+            /** Format: uuid */
+            areaId: null | string;
+            description: null | string;
+            customFields: null | components["schemas"]["JsonElement"];
+        };
         UpdateEmployeeRequest: {
             firstName: string;
             lastName: string;
@@ -3107,6 +3337,25 @@ export interface components {
             email: null | string;
             workPhone: null | string;
             isPrivate: boolean;
+        };
+        UploadDocumentsForm: {
+            /** Format: uuid */
+            clientId?: string;
+            /** Format: uuid */
+            caseId?: null | string;
+            /** Format: uuid */
+            folderId?: null | string;
+            /** Format: int32 */
+            referenceYear?: null | number | string;
+            /** Format: uuid */
+            areaId?: null | string;
+            description?: null | string;
+            fileName?: null | string;
+            customFields?: null | string;
+            files?: null | components["schemas"]["IFormFileCollection"];
+        };
+        UploadDocumentsResponse: {
+            documentIds: string[];
         };
     };
     responses: never;
@@ -9877,6 +10126,477 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListDocuments: {
+        parameters: {
+            query?: {
+                "filter[clientId]"?: string;
+                "filter[caseId]"?: string;
+                "filter[folderId]"?: string;
+                "filter[clientName]"?: string;
+                "filter[fileName]"?: string;
+                "filter[description]"?: string;
+                "filter[uploadedBy]"?: string;
+                "filter[referenceYear]"?: number | string;
+                "filter[areaId]"?: string;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfDocumentListItemResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UploadDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["UploadDocumentsForm"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadDocumentsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadCaseDocumentsZip: {
+        parameters: {
+            query: {
+                caseId: string;
+                folderId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadDocument: {
+        parameters: {
+            query?: {
+                inline?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    MoveDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListDocumentAreas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentAreaResponse"][];
+                };
+            };
+        };
+    };
+    CreateDocumentArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDocumentAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentAreaResponse"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateDocumentArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentAreaRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentAreaResponse"][];
                 };
             };
             /** @description Bad Request */

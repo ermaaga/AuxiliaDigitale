@@ -12,9 +12,13 @@ public static class DocumentsPermissions
     /// <summary>Upload, rename and delete files (F14).</summary>
     public const string ManageDocuments = "documents.files.manage";
 
+    /// <summary>The list of document areas (F14: legacy free text, now managed).</summary>
+    public const string ManageAreas = "documents.areas.manage";
+
     public static IReadOnlyList<PermissionDefinition> All { get; } =
     [
         new(ViewDocuments, [TenantRole.Administrator, TenantRole.Employee]),
         new(ManageDocuments, [TenantRole.Administrator, TenantRole.Employee]),
+        new(ManageAreas, [TenantRole.Administrator]),
     ];
 }

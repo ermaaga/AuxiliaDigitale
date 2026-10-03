@@ -74,5 +74,6 @@ public sealed class CasesModule : IModuleDescriptor
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IResourceAccessPolicy<CaseResource>, CaseAccessPolicy>(provider => provider.GetRequiredService<CaseAccessPolicy>()));
         services.TryAddScoped<ICaseManager, CaseManager>();
         services.TryAddScoped<ICaseQueryService, CaseQueryService>();
+        services.TryAddScoped<Public.ICaseDirectory, Public.CaseDirectory>();
     }
 }

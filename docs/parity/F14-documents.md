@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [~] in progress (storage B-11 done; documents B-12, pages B-13) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
+Status: [~] in progress (storage B-11 and documents API B-12 done; pages B-13) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.
@@ -27,12 +27,26 @@ after the transaction; read and delete only accept keys of the current tenant. R
 `AUX-29028`/`AUX-29029`. Staging leftovers: storage lifecycle rule (or the `documents.staging-cleanup` job) with B-12.
 Change from the legacy: the provider is chosen per tenant, not by which configuration exists first.
 
+## Documents (B-12)
+`documents.documents` (client, case `SET NULL`, folder `SET NULL`, name, storage key, content type, size, SHA-256,
+reference year, area, description, custom fields, uploader, status `Processing` → `Available`/`Damaged`) and
+`documents.document_areas` (managed list, name unique among the active ones; legacy values arrive with the import). API
+(module `documents`): `GET /documents` (filters client, case, folder, client name, file name, description, uploader,
+exact year, area; sorts as the legacy, default newest first), `GET /documents/{id}`, `GET /documents/{id}/content`
+(`inline=true` only for PDF and images), `POST /documents` (multipart: up to 50 files with the same metadata; custom name
+for one file only, original extension appended), `PUT /documents/{id}` (name without changing the extension, year,
+area, description, custom fields), `PUT /documents/{id}/folder`, `DELETE /documents/{id}` (file deleted after the
+commit), `GET /documents/zip?caseId=&folderId=`, `/document-areas` (list for staff, write `documents.areas.manage`).
+Uploads are staged, committed inside the operation (removed again if it fails) and checked by the Worker
+(`ProcessDocumentCommand`, queue `auxilia.documents`: checksum of the stored file), which pushes `DocumentProcessed` to the
+uploader (Q13). Names unique per client, case and folder (Q51 fix).
+
 ## Acceptance criteria
 - [x] Storage providers Local/FTP/Azure selectable by configuration (tenant setting instead of precedence), keys prefixed `tenants/{slug}/documents/`, SHA-256 computed (stored with the document, B-12).
 - [ ] Multi-file drag & drop + clipboard paste + progress; max size per tenant (default 60 MB); whitelist + magic bytes.
-- [ ] Metadata rules: reference year ≥ current−10; custom name single-file only with extension kept; sanitization as legacy.
-- [ ] Duplicate names detected against existing documents of the same owner/case/folder.
-- [ ] Lists with the filters/sorts above, per client and global, access rules F10.
+- [x] Metadata rules: reference year ≥ current−10; custom name single-file only with extension kept; sanitization as legacy.
+- [x] Duplicate names detected against existing documents of the same owner/case/folder.
+- [x] Lists with the filters/sorts above, per client and global, access rules F10. *(API; pages B-13)*
 - [ ] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm).
-- [ ] Async processing path via Worker notifies the **uploader** (`DocumentProcessed`) and refreshes lists.
-- [ ] Areas become a managed lookup seeded from legacy distinct values.
+- [x] Async processing path via Worker notifies the **uploader** (`DocumentProcessed`) and refreshes lists. *(event; list refresh in B-13)*
+- [ ] Areas become a managed lookup seeded from legacy distinct values. *(lookup and API B-12; seed from the legacy values with the import E-04)*
