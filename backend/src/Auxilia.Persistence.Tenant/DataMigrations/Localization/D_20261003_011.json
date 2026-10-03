@@ -1,0 +1,188 @@
+[
+ {
+  "key": "app.documents.title",
+  "category": "app",
+  "en": "Documents",
+  "it": "Documenti"
+ },
+ {
+  "key": "app.documents.status.processing",
+  "category": "app",
+  "en": "Being checked",
+  "it": "In verifica"
+ },
+ {
+  "key": "app.documents.status.available",
+  "category": "app",
+  "en": "Available",
+  "it": "Disponibile"
+ },
+ {
+  "key": "app.documents.status.damaged",
+  "category": "app",
+  "en": "Damaged",
+  "it": "Danneggiato"
+ },
+ {
+  "key": "app.documents.uploadedOne",
+  "category": "app",
+  "en": "Document uploaded",
+  "it": "Documento caricato"
+ },
+ {
+  "key": "app.documents.uploaded",
+  "category": "app",
+  "en": "Documents uploaded",
+  "it": "Documenti caricati"
+ },
+ {
+  "key": "app.documents.dropHint",
+  "category": "app",
+  "en": "Drag the files here, paste them (Ctrl/Cmd+V) or click to choose them: at most {max} at a time.",
+  "it": "Trascina qui i file, incollali (Ctrl/Cmd+V) o fai clic per sceglierli: al massimo {max} alla volta."
+ },
+ {
+  "key": "app.documents.selected",
+  "category": "app",
+  "en": "Files to upload",
+  "it": "File da caricare"
+ },
+ {
+  "key": "app.documents.removeFile",
+  "category": "app",
+  "en": "Remove {name}",
+  "it": "Rimuovi {name}"
+ },
+ {
+  "key": "app.documents.chooseClient",
+  "category": "app",
+  "en": "Choose a client",
+  "it": "Scegli un cliente"
+ },
+ {
+  "key": "app.documents.noArea",
+  "category": "app",
+  "en": "No area",
+  "it": "Nessuna area"
+ },
+ {
+  "key": "app.documents.customName",
+  "category": "app",
+  "en": "Custom name",
+  "it": "Nome personalizzato"
+ },
+ {
+  "key": "app.documents.customNameHint",
+  "category": "app",
+  "en": "Only for one file; the original extension is kept.",
+  "it": "Solo per un file; l'estensione originale resta."
+ },
+ {
+  "key": "app.documents.uploading",
+  "category": "app",
+  "en": "Upload in progress",
+  "it": "Caricamento in corso"
+ },
+ {
+  "key": "app.documents.loading",
+  "category": "app",
+  "en": "Loading…",
+  "it": "Caricamento…"
+ },
+ {
+  "key": "app.documents.notFound",
+  "category": "app",
+  "en": "The document does not exist or you cannot see it.",
+  "it": "Il documento non esiste o non puoi vederlo."
+ },
+ {
+  "key": "app.documents.case",
+  "category": "app",
+  "en": "Case",
+  "it": "Pratica"
+ },
+ {
+  "key": "app.documents.size",
+  "category": "app",
+  "en": "Size",
+  "it": "Dimensione"
+ },
+ {
+  "key": "app.documents.preview",
+  "category": "app",
+  "en": "Open preview",
+  "it": "Apri anteprima"
+ },
+ {
+  "key": "app.documents.deleteConfirm",
+  "category": "app",
+  "en": "Delete the document {name}? The file is deleted too.",
+  "it": "Eliminare il documento {name}? Anche il file viene eliminato."
+ },
+ {
+  "key": "app.documents.deleted",
+  "category": "app",
+  "en": "Document deleted",
+  "it": "Documento eliminato"
+ },
+ {
+  "key": "app.documents.saved",
+  "category": "app",
+  "en": "Document saved",
+  "it": "Documento salvato"
+ },
+ {
+  "key": "app.documents.extensionKept",
+  "category": "app",
+  "en": "The extension {extension} does not change.",
+  "it": "L'estensione {extension} non cambia."
+ },
+ {
+  "key": "app.documents.readOnly",
+  "category": "app",
+  "en": "Only staff in charge of the client can change these data.",
+  "it": "Solo chi segue il cliente può modificare questi dati."
+ },
+ {
+  "key": "app.documents.searchClient",
+  "category": "app",
+  "en": "Name or surname",
+  "it": "Nome o cognome"
+ },
+ {
+  "key": "app.documents.areas.title",
+  "category": "app",
+  "en": "Areas",
+  "it": "Aree"
+ },
+ {
+  "key": "app.documents.areas.description",
+  "category": "app",
+  "en": "Inactive areas stay on their documents and are not offered for new ones.",
+  "it": "Le aree non attive restano sui loro documenti e non vengono proposte per i nuovi."
+ },
+ {
+  "key": "app.documents.areas.new",
+  "category": "app",
+  "en": "New area",
+  "it": "Nuova area"
+ },
+ {
+  "key": "app.documents.areas.saved",
+  "category": "app",
+  "en": "Area saved",
+  "it": "Area salvata"
+ },
+ {
+  "key": "app.documents.areas.rename",
+  "category": "app",
+  "en": "Name of the area {name}",
+  "it": "Nome dell'area {name}"
+ },
+ {
+  "key": "app.documents.areas.active",
+  "category": "app",
+  "en": "Area {name} active",
+  "it": "Area {name} attiva"
+ }
+]

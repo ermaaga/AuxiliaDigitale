@@ -17,6 +17,8 @@ export const E2E = {
   employee: { userName: "paola.neri", fullName: "Paola Neri" },
   /** Profile page (B-05): an Employee whose password, picture, language and theme the spec changes. */
   profileUser: { userName: "laura.verdi", fullName: "Laura Verdi" },
+  /** Document pages (B-13): a client seeded by prepare.sh, whose documents the spec uploads and deletes. */
+  documentsClient: { id: "0199aaaa-0000-7000-8000-000000000041", fullName: "Elena Russo" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */
