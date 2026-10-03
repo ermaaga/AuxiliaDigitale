@@ -22,6 +22,13 @@ export const E2E = {
   /** Case pages (B-14): a client and a service with the folder "Redditi", seeded by prepare.sh. */
   casesClient: { id: "0199aaaa-0000-7000-8000-000000000051", fullName: "Marco Ferri" },
   caseService: { name: "Dichiarazione E2E", folder: "Redditi" },
+  /** Appointment pages (B-17): an employee and a client in her charge (both sign in), seeded by prepare.sh. */
+  appointmentsEmployee: { userName: "sara.gallo", fullName: "Sara Gallo" },
+  appointmentsClient: {
+    id: "0199aaaa-0000-7000-8000-000000000071",
+    userName: "giulia.conti",
+    fullName: "Giulia Conti",
+  },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

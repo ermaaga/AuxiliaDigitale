@@ -2,3 +2,70 @@
 
 /* App-level classes are generated from this app's sources */
 @source "../";
+
+/* Appointment calendar (FullCalendar, F13): colours from the design tokens, light and dark. */
+.fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-list-event-hover-bg-color: var(--muted);
+  --fc-today-bg-color: color-mix(in oklab, var(--primary) 10%, transparent);
+  --fc-button-bg-color: var(--background);
+  --fc-button-border-color: var(--border);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--accent);
+  --fc-button-active-border-color: var(--border);
+  --fc-event-bg-color: var(--primary);
+  --fc-event-border-color: var(--primary);
+  --fc-event-text-color: var(--primary-foreground);
+  --fc-now-indicator-color: var(--destructive);
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+.fc .fc-button {
+  color: var(--foreground);
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  color: var(--accent-foreground);
+}
+.fc .fc-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.125rem;
+}
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc .fc-list-day-text,
+.fc .fc-list-day-side-text {
+  color: var(--foreground);
+}
+.fc .appointment-Pending {
+  --fc-event-bg-color: var(--warning);
+  --fc-event-border-color: var(--warning);
+  --fc-event-text-color: var(--warning-foreground);
+}
+.fc .appointment-Rejected,
+.fc .appointment-Cancelled {
+  --fc-event-bg-color: var(--muted);
+  --fc-event-border-color: var(--border);
+  --fc-event-text-color: var(--muted-foreground);
+  text-decoration: line-through;
+}
+.fc .appointment-Completed {
+  --fc-event-bg-color: var(--secondary);
+  --fc-event-border-color: var(--border);
+  --fc-event-text-color: var(--secondary-foreground);
+}
+.fc .fc-daygrid-dot-event,
+.fc .fc-daygrid-dot-event .fc-event-title {
+  color: var(--foreground);
+}

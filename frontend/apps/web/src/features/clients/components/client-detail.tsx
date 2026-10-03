@@ -17,6 +17,7 @@ import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { AppointmentsView, SCHEDULING_PERMISSIONS } from "@/features/appointments";
 import { CASES_PERMISSIONS, CasesTable } from "@/features/cases";
 import { DocumentsPanel, DOCUMENTS_PERMISSIONS } from "@/features/documents";
 import { useCan } from "@/lib/permissions";
@@ -36,13 +37,14 @@ const TABS = [
   "assignment",
   "specializations",
   "cases",
+  "appointments",
   "documents",
   "access",
 ] as const;
 
 /**
  * Client 360° (F05, skill auxilia-ui-design): header with name, status, sign-in and the employee in charge; tabs for
- * the overview, personal data and custom fields, employee with history, specializations, cases (F09), documents (F14) and the account. Actions
+ * the overview, personal data and custom fields, employee with history, specializations, cases (F09), appointments (F13), documents (F14) and the account. Actions
  * appear only with their permission (the API checks again). Cases, documents, appointments, requests, tags and
  * consents join the tabs with their modules (B-08…, M-01).
  */
@@ -54,6 +56,7 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
   const canDelete = useCan(DIRECTORY_PERMISSIONS.deleteClients);
   const canSeeDocuments = useCan(DOCUMENTS_PERMISSIONS.view);
   const canSeeCases = useCan(CASES_PERMISSIONS.view);
+  const canSeeAppointments = useCan(SCHEDULING_PERMISSIONS.view);
   const [tab, setTab] = useQueryState(
     "tab",
     parseAsStringLiteral(TABS).withDefault("overview").withOptions({ history: "replace" }),
@@ -164,6 +167,9 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
           <TabsTrigger value="assignment">{t("app.clients.tabs.assignment")}</TabsTrigger>
           <TabsTrigger value="specializations">{t("app.clients.tabs.specializations")}</TabsTrigger>
           {canSeeCases ? <TabsTrigger value="cases">{t("nav.cases")}</TabsTrigger> : null}
+          {canSeeAppointments ? (
+            <TabsTrigger value="appointments">{t("nav.appointments")}</TabsTrigger>
+          ) : null}
           {canSeeDocuments ? (
             <TabsTrigger value="documents">{t("app.documents.title")}</TabsTrigger>
           ) : null}
@@ -184,6 +190,11 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
         {canSeeCases ? (
           <TabsContent value="cases" className="mt-4">
             <CasesTable tenant={tenant} label={t("nav.cases")} clientId={client.id} />
+          </TabsContent>
+        ) : null}
+        {canSeeAppointments ? (
+          <TabsContent value="appointments" className="mt-4">
+            <AppointmentsView tenant={tenant} label={t("nav.appointments")} clientId={client.id} />
           </TabsContent>
         ) : null}
         {canSeeDocuments ? (

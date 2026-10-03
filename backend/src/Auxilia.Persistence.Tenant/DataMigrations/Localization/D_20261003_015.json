@@ -1,0 +1,206 @@
+[
+ {
+  "key": "app.appointments.approved",
+  "category": "app",
+  "en": "Appointment approved",
+  "it": "Appuntamento approvato"
+ },
+ {
+  "key": "app.appointments.calendar",
+  "category": "app",
+  "en": "Calendar",
+  "it": "Calendario"
+ },
+ {
+  "key": "app.appointments.cancel",
+  "category": "app",
+  "en": "Cancel appointment",
+  "it": "Annulla appuntamento"
+ },
+ {
+  "key": "app.appointments.cancelConfirm",
+  "category": "app",
+  "en": "Cancel this appointment? The other party is told.",
+  "it": "Annullare questo appuntamento? L'altra parte viene avvisata."
+ },
+ {
+  "key": "app.appointments.cancelled",
+  "category": "app",
+  "en": "Appointment cancelled",
+  "it": "Appuntamento annullato"
+ },
+ {
+  "key": "app.appointments.chooseOperator",
+  "category": "app",
+  "en": "Choose an operator",
+  "it": "Scegli un operatore"
+ },
+ {
+  "key": "app.appointments.completeConfirm",
+  "category": "app",
+  "en": "Mark this appointment as completed?",
+  "it": "Segnare questo appuntamento come completato?"
+ },
+ {
+  "key": "app.appointments.completed",
+  "category": "app",
+  "en": "Appointment completed",
+  "it": "Appuntamento completato"
+ },
+ {
+  "key": "app.appointments.conflictDescription",
+  "category": "app",
+  "en": "The operator already has appointments at that time: {list}. Save anyway?",
+  "it": "L'operatore ha già appuntamenti in quell'orario: {list}. Salvare comunque?"
+ },
+ {
+  "key": "app.appointments.conflictTitle",
+  "category": "app",
+  "en": "Overlapping appointments",
+  "it": "Appuntamenti sovrapposti"
+ },
+ {
+  "key": "app.appointments.deleteConfirm",
+  "category": "app",
+  "en": "Delete this appointment permanently? Its history is kept.",
+  "it": "Eliminare definitivamente questo appuntamento? Lo storico viene conservato."
+ },
+ {
+  "key": "app.appointments.deleted",
+  "category": "app",
+  "en": "Appointment deleted",
+  "it": "Appuntamento eliminato"
+ },
+ {
+  "key": "app.appointments.detailDescription",
+  "category": "app",
+  "en": "When, who and what you can do with this appointment.",
+  "it": "Quando, con chi e cosa puoi fare con questo appuntamento."
+ },
+ {
+  "key": "app.appointments.edit",
+  "category": "app",
+  "en": "Edit appointment",
+  "it": "Modifica appuntamento"
+ },
+ {
+  "key": "app.appointments.employeeHint",
+  "category": "app",
+  "en": "Leave empty to use the operator in charge of the client.",
+  "it": "Lascia vuoto per usare l'operatore che segue il cliente."
+ },
+ {
+  "key": "app.appointments.employeeInCharge",
+  "category": "app",
+  "en": "Operator in charge",
+  "it": "Operatore che segue il cliente"
+ },
+ {
+  "key": "app.appointments.formDescription",
+  "category": "app",
+  "en": "Date and time are in the office time zone and must be in the future.",
+  "it": "Data e ora sono nel fuso orario dell'ufficio e devono essere future."
+ },
+ {
+  "key": "app.appointments.globalCalendar",
+  "category": "app",
+  "en": "Global calendar",
+  "it": "Calendario globale"
+ },
+ {
+  "key": "app.appointments.hasConflict",
+  "category": "app",
+  "en": "Another open appointment of the operator overlaps this one.",
+  "it": "Un altro appuntamento aperto dell'operatore si sovrappone a questo."
+ },
+ {
+  "key": "app.appointments.history",
+  "category": "app",
+  "en": "History",
+  "it": "Storico"
+ },
+ {
+  "key": "app.appointments.minutes",
+  "category": "app",
+  "en": "{count, plural, one {# minute} other {# minutes}}",
+  "it": "{count, plural, one {# minuto} other {# minuti}}"
+ },
+ {
+  "key": "app.appointments.moveConfirm",
+  "category": "app",
+  "en": "Move the appointment to {when}?",
+  "it": "Spostare l'appuntamento a {when}?"
+ },
+ {
+  "key": "app.appointments.moved",
+  "category": "app",
+  "en": "Appointment moved",
+  "it": "Appuntamento spostato"
+ },
+ {
+  "key": "app.appointments.none",
+  "category": "app",
+  "en": "No appointments in this period",
+  "it": "Nessun appuntamento in questo periodo"
+ },
+ {
+  "key": "app.appointments.operator",
+  "category": "app",
+  "en": "Operator",
+  "it": "Operatore"
+ },
+ {
+  "key": "app.appointments.rejected",
+  "category": "app",
+  "en": "Appointment rejected",
+  "it": "Appuntamento rifiutato"
+ },
+ {
+  "key": "app.appointments.requestDescription",
+  "category": "app",
+  "en": "Choose the operator and the preferred day and time: the operator approves or rejects the request.",
+  "it": "Scegli l'operatore e il giorno e l'ora preferiti: l'operatore approva o rifiuta la richiesta."
+ },
+ {
+  "key": "app.appointments.requested",
+  "category": "app",
+  "en": "Request sent",
+  "it": "Richiesta inviata"
+ },
+ {
+  "key": "app.appointments.requestedByClient",
+  "category": "app",
+  "en": "Requested by the client",
+  "it": "Richiesto dal cliente"
+ },
+ {
+  "key": "app.appointments.saveAnyway",
+  "category": "app",
+  "en": "Save anyway",
+  "it": "Salva comunque"
+ },
+ {
+  "key": "app.appointments.saved",
+  "category": "app",
+  "en": "Appointment saved",
+  "it": "Appuntamento salvato"
+ },
+ {
+  "key": "app.appointments.scheduled",
+  "category": "app",
+  "en": "Appointment scheduled",
+  "it": "Appuntamento fissato"
+ },
+ {
+  "key": "app.appointments.views",
+  "category": "app",
+  "en": "Views",
+  "it": "Viste"
+ },
+ {
+  "key": "app.appointments.yourOperator",
+  "category": "app",
+  "en": "your operator",
+  "it": "il tuo operatore"
+ }
+]

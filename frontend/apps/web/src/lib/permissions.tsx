@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-type Access = { roles: readonly string[]; permissions: ReadonlySet<string> };
+type Access = { userId?: string; roles: readonly string[]; permissions: ReadonlySet<string> };
 
 const AccessContext = React.createContext<Access>({ roles: [], permissions: new Set() });
 
@@ -11,17 +11,19 @@ const AccessContext = React.createContext<Access>({ roles: [], permissions: new 
  * action with {@link useCan} is UX only: the API checks every permission again.
  */
 export function PermissionsProvider({
+  userId,
   roles,
   permissions,
   children,
 }: {
+  userId?: string;
   roles: readonly string[];
   permissions: readonly string[];
   children: React.ReactNode;
 }) {
   const value = React.useMemo(
-    () => ({ roles, permissions: new Set(permissions) }),
-    [roles, permissions],
+    () => ({ userId, roles, permissions: new Set(permissions) }),
+    [userId, roles, permissions],
   );
   return <AccessContext.Provider value={value}>{children}</AccessContext.Provider>;
 }
@@ -34,4 +36,9 @@ export function useCan(permission: string): boolean {
 /** The user has the role (`Administrator`, `Employee`, `Client`). */
 export function useHasRole(role: string): boolean {
   return React.useContext(AccessContext).roles.includes(role);
+}
+
+/** The id of the signed-in user (e.g. an employee's own appointments); undefined outside the `(app)` layout. */
+export function useCurrentUserId(): string | undefined {
+  return React.useContext(AccessContext).userId;
 }
