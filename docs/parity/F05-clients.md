@@ -30,6 +30,6 @@ Status: [~] in progress (backend B-01 and pages B-04 done; cases, status recompu
 - [x] Admin can set a new password for a client (or send activation/reset link). (B-01 API: temporary password or reset link; activation link)
 - [x] Employee can set the client's specialization(s). (B-01 API, many — Q30)
 - [x] Enabling a client without an assigned employee is refused with a coded error. (`AUX-13019`)
-- [ ] Client status recomputed on case create/delete/complete and by the expiry job, following Q03.
+- [ ] Client status recomputed on case create/delete/complete and by the expiry job, following Q03. *(create/delete/complete done in B-08; expiry job B-25)*
 - [x] Delete is a soft delete with confirmation; deleted clients disappear from lists. (B-01 API; confirmation B-04)
 - [ ] Creating a case from the client requires an assigned employee (admin) — or auto-assigns the default one.

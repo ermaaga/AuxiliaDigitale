@@ -43,5 +43,44 @@ public static partial class EventCodes
 
         /// <summary>Another service has this name (409).</summary>
         public const int ServiceNameTaken = 14013;
+
+        /// <summary>A case was opened for a client (F09): number, price snapshot, client status recomputed.</summary>
+        public const int CaseOpened = 14014;
+
+        /// <summary>A case moved one status forward (Inserted → InProgress → Sent).</summary>
+        public const int CaseAdvanced = 14015;
+
+        /// <summary>A case moved one status back (InProgress or Sent).</summary>
+        public const int CaseMovedBack = 14016;
+
+        /// <summary>A case was completed with the amount received and the outcome (rejected or not).</summary>
+        public const int CaseCompleted = 14017;
+
+        /// <summary>A payment was recorded on a case.</summary>
+        public const int CasePaymentRecorded = 14018;
+
+        /// <summary>The due date or custom fields of a case changed.</summary>
+        public const int CaseUpdated = 14019;
+
+        /// <summary>A case was deleted (soft delete); the client status was recomputed.</summary>
+        public const int CaseDeleted = 14020;
+
+        /// <summary>A value of a case is not valid (400, field errors).</summary>
+        public const int CaseInvalid = 14021;
+
+        /// <summary>No case with this id visible to the caller (404, Q10).</summary>
+        public const int CaseNotFound = 14022;
+
+        /// <summary>A completed case cannot change any more (409, terminal status).</summary>
+        public const int CaseIsCompleted = 14023;
+
+        /// <summary>A sent case moves forward only by completing it with the amount and outcome (409).</summary>
+        public const int CaseCompletionRequired = 14024;
+
+        /// <summary>An inserted case cannot move back (409).</summary>
+        public const int CaseCannotGoBack = 14025;
+
+        /// <summary>A service with cases cannot be deleted: deactivate it (409, Q28).</summary>
+        public const int ServiceInUse = 14026;
     }
 }

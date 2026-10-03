@@ -12,6 +12,8 @@ using Auxilia.Contracts.Platform;
 using Auxilia.Persistence.Tenant;
 using Auxilia.Persistence.Tenant.DataMigrations.Localization;
 
+using Microsoft.EntityFrameworkCore;
+
 using Npgsql;
 
 namespace Auxilia.Api.IntegrationTests.Localization;
@@ -44,8 +46,19 @@ public sealed class LocalizationEndpointsTests : IClassFixture<PlatformIdentityT
             {
                 var connectionString = new NpgsqlConnectionStringBuilder(ApiDatabase.Instance.CatalogConnectionString) { Database = "tenant_a" }.ConnectionString;
                 await using var dataSource = NpgsqlDataSource.Create(connectionString);
+                await using (var languages = new TenantDbContext(TenantDbContextOptions.Create(dataSource)))
+                {
+                    // ProfileEndpointsTests may add the same languages at the same time, which is fine.
+                    try
+                    {
+                        await TranslationSeed.EnsureLanguagesAsync(languages, CancellationToken.None);
+                    }
+                    catch (DbUpdateException)
+                    {
+                    }
+                }
+
                 await using var db = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
-                await TranslationSeed.EnsureLanguagesAsync(db, CancellationToken.None);
                 await TranslationSeed.UpsertAsync(db, TranslationSeed.LoadAll(), CancellationToken.None);
                 seeded = true;
             }

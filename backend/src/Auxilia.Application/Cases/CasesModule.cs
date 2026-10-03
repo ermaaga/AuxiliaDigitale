@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
@@ -52,5 +53,9 @@ public sealed class CasesModule : IModuleDescriptor
     {
         services.TryAddScoped<IServiceCatalogManager, ServiceCatalogManager>();
         services.TryAddScoped<IServiceCatalogQueryService, ServiceCatalogQueryService>();
+        services.TryAddScoped<CaseAccessPolicy>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IResourceAccessPolicy<CaseResource>, CaseAccessPolicy>(provider => provider.GetRequiredService<CaseAccessPolicy>()));
+        services.TryAddScoped<ICaseManager, CaseManager>();
+        services.TryAddScoped<ICaseQueryService, CaseQueryService>();
     }
 }

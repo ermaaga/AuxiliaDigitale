@@ -30,5 +30,26 @@ public static partial class Errors
 
         public static Error ServiceNameTaken() =>
             Error.Conflict(EventCodes.Cases.ServiceNameTaken, "Another service has this name");
+
+        public static Error CaseInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Cases.CaseInvalid, "The case is not valid", errors);
+
+        public static Error CaseInvalid(string field, string messageKey) =>
+            CaseInvalid(new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
+
+        public static Error CaseNotFound() =>
+            Error.NotFound(EventCodes.Cases.CaseNotFound, "Case not found");
+
+        public static Error CaseIsCompleted() =>
+            Error.Conflict(EventCodes.Cases.CaseIsCompleted, "The case is completed and cannot change any more");
+
+        public static Error CaseCompletionRequired() =>
+            Error.Conflict(EventCodes.Cases.CaseCompletionRequired, "Complete the case with the amount received and the outcome");
+
+        public static Error CaseCannotGoBack() =>
+            Error.Conflict(EventCodes.Cases.CaseCannotGoBack, "An inserted case cannot move back");
+
+        public static Error ServiceInUse() =>
+            Error.Conflict(EventCodes.Cases.ServiceInUse, "The service has cases: deactivate it instead");
     }
 }

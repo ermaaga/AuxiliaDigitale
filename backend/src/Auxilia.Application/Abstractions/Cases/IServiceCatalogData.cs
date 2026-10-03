@@ -61,6 +61,9 @@ public interface IServiceCatalogData : IAsyncDisposable
     /// <summary>Another service not deleted has the name (case-insensitive).</summary>
     Task<bool> NameTakenAsync(string name, Guid? exceptId, CancellationToken cancellationToken);
 
+    /// <summary>A case not deleted is for the service (Q28: then the service is deactivated, not deleted).</summary>
+    Task<bool> ServiceHasCasesAsync(Guid id, CancellationToken cancellationToken);
+
     /// <summary>The category exists and is active.</summary>
     Task<bool> IsActiveCategoryAsync(Guid id, CancellationToken cancellationToken);
 

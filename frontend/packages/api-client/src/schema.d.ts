@@ -1758,6 +1758,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/cases/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A case with client, service, timeline, payments and what the caller may do */
+        get: operations["GetCase"];
+        /** Changes the due date and the custom fields of a case not completed */
+        put: operations["UpdateCase"];
+        post?: never;
+        /** Deletes a case (soft delete) and recomputes the client status */
+        delete: operations["DeleteCase"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Opens a case for a client and an active service (price snapshot, number {year}-{sequence}) */
+        post: operations["OpenCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{id}/advance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Moves a case one status forward (Inserted → InProgress → Sent); a sent case is completed instead */
+        post: operations["AdvanceCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{id}/back": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Moves a case one status back (from InProgress or Sent) */
+        post: operations["MoveCaseBack"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Completes a sent case with the amount received and the outcome; then it never changes */
+        post: operations["CompleteCase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{id}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Records money received for a case not completed */
+        post: operations["AddCasePayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1765,6 +1869,13 @@ export interface components {
         ActivateAccountRequest: {
             token: string;
             password: string;
+        };
+        AddCasePaymentRequest: {
+            /** Format: double */
+            amount: number | string;
+            /** Format: date */
+            paidOn: null | string;
+            note: null | string;
         };
         AddSpecializationMembersRequest: {
             userIds: string[];
@@ -1806,6 +1917,82 @@ export interface components {
         CaptchaChallengeResponse: {
             provider: string;
             altcha: null | components["schemas"]["AltchaChallengeResponse"];
+        };
+        CaseClientResponse: {
+            /** Format: uuid */
+            id: string;
+            fullName: string;
+        };
+        CasePaymentResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: double */
+            amount: number | string;
+            /** Format: date */
+            paidOn: string;
+            note: null | string;
+            /** Format: date-time */
+            recordedAt: string;
+            recordedBy: null | components["schemas"]["CaseUserResponse"];
+        };
+        CaseResponse: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            client: components["schemas"]["CaseClientResponse"];
+            service: components["schemas"]["CaseServiceResponse"];
+            specialization: null | components["schemas"]["CaseSpecializationResponse"];
+            status: string;
+            isRejected: boolean;
+            isActive: boolean;
+            /** Format: double */
+            price: number | string;
+            currency: string;
+            /** Format: double */
+            amountPaid: number | string;
+            /** Format: date */
+            startedOn: string;
+            /** Format: date */
+            dueOn: null | string;
+            /** Format: date */
+            expiresOn: null | string;
+            /** Format: date-time */
+            completedAt: null | string;
+            customFields: components["schemas"]["JsonElement"];
+            history: components["schemas"]["CaseStatusChangeResponse"][];
+            payments: components["schemas"]["CasePaymentResponse"][];
+            canManage: boolean;
+            canDelete: boolean;
+        };
+        CaseServiceResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            description: null | string;
+            /** Format: int32 */
+            durationDays: number | string;
+        };
+        CaseSpecializationResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            isPrivate: boolean;
+        };
+        CaseStatusChangeResponse: {
+            fromStatus: null | string;
+            toStatus: string;
+            /** Format: date-time */
+            changedAt: string;
+            changedBy: null | components["schemas"]["CaseUserResponse"];
+            note: null | string;
+        };
+        CaseUserResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
+        };
+        ChangeCaseStatusRequest: {
+            note: null | string;
         };
         ChangeExpiredPasswordRequest: {
             userName: string;
@@ -1891,6 +2078,12 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+        };
+        CompleteCaseRequest: {
+            /** Format: double */
+            amountPaid: null | number | string;
+            rejected: boolean;
+            note: null | string;
         };
         CreateClientRequest: {
             firstName: string;
@@ -2235,6 +2428,21 @@ export interface components {
             icon: string;
             /** Format: int32 */
             order: number | string;
+        };
+        OpenCaseRequest: {
+            /** Format: uuid */
+            clientId: string;
+            /** Format: uuid */
+            serviceId: string;
+            /** Format: date */
+            startedOn: null | string;
+            /** Format: date */
+            dueOn: null | string;
+            /** Format: uuid */
+            specializationId: null | string;
+            /** Format: uuid */
+            employeeUserId: null | string;
+            customFields: null | components["schemas"]["JsonElement"];
         };
         OutboundMessageResponse: {
             /** Format: uuid */
@@ -2699,6 +2907,11 @@ export interface components {
             languageCode: string;
             value: string;
             isCustomized: boolean;
+        };
+        UpdateCaseRequest: {
+            /** Format: date */
+            dueOn: null | string;
+            customFields: null | components["schemas"]["JsonElement"];
         };
         UpdateClientRequest: {
             firstName: string;
@@ -8928,6 +9141,364 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCaseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    OpenCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenCaseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AdvanceCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null | components["schemas"]["ChangeCaseStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    MoveCaseBack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null | components["schemas"]["ChangeCaseStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CompleteCase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteCaseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    AddCasePayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddCasePaymentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
             };
             /** @description Not Found */
             404: {

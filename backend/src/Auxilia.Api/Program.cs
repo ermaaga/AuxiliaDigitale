@@ -78,6 +78,7 @@ builder.Services.AddSingleton<IModuleEndpoints, ClientEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, EmployeeEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, RegistrationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ServiceEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, CaseEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 builder.Services.Configure<AltchaOptions>(builder.Configuration.GetSection(AltchaOptions.SectionName));

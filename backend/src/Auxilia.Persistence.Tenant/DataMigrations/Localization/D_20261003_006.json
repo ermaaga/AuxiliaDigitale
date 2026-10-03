@@ -1,0 +1,92 @@
+[
+ {
+  "key": "permissions.cases.cases.delete.description",
+  "category": "permissions",
+  "en": "Delete cases (employees: not the completed ones)",
+  "it": "Eliminare pratiche (gli operatori: non quelle concluse)"
+ },
+ {
+  "key": "validation.cases.client",
+  "category": "validation",
+  "en": "Choose an existing client.",
+  "it": "Scegli un cliente esistente."
+ },
+ {
+  "key": "validation.cases.service",
+  "category": "validation",
+  "en": "Choose an active service.",
+  "it": "Scegli un servizio attivo."
+ },
+ {
+  "key": "validation.cases.specialization",
+  "category": "validation",
+  "en": "Choose an active employee specialization.",
+  "it": "Scegli una specializzazione attiva degli operatori."
+ },
+ {
+  "key": "validation.cases.startedOn",
+  "category": "validation",
+  "en": "Enter a valid start date.",
+  "it": "Inserisci una data di inizio valida."
+ },
+ {
+  "key": "validation.cases.dueOn",
+  "category": "validation",
+  "en": "The due date cannot be before the start date.",
+  "it": "La scadenza non può precedere la data di inizio."
+ },
+ {
+  "key": "validation.cases.completeFromSent",
+  "category": "validation",
+  "en": "Only a sent case can be completed.",
+  "it": "Si può concludere solo una pratica inviata."
+ },
+ {
+  "key": "validation.cases.amount",
+  "category": "validation",
+  "en": "Enter an amount with at most two decimals (more than zero for a payment).",
+  "it": "Inserisci un importo con al massimo due decimali (maggiore di zero per un pagamento)."
+ },
+ {
+  "key": "validation.cases.paidOn",
+  "category": "validation",
+  "en": "The payment date cannot be in the future.",
+  "it": "La data del pagamento non può essere futura."
+ },
+ {
+  "key": "validation.cases.note",
+  "category": "validation",
+  "en": "The note can be at most 500 characters.",
+  "it": "La nota può avere al massimo 500 caratteri."
+ },
+ {
+  "key": "errors.AUX-14022",
+  "category": "errors",
+  "en": "The case does not exist or you cannot see it.",
+  "it": "La pratica non esiste o non puoi vederla."
+ },
+ {
+  "key": "errors.AUX-14023",
+  "category": "errors",
+  "en": "The case is completed and cannot change any more.",
+  "it": "La pratica è conclusa e non può più cambiare."
+ },
+ {
+  "key": "errors.AUX-14024",
+  "category": "errors",
+  "en": "Complete the case with the amount received and the outcome.",
+  "it": "Concludi la pratica indicando l'importo ricevuto e l'esito."
+ },
+ {
+  "key": "errors.AUX-14025",
+  "category": "errors",
+  "en": "An inserted case cannot go back.",
+  "it": "Una pratica inserita non può tornare indietro."
+ },
+ {
+  "key": "errors.AUX-14026",
+  "category": "errors",
+  "en": "The service has cases: deactivate it instead.",
+  "it": "Il servizio ha delle pratiche: disattivalo invece di eliminarlo."
+ }
+]

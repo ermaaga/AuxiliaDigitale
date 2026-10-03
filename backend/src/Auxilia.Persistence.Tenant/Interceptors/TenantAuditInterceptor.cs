@@ -9,6 +9,7 @@ using Auxilia.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Auxilia.Persistence.Tenant.Interceptors;
 
@@ -19,6 +20,35 @@ namespace Auxilia.Persistence.Tenant.Interceptors;
 /// </summary>
 internal sealed class TenantAuditInterceptor : SaveChangesInterceptor
 {
+    /// <summary>
+    /// Removing an owner marks its owned rows (e.g. the history of a case) as deleted too: a soft delete keeps them, so
+    /// they go back to unchanged with the owner.
+    /// </summary>
+    private static void KeepOwned(DbContext context, EntityEntry owner)
+    {
+        foreach (var navigation in owner.Navigations)
+        {
+            if (navigation.Metadata is not INavigation { ForeignKey.IsOwnership: true, IsOnDependent: false })
+            {
+                continue;
+            }
+
+            var dependents = navigation switch
+            {
+                CollectionEntry collection => collection.CurrentValue?.Cast<object>() ?? [],
+                _ => navigation.CurrentValue is { } single ? [single] : [],
+            };
+            foreach (var dependent in dependents.ToArray())
+            {
+                var entry = context.Entry(dependent);
+                if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Unchanged;
+                }
+            }
+        }
+    }
+
     private static readonly HashSet<string> TechnicalProperties =
     [
         TenantConventions.CreatedAt, TenantConventions.CreatedBy, TenantConventions.UpdatedAt, TenantConventions.UpdatedBy,
@@ -81,6 +111,7 @@ internal sealed class TenantAuditInterceptor : SaveChangesInterceptor
                 entry.Property(TenantConventions.IsDeleted).CurrentValue = true;
                 entry.Property(TenantConventions.DeletedAt).CurrentValue = now;
                 entry.Property(TenantConventions.DeletedBy).CurrentValue = actorId;
+                KeepOwned(context, entry);
             }
             else if (entry.State == EntityState.Added)
             {
