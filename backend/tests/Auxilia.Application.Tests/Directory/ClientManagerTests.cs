@@ -245,6 +245,7 @@ public sealed class ClientManagerTests : IAsyncDisposable
         (await manager.SetSpecializationsAsync(id, [silver.Id], Ct)).IsSuccess.ShouldBeTrue();
         (await manager.SetSpecializationsAsync(id, [Guid.CreateVersion7()], Ct)).Error!.Code.ShouldBe(EventCodes.Directory.ClientSpecializationInvalid);
 
+        (await query.SpecializationsAsync(Ct)).Select(item => item.Name).ShouldBe(["Gold", "Silver"]);
         gold.Members.ShouldBeEmpty();
         silver.Members.ShouldHaveSingleItem().UserId.ShouldBe(userId);
         (await query.GetAsync(id, Ct)).Value.Specializations.Select(item => item.Name).ShouldBe(["Silver"]);

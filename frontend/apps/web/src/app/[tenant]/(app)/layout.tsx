@@ -5,6 +5,7 @@ import { brandIdentity } from "@/features/branding/branding";
 import { loadBranding } from "@/features/branding/server";
 import { tenantLanguages } from "@/i18n/bundles";
 import { currentSession, serverApi } from "@/lib/api/server";
+import { PermissionsProvider } from "@/lib/permissions";
 import { tenantHref } from "@/lib/href";
 
 /**
@@ -33,7 +34,7 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
     );
   }
 
-  const me = (await meResponse.json()) as ShellUser;
+  const me = (await meResponse.json()) as ShellUser & { permissions: string[] };
   const navigation = (
     (await navigationResponse.json()) as Array<ShellNavigationItem & { order: number | string }>
   )
@@ -46,15 +47,17 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
   const identity = brandIdentity(tenant, branding);
 
   return (
-    <AppShell
-      tenant={tenant}
-      appName={identity.appName}
-      logoUrl={identity.logoUrl}
-      navigation={navigation}
-      user={{ userName: me.userName, roles: me.roles }}
-      languages={languages}
-    >
-      {children}
-    </AppShell>
+    <PermissionsProvider roles={me.roles} permissions={me.permissions}>
+      <AppShell
+        tenant={tenant}
+        appName={identity.appName}
+        logoUrl={identity.logoUrl}
+        navigation={navigation}
+        user={{ userName: me.userName, roles: me.roles }}
+        languages={languages}
+      >
+        {children}
+      </AppShell>
+    </PermissionsProvider>
   );
 }

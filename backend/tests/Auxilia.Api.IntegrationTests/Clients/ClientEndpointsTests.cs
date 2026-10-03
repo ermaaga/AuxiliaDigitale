@@ -141,6 +141,9 @@ public sealed class ClientEndpointsTests(ClientEndpointsTests.Factory factory) :
 
         using var noSpecialization = await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/specializations", employee, new SetClientSpecializationsRequest([Guid.NewGuid()]));
         await ShouldHaveCodeAsync(noSpecialization, HttpStatusCode.BadRequest, EventCodes.Directory.ClientSpecializationInvalid);
+        using var offered = await SendAsync(HttpMethod.Get, "/api/v1/clients/specializations", employee);
+        offered.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await offered.Content.ReadFromJsonAsync<ClientSpecializationResponse[]>(Ct)).ShouldNotBeNull();
         using var cleared = await SendAsync(HttpMethod.Put, $"/api/v1/clients/{id}/specializations", employee, new SetClientSpecializationsRequest([]));
         (await cleared.Content.ReadFromJsonAsync<ClientDetailResponse>(Ct))!.Specializations.ShouldBeEmpty();
 

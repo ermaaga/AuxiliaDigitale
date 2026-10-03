@@ -1,0 +1,344 @@
+[
+ {
+  "key": "app.clients.searchName",
+  "category": "app",
+  "en": "Search by name or surname",
+  "it": "Cerca per nome o cognome"
+ },
+ {
+  "key": "app.clients.back",
+  "category": "app",
+  "en": "Back to the clients",
+  "it": "Torna ai clienti"
+ },
+ {
+  "key": "app.clients.notFound",
+  "category": "app",
+  "en": "The client does not exist or has been deleted.",
+  "it": "Il cliente non esiste o è stato eliminato."
+ },
+ {
+  "key": "app.clients.noEmployee",
+  "category": "app",
+  "en": "No employee assigned",
+  "it": "Nessun operatore assegnato"
+ },
+ {
+  "key": "app.clients.signInDisabled",
+  "category": "app",
+  "en": "Sign-in disabled",
+  "it": "Accesso disabilitato"
+ },
+ {
+  "key": "app.clients.statusSince",
+  "category": "app",
+  "en": "Status since",
+  "it": "Stato dal"
+ },
+ {
+  "key": "app.clients.tabs.data",
+  "category": "app",
+  "en": "Personal data",
+  "it": "Dati anagrafici"
+ },
+ {
+  "key": "app.clients.tabs.assignment",
+  "category": "app",
+  "en": "Employee in charge",
+  "it": "Operatore assegnato"
+ },
+ {
+  "key": "app.clients.tabs.specializations",
+  "category": "app",
+  "en": "Specializations",
+  "it": "Specializzazioni"
+ },
+ {
+  "key": "app.clients.tabs.access",
+  "category": "app",
+  "en": "Account",
+  "it": "Account"
+ },
+ {
+  "key": "app.clients.deleteConfirm",
+  "category": "app",
+  "en": "Delete {name}? The client disappears from the lists and can no longer sign in.",
+  "it": "Eliminare {name}? Il cliente sparisce dagli elenchi e non può più accedere."
+ },
+ {
+  "key": "app.clients.deleted",
+  "category": "app",
+  "en": "Client deleted",
+  "it": "Cliente eliminato"
+ },
+ {
+  "key": "app.clients.saved",
+  "category": "app",
+  "en": "Changes saved",
+  "it": "Modifiche salvate"
+ },
+ {
+  "key": "app.clients.created",
+  "category": "app",
+  "en": "Client created",
+  "it": "Cliente creato"
+ },
+ {
+  "key": "app.clients.createdInvited",
+  "category": "app",
+  "en": "Client created: the activation e-mail is on its way",
+  "it": "Cliente creato: l'e-mail di attivazione è in partenza"
+ },
+ {
+  "key": "app.clients.createdNotInvited",
+  "category": "app",
+  "en": "Client created, but the activation e-mail could not be sent: send it again from the Account tab.",
+  "it": "Cliente creato, ma l'e-mail di attivazione non è partita: inviala di nuovo dalla scheda Account."
+ },
+ {
+  "key": "app.clients.assignTo",
+  "category": "app",
+  "en": "Assign to",
+  "it": "Assegna a"
+ },
+ {
+  "key": "app.clients.chooseEmployee",
+  "category": "app",
+  "en": "Choose an employee",
+  "it": "Scegli un operatore"
+ },
+ {
+  "key": "app.clients.assign",
+  "category": "app",
+  "en": "Assign",
+  "it": "Assegna"
+ },
+ {
+  "key": "app.clients.assigned",
+  "category": "app",
+  "en": "Employee assigned",
+  "it": "Operatore assegnato al cliente"
+ },
+ {
+  "key": "app.clients.unassign",
+  "category": "app",
+  "en": "Remove the employee",
+  "it": "Togli l'operatore"
+ },
+ {
+  "key": "app.clients.unassignConfirm",
+  "category": "app",
+  "en": "Remove {name} from this client? Nobody will be in charge of it.",
+  "it": "Togliere {name} da questo cliente? Nessuno lo seguirà più."
+ },
+ {
+  "key": "app.clients.unassigned",
+  "category": "app",
+  "en": "Employee removed",
+  "it": "Operatore tolto"
+ },
+ {
+  "key": "app.clients.history",
+  "category": "app",
+  "en": "Assignment history",
+  "it": "Storico delle assegnazioni"
+ },
+ {
+  "key": "app.clients.current",
+  "category": "app",
+  "en": "Current",
+  "it": "Attuale"
+ },
+ {
+  "key": "app.clients.until",
+  "category": "app",
+  "en": "Until",
+  "it": "Fino al"
+ },
+ {
+  "key": "app.clients.specializationsHint",
+  "category": "app",
+  "en": "A client can have several specializations of the Client role.",
+  "it": "Un cliente può avere più specializzazioni del ruolo Cliente."
+ },
+ {
+  "key": "app.clients.noSpecializations",
+  "category": "app",
+  "en": "There are no client specializations yet.",
+  "it": "Non ci sono ancora specializzazioni per i clienti."
+ },
+ {
+  "key": "app.clients.noAccount",
+  "category": "app",
+  "en": "This client has no sign-in account.",
+  "it": "Questo cliente non ha un account di accesso."
+ },
+ {
+  "key": "app.clients.accessHint",
+  "category": "app",
+  "en": "Sign-in is independent from the client status. It can be enabled only when an employee is assigned.",
+  "it": "L'accesso è indipendente dallo stato del cliente. Si può abilitare solo se un operatore è assegnato."
+ },
+ {
+  "key": "app.clients.activation",
+  "category": "app",
+  "en": "Activation",
+  "it": "Attivazione"
+ },
+ {
+  "key": "app.clients.activated",
+  "category": "app",
+  "en": "Activated",
+  "it": "Attivato"
+ },
+ {
+  "key": "app.clients.notActivated",
+  "category": "app",
+  "en": "Not activated yet",
+  "it": "Non ancora attivato"
+ },
+ {
+  "key": "app.clients.signInEnabled",
+  "category": "app",
+  "en": "Sign-in enabled",
+  "it": "Accesso abilitato"
+ },
+ {
+  "key": "app.clients.signInDisabledToast",
+  "category": "app",
+  "en": "Sign-in disabled",
+  "it": "Accesso disabilitato"
+ },
+ {
+  "key": "app.clients.sendInvitation",
+  "category": "app",
+  "en": "Send the activation e-mail",
+  "it": "Invia l'e-mail di attivazione"
+ },
+ {
+  "key": "app.clients.invitationSent",
+  "category": "app",
+  "en": "Activation e-mail sent",
+  "it": "E-mail di attivazione inviata"
+ },
+ {
+  "key": "app.clients.invitationNotSent",
+  "category": "app",
+  "en": "The activation e-mail could not be sent: check the sending account.",
+  "it": "L'e-mail di attivazione non è partita: controlla l'account di invio."
+ },
+ {
+  "key": "app.clients.resetLink",
+  "category": "app",
+  "en": "E-mail a reset link",
+  "it": "Invia un link di reimpostazione"
+ },
+ {
+  "key": "app.clients.resetTemporary",
+  "category": "app",
+  "en": "Set a temporary password",
+  "it": "Imposta una password temporanea"
+ },
+ {
+  "key": "app.clients.resetLinkConfirm",
+  "category": "app",
+  "en": "E-mail the client a link to choose a new password?",
+  "it": "Inviare al cliente un link per scegliere una nuova password?"
+ },
+ {
+  "key": "app.clients.resetTemporaryConfirm",
+  "category": "app",
+  "en": "Set a temporary password? The client must change it at the next sign-in.",
+  "it": "Impostare una password temporanea? Il cliente dovrà cambiarla al prossimo accesso."
+ },
+ {
+  "key": "app.clients.resetLinkSent",
+  "category": "app",
+  "en": "Reset link sent",
+  "it": "Link di reimpostazione inviato"
+ },
+ {
+  "key": "app.clients.temporaryPassword",
+  "category": "app",
+  "en": "Temporary password",
+  "it": "Password temporanea"
+ },
+ {
+  "key": "app.clients.temporaryPasswordHint",
+  "category": "app",
+  "en": "Give it to the client now: it is shown only once and must be changed at the next sign-in.",
+  "it": "Comunicala ora al cliente: viene mostrata una sola volta e va cambiata al prossimo accesso."
+ },
+ {
+  "key": "app.clients.wizard.steps",
+  "category": "app",
+  "en": "Steps",
+  "it": "Passaggi"
+ },
+ {
+  "key": "app.clients.wizard.stepOf",
+  "category": "app",
+  "en": "Step {step} of {total}",
+  "it": "Passo {step} di {total}"
+ },
+ {
+  "key": "app.clients.wizard.personal",
+  "category": "app",
+  "en": "Personal data",
+  "it": "Dati anagrafici"
+ },
+ {
+  "key": "app.clients.wizard.contacts",
+  "category": "app",
+  "en": "Contacts and employee",
+  "it": "Contatti e operatore"
+ },
+ {
+  "key": "app.clients.wizard.summary",
+  "category": "app",
+  "en": "Summary",
+  "it": "Riepilogo"
+ },
+ {
+  "key": "app.clients.wizard.next",
+  "category": "app",
+  "en": "Next",
+  "it": "Avanti"
+ },
+ {
+  "key": "app.clients.wizard.create",
+  "category": "app",
+  "en": "Create the client",
+  "it": "Crea il cliente"
+ },
+ {
+  "key": "app.clients.wizard.emailIsUserName",
+  "category": "app",
+  "en": "The e-mail is also the user name for signing in.",
+  "it": "L'e-mail è anche il nome utente per accedere."
+ },
+ {
+  "key": "app.clients.wizard.employeeHint",
+  "category": "app",
+  "en": "Without a choice the client goes to the default employee.",
+  "it": "Senza una scelta il cliente va all'operatore predefinito."
+ },
+ {
+  "key": "app.clients.wizard.defaultEmployee",
+  "category": "app",
+  "en": "Default employee",
+  "it": "Operatore predefinito"
+ },
+ {
+  "key": "app.clients.wizard.assignedToYou",
+  "category": "app",
+  "en": "The client is assigned to you and can sign in once an administrator enables it.",
+  "it": "Il cliente è assegnato a te e potrà accedere quando un amministratore lo abiliterà."
+ },
+ {
+  "key": "validation.user.userName",
+  "category": "validation",
+  "en": "Enter a user name without spaces (at most 256 characters).",
+  "it": "Inserisci un nome utente senza spazi (al massimo 256 caratteri)."
+ }
+]

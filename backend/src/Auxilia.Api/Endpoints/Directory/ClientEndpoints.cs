@@ -36,6 +36,12 @@ internal sealed class ClientEndpoints : IModuleEndpoints
             .WithSummary("Employees a client can be assigned to (Employee role, can sign in)")
             .Produces<IReadOnlyList<ClientEmployeeResponse>>();
 
+        clients.MapGet("/specializations", SpecializationsAsync)
+            .RequirePermission(DirectoryPermissions.ViewClients)
+            .WithName("ListClientSpecializations")
+            .WithSummary("Active specializations of the Client role a client can be given")
+            .Produces<IReadOnlyList<ClientSpecializationResponse>>();
+
         clients.MapGet("/{id:guid}", GetAsync)
             .RequirePermission(DirectoryPermissions.ViewClients)
             .WithName("GetClient")
@@ -135,6 +141,9 @@ internal sealed class ClientEndpoints : IModuleEndpoints
 
     private static async Task<IResult> AssignableEmployeesAsync(IClientQueryService clients, CancellationToken cancellationToken) =>
         TypedResults.Ok(await clients.AssignableEmployeesAsync(cancellationToken));
+
+    private static async Task<IResult> SpecializationsAsync(IClientQueryService clients, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await clients.SpecializationsAsync(cancellationToken));
 
     private static async Task<IResult> GetAsync(Guid id, IClientQueryService clients, CancellationToken cancellationToken) =>
         (await clients.GetAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);
