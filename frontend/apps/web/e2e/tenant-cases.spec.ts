@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { E2E } from "./support/env";
 import { signInWithNewPassword, toast } from "./support/sign-in";
@@ -8,6 +8,9 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * Case pages (B-14, F09, F33): an Administrator opens a case for a client, moves it forward, files a document in a
  * folder of the service, completes it with the amount received and finds it in the client's 360° tab.
  */
+
+/** The status stepper of the case detail (the timeline below repeats the status names). */
+const stepper = (page: Page) => page.getByRole("list", { name: t("app.cases.progress") });
 
 const pdf = {
   name: "redditi.pdf",
@@ -44,10 +47,11 @@ test("an Administrator runs a case from opening to completion", async ({ page })
     await expect(
       page.getByRole("heading", { name: `${service.name} — ${client.fullName}`, level: 1 }),
     ).toBeVisible();
-    await expect(page.getByRole("listitem").filter({ hasText: t("Inserted") })).toHaveAttribute(
-      "aria-current",
-      "step",
-    );
+    await expect(
+      stepper(page)
+        .getByRole("listitem")
+        .filter({ hasText: t("Inserted") }),
+    ).toHaveAttribute("aria-current", "step");
     await expectAccessible(page, "case inserted");
   });
 
@@ -76,10 +80,11 @@ test("an Administrator runs a case from opening to completion", async ({ page })
       .getByRole("alertdialog")
       .getByRole("button", { name: t("app.cases.forward") })
       .click();
-    await expect(page.getByRole("listitem").filter({ hasText: t("Sent") })).toHaveAttribute(
-      "aria-current",
-      "step",
-    );
+    await expect(
+      stepper(page)
+        .getByRole("listitem")
+        .filter({ hasText: t("Sent") }),
+    ).toHaveAttribute("aria-current", "step");
     await page.getByRole("button", { name: t("app.cases.complete") }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByLabel(`${t("app.cases.amountReceived")} *`)).toHaveValue("150.00");
