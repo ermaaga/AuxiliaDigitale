@@ -212,22 +212,23 @@ export function DocumentUploader({
             <span id="documents-drop-hint" className="text-muted-foreground">
               {t("app.documents.dropHint", { max: MAX_FILES })}
             </span>
-            <input
-              ref={input}
-              type="file"
-              multiple
-              className="sr-only"
-              aria-label={t("SelectFiles")}
-              tabIndex={-1}
-              onChange={(event) => {
-                if (event.target.files) {
-                  add(event.target.files);
-                }
-
-                event.target.value = "";
-              }}
-            />
           </div>
+          {/* Outside the drop zone: an input inside a role="button" is a nested interactive control (axe). */}
+          <input
+            ref={input}
+            type="file"
+            multiple
+            className="sr-only"
+            aria-label={t("SelectFiles")}
+            tabIndex={-1}
+            onChange={(event) => {
+              if (event.target.files) {
+                add(event.target.files);
+              }
+
+              event.target.value = "";
+            }}
+          />
 
           {files.length > 0 ? (
             <ul className="flex flex-col gap-1 text-sm" aria-label={t("app.documents.selected")}>
