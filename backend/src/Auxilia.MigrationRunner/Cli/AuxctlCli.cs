@@ -44,7 +44,7 @@ internal sealed class AuxctlCli
           jobs list
           jobs run <job-code> (--tenant <slug> | --all)
           keys rotate                     (new token signing key; the previous one keeps validating for 2 h)
-          clients add --client-id <id> --name <name> --type (WebBff | PlatformConsole | Mobile | Integration) [--origin <url>]
+          clients add --client-id <id> --name <name> --type (WebBff | PlatformConsole | Mobile | Integration) [--origin <url>] [--captcha none|altcha]
                       (a confidential client's secret is printed once)
           clients list
           platform users add --email <email> --name <display name>
@@ -301,10 +301,10 @@ internal sealed class AuxctlCli
 
         var origins = command.Option("origin") is { } origin ? new[] { origin } : [];
         var result = await scope.GetRequiredService<IClientApplicationManager>()
-            .AddAsync(new NewClientApplication(clientId, name, type, origins), cancellationToken);
+            .AddAsync(new NewClientApplication(clientId, name, type, origins, command.Option("captcha")), cancellationToken);
         return await ReportAsync(result, added => added.Secret is { } secret
-            ? $"{added.Client.ClientId}: added ({added.Client.Type}); client secret (shown only now): {secret}"
-            : $"{added.Client.ClientId}: added ({added.Client.Type}, public client)");
+            ? $"{added.Client.ClientId}: added ({added.Client.Type}, captcha {added.Client.CaptchaProvider}); client secret (shown only now): {secret}"
+            : $"{added.Client.ClientId}: added ({added.Client.Type}, public client, captcha {added.Client.CaptchaProvider})");
     }
 
     private async Task<int> ListClientsAsync(IServiceProvider scope, CancellationToken cancellationToken)
@@ -312,7 +312,7 @@ internal sealed class AuxctlCli
         foreach (var client in await scope.GetRequiredService<IClientApplicationManager>().ListAsync(cancellationToken))
         {
             var origins = client.AllowedOrigins.Length == 0 ? "-" : string.Join(',', client.AllowedOrigins);
-            await output.WriteLineAsync($"{client.ClientId}\t{client.Type}\t{(client.IsEnabled ? "enabled" : "disabled")}\t{origins}\t{client.Name}");
+            await output.WriteLineAsync($"{client.ClientId}\t{client.Type}\t{(client.IsEnabled ? "enabled" : "disabled")}\tcaptcha {client.EffectiveCaptchaProvider}\t{origins}\t{client.Name}");
         }
 
         return Success;

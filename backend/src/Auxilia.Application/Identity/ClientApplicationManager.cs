@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Captcha;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Diagnostics;
@@ -17,7 +18,12 @@ public interface IClientApplicationManager
     Task<IReadOnlyList<ClientApplication>> ListAsync(CancellationToken cancellationToken);
 }
 
-public sealed record NewClientApplication(string ClientId, string Name, ClientApplicationType Type, IReadOnlyList<string> AllowedOrigins);
+/// <param name="CaptchaProvider">
+/// Captcha of its public calls (F02): <c>none</c> or <c>altcha</c>; by default <c>none</c> for confidential clients and
+/// <c>altcha</c> for public ones, which cannot go without.
+/// </param>
+public sealed record NewClientApplication(
+    string ClientId, string Name, ClientApplicationType Type, IReadOnlyList<string> AllowedOrigins, string? CaptchaProvider = null);
 
 /// <param name="Secret">The client secret of a confidential client (shown once, never stored in clear); null for public clients.</param>
 public sealed record NewClientApplicationResult(ClientApplication Client, string? Secret);
@@ -27,12 +33,15 @@ internal sealed class ClientApplicationManager : IClientApplicationManager
     private readonly IOperationRunner operations;
     private readonly IClientApplicationStore clients;
     private readonly IPasswordHasher hasher;
+    private readonly IEnumerable<ICaptchaVerifier> captchas;
 
-    public ClientApplicationManager(IOperationRunner operations, IClientApplicationStore clients, IPasswordHasher hasher)
+    public ClientApplicationManager(
+        IOperationRunner operations, IClientApplicationStore clients, IPasswordHasher hasher, IEnumerable<ICaptchaVerifier> captchas)
     {
         this.operations = operations;
         this.clients = clients;
         this.hasher = hasher;
+        this.captchas = captchas;
     }
 
     public Task<Result<NewClientApplicationResult>> AddAsync(NewClientApplication request, CancellationToken cancellationToken)
@@ -53,7 +62,16 @@ internal sealed class ClientApplicationManager : IClientApplicationManager
                 return Errors.Identity.ClientIdTaken();
             }
 
+            var captcha = string.IsNullOrWhiteSpace(request.CaptchaProvider)
+                ? client.IsConfidential ? ClientApplication.NoCaptcha : ClientApplication.PublicClientCaptcha
+                : request.CaptchaProvider.Trim();
+            if (!captchas.Any(verifier => verifier.Provider == captcha) || (!client.IsConfidential && captcha == ClientApplication.NoCaptcha))
+            {
+                return Errors.Tenancy.CatalogValueInvalid("captchaProvider", "validation.clientApplication.captcha");
+            }
+
             client.SetAllowedOrigins(request.AllowedOrigins);
+            client.SetCaptchaProvider(captcha);
             string? secret = null;
             if (client.IsConfidential)
             {

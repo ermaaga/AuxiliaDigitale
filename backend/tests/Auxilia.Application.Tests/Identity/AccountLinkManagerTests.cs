@@ -1,5 +1,6 @@
 using System.Web;
 
+using Auxilia.Application.Abstractions.Captcha;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Identity;
 using Auxilia.Application.Messaging.Public;
@@ -183,10 +184,11 @@ public sealed class ClientAndKeyManagerTests
     public async Task AddClient_ConfidentialGetsASecretStoredOnlyAsAHash()
     {
         var store = new InMemoryClientStore();
-        var manager = new ClientApplicationManager(Platform.ManagerHarness.Runner(), store, new FakeHasher());
+        var manager = new ClientApplicationManager(Platform.ManagerHarness.Runner(), store, new FakeHasher(), Captchas());
 
         var added = (await manager.AddAsync(new NewClientApplication("web", "Web app", ClientApplicationType.WebBff, ["https://app.example.test/"]), Ct)).Value;
         var mobile = (await manager.AddAsync(new NewClientApplication("mobile", "Mobile", ClientApplicationType.Mobile, []), Ct)).Value;
+        (added.Client.CaptchaProvider, mobile.Client.CaptchaProvider).ShouldBe(("none", "altcha"));
 
         added.Secret.ShouldNotBeNullOrEmpty();
         added.Client.SecretHash.ShouldBe("hash:" + added.Secret);
@@ -197,6 +199,25 @@ public sealed class ClientAndKeyManagerTests
         (await manager.AddAsync(new NewClientApplication("web", "Again", ClientApplicationType.Mobile, []), Ct)).Error!.Code
             .ShouldBe(EventCodes.Identity.ClientIdTaken);
         (await manager.AddAsync(new NewClientApplication(" ", "Blank", ClientApplicationType.Mobile, []), Ct)).IsFailure.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task AddClient_CaptchaMustBeKnown_AndPublicClientsCannotGoWithout()
+    {
+        var manager = new ClientApplicationManager(Platform.ManagerHarness.Runner(), new InMemoryClientStore(), new FakeHasher(), Captchas());
+
+        (await manager.AddAsync(new NewClientApplication("web", "Web", ClientApplicationType.WebBff, [], "altcha"), Ct)).Value.Client.CaptchaProvider.ShouldBe("altcha");
+        (await manager.AddAsync(new NewClientApplication("site", "Site", ClientApplicationType.Integration, [], "none"), Ct)).IsFailure.ShouldBeTrue();
+        (await manager.AddAsync(new NewClientApplication("other", "Other", ClientApplicationType.WebBff, [], "recaptcha"), Ct)).IsFailure.ShouldBeTrue();
+    }
+
+    private static ICaptchaVerifier[] Captchas() => [Verifier("none"), Verifier("altcha")];
+
+    private static ICaptchaVerifier Verifier(string provider)
+    {
+        var verifier = Substitute.For<ICaptchaVerifier>();
+        verifier.Provider.Returns(provider);
+        return verifier;
     }
 
     [Fact]

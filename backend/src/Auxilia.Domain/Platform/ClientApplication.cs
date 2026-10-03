@@ -31,6 +31,12 @@ public sealed class ClientApplication : AggregateRoot<Guid>
     public const int VersionMaxLength = 50;
     public const int CaptchaProviderMaxLength = 50;
 
+    /// <summary>No captcha: only for confidential clients, which prove themselves with their secret.</summary>
+    public const string NoCaptcha = "none";
+
+    /// <summary>The captcha of public clients that store <see cref="NoCaptcha"/> (no secret to trust them by).</summary>
+    public const string PublicClientCaptcha = "altcha";
+
     private ClientApplication(Guid id, string clientId, string name, ClientApplicationType type)
         : base(id)
     {
@@ -38,7 +44,7 @@ public sealed class ClientApplication : AggregateRoot<Guid>
         Name = name;
         Type = type;
         AllowedOrigins = [];
-        CaptchaProvider = "none";
+        CaptchaProvider = NoCaptcha;
         IsEnabled = true;
     }
 
@@ -67,6 +73,9 @@ public sealed class ClientApplication : AggregateRoot<Guid>
     public bool IsEnabled { get; private set; }
 
     public bool IsConfidential => Type is ClientApplicationType.WebBff or ClientApplicationType.PlatformConsole;
+
+    /// <summary>The captcha its public calls need (F02): a public client never goes without one.</summary>
+    public string EffectiveCaptchaProvider => !IsConfidential && CaptchaProvider == NoCaptcha ? PublicClientCaptcha : CaptchaProvider;
 
     public static Result<ClientApplication> Create(Guid id, string clientId, string name, ClientApplicationType type)
     {

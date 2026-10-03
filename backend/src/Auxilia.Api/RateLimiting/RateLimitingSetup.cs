@@ -36,6 +36,9 @@ public sealed class RateLimitingOptions
     /// <summary>Activation and password reset links per tenant and IP (they send e-mails).</summary>
     public RateLimitRule AccountLinks { get; set; } = new() { PermitLimit = 10, Window = TimeSpan.FromMinutes(15) };
 
+    /// <summary>Registration requests (F02, external client applications) per tenant and IP.</summary>
+    public RateLimitRule Registration { get; set; } = new() { PermitLimit = 10, Window = TimeSpan.FromHours(1) };
+
     /// <summary>Every request of an authenticated user, per tenant and user.</summary>
     public RateLimitRule User { get; set; } = new() { PermitLimit = 600, Window = TimeSpan.FromMinutes(1) };
 
@@ -48,8 +51,8 @@ public sealed class RateLimitingOptions
 
 /// <summary>
 /// Rate limiting (skill auxilia-security): a global limiter chains a per-caller limit (authenticated user per tenant,
-/// otherwise IP) with a per-client-application limit; the sign-in and account-link endpoints add stricter per-IP
-/// policies. Rejections answer 429 ProblemDetails <c>AUX-10024</c> with <c>Retry-After</c> and log the security event
+/// otherwise IP) with a per-client-application limit; the sign-in, account-link and registration endpoints add
+/// stricter per-IP policies. Rejections answer 429 ProblemDetails <c>AUX-10024</c> with <c>Retry-After</c> and log the security event
 /// <c>AUX-29016</c>. Health endpoints are not limited.
 /// </summary>
 internal static class RateLimitingSetup
@@ -57,6 +60,8 @@ internal static class RateLimitingSetup
     public const string SignInPolicy = "auth-token";
 
     public const string AccountLinksPolicy = "auth-links";
+
+    public const string RegistrationPolicy = "registrations";
 
     private const int SegmentsPerWindow = 6;
 
@@ -70,6 +75,7 @@ internal static class RateLimitingSetup
                 PartitionedRateLimiter.Create<HttpContext, string>(ClientPartition));
             options.AddPolicy(SignInPolicy, context => IpPartition(context, SignInPolicy, rules => rules.SignIn));
             options.AddPolicy(AccountLinksPolicy, context => IpPartition(context, AccountLinksPolicy, rules => rules.AccountLinks));
+            options.AddPolicy(RegistrationPolicy, context => IpPartition(context, RegistrationPolicy, rules => rules.Registration));
             options.OnRejected = OnRejectedAsync;
         });
         return services;
@@ -150,6 +156,7 @@ internal static class RateLimitingSetup
             {
                 SignInPolicy => rules.SignIn,
                 AccountLinksPolicy => rules.AccountLinks,
+                RegistrationPolicy => rules.Registration,
                 _ => partitionKind == "user" ? rules.User : rules.Anonymous,
             };
             retryAfter = rule.Window / SegmentsPerWindow;

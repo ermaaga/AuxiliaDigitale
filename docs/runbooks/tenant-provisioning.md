@@ -27,7 +27,7 @@ auxctl tenant list
 auxctl jobs list
 auxctl jobs run <job-code> --tenant acme | --all          # manual run (D-15), recorded in ops.job_runs
 auxctl keys rotate                                       # new ES256 token signing key (see "Token signing keys")
-auxctl clients add --client-id web-bff --name "Tenant web" --type WebBff [--origin https://app.example.com]
+auxctl clients add --client-id web-bff --name "Tenant web" --type WebBff [--origin https://app.example.com] [--captcha none|altcha]
 auxctl clients list
 auxctl platform users add --email ops@example.com --name "Operations"   (prints a one-use activation token)
 auxctl platform users reset --email ops@example.com     (lost password or authenticator: new activation token)
@@ -73,6 +73,28 @@ Every caller of `/api/v1/auth/token` identifies its application with header `X-C
 (`WebBff`, `PlatformConsole`) also send `X-Client-Secret`. `auxctl clients add` prints the generated secret **once**
 (only its hash is stored): put it in the BFF's secret store right away. `Mobile` and `Integration` clients have no secret.
 A second client with the same id fails with `AUX-12027`.
+
+**Captcha of the public endpoints** (external registration, F02/D-14): `--captcha` is `none` (default for confidential
+clients, trusted by their secret) or `altcha` (default and mandatory for `Mobile` and `Integration`: a public client
+stored with `none` is treated as `altcha`). `auxctl clients list` shows the effective captcha. ALTCHA challenges are
+signed with `Captcha:Altcha:Key` (64 random bytes in base64, e.g. `openssl rand -base64 64`; user-secrets / environment,
+the same on every API node; `Captcha:Altcha:ExpirySeconds`, default 600). Without the key every API process signs with a
+random one (`AUX-29027` at the first challenge): fine on one node in development, wrong behind a load balancer. Used
+solutions are kept on the distributed cache (Valkey) until they expire, so a replay fails on every node.
+
+## External registration (F02/F03, API only)
+A tenant accepts registrations only when the setting `registration.enabled` is on (default off) and its Administrators
+or Employees see the `directory` module; otherwise `GET /api/v1/registrations/captcha` and `POST /api/v1/registrations`
+answer 403 `AUX-13037`. The external application (registered with `auxctl clients add`, tenant from the host or
+`X-Tenant`) fetches the challenge, solves it (ALTCHA widget or solver) and sends the request with the solution in
+`captcha` (field checks first, then the captcha, then the duplicate checks: `AUX-13038` pending request with the same
+e-mail, `AUX-13039` e-mail already registered). Limit: 10 requests per hour per IP and tenant (`RateLimiting:Registration`).
+Staff review them with `GET /api/v1/registrations` and `POST /api/v1/registrations/{id}/approve|reject` (permission
+`directory.registrations.review`); approving creates the client (user name = e-mail) for the default employee and sends
+the activation e-mail (without a default employee the client cannot sign in yet: `invitationErrorCode` `AUX-13019`).
+Settings: `registration.sendConfirmationEmail` (template `registration-received`), `registration.notifyAdmins` (real-time
+push `RegistrationRequested` to the Administrators until the notification centre, B-19), `registration.defaultLanguage`,
+`registration.minimumAge` (16).
 
 ## Token signing keys
 Access tokens are JWT ES256; the key ring lives in `catalog.signing_keys` (private keys encrypted with Data Protection,

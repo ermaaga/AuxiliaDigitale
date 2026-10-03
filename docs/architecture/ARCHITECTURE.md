@@ -205,7 +205,7 @@ Adapter registrati come *keyed services*; quale usare è un'impostazione (§7). 
 | Canali di invio | `IMessageChannel` | `email` → provider `smtp` (MailKit) | `whatsapp` → provider `http-gateway` (endpoint esterno, D-20), `sms` |
 | Storage file | `IFileStorage` | `local`, `ftp`, `azure-blob` | `s3` |
 | Storage log | (sink Serilog) | `local-file` (sviluppo), `azure-blob` | – |
-| Captcha (API pubbliche) | `ICaptchaVerifier` | `none`, `altcha` | – |
+| Captcha (API pubbliche) | `ICaptchaVerifier` | `none`, `altcha` | – (per client app: `captcha_provider`; i client pubblici sempre `altcha`, B-06) |
 | Antivirus | `IMalwareScanner` | `none` | `clamav` |
 | PDF / export | `IPdfRenderer`, `ITabularExporter` | `migradoc`, `csv`, `xlsx` | – |
 | Job periodici | `IRecurringJob` | esecuzione manuale | scheduler (disattivo, D-15) |
@@ -232,6 +232,7 @@ Implementazione (P1-10): `SettingDefinition<T>` / `SecretSettingDefinition` (`Ap
 |---|---|
 | `RegistrationEnabled`, `SendRegistrationConfirmationEmail` | `registration.enabled` (default **false**, D-14), `registration.sendConfirmationEmail`, `registration.notifyAdmins` (default false: non c'è ancora una pagina di approvazione) |
 | `RegistrationLanguage` | `registration.defaultLanguage` (lingua delle email di conferma) |
+| intervallo fisso della data di nascita (Q59) | `registration.minimumAge` (16 anni) |
 | `AutoSubscriptionExpiry`, `SubscriptionExpiringDays` | `cases.expiry.enabled`, `cases.expiry.expiringDays` (usati dal comando manuale) |
 | `UseAppName`, tema, sfondo | tabella `configuration.branding` |
 | `EmailConfiguration` | `configuration.messaging_accounts` (account `smtp` di default) |

@@ -12,6 +12,7 @@ using Auxilia.Api.Tenancy;
 using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Infrastructure;
+using Auxilia.Infrastructure.Adapters.Captcha.Altcha;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
@@ -70,11 +71,14 @@ builder.Services.AddSingleton<IApiEndpoints, CustomizationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MessagingEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, RolePermissionEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, SpecializationEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, RegistrationSubmissionEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ClientEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, EmployeeEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, RegistrationEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
+builder.Services.Configure<AltchaOptions>(builder.Configuration.GetSection(AltchaOptions.SectionName));
 
 // Module descriptors are registered by AddApplication; their endpoints are IModuleEndpoints (MapModules below).
 

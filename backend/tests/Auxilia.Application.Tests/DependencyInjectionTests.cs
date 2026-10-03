@@ -66,7 +66,7 @@ public sealed class DependencyInjectionTests
             "branding.background.endColor", "branding.background.kind", "branding.background.startColor", "branding.theme.accentColor",
             "branding.theme.fill", "branding.theme.primaryColor", "branding.useAppName", "cases.expiry.enabled",
             "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage",
-            "registration.enabled", "registration.notifyAdmins", "registration.sendConfirmationEmail",
+            "registration.enabled", "registration.minimumAge", "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);
     }
 

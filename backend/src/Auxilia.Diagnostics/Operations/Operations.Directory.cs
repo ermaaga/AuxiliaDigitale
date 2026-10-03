@@ -39,5 +39,11 @@ public static partial class Operations
         public static readonly OperationDescriptor ChangeEmployeeSpecializations = new("Directory.ChangeEmployeeSpecializations", EventCodes.Directory.EmployeeSpecializationsChanged);
 
         public static readonly OperationDescriptor ChangeEmployeeAdministrator = new("Directory.ChangeEmployeeAdministrator", EventCodes.Directory.EmployeeAdministratorChanged);
+
+        public static readonly OperationDescriptor SubmitRegistration = new("Directory.SubmitRegistration", EventCodes.Directory.RegistrationSubmitted);
+
+        public static readonly OperationDescriptor ApproveRegistration = new("Directory.ApproveRegistration", EventCodes.Directory.RegistrationApproved);
+
+        public static readonly OperationDescriptor RejectRegistration = new("Directory.RejectRegistration", EventCodes.Directory.RegistrationRejected);
     }
 }

@@ -106,5 +106,13 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Security.TenantLogLevelChanged, EventName = "Security.TenantLogLevelChanged",
             Level = LogLevel.Warning, Message = "Debug logging of tenant {TenantSlug} set until {DebugUntil} (empty: disabled)")]
         public static partial void TenantLogLevelChanged(ILogger logger, string tenantSlug, DateTimeOffset? debugUntil);
+
+        [LoggerMessage(EventId = EventCodes.Security.CaptchaRejected, EventName = "Security.CaptchaRejected",
+            Level = LogLevel.Warning, Message = "Captcha {Provider} rejected for client {ClientId}")]
+        public static partial void CaptchaRejected(ILogger logger, string provider, string clientId);
+
+        [LoggerMessage(EventId = EventCodes.Security.CaptchaKeyEphemeral, EventName = "Security.CaptchaKeyEphemeral",
+            Level = LogLevel.Warning, Message = "Captcha:Altcha:Key is not configured: challenges are signed with a random key until restart (one node only)")]
+        public static partial void CaptchaKeyEphemeral(ILogger logger);
     }
 }

@@ -27,7 +27,11 @@ internal sealed class ClientApplicationValidator
     /// True for the console sign-in: only <see cref="ClientApplicationType.PlatformConsole"/> clients; tenant sign-ins
     /// never accept that type (the two areas have separate sessions, N02).
     /// </param>
-    public async Task<bool> ValidateAsync(ClientCredentials credentials, CancellationToken cancellationToken, bool platform = false)
+    public async Task<bool> ValidateAsync(ClientCredentials credentials, CancellationToken cancellationToken, bool platform = false) =>
+        await AuthenticateAsync(credentials, cancellationToken, platform) is not null;
+
+    /// <summary>The calling client application when it is valid (see <see cref="ValidateAsync"/>), otherwise <c>null</c> (logged).</summary>
+    public async Task<ClientApplication?> AuthenticateAsync(ClientCredentials credentials, CancellationToken cancellationToken, bool platform = false)
     {
         ArgumentNullException.ThrowIfNull(credentials);
 
@@ -48,18 +52,18 @@ internal sealed class ClientApplicationValidator
 
         if (!client.IsConfidential)
         {
-            return true;
+            return client;
         }
 
         var valid = client.SecretHash is { } hash
             && !string.IsNullOrEmpty(credentials.ClientSecret)
             && hasher.Verify(hash, Domain.Identity.PasswordFormat.Identity, credentials.ClientSecret) != PasswordVerification.Failed;
-        return valid || Reject(client.ClientId, "secret");
+        return valid ? client : Reject(client.ClientId, "secret");
     }
 
-    private bool Reject(string? clientId, string reason)
+    private ClientApplication? Reject(string? clientId, string reason)
     {
         Log.Security.ClientRejected(logger, string.IsNullOrWhiteSpace(clientId) ? "-" : clientId, reason);
-        return false;
+        return null;
     }
 }

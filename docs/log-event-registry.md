@@ -13,7 +13,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
-| 13000–13999 | Directory | Directory (clients, employees) | 33 | 13034 |
+| 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
 | 16000–16999 | Documents | Documents / Storage | 0 | 16001 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 25 | 29026 |
+| 29000–29999 | Security | Security events | 27 | 29028 |
 
 ## Codes
 
@@ -184,6 +184,16 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-13031 | Directory.DefaultEmployeeInactive | – | Conflict | – | – |
 | AUX-13032 | Directory.EmployeeSpecializationInvalid | – | Validation | – | – |
 | AUX-13033 | Directory.AdministratorInvalid | – | Validation | – | – |
+| AUX-13034 | Directory.RegistrationSubmitted | – | – | Directory.SubmitRegistration (success) | – |
+| AUX-13035 | Directory.RegistrationApproved | – | – | Directory.ApproveRegistration (success) | – |
+| AUX-13036 | Directory.RegistrationRejected | – | – | Directory.RejectRegistration (success) | – |
+| AUX-13037 | Directory.RegistrationDisabled | – | Forbidden | – | – |
+| AUX-13038 | Directory.RegistrationPending | – | Conflict | – | – |
+| AUX-13039 | Directory.RegistrationEmailRegistered | – | Conflict | – | – |
+| AUX-13040 | Directory.RegistrationNotFound | – | NotFound | – | – |
+| AUX-13041 | Directory.RegistrationProcessed | – | Conflict | – | – |
+| AUX-13042 | Directory.RegistrationInvalid | – | Validation | – | – |
+| AUX-13043 | Directory.RegistrationCaptchaInvalid | – | Validation | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
@@ -288,3 +298,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29023 | Security.PasswordResetByOperator | Warning | – | – | Password of user {UserId} reset by an operator ({Mode}) |
 | AUX-29024 | Security.RolePermissionsChanged | Warning | – | – | Permissions of role {Role} changed: granted {Granted}, revoked {Revoked} |
 | AUX-29025 | Security.TenantLogLevelChanged | Warning | – | – | Debug logging of tenant {TenantSlug} set until {DebugUntil} (empty: disabled) |
+| AUX-29026 | Security.CaptchaRejected | Warning | – | – | Captcha {Provider} rejected for client {ClientId} |
+| AUX-29027 | Security.CaptchaKeyEphemeral | Warning | – | – | Captcha:Altcha:Key is not configured: challenges are signed with a random key until restart (one node only) |
