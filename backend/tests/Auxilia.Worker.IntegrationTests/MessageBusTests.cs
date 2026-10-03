@@ -112,7 +112,7 @@ public sealed class MessageBusTests(BusFixture bus)
     {
         MessageRouting.QueueOf(typeof(RunRecurringJobCommand)).ShouldBe(MessageRouting.PlatformQueue);
         MessageRouting.MessageTypes.ShouldContain(typeof(RunRecurringJobCommand));
-        MessageRouting.QueuesHandledBy(typeof(WorkerServices).Assembly).ShouldBe(["auxilia.messaging", MessageRouting.PlatformQueue]);
+        MessageRouting.QueuesHandledBy(typeof(WorkerServices).Assembly).ShouldBe(["auxilia.documents", "auxilia.messaging", MessageRouting.PlatformQueue]);
         Should.Throw<ArgumentException>(() => MessageRouting.QueueOf(typeof(string)));
     }
 

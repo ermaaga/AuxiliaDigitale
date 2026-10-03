@@ -17,5 +17,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Documents.FileCommitted, EventName = "Documents.FileCommitted",
             Level = LogLevel.Information, Message = "File {Key} committed ({Size} bytes, {ContentType})")]
         public static partial void FileCommitted(ILogger logger, string key, long size, string contentType);
+
+        [LoggerMessage(EventId = EventCodes.Documents.DocumentIntegrityFailed, EventName = "Documents.DocumentIntegrityFailed",
+            Level = LogLevel.Warning, Message = "Document {DocumentId}: the stored file is missing or does not match the upload checksum")]
+        public static partial void DocumentIntegrityFailed(ILogger logger, Guid documentId);
     }
 }

@@ -14,6 +14,9 @@ public static class RealtimeEvents
 
     /// <summary>A registration request arrived (F02, to the Administrators when <c>registration.notifyAdmins</c> is on).</summary>
     public const string RegistrationRequested = "RegistrationRequested";
+
+    /// <summary>A document uploaded by the user was checked (F14, Q13: the uploader is told, not the client).</summary>
+    public const string DocumentProcessed = "DocumentProcessed";
 }
 
 /// <param name="Reason">Why the session ended: <c>Logout</c>, <c>SingleSession</c>, <c>SecurityStampChanged</c>, <c>RefreshTokenReuse</c>, <c>Revoked</c>.</param>
@@ -21,3 +24,6 @@ public sealed record ForceLogoutEvent(string Reason);
 
 /// <param name="RegistrationId">The pending request (<c>GET /api/v1/registrations/{id}</c>).</param>
 public sealed record RegistrationRequestedEvent(Guid RegistrationId, string FullName);
+
+/// <param name="Status"><c>Available</c> or <c>Damaged</c>.</param>
+public sealed record DocumentProcessedEvent(Guid DocumentId, string FileName, string Status);

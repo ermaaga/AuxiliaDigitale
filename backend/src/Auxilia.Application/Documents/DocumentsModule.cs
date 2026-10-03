@@ -33,5 +33,8 @@ public sealed class DocumentsModule : IModuleDescriptor
     public void AddServices(IServiceCollection services)
     {
         services.TryAddScoped<Public.IFileStore, FileStore>();
+        services.TryAddScoped<DocumentAccess>();
+        services.TryAddScoped<IDocumentManager, DocumentManager>();
+        services.TryAddScoped<IDocumentQueryService, DocumentQueryService>();
     }
 }

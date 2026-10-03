@@ -1,6 +1,6 @@
 # F33 — Service folder templates, case document folders, ZIP download
 
-Status: [~] in progress (template backend B-10 done; documents in folders and ZIP B-12, pages B-14/B-15) · Tasks: B-10, B-12, B-14, B-15 · **Not listed in the blueprint — added by the legacy analysis.**
+Status: [~] in progress (template B-10 and documents in folders + ZIP B-12 done; pages B-14/B-15) · Tasks: B-10, B-12, B-14, B-15 · **Not listed in the blueprint — added by the legacy analysis.**
 
 ## Legacy behaviour
 - Entity `MembershipFolderTemplate` (MembershipId, Name, ParentId?, SortOrder, Children, Documents) — migration `20260602145759_AddMembershipFolderTemplate`; `UserDocument.FolderTemplateId` (FK SetNull).
@@ -20,6 +20,6 @@ Status: [~] in progress (template backend B-10 done; documents in folders and ZI
 ## Acceptance criteria
 - [ ] Service detail: folder template editor (add root/child, rename, reorder, delete recursive with confirmation). *(API B-10; editor B-15)*
 - [ ] Case documents tab: tree navigation filters documents; upload into selected folder; move document between folders (or to none); folder column with full path.
-- [ ] ZIP download of the whole case or any folder subtree, same path and duplicate-name rules, streamed server-side, respects F10 visibility.
-- [ ] Template changes do not delete documents (documents of removed folders become "no folder").
+- [x] ZIP download of the whole case or any folder subtree, same path and duplicate-name rules, streamed server-side, respects F10 visibility. *(built in a temporary file, then streamed)*
+- [x] Template changes do not delete documents (documents of removed folders become "no folder").
 - [ ] Legacy folder templates and document-folder links migrated.

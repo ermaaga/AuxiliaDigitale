@@ -47,12 +47,13 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
         // Modules outside the tenant's catalog (e.g. marketing in this test catalog) grant nothing.
         me.Permissions.ShouldAllBe(permission => permission.StartsWith("cases.", StringComparison.Ordinal)
             || permission.StartsWith("identity.", StringComparison.Ordinal)
-            || permission.StartsWith("directory.", StringComparison.Ordinal));
+            || permission.StartsWith("directory.", StringComparison.Ordinal)
+            || permission.StartsWith("documents.", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData("Administrator", new[] { "clients", "employees", "cases", "services", "sessions", "loginAudit" })]
-    [InlineData("Employee", new[] { "clients", "cases" })]
+    [InlineData("Administrator", new[] { "clients", "employees", "cases", "services", "documents", "sessions", "loginAudit" })]
+    [InlineData("Employee", new[] { "clients", "cases", "documents" })]
     [InlineData("Client", new string[0])]
     public async Task Navigation_FollowsModulesRolesAndPermissions(string role, string[] keys)
     {
@@ -61,7 +62,7 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
 
         var items = (await GetJsonAsync<NavigationItemResponse[]>("/api/v1/me/navigation", token))!;
 
-        // Tenant A: cases and directory in the plan for Administrator and Employee only; identity is Core.
+        // Tenant A: cases, directory and documents in the plan for Administrator and Employee only; identity is Core.
         items.Select(item => item.Key).ShouldBe(keys);
     }
 
