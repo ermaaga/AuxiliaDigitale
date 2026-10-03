@@ -216,6 +216,9 @@ public sealed class ClientManagerTests : IAsyncDisposable
 
         var detail = (await query.GetAsync(id, Ct)).Value;
         detail.Employee.ShouldBeNull();
+        detail.ImageVersion.ShouldBeNull();
+        data.Images[users.Values.Single(user => user.PersonId == id).UserId] = "abc123";
+        (await query.GetAsync(id, Ct)).Value.ImageVersion.ShouldBe("abc123");
         detail.Assignments.Select(item => (item.EmployeeUserId, item.EndedAt is null)).ShouldBe([(OtherEmployee, false), (Employee, false)]);
     }
 
@@ -280,7 +283,9 @@ public sealed class ClientManagerTests : IAsyncDisposable
         await CreateAsync(Request(email: "luigi@example.test", fiscalCode: "VRDLGU80A01H501X", employee: OtherEmployee));
         CallAs(Employee, TenantRole.Employee);
 
-        (await query.ListAsync(new ClientListQuery("mine", null, null, null, null, null, null, null, 1, 25), Ct)).Value.TotalCount.ShouldBe(1);
+        var mine = (await query.ListAsync(new ClientListQuery("mine", null, null, null, null, null, null, null, 1, 25), Ct)).Value;
+        mine.TotalCount.ShouldBe(1);
+        mine.Items.Single().ImageVersion.ShouldBeNull();
         data.LastFilter!.EmployeeUserId.ShouldBe(Employee);
         (await query.ListAsync(new ClientListQuery(null, null, null, null, null, null, null, "-email", 1, 25), Ct)).Value.TotalCount.ShouldBe(2);
         (data.LastFilter.EmployeeUserId, data.LastFilter.Sort, data.LastFilter.Descending).ShouldBe((null, ClientSort.Email, true));
@@ -303,6 +308,9 @@ internal sealed class InMemoryClientData : IClientDataFactory, IClientData
 
     public HashSet<Guid> Deleted { get; } = [];
 
+    /// <summary>Profile picture hashes by user id.</summary>
+    public Dictionary<Guid, string> Images { get; } = [];
+
     public ClientFilter? LastFilter { get; private set; }
 
     public Task<IClientData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<IClientData>(this);
@@ -314,7 +322,7 @@ internal sealed class InMemoryClientData : IClientDataFactory, IClientData
             .Where(profile => !Deleted.Contains(profile.Id) && (filter.EmployeeUserId is null || profile.EmployeeUserId == filter.EmployeeUserId))
             .Select(profile => People.Single(person => person.Id == profile.Id))
             .Select(person => new ClientRow(person.Id, person.FirstName, person.LastName, person.Email, person.Email!, person.Phone, person.FiscalCode,
-                ClientStatus.Inactive, true, null, null, person.CustomFields))
+                ClientStatus.Inactive, true, null, null, person.CustomFields, person.Id, Images.GetValueOrDefault(person.Id)))
             .ToArray();
         return Task.FromResult<(IReadOnlyList<ClientRow>, int)>((rows, rows.Length));
     }
@@ -324,6 +332,9 @@ internal sealed class InMemoryClientData : IClientDataFactory, IClientData
 
     public Task<ClientProfile?> FindProfileAsync(Guid clientId, CancellationToken cancellationToken) =>
         Task.FromResult(Deleted.Contains(clientId) ? null : Profiles.SingleOrDefault(profile => profile.Id == clientId));
+
+    public Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Images.GetValueOrDefault(userId));
 
     public Task<bool> FiscalCodeTakenAsync(string fiscalCode, Guid? exceptPersonId, CancellationToken cancellationToken) =>
         Task.FromResult(People.Any(person => !Deleted.Contains(person.Id) && person.FiscalCode == fiscalCode && person.Id != exceptPersonId));

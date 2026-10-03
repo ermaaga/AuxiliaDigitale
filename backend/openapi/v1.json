@@ -6520,6 +6520,30 @@
         }
       }
     },
+    "/api/v1/employees/specializations": {
+      "get": {
+        "tags": [
+          "Employees"
+        ],
+        "summary": "Active specializations of the Employee role an employee can be given",
+        "operationId": "ListEmployeeSpecializations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmployeeSpecializationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/employees/{id}": {
       "get": {
         "tags": [
@@ -7307,7 +7331,8 @@
           "account",
           "employee",
           "assignments",
-          "specializations"
+          "specializations",
+          "imageVersion"
         ],
         "type": "object",
         "properties": {
@@ -7387,6 +7412,12 @@
             "items": {
               "$ref": "#/components/schemas/ClientSpecializationResponse"
             }
+          },
+          "imageVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -7436,7 +7467,9 @@
           "status",
           "canSignIn",
           "employee",
-          "customFields"
+          "customFields",
+          "userId",
+          "imageVersion"
         ],
         "type": "object",
         "properties": {
@@ -7489,6 +7522,16 @@
           },
           "customFields": {
             "$ref": "#/components/schemas/JsonElement"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "imageVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -8063,7 +8106,8 @@
           "createdAt",
           "administrator",
           "specializations",
-          "workload"
+          "workload",
+          "imageVersion"
         ],
         "type": "object",
         "properties": {
@@ -8140,6 +8184,12 @@
           },
           "workload": {
             "$ref": "#/components/schemas/EmployeeWorkloadResponse"
+          },
+          "imageVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -8172,7 +8222,8 @@
           "canSignIn",
           "isDefault",
           "assignedClients",
-          "specializations"
+          "specializations",
+          "imageVersion"
         ],
         "type": "object",
         "properties": {
@@ -8220,6 +8271,12 @@
             "items": {
               "$ref": "#/components/schemas/EmployeeSpecializationResponse"
             }
+          },
+          "imageVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

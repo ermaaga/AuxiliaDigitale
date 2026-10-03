@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { BellIcon, UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";
 import { DropdownMenuItem } from "@auxilia/ui/components/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@auxilia/ui/components/popover";
 
+import { userImageUrl } from "@/components/user-avatar";
+import { createBffClient } from "@/lib/api/client";
 import { tenantHref } from "@/lib/href";
 
 import type { LanguageOption } from "./language-switcher";
@@ -16,11 +19,19 @@ export { initials } from "./shell-frame";
 
 export type ShellNavigationItem = { key: string; labelKey: string; route: string; icon: string };
 
-export type ShellUser = { userName: string; roles: readonly string[] };
+/** `name`: the person's full name (the user name without a profile); `imageVersion`: the picture hash (F04). */
+export type ShellUser = {
+  id: string;
+  name: string;
+  roles: readonly string[];
+  imageVersion?: string | null;
+};
 
 /**
  * The tenant app frame (skill auxilia-ui-design, F34): sidebar from `/me/navigation`, notifications (placeholder until
- * B-19/B-21) and the account menu of the tenant user; the rest is the shared {@link ShellFrame}.
+ * B-19/B-21) and the account menu of the tenant user with the profile picture and the link to the profile (F04); the
+ * language and theme chosen in the topbar are saved in the profile too, so they hold at the next sign-in (F04, Q35).
+ * The rest is the shared {@link ShellFrame}.
  */
 export function AppShell({
   tenant,
@@ -54,10 +65,16 @@ export function AppShell({
       logoUrl={logoUrl}
       homeHref={tenantHref(tenant)}
       navigation={links}
-      user={{ name: user.userName, detail: user.roles.join(", ") }}
+      user={{
+        name: user.name,
+        detail: user.roles.join(", "),
+        imageUrl: userImageUrl(user.id, user.imageVersion),
+      }}
       loginPath={tenantHref(tenant, "/login")}
       logoutUrl="/api/auth/logout"
       languages={languages}
+      onLanguageChange={saveLanguage}
+      onThemeChange={saveTheme}
       actions={
         <Popover>
           <PopoverTrigger asChild>
@@ -74,12 +91,34 @@ export function AppShell({
         </Popover>
       }
       accountItems={
-        <DropdownMenuItem disabled>
-          <UserIcon aria-hidden /> {t("MyProfile")}
+        <DropdownMenuItem asChild>
+          <Link href={tenantHref(tenant, "/profile")}>
+            <UserIcon aria-hidden /> {t("MyProfile")}
+          </Link>
         </DropdownMenuItem>
       }
     >
       {children}
     </ShellFrame>
   );
+}
+
+/** Saves the language chosen in the topbar in the profile; the cookie already switched this browser. */
+async function saveLanguage(code: string) {
+  // A failure leaves the choice in this browser only (openapi-fetch reports it in the result, never throws).
+  await createBffClient("tenant")
+    .PUT("/api/v1/me/language", { body: { languageCode: code } })
+    .catch(() => undefined);
+}
+
+const API_THEMES: Record<string, string> = { system: "System", light: "Light", dark: "Dark" };
+
+/** Saves the theme chosen in the topbar in the profile (Q35); fire and forget. */
+function saveTheme(name: string) {
+  const theme = API_THEMES[name];
+  if (theme) {
+    void createBffClient("tenant")
+      .PUT("/api/v1/me/preferences", { body: { theme } })
+      .catch(() => undefined);
+  }
 }

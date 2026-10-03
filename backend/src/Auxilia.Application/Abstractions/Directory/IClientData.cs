@@ -41,7 +41,9 @@ public sealed record ClientRow(
     bool CanSignIn,
     Guid? EmployeeUserId,
     string? EmployeeName,
-    string CustomFields);
+    string CustomFields,
+    Guid UserId,
+    string? ImageVersion);
 
 /// <summary>A user with the Employee role who can sign in, with the name of its person.</summary>
 public sealed record EmployeeName(Guid UserId, string FullName);
@@ -65,6 +67,9 @@ public interface IClientData : IAsyncDisposable
 
     /// <summary>Names of the users (person first and last name), for the ids that exist.</summary>
     Task<IReadOnlyList<EmployeeName>> NamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
+    /// <summary>The profile picture hash of the user (F04), <c>null</c> without a picture.</summary>
+    Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken);
 
     /// <summary>Users with the Employee role who can sign in, by name: who a client can be assigned to.</summary>
     Task<IReadOnlyList<EmployeeName>> AssignableEmployeesAsync(CancellationToken cancellationToken);

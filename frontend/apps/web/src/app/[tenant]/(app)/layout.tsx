@@ -20,9 +20,10 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
     redirect(login);
   }
 
-  const [meResponse, navigationResponse] = await Promise.all([
+  const [meResponse, navigationResponse, profileResponse] = await Promise.all([
     serverApi("tenant", "me"),
     serverApi("tenant", "me/navigation"),
+    serverApi("tenant", "me/profile"),
   ]);
   if (meResponse.status === 401 || navigationResponse.status === 401) {
     redirect(login);
@@ -34,7 +35,26 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
     );
   }
 
-  const me = (await meResponse.json()) as ShellUser & { permissions: string[] };
+  const me = (await meResponse.json()) as {
+    id: string;
+    userName: string;
+    roles: string[];
+    permissions: string[];
+  };
+  // The full name and the picture come from the profile (F04); without one the user name and the initials.
+  const profile = profileResponse.ok
+    ? ((await profileResponse.json()) as {
+        firstName: string;
+        lastName: string;
+        imageVersion: string | null;
+      })
+    : undefined;
+  const user: ShellUser = {
+    id: me.id,
+    name: profile ? `${profile.firstName} ${profile.lastName}`.trim() || me.userName : me.userName,
+    roles: me.roles,
+    imageVersion: profile?.imageVersion,
+  };
   const navigation = (
     (await navigationResponse.json()) as Array<ShellNavigationItem & { order: number | string }>
   )
@@ -53,7 +73,7 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
         appName={identity.appName}
         logoUrl={identity.logoUrl}
         navigation={navigation}
-        user={{ userName: me.userName, roles: me.roles }}
+        user={user}
         languages={languages}
       >
         {children}

@@ -56,6 +56,15 @@ values ('0199aaaa-0000-7000-8000-000000000012', '0199aaaa-0000-7000-8000-0000000
         'paola.neri@example.test', 'it', true, 'Identity', '00000000000000000000000000000021', 0, 0, now());
 insert into identity.user_roles(user_id, role)
 values ('0199aaaa-0000-7000-8000-000000000012', 'Administrator'), ('0199aaaa-0000-7000-8000-000000000022', 'Employee');
+
+-- The profile page (B-05): an Employee of its own, since changing the password closes the user's other sessions.
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000031', 'Laura', 'Verdi', 'laura.verdi@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000032', '0199aaaa-0000-7000-8000-000000000031', 'laura.verdi',
+        'laura.verdi@example.test', 'it', true, 'Identity', '00000000000000000000000000000031', 0, 0, now());
+insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000032', 'Employee');
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then

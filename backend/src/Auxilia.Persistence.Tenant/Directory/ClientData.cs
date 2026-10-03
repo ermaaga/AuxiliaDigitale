@@ -79,6 +79,7 @@ internal sealed class ClientData(ITenantDbContext db) : IClientData
 
         // No IgnoreQueryFilters here: in EF Core it applies to the whole query and would show deleted clients.
         var users = db.Set<User>();
+        var images = db.Set<UserImage>();
         var names = db.Set<Person>();
         var items = await sorted
             .ThenBy(client => client.person.Id)
@@ -99,7 +100,9 @@ internal sealed class ClientData(ITenantDbContext db) : IClientData
                  where employee.Id == client.profile.EmployeeUserId
                  join person in names on employee.PersonId equals person.Id
                  select person.FirstName + " " + person.LastName).FirstOrDefault(),
-                client.person.CustomFields))
+                client.person.CustomFields,
+                client.user.Id,
+                images.Where(image => image.Id == client.user.Id).Select(image => image.Hash).FirstOrDefault()))
             .ToListAsync(cancellationToken);
         return (items, total);
     }
@@ -149,6 +152,13 @@ internal sealed class ClientData(ITenantDbContext db) : IClientData
                 join person in db.Set<Person>() on user.PersonId equals person.Id
                 select (Guid?)user.Id)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken) =>
+        db.Set<UserImage>()
+            .AsNoTracking()
+            .Where(image => image.Id == userId)
+            .Select(image => image.Hash)
+            .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Specialization>> ClientSpecializationsAsync(CancellationToken cancellationToken) =>
         await db.Set<Specialization>()

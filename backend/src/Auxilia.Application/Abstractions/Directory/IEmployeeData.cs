@@ -34,7 +34,8 @@ public sealed record EmployeeRow(
     string? Phone,
     bool CanSignIn,
     bool IsDefault,
-    int AssignedClients);
+    int AssignedClients,
+    string? ImageVersion);
 
 /// <summary>A specialization held by an employee.</summary>
 public sealed record EmployeeSpecializationRow(Guid UserId, Guid SpecializationId, string Name);
@@ -76,6 +77,9 @@ public interface IEmployeeData : IAsyncDisposable
 
     /// <summary>Names of the users (person first and last name), deleted people included.</summary>
     Task<IReadOnlyList<EmployeeName>> NamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken);
+
+    /// <summary>The profile picture hash of the user (F04), <c>null</c> without a picture.</summary>
+    Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken);
 
     /// <summary>Active specializations of the Employee role (tracked, with members).</summary>
     Task<IReadOnlyList<Specialization>> EmployeeSpecializationsAsync(CancellationToken cancellationToken);

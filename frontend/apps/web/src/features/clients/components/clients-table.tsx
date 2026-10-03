@@ -17,10 +17,17 @@ import {
 } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
+import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useCan, useHasRole } from "@/lib/permissions";
 
-import { CLIENTS_GRID, useClientCustomFields, useClients, type ClientListItem } from "../api";
+import {
+  clientName,
+  CLIENTS_GRID,
+  useClientCustomFields,
+  useClients,
+  type ClientListItem,
+} from "../api";
 import { DIRECTORY_PERMISSIONS } from "../permissions";
 import { ClientStatusBadge } from "./client-status-badge";
 
@@ -64,12 +71,20 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
       hideable: false,
       mobile: "title",
       cell: (row) => (
-        <Link
-          href={tenantHref(tenant, `/clients/${row.id}`)}
-          className="font-medium underline-offset-4 hover:underline"
-        >
-          {row.lastName}
-        </Link>
+        <span className="flex items-center gap-2">
+          <UserAvatar
+            userId={row.userId}
+            name={clientName(row)}
+            imageVersion={row.imageVersion}
+            size="sm"
+          />
+          <Link
+            href={tenantHref(tenant, `/clients/${row.id}`)}
+            className="font-medium underline-offset-4 hover:underline"
+          >
+            {row.lastName}
+          </Link>
+        </span>
       ),
     },
     { id: "firstName", header: t("Name"), sortField: "fullName", cell: (row) => row.firstName },

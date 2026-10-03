@@ -42,6 +42,11 @@ public sealed class EmployeePersistenceTests(TenantDatabaseFixture database)
             var row = page.Items.Single(item => item.UserId == paola);
             (row.FirstName, row.UserName, row.Phone, row.CanSignIn, row.IsDefault, row.AssignedClients)
                 .ShouldBe(("Paola", "paola" + tag, "3331112222", true, false, 2));
+            row.ImageVersion.ShouldBeNull();
+            var hash = await AddImageAsync(paola);
+            (await data.PageAsync(Filter(lastName: tag), Ct)).Items.Single(item => item.UserId == paola).ImageVersion.ShouldBe(hash);
+            (await data.ImageVersionAsync(paola, Ct)).ShouldBe(hash);
+            (await data.ImageVersionAsync(gino, Ct)).ShouldBeNull();
 
             (await Ids(data, Filter(fullName: "paola neri" + tag))).ShouldBe([paola]);
             (await Ids(data, Filter(fullName: "Neri" + tag + " Paola"))).ShouldBe([paola]);
@@ -193,5 +198,14 @@ public sealed class EmployeePersistenceTests(TenantDatabaseFixture database)
         db.Set<Specialization>().Add(specialization);
         await db.SaveChangesAsync(Ct);
         return specialization.Id;
+    }
+
+    private async Task<string> AddImageAsync(Guid userId)
+    {
+        await using var db = database.CreateContext();
+        var image = UserImage.Create(userId, [0xFF, 0xD8, 0x02], "image/jpeg");
+        db.Set<UserImage>().Add(image);
+        await db.SaveChangesAsync(Ct);
+        return image.Hash;
     }
 }

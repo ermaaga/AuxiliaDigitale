@@ -6,6 +6,8 @@ public sealed record EmployeeSpecializationResponse(Guid Id, string Name);
 /// <summary>
 /// A row of the employee list (F06). <c>id</c> is the user id (the id clients, specializations and assignments refer
 /// to). <c>canSignIn</c> is the legacy Active/Inactive status; <c>isDefault</c> marks the default employee (Q31).
+/// <c>imageVersion</c> is the profile picture hash (null without a picture): append it to
+/// <c>GET /users/{id}/image?v=</c> (F04).
 /// </summary>
 public sealed record EmployeeListItemResponse(
     Guid Id,
@@ -17,7 +19,8 @@ public sealed record EmployeeListItemResponse(
     bool CanSignIn,
     bool IsDefault,
     int AssignedClients,
-    IReadOnlyList<EmployeeSpecializationResponse> Specializations);
+    IReadOnlyList<EmployeeSpecializationResponse> Specializations,
+    string? ImageVersion);
 
 /// <summary>An administrator an employee can report to (Q32).</summary>
 public sealed record EmployeeAdministratorResponse(Guid UserId, string FullName);
@@ -30,7 +33,7 @@ public sealed record EmployeeWorkloadResponse(int AssignedClients);
 
 /// <summary>
 /// The detail of an employee (F06): personal data, account (<c>isActivated</c> once a password is set, D-06), default
-/// flag (Q31), administrator (Q32), specializations and workload.
+/// flag (Q31), administrator (Q32), specializations, workload and the profile picture version (F04).
 /// </summary>
 public sealed record EmployeeDetailResponse(
     Guid Id,
@@ -48,7 +51,8 @@ public sealed record EmployeeDetailResponse(
     DateTimeOffset CreatedAt,
     EmployeeAdministratorResponse? Administrator,
     IReadOnlyList<EmployeeSpecializationResponse> Specializations,
-    EmployeeWorkloadResponse Workload);
+    EmployeeWorkloadResponse Workload,
+    string? ImageVersion);
 
 /// <summary>
 /// A new employee (F06, Q55): first and last name, birth date and e-mail (also the user name) are required.

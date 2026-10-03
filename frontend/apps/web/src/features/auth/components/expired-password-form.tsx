@@ -6,9 +6,11 @@ import { useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";
 import { Input } from "@auxilia/ui/components/input";
 import { Label } from "@auxilia/ui/components/label";
+import { useTheme } from "@auxilia/ui/components/theme-provider";
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { postToBff } from "@/lib/api/browser";
+import { applyProfilePreferences } from "@/features/profile";
 import { tenantHref } from "@/lib/href";
 
 import { FieldErrors, fieldErrorKeys } from "./field-errors";
@@ -25,6 +27,7 @@ export function ExpiredPasswordForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const { setTheme } = useTheme();
   const [userName, setUserName] = React.useState(initialUser);
   const [current, setCurrent] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -50,6 +53,7 @@ export function ExpiredPasswordForm({
         currentPassword: current,
         newPassword: password,
       });
+      await applyProfilePreferences(setTheme);
       router.replace(tenantHref(tenant));
       router.refresh();
     } catch (failure) {

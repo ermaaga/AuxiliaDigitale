@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { auxctlSecret } from "./support/auxctl";
 import { E2E } from "./support/env";
+import { signInWithNewPassword, toast } from "./support/sign-in";
 import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
 
 /*
@@ -36,35 +36,12 @@ function newFiscalCode(): string {
 
 /** Signs in with a temporary password set by auxctl, replacing it with a new one, and opens the clients. */
 async function signIn(page: Page, userName: string) {
-  const temporary = auxctlSecret(
-    "users",
-    "reset-password",
-    "--tenant",
-    E2E.tenant,
-    "--user",
-    userName,
-  );
-  const password = `E2e-Pw-${Date.now()}!`;
-  await page.goto(`/${E2E.tenant}/login`);
-  await page.getByLabel(t("Username")).fill(userName);
-  await page.getByLabel(t("Password"), { exact: true }).fill(temporary);
-  await page.getByRole("button", { name: t("Login") }).click();
-  await expect(page).toHaveURL(new RegExp(`/${E2E.tenant}/password-expired`));
-  await page.getByLabel(t("CurrentPassword")).fill(temporary);
-  await page.getByLabel(t("NewPassword"), { exact: true }).fill(password);
-  await page.getByLabel(t("ConfirmNewPassword")).fill(password);
-  await page.getByRole("button", { name: t("ChangePassword") }).click();
-  await expect(page).toHaveURL(`/${E2E.tenant}/dashboard`);
+  await signInWithNewPassword(page, userName);
   await page
     .getByRole("navigation", { name: t("app.shell.navigation") })
     .getByRole("link", { name: t("nav.clients") })
     .click();
   await expect(page).toHaveURL(new RegExp(`/${E2E.tenant}/clients`));
-}
-
-/** A toast with the text (sonner), not the same words elsewhere on the page. */
-function toast(page: Page, text: string) {
-  return page.locator("[data-sonner-toast]").filter({ hasText: text });
 }
 
 /** Fills the first step of the wizard and goes on. */

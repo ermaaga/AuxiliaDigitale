@@ -16,9 +16,22 @@ import {
 /** Translated texts of the toggle (skill auxilia-localization: the component has no text of its own). */
 type ThemeToggleLabels = { toggle: string; light: string; dark: string; system: string };
 
-/** Theme switch of the topbar: an icon button opening light / dark / system. */
-function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
+/**
+ * Theme switch of the topbar: an icon button opening light / dark / system. `onChange` is told the new choice after it
+ * is applied (e.g. to save it in the user's profile).
+ */
+function ThemeToggle({
+  labels,
+  onChange,
+}: {
+  labels: ThemeToggleLabels;
+  onChange?: (theme: string) => void;
+}) {
   const { theme, setTheme } = useTheme();
+  const choose = (value: string) => {
+    setTheme(value);
+    onChange?.(value);
+  };
 
   return (
     <DropdownMenu>
@@ -35,7 +48,7 @@ function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+        <DropdownMenuRadioGroup value={theme} onValueChange={choose}>
           <DropdownMenuRadioItem value="light">
             <SunIcon aria-hidden /> {labels.light}
           </DropdownMenuRadioItem>

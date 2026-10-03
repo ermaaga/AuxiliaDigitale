@@ -91,8 +91,13 @@ public sealed class EmployeeEndpointsTests(EmployeeEndpointsTests.Factory factor
 
         await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Put, $"/api/v1/employees/{id}/specializations", admin, new SetEmployeeSpecializationsRequest([Guid.NewGuid()])),
             HttpStatusCode.BadRequest, EventCodes.Directory.EmployeeSpecializationInvalid);
+        using var offered = await SendAsync(HttpMethod.Get, "/api/v1/employees/specializations", admin);
+        offered.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await offered.Content.ReadFromJsonAsync<EmployeeSpecializationResponse[]>(Ct)).ShouldNotBeNull();
         using var cleared = await SendAsync(HttpMethod.Put, $"/api/v1/employees/{id}/specializations", admin, new SetEmployeeSpecializationsRequest([]));
-        (await cleared.Content.ReadFromJsonAsync<EmployeeDetailResponse>(Ct))!.Specializations.ShouldBeEmpty();
+        var clearedDetail = (await cleared.Content.ReadFromJsonAsync<EmployeeDetailResponse>(Ct))!;
+        clearedDetail.Specializations.ShouldBeEmpty();
+        clearedDetail.ImageVersion.ShouldBeNull();
 
         (await AdministratorsAsync(admin)).Select(item => item.UserId).ShouldContain(adminId);
         await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Put, $"/api/v1/employees/{id}/administrator", admin, new SetEmployeeAdministratorRequest(id)),
@@ -158,6 +163,7 @@ public sealed class EmployeeEndpointsTests(EmployeeEndpointsTests.Factory factor
         var client = await factory.SignInAsync(clientName, Password, Ct);
 
         (await SendAsync(HttpMethod.Get, "/api/v1/employees", employee)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await SendAsync(HttpMethod.Get, "/api/v1/employees/specializations", employee)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await SendAsync(HttpMethod.Post, "/api/v1/employees", employee, NewEmployee(NewEmail()))).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await SendAsync(HttpMethod.Get, "/api/v1/employees", client)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
         (await SendAsync(HttpMethod.Get, "/api/v1/employees", null)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
