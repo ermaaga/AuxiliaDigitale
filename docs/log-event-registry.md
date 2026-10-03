@@ -17,7 +17,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
-| 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
+| 17000–17999 | Requests | Engagement: requests | 7 | 17008 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
@@ -263,6 +263,13 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-16020 | Documents.DocumentProcessed | – | – | Documents.Process (success) | – |
 | AUX-16021 | Documents.DocumentFileMissing | – | NotFound | – | – |
 | AUX-16022 | Documents.DocumentIntegrityFailed | Warning | – | – | Document {DocumentId}: the stored file is missing or does not match the upload checksum |
+| AUX-17001 | Requests.RequestCreated | – | – | Requests.CreateRequest (success) | – |
+| AUX-17002 | Requests.RequestReplied | – | – | Requests.ReplyToRequest (success) | – |
+| AUX-17003 | Requests.RequestClosed | – | – | Requests.CloseRequest (success) | – |
+| AUX-17004 | Requests.RequestDeleted | – | – | Requests.DeleteRequest (success) | – |
+| AUX-17005 | Requests.RequestInvalid | – | Validation | – | – |
+| AUX-17006 | Requests.RequestNotFound | – | NotFound | – | – |
+| AUX-17007 | Requests.RequestIsClosed | – | Conflict | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |

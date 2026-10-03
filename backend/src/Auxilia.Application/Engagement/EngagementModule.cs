@@ -4,6 +4,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Engagement;
 
@@ -29,7 +30,26 @@ public sealed class EngagementModule : IModuleDescriptor
 
     public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("request")];
 
+    /// <summary>The request inbox (F15, F21): the columns of the legacy grids.</summary>
+    public IReadOnlyList<GridDefinition> Grids { get; } =
+    [
+        new(
+            "engagement.requests",
+            [
+                new("sentAt", "CreatedAt", Sortable: true, CanHide: false),
+                new("sender", "Name"),
+                new("recipient", "app.requests.recipient"),
+                new("type", "Type", Filterable: true),
+                new("subject", "Subject"),
+                new("status", "Status", Sortable: true, Filterable: true),
+            ],
+            [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
+    ];
+
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddScoped<RequestAccessPolicy>();
+        services.TryAddScoped<IRequestManager, RequestManager>();
+        services.TryAddScoped<IRequestQueryService, RequestQueryService>();
     }
 }
