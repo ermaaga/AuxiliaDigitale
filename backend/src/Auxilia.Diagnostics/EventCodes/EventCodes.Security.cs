@@ -79,5 +79,11 @@ public static partial class EventCodes
 
         /// <summary>The System changed the log level of a tenant (D-28): Debug events may include more detail.</summary>
         public const int TenantLogLevelChanged = 29025;
+
+        /// <summary>A registration request was refused because its captcha is missing, invalid or already used (F02).</summary>
+        public const int CaptchaRejected = 29026;
+
+        /// <summary>ALTCHA has no configured key: a random one is used until restart (single node only).</summary>
+        public const int CaptchaKeyEphemeral = 29027;
     }
 }

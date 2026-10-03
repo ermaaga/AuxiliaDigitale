@@ -73,5 +73,7 @@ public sealed class DirectoryModule : IModuleDescriptor
         services.TryAddScoped<IClientQueryService, ClientQueryService>();
         services.TryAddScoped<IEmployeeManager, EmployeeManager>();
         services.TryAddScoped<IEmployeeQueryService, EmployeeQueryService>();
+        services.TryAddScoped<IRegistrationManager, RegistrationManager>();
+        services.TryAddScoped<IRegistrationQueryService, RegistrationQueryService>();
     }
 }

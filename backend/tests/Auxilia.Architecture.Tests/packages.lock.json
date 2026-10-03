@@ -1041,6 +1041,7 @@
           "Auxilia.Domain": "[1.0.0, )",
           "BCrypt.Net-Next": "[4.2.1, )",
           "Fluid.Core": "[2.40.0, )",
+          "Ixnas.AltchaNet": "[1.2.1, )",
           "MailKit": "[4.18.1, )",
           "Microsoft.AspNetCore.SignalR.StackExchangeRedis": "[10.0.12, )",
           "Microsoft.Extensions.Caching.Hybrid": "[10.10.0, )",
@@ -1178,6 +1179,12 @@
           "Parlot": "1.5.2",
           "TimeZoneConverter": "7.2.0"
         }
+      },
+      "Ixnas.AltchaNet": {
+        "type": "CentralTransitive",
+        "requested": "[1.2.1, )",
+        "resolved": "1.2.1",
+        "contentHash": "VVZuqJXyXB7VofKX8Bx2dLSJuJ0J6NATr2iMubaG5scm5hG1WP7ZC3yz2FgPgvUg4TJBfMj17HaaJHY8oIq5rA=="
       },
       "MailKit": {
         "type": "CentralTransitive",

@@ -1,6 +1,6 @@
 # F02 — Public registration
 
-Status: [ ] not started · Tasks: B-06 · Quirks: Q05, Q08, Q53, Q54, Q59
+Status: [x] done (API only, B-06; no pages by D-14) · Tasks: B-06 · Quirks: Q05, Q08, Q53, Q54, Q59
 
 > **Decision D-14:** API only, **no pages**. The submission endpoint is called by a registered external client application (captcha verifier pluggable per client app). `registration.enabled` defaults to **false**; admin notification is behind `registration.notifyAdmins` (default false) until an approval page exists. UI-related criteria (page, language forcing, closed message) apply to the API responses/e-mails only.
 
@@ -20,14 +20,14 @@ Status: [ ] not started · Tasks: B-06 · Quirks: Q05, Q08, Q53, Q54, Q59
 4. Confirmation e-mail only when the setting is on.
 
 ## Acceptance criteria
-- [ ] Given `RegistrationEnabled=false`, when a visitor opens `/{tenant}/register`, then a "registration closed" message is shown and the API rejects submissions (`403` with code).
-- [ ] Given `RegistrationLanguage=it`, then the page renders in Italian regardless of browser language (user can still switch).
-- [ ] Each validation rule above is enforced both client-side (zod) and server-side (FluentValidation) with localized messages.
-- [ ] Given a pending request for `a@b.it`, when a new request with `A@B.it ` arrives, then it is rejected with a clear message.
-- [ ] Given a valid submission, then, when `registration.notifyAdmins` is on, every Administrator receives an in-app notification (no page yet, D-14).
-- [ ] Given `SendRegistrationConfirmationEmail=true`, then the applicant receives the confirmation e-mail (EN/IT template); failures are logged with an `AUX-25xxx` code and don't fail the request.
-- [ ] Privacy consent is mandatory and stored (timestamp + version).
-- [ ] Captcha (ALTCHA) verified server-side; rate limit per IP.
+- [x] Given `registration.enabled=false`, the API rejects the captcha request and the submissions with `403` `AUX-13037` (the external application shows "registration closed"; no page, D-14).
+- [x] Given `registration.defaultLanguage=it`, the e-mails go out in Italian unless the request names another active tenant language (no page to render, D-14).
+- [x] Each validation rule above is enforced server-side with localized messages (person rules Q53/Q54, every field required, age ≥ `registration.minimumAge` Q59; `AUX-13042` with field errors). Client-side checks belong to the external application.
+- [x] Given a pending request for `a@b.it`, when a new request with `A@B.it ` arrives, then it is rejected with a clear message (`409` `AUX-13038`); an e-mail already registered is `AUX-13039`.
+- [x] Given a valid submission, then, when `registration.notifyAdmins` is on, every Administrator is notified in real time (`RegistrationRequested`; persisted notifications arrive with B-19).
+- [x] Given `registration.sendConfirmationEmail=true`, then the applicant receives the confirmation e-mail (template `registration-received` EN/IT, through Messaging); failures are logged by the dispatcher and don't fail the request.
+- [x] Privacy consent is mandatory and stored (timestamp + version).
+- [x] Captcha (ALTCHA, `Ixnas.AltchaNet`, per client application; `none` only for confidential clients) verified server-side, once per solution; rate limit per IP (10/h).
 
 ## Improvements
 ALTCHA instead of reCAPTCHA; uniqueness only among pending (Q05); consent stored; clearer errors.

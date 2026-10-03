@@ -87,6 +87,26 @@ public sealed partial class Person : AggregateRoot<Guid>, IAuditable, ISoftDelet
     {
         ArgumentNullException.ThrowIfNull(details);
 
+        var errors = Validate(details, today);
+        if (errors.Count > 0)
+        {
+            return Errors.Directory.PersonInvalid(errors);
+        }
+
+        FirstName = Text(details.FirstName)!;
+        LastName = Text(details.LastName)!;
+        Email = Text(details.Email);
+        BirthDate = details.BirthDate;
+        Phone = Text(details.Phone);
+        FiscalCode = NormalizeFiscalCode(details.FiscalCode);
+        return Result.Success();
+    }
+
+    /// <summary>The errors of the person rules (one per field, translation keys), empty when every value is valid.</summary>
+    public static Dictionary<string, string[]> Validate(PersonDetails details, DateOnly today)
+    {
+        ArgumentNullException.ThrowIfNull(details);
+
         var errors = new Dictionary<string, string[]>(StringComparer.Ordinal);
         var firstName = Text(details.FirstName);
         var lastName = Text(details.LastName);
@@ -124,18 +144,7 @@ public sealed partial class Person : AggregateRoot<Guid>, IAuditable, ISoftDelet
             errors["fiscalCode"] = ["validation.person.fiscalCode"];
         }
 
-        if (errors.Count > 0)
-        {
-            return Errors.Directory.PersonInvalid(errors);
-        }
-
-        FirstName = firstName!;
-        LastName = lastName!;
-        Email = email;
-        BirthDate = details.BirthDate;
-        Phone = phone;
-        FiscalCode = fiscalCode;
-        return Result.Success();
+        return errors;
     }
 
     public void SetCustomFields(string json)

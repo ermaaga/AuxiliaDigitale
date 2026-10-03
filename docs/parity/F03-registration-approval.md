@@ -1,6 +1,6 @@
 # F03 — Registration approval
 
-Status: [ ] not started · Tasks: B-06 · Quirks: Q06, Q07, Q54
+Status: [x] done (API only, B-06; no pages by D-14/D-27, dashboard counts with B-23) · Tasks: B-06 · Quirks: Q06, Q07, Q54
 
 > **Decision D-14:** API only (list pending/processed, approve, reject) for Administrator and Employee; **no pages**. Activation e-mail per D-06.
 
@@ -18,12 +18,12 @@ Status: [ ] not started · Tasks: B-06 · Quirks: Q06, Q07, Q54
 3. A request can be processed only once.
 
 ## Acceptance criteria
-- [ ] Given a pending request, when an Employee approves it, then a person + user (role Client, username = e-mail, client status `Prospect`/inactive) is created, assigned to the default employee, and the request becomes `Approved` with processor and date.
-- [ ] Approval sends an activation e-mail (D-06) in the tenant language.
-- [ ] Given a request already processed, when someone tries to process it again, then `409` with code.
-- [ ] Rejection stores optional notes and status `Rejected`; no user is created.
-- [ ] Fiscal code / e-mail / username collision with an existing person is detected at approval and reported.
-- [ ] Single list API with filters (status, date, text) for both roles, permission-based (page deferred, D-14).
+- [x] Given a pending request, when an Employee approves it, then a person + user (role Client, username = e-mail, client status `Inactive`) is created, assigned to the default employee, and the request becomes `Approved` with processor and date.
+- [x] Approval sends an activation e-mail (D-06) in the tenant language (without a default employee the client cannot sign in yet, Q60, and the response says so with `AUX-13019`).
+- [x] Given a request already processed, when someone tries to process it again, then `409` `AUX-13041`.
+- [x] Rejection stores optional notes and status `Rejected`; no user is created.
+- [x] Fiscal code / e-mail / username collision with an existing person is detected at approval and reported (`AUX-13018`, `AUX-12xxx` user name taken); the request stays pending.
+- [x] Single list API with filters (status, date, text) for both roles, permission-based (`directory.registrations.review`; page deferred, D-14).
 
 ## Improvements
 One inbox, explicit status, activation link, optional notes on approve/reject.

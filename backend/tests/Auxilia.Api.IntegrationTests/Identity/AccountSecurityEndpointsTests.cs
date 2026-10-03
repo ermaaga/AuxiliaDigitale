@@ -180,7 +180,7 @@ public sealed class AccountSecurityEndpointsTests : IClassFixture<AccountSecurit
     private static async Task<string?> ErrorCodeAsync(HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("errorCode").GetString();
 
-    public sealed class Factory : AuthEndpointsTests.Factory
+    public class Factory : AuthEndpointsTests.Factory
     {
         /// <summary>Stores a tenant-level value for tenant A (the settings cache is invalidated after commit).</summary>
         public async Task SetTenantSettingAsync<T>(string key, T value)

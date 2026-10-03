@@ -60,5 +60,27 @@ public static partial class Errors
         public static Error AdministratorInvalid() =>
             Error.Validation(EventCodes.Directory.AdministratorInvalid, "The administrator must be an active user with the Administrator role",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["administratorUserId"] = ["validation.employees.administrator"] });
+
+        public static Error RegistrationDisabled() =>
+            Error.Forbidden(EventCodes.Directory.RegistrationDisabled, "The tenant does not accept registrations");
+
+        public static Error RegistrationPending() =>
+            Error.Conflict(EventCodes.Directory.RegistrationPending, "A registration request with this e-mail is already waiting for review");
+
+        public static Error RegistrationEmailRegistered() =>
+            Error.Conflict(EventCodes.Directory.RegistrationEmailRegistered, "This e-mail is already registered");
+
+        public static Error RegistrationNotFound() =>
+            Error.NotFound(EventCodes.Directory.RegistrationNotFound, "Registration request not found");
+
+        public static Error RegistrationProcessed() =>
+            Error.Conflict(EventCodes.Directory.RegistrationProcessed, "The registration request was already processed");
+
+        public static Error RegistrationInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Directory.RegistrationInvalid, "The registration request is not valid", errors);
+
+        public static Error RegistrationCaptchaInvalid() =>
+            Error.Validation(EventCodes.Directory.RegistrationCaptchaInvalid, "The captcha is missing or not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["captcha"] = ["validation.registration.captcha"] });
     }
 }

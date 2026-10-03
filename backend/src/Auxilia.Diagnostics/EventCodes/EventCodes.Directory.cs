@@ -103,5 +103,35 @@ public static partial class EventCodes
 
         /// <summary>The administrator to report to is not an active user with the Administrator role (400, Q32).</summary>
         public const int AdministratorInvalid = 13033;
+
+        /// <summary>A registration request arrived from an external client application (F02, D-14).</summary>
+        public const int RegistrationSubmitted = 13034;
+
+        /// <summary>A registration request was approved: the client exists (F03).</summary>
+        public const int RegistrationApproved = 13035;
+
+        /// <summary>A registration request was rejected (F03).</summary>
+        public const int RegistrationRejected = 13036;
+
+        /// <summary>The tenant does not accept registrations (setting <c>registration.enabled</c> off, or no staff sees the directory) (403).</summary>
+        public const int RegistrationDisabled = 13037;
+
+        /// <summary>A pending registration request already has this e-mail (409, Q05).</summary>
+        public const int RegistrationPending = 13038;
+
+        /// <summary>The e-mail already belongs to a person or user of the tenant (409, Q05).</summary>
+        public const int RegistrationEmailRegistered = 13039;
+
+        /// <summary>No registration request with this id (404).</summary>
+        public const int RegistrationNotFound = 13040;
+
+        /// <summary>The registration request was already approved or rejected (409).</summary>
+        public const int RegistrationProcessed = 13041;
+
+        /// <summary>A value of a registration request is not valid (400, field errors).</summary>
+        public const int RegistrationInvalid = 13042;
+
+        /// <summary>The captcha of a registration request is missing or not valid (400).</summary>
+        public const int RegistrationCaptchaInvalid = 13043;
     }
 }

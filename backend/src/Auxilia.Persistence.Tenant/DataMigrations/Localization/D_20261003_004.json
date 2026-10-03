@@ -1,0 +1,86 @@
+[
+ {
+  "key": "settings.registration.minimumAge.description",
+  "category": "settings",
+  "en": "Minimum age (years) of an applicant of an external registration request",
+  "it": "Età minima (anni) di chi invia una richiesta di registrazione esterna"
+ },
+ {
+  "key": "validation.registration.age",
+  "category": "validation",
+  "en": "The applicant is too young to register.",
+  "it": "Chi si registra non ha l'età minima richiesta."
+ },
+ {
+  "key": "validation.registration.privacyConsent",
+  "category": "validation",
+  "en": "Accept the privacy notice to register.",
+  "it": "Accetta l'informativa sulla privacy per registrarti."
+ },
+ {
+  "key": "validation.registration.privacyVersion",
+  "category": "validation",
+  "en": "Give the version of the privacy notice accepted (at most 50 characters).",
+  "it": "Indica la versione dell'informativa sulla privacy accettata (al massimo 50 caratteri)."
+ },
+ {
+  "key": "validation.registration.captcha",
+  "category": "validation",
+  "en": "The anti-spam check failed: try again.",
+  "it": "Il controllo anti-spam non è riuscito: riprova."
+ },
+ {
+  "key": "validation.registration.notes",
+  "category": "validation",
+  "en": "The notes can be at most 500 characters.",
+  "it": "Le note possono avere al massimo 500 caratteri."
+ },
+ {
+  "key": "validation.registration.status",
+  "category": "validation",
+  "en": "Choose Pending, Approved or Rejected.",
+  "it": "Scegli In attesa, Approvata o Rifiutata."
+ },
+ {
+  "key": "validation.registration.dateRange",
+  "category": "validation",
+  "en": "The end date cannot be before the start date.",
+  "it": "La data finale non può precedere quella iniziale."
+ },
+ {
+  "key": "errors.AUX-13037",
+  "category": "errors",
+  "en": "Registrations are closed at the moment.",
+  "it": "Le registrazioni sono momentaneamente chiuse."
+ },
+ {
+  "key": "errors.AUX-13038",
+  "category": "errors",
+  "en": "A registration request with this e-mail is already waiting for review.",
+  "it": "Una richiesta di registrazione con questa e-mail è già in attesa di verifica."
+ },
+ {
+  "key": "errors.AUX-13039",
+  "category": "errors",
+  "en": "This e-mail is already registered: sign in or reset your password.",
+  "it": "Questa e-mail è già registrata: accedi o reimposta la password."
+ },
+ {
+  "key": "errors.AUX-13040",
+  "category": "errors",
+  "en": "The registration request does not exist.",
+  "it": "La richiesta di registrazione non esiste."
+ },
+ {
+  "key": "errors.AUX-13041",
+  "category": "errors",
+  "en": "The registration request has already been approved or rejected.",
+  "it": "La richiesta di registrazione è già stata approvata o rifiutata."
+ },
+ {
+  "key": "errors.AUX-13043",
+  "category": "errors",
+  "en": "The anti-spam check failed: try again.",
+  "it": "Il controllo anti-spam non è riuscito: riprova."
+ }
+]

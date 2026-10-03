@@ -1251,6 +1251,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/registrations/captcha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The captcha challenge the client application must solve before sending a registration (403 when registrations are closed) */
+        get: operations["GetRegistrationCaptcha"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Registration requests filtered by status, request date and text (name, surname, e-mail, fiscal code) */
+        get: operations["ListRegistrations"];
+        put?: never;
+        /** Sends a registration request for staff review (one pending request per e-mail) */
+        post: operations["SubmitRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/identity/login-attempts": {
         parameters: {
             query?: never;
@@ -1599,6 +1634,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/registrations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A registration request */
+        get: operations["GetRegistration"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approves a pending request: creates the client (user name = e-mail), assigned to the default employee, and sends the activation e-mail */
+        post: operations["ApproveRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rejects a pending request with optional notes; no client is created */
+        post: operations["RejectRegistration"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1609,6 +1695,20 @@ export interface components {
         };
         AddSpecializationMembersRequest: {
             userIds: string[];
+        };
+        AltchaChallengeResponse: {
+            algorithm: string;
+            challenge: string;
+            salt: string;
+            signature: string;
+            /** Format: int64 */
+            maxnumber: number | string;
+        };
+        ApproveRegistrationResponse: {
+            /** Format: uuid */
+            clientId: string;
+            invitationSent: boolean;
+            invitationErrorCode: null | string;
         };
         AssignClientEmployeeRequest: {
             /** Format: uuid */
@@ -1629,6 +1729,10 @@ export interface components {
             accentColor: string;
             background: components["schemas"]["BrandingBackgroundResponse"];
             logoVersion: null | string;
+        };
+        CaptchaChallengeResponse: {
+            provider: string;
+            altcha: null | components["schemas"]["AltchaChallengeResponse"];
         };
         ChangeExpiredPasswordRequest: {
             userName: string;
@@ -2098,6 +2202,15 @@ export interface components {
             /** Format: int64 */
             totalCount: number | string;
         };
+        PagedResponseOfRegistrationResponse: {
+            items: components["schemas"]["RegistrationResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
         PagedResponseOfResourceKeyResponse: {
             items: components["schemas"]["ResourceKeyResponse"][];
             /** Format: int32 */
@@ -2188,6 +2301,9 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
+        ProcessRegistrationRequest: {
+            notes: null | string;
+        };
         ProfileResponse: {
             /** Format: uuid */
             userId: string;
@@ -2199,6 +2315,40 @@ export interface components {
             languageCode: string;
             theme: string;
             imageVersion: null | string;
+        };
+        RegistrationProcessorResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
+        };
+        RegistrationResponse: {
+            /** Format: uuid */
+            id: string;
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            /** Format: date */
+            birthDate: string;
+            fiscalCode: string;
+            language: string;
+            privacyVersion: string;
+            /** Format: date-time */
+            privacyConsentedAt: string;
+            clientApplication: string;
+            status: string;
+            /** Format: date-time */
+            requestedAt: string;
+            /** Format: date-time */
+            processedAt: null | string;
+            processedBy: null | components["schemas"]["RegistrationProcessorResponse"];
+            notes: null | string;
+            /** Format: uuid */
+            clientId: null | string;
+        };
+        RegistrationSubmittedResponse: {
+            /** Format: uuid */
+            id: string;
         };
         ResetClientPasswordRequest: {
             sendLink: boolean;
@@ -2327,6 +2477,19 @@ export interface components {
             isPrivate: boolean;
             /** Format: int32 */
             memberCount: number | string;
+        };
+        SubmitRegistrationRequest: {
+            firstName: string;
+            lastName: string;
+            email: string;
+            phone: string;
+            /** Format: date */
+            birthDate: null | string;
+            fiscalCode: string;
+            privacyConsent: boolean;
+            privacyVersion: string;
+            language: null | string;
+            captcha: null | string;
         };
         TenantAdministratorInvitationResponse: {
             /** Format: uuid */
@@ -6841,6 +7004,168 @@ export interface operations {
             };
         };
     };
+    GetRegistrationCaptcha: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaptchaChallengeResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListRegistrations: {
+        parameters: {
+            query?: {
+                "filter[status]"?: string;
+                "filter[from]"?: string;
+                "filter[to]"?: string;
+                search?: string;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfRegistrationResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SubmitRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationSubmittedResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     ListLoginAttempts: {
         parameters: {
             query?: {
@@ -7937,6 +8262,143 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ApproveRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null | components["schemas"]["ProcessRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApproveRegistrationResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RejectRegistration: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": null | components["schemas"]["ProcessRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

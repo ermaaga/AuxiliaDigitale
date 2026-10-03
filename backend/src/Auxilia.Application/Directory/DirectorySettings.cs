@@ -20,6 +20,10 @@ public static class DirectorySettings
     public static readonly SettingDefinition<string> RegistrationDefaultLanguage = new(
         "registration.defaultLanguage", Module, "it", isValid: SettingRules.IsLanguageCode);
 
+    /// <summary>Q59: the applicant must be at least this old (legacy: a fixed birth date range meaning 16).</summary>
+    public static readonly SettingDefinition<int> RegistrationMinimumAge = new(
+        "registration.minimumAge", Module, 16, isValid: years => years is >= 0 and <= 120);
+
     public static IReadOnlyList<SettingDefinition> All { get; } =
-        [RegistrationEnabled, RegistrationSendConfirmationEmail, RegistrationNotifyAdmins, RegistrationDefaultLanguage];
+        [RegistrationEnabled, RegistrationSendConfirmationEmail, RegistrationNotifyAdmins, RegistrationDefaultLanguage, RegistrationMinimumAge];
 }

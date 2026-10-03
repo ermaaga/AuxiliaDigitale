@@ -6,8 +6,8 @@ Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and ta
 | F | Feature | Status |
 |---|---|---|
 | [F01](F01-login-logout.md) | Login / logout | ☐ |
-| [F02](F02-public-registration.md) | Public registration | ☐ |
-| [F03](F03-registration-approval.md) | Registration approval | ☐ |
+| [F02](F02-public-registration.md) | Public registration | ☑ (API only) |
+| [F03](F03-registration-approval.md) | Registration approval | ☑ (API only) |
 | [F04](F04-user-profile.md) | User profile | ☐ |
 | [F05](F05-clients.md) | Client management | ☐ |
 | [F06](F06-employees.md) | Employee management | ☐ |

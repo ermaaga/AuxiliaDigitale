@@ -188,10 +188,12 @@ public sealed class AuxctlTests : IAsyncLifetime
         var mobile = await RunAsync("clients", "add", "--client-id", "mobile", "--name", "Mobile", "--type", "Mobile");
         var duplicate = await RunAsync("clients", "add", "--client-id", "web-bff", "--name", "Again", "--type", "Mobile");
         var badType = await RunAsync("clients", "add", "--client-id", "x", "--name", "X", "--type", "Robot");
+        var noCaptcha = await RunAsync("clients", "add", "--client-id", "site", "--name", "Site", "--type", "Integration", "--captcha", "none");
 
         added.ExitCode.ShouldBe(AuxctlCli.Success, added.Error);
         var secret = added.Output.Split("(shown only now): ")[1].Trim();
-        mobile.Output.ShouldContain("public client");
+        mobile.Output.ShouldContain("public client, captcha altcha");
+        noCaptcha.ExitCode.ShouldBe(AuxctlCli.Failure);
         duplicate.ExitCode.ShouldBe(AuxctlCli.Failure);
         duplicate.Error.ShouldContain("AUX-12027");
         badType.ExitCode.ShouldBe(AuxctlCli.UsageError);
@@ -204,8 +206,8 @@ public sealed class AuxctlTests : IAsyncLifetime
         }
 
         var list = await RunAsync("clients", "list");
-        list.Output.ShouldContain("web-bff\tWebBff\tenabled\thttps://app.example.test\tTenant web");
-        list.Output.ShouldContain("mobile\tMobile\tenabled\t-\tMobile");
+        list.Output.ShouldContain("web-bff\tWebBff\tenabled\tcaptcha none\thttps://app.example.test\tTenant web");
+        list.Output.ShouldContain("mobile\tMobile\tenabled\tcaptcha altcha\t-\tMobile");
         list.Output.ShouldNotContain(secret);
     }
 

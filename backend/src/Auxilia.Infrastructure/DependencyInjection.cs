@@ -1,9 +1,12 @@
+using Auxilia.Application.Abstractions.Captcha;
 using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Logging;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Infrastructure.Adapters.Captcha.Altcha;
+using Auxilia.Infrastructure.Adapters.Captcha.None;
 using Auxilia.Infrastructure.Adapters.Channels.Smtp;
 using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 using Auxilia.Infrastructure.Caching;
@@ -44,6 +47,11 @@ public static class DependencyInjection
         // Outbound channel adapters (keyed by provider on the account) and the template engine (ARCHITECTURE §6, §8).
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IMessageChannel, SmtpEmailChannel>());
         services.TryAddSingleton<ITemplateRenderer, FluidTemplateRenderer>();
+
+        // Captcha of the public endpoints, chosen by the client application (F02); ALTCHA options from Captcha:Altcha.
+        services.AddOptions<AltchaOptions>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, NoCaptchaVerifier>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, AltchaCaptchaVerifier>());
 
         // Uploaded pictures are decoded and re-encoded by the server (F04).
         services.TryAddSingleton<IImageProcessor, SkiaImageProcessor>();
