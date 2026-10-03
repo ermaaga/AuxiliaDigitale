@@ -482,7 +482,9 @@ internal sealed class ClientQueryService(IClientDataFactory data, IUserAccounts 
                 row.Status.ToString(),
                 row.CanSignIn,
                 row.EmployeeUserId is { } employeeId ? new ClientEmployeeResponse(employeeId, row.EmployeeName ?? string.Empty) : null,
-                Json(row.CustomFields))).ToArray(),
+                Json(row.CustomFields),
+                row.UserId,
+                row.ImageVersion)).ToArray(),
             query.Page,
             query.PageSize,
             total);
@@ -525,7 +527,8 @@ internal sealed class ClientQueryService(IClientDataFactory data, IUserAccounts 
                 .OrderByDescending(item => item.AssignedAt)
                 .Select(item => new ClientAssignmentResponse(item.EmployeeUserId, names.GetValueOrDefault(item.EmployeeUserId), item.AssignedAt, item.EndedAt))
                 .ToArray(),
-            specializations);
+            specializations,
+            account is null ? null : await store.ImageVersionAsync(account.UserId, cancellationToken));
     }
 
     public async Task<IReadOnlyList<ClientEmployeeResponse>> AssignableEmployeesAsync(CancellationToken cancellationToken)

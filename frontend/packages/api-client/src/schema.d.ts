@@ -1460,6 +1460,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/employees/specializations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active specializations of the Employee role an employee can be given */
+        get: operations["ListEmployeeSpecializations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/employees/{id}": {
         parameters: {
             query?: never;
@@ -1662,6 +1679,7 @@ export interface components {
             employee: null | components["schemas"]["ClientEmployeeResponse"];
             assignments: components["schemas"]["ClientAssignmentResponse"][];
             specializations: components["schemas"]["ClientSpecializationResponse"][];
+            imageVersion: null | string;
         };
         ClientEmployeeResponse: {
             /** Format: uuid */
@@ -1685,6 +1703,9 @@ export interface components {
             canSignIn: boolean;
             employee: null | components["schemas"]["ClientEmployeeResponse"];
             customFields: components["schemas"]["JsonElement"];
+            /** Format: uuid */
+            userId: string;
+            imageVersion: null | string;
         };
         ClientPasswordResetResponse: {
             temporaryPassword: null | string;
@@ -1840,6 +1861,7 @@ export interface components {
             administrator: null | components["schemas"]["EmployeeAdministratorResponse"];
             specializations: components["schemas"]["EmployeeSpecializationResponse"][];
             workload: components["schemas"]["EmployeeWorkloadResponse"];
+            imageVersion: null | string;
         };
         EmployeeInvitationResponse: {
             sent: boolean;
@@ -1858,6 +1880,7 @@ export interface components {
             /** Format: int32 */
             assignedClients: number | string;
             specializations: components["schemas"]["EmployeeSpecializationResponse"][];
+            imageVersion: null | string;
         };
         EmployeePasswordResetResponse: {
             temporaryPassword: null | string;
@@ -7490,6 +7513,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EmployeeAdministratorResponse"][];
+                };
+            };
+        };
+    };
+    ListEmployeeSpecializations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeSpecializationResponse"][];
                 };
             };
         };

@@ -285,6 +285,9 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
         (detail.Id, detail.PersonId, detail.UserName, detail.CanSignIn, detail.IsActivated).ShouldBe((id, data.Employees[id], "paola.neri@example.test", true, false));
         (detail.FiscalCode, detail.BirthDate, detail.CreatedAt).ShouldBe(("NREPLA85C44H501X", new DateOnly(1985, 3, 4), InMemoryEmployeeData.CreatedAt));
         detail.Workload.AssignedClients.ShouldBe(2);
+        detail.ImageVersion.ShouldBeNull();
+        data.Images[id] = "abc123";
+        (await query.GetAsync(id, Ct)).Value.ImageVersion.ShouldBe("abc123");
         (await query.GetAsync(Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Directory.EmployeeNotFound);
     }
 
@@ -299,6 +302,7 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
         var page = (await query.ListAsync(new EmployeeListQuery(" Paola ", null, null, null, null, "inactive", "-userName", 2, 10), Ct)).Value;
         (page.Page, page.PageSize, page.TotalCount).ShouldBe((2, 10, 1));
         page.Items.Single().Specializations.Select(item => item.Name).ShouldBe(["Tax"]);
+        page.Items.Single().ImageVersion.ShouldBeNull();
         (data.LastFilter!.FullName, data.LastFilter.CanSignIn, data.LastFilter.Sort, data.LastFilter.Descending, data.LastFilter.Skip)
             .ShouldBe(("Paola", false, EmployeeSort.UserName, true, 10));
         (await query.ListAsync(new EmployeeListQuery(null, null, null, null, null, "active", null, 1, 25), Ct)).IsSuccess.ShouldBeTrue();
@@ -314,6 +318,15 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
         data.Administrators.Add(new EmployeeName(Admin, "Anna Admin"));
 
         (await query.AdministratorsAsync(Ct)).ShouldBe([new EmployeeAdministratorResponse(Admin, "Anna Admin")]);
+    }
+
+    [Fact]
+    public async Task SpecializationsAsync_MapsTheEmployeeSpecializations()
+    {
+        var tax = Specialization.Create(Guid.CreateVersion7(), TenantRole.Employee, new("Tax", null, null, null, false)).Value;
+        data.Specializations.Add(tax);
+
+        (await query.SpecializationsAsync(Ct)).ShouldBe([new EmployeeSpecializationResponse(tax.Id, "Tax")]);
     }
 }
 
@@ -336,6 +349,9 @@ internal sealed class InMemoryEmployeeData : IEmployeeDataFactory, IEmployeeData
 
     public HashSet<Guid> Deleted { get; } = [];
 
+    /// <summary>Profile picture hashes by user id.</summary>
+    public Dictionary<Guid, string> Images { get; } = [];
+
     public EmployeeFilter? LastFilter { get; private set; }
 
     public Task<IEmployeeData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<IEmployeeData>(this);
@@ -348,7 +364,7 @@ internal sealed class InMemoryEmployeeData : IEmployeeDataFactory, IEmployeeData
             .Select(employee => (UserId: employee.Key, Person: People.Single(person => person.Id == employee.Value)))
             .Select(employee => new EmployeeRow(employee.UserId, employee.Person.FirstName, employee.Person.LastName, employee.Person.Email,
                 employee.Person.Email!, employee.Person.Phone, true, Profiles.Any(profile => profile.Id == employee.UserId && profile.IsDefault),
-                Clients.Count(client => client.EmployeeUserId == employee.UserId)))
+                Clients.Count(client => client.EmployeeUserId == employee.UserId), Images.GetValueOrDefault(employee.UserId)))
             .ToArray();
         return Task.FromResult<(IReadOnlyList<EmployeeRow>, int)>((rows, rows.Length));
     }
@@ -359,6 +375,9 @@ internal sealed class InMemoryEmployeeData : IEmployeeDataFactory, IEmployeeData
                 .Where(member => userIds.Contains(member.UserId))
                 .Select(member => new EmployeeSpecializationRow(member.UserId, specialization.Id, specialization.Name)))
             .ToArray());
+
+    public Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken) =>
+        Task.FromResult(Images.GetValueOrDefault(userId));
 
     public Task<Person?> FindPersonAsync(Guid userId, CancellationToken cancellationToken) =>
         Task.FromResult(Employees.TryGetValue(userId, out var personId) && !Deleted.Contains(personId)

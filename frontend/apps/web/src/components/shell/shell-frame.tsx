@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOutIcon, MenuIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Avatar, AvatarFallback } from "@auxilia/ui/components/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@auxilia/ui/components/avatar";
 import { Button } from "@auxilia/ui/components/button";
 import {
   DropdownMenu,
@@ -49,6 +49,8 @@ export function ShellFrame({
   loginPath,
   logoutUrl,
   languages,
+  onLanguageChange,
+  onThemeChange,
   topbar,
   actions,
   accountItems,
@@ -59,10 +61,15 @@ export function ShellFrame({
   logoUrl?: string;
   homeHref: string;
   navigation: readonly ShellLink[];
-  user: { name: string; detail: string };
+  /** `imageUrl`: the profile picture, initials without it. */
+  user: { name: string; detail: string; imageUrl?: string };
   loginPath: string;
   logoutUrl: string;
   languages: readonly LanguageOption[];
+  /** Told the language chosen in the topbar (after the cookie is set). */
+  onLanguageChange?: (code: string) => void | Promise<void>;
+  /** Told the theme chosen in the topbar (after it is applied). */
+  onThemeChange?: (theme: string) => void;
   /** Left of the topbar, after the menu button (e.g. the console's tenant selector). */
   topbar?: React.ReactNode;
   /** Right of the topbar, before language and theme (e.g. notifications). */
@@ -144,12 +151,13 @@ export function ShellFrame({
           {topbar ?? <span className="truncate font-semibold md:hidden">{appName}</span>}
           <div className="ml-auto flex items-center gap-1">
             {actions}
-            <LanguageSwitcher languages={languages} />
-            <ThemeSwitcher />
+            <LanguageSwitcher languages={languages} onChange={onLanguageChange} />
+            <ThemeSwitcher onChange={onThemeChange} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label={t("app.shell.accountMenu")}>
                   <Avatar className="size-8">
+                    {user.imageUrl ? <AvatarImage src={user.imageUrl} alt="" /> : null}
                     <AvatarFallback>{initials(user.name)}</AvatarFallback>
                   </Avatar>
                 </Button>

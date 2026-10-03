@@ -38,6 +38,12 @@ internal sealed class EmployeeEndpoints : IModuleEndpoints
             .WithSummary("Administrators an employee can report to (Administrator role, can sign in)")
             .Produces<IReadOnlyList<EmployeeAdministratorResponse>>();
 
+        employees.MapGet("/specializations", SpecializationsAsync)
+            .RequirePermission(DirectoryPermissions.ViewEmployees)
+            .WithName("ListEmployeeSpecializations")
+            .WithSummary("Active specializations of the Employee role an employee can be given")
+            .Produces<IReadOnlyList<EmployeeSpecializationResponse>>();
+
         employees.MapGet("/{id:guid}", GetAsync)
             .RequirePermission(DirectoryPermissions.ViewEmployees)
             .WithName("GetEmployee")
@@ -144,6 +150,9 @@ internal sealed class EmployeeEndpoints : IModuleEndpoints
 
     private static async Task<IResult> AdministratorsAsync(IEmployeeQueryService employees, CancellationToken cancellationToken) =>
         TypedResults.Ok(await employees.AdministratorsAsync(cancellationToken));
+
+    private static async Task<IResult> SpecializationsAsync(IEmployeeQueryService employees, CancellationToken cancellationToken) =>
+        TypedResults.Ok(await employees.SpecializationsAsync(cancellationToken));
 
     private static async Task<IResult> GetAsync(Guid id, IEmployeeQueryService employees, CancellationToken cancellationToken) =>
         (await employees.GetAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);

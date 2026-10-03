@@ -1,0 +1,302 @@
+[
+ {
+  "key": "app.employees.accessHint",
+  "category": "app",
+  "en": "An employee who can sign in appears among the employees clients can be assigned to. The default employee always keeps sign-in.",
+  "it": "Un operatore che può accedere compare tra quelli a cui assegnare i clienti. L'operatore principale mantiene sempre l'accesso."
+ },
+ {
+  "key": "app.employees.actions",
+  "category": "app",
+  "en": "Actions",
+  "it": "Azioni"
+ },
+ {
+  "key": "app.employees.actionsOf",
+  "category": "app",
+  "en": "Actions for {name}",
+  "it": "Azioni per {name}"
+ },
+ {
+  "key": "app.employees.administrator",
+  "category": "app",
+  "en": "Administrator in charge",
+  "it": "Amministratore di riferimento"
+ },
+ {
+  "key": "app.employees.administratorHint",
+  "category": "app",
+  "en": "The administrator this employee reports to.",
+  "it": "L'amministratore a cui l'operatore fa riferimento."
+ },
+ {
+  "key": "app.employees.assignClient",
+  "category": "app",
+  "en": "Assign a client",
+  "it": "Assegna un cliente"
+ },
+ {
+  "key": "app.employees.back",
+  "category": "app",
+  "en": "Back to the employees",
+  "it": "Torna agli operatori"
+ },
+ {
+  "key": "app.employees.chooseClient",
+  "category": "app",
+  "en": "Search a client by name",
+  "it": "Cerca un cliente per nome"
+ },
+ {
+  "key": "app.employees.clientAssigned",
+  "category": "app",
+  "en": "Client assigned to the employee",
+  "it": "Cliente assegnato all'operatore"
+ },
+ {
+  "key": "app.employees.clientUnassigned",
+  "category": "app",
+  "en": "Client removed from the employee",
+  "it": "Cliente tolto all'operatore"
+ },
+ {
+  "key": "app.employees.created",
+  "category": "app",
+  "en": "Employee created",
+  "it": "Operatore creato"
+ },
+ {
+  "key": "app.employees.createdInvited",
+  "category": "app",
+  "en": "Employee created: the activation e-mail is on its way",
+  "it": "Operatore creato: l'e-mail di attivazione è in partenza"
+ },
+ {
+  "key": "app.employees.createdNotInvited",
+  "category": "app",
+  "en": "Employee created, but the activation e-mail could not be sent: send it again from the Account tab.",
+  "it": "Operatore creato, ma l'e-mail di attivazione non è partita: inviala di nuovo dalla scheda Account."
+ },
+ {
+  "key": "app.employees.defaultHint",
+  "category": "app",
+  "en": "New clients without an employee, and the clients of a deleted employee, go to the default employee.",
+  "it": "I nuovi clienti senza operatore e i clienti di un operatore eliminato vanno all'operatore principale."
+ },
+ {
+  "key": "app.employees.defaultSet",
+  "category": "app",
+  "en": "Default employee changed",
+  "it": "Operatore principale cambiato"
+ },
+ {
+  "key": "app.employees.deleteConfirm",
+  "category": "app",
+  "en": "Delete {name}? The employee can no longer sign in and the clients in charge go to the default employee.",
+  "it": "Eliminare {name}? L'operatore non potrà più accedere e i suoi clienti passeranno all'operatore principale."
+ },
+ {
+  "key": "app.employees.deleted",
+  "category": "app",
+  "en": "Employee deleted",
+  "it": "Operatore eliminato"
+ },
+ {
+  "key": "app.employees.disableSignIn",
+  "category": "app",
+  "en": "Disable sign-in",
+  "it": "Disabilita l'accesso"
+ },
+ {
+  "key": "app.employees.emailIsUserName",
+  "category": "app",
+  "en": "The e-mail is also the user name.",
+  "it": "L'e-mail è anche il nome utente."
+ },
+ {
+  "key": "app.employees.enableSignIn",
+  "category": "app",
+  "en": "Enable sign-in",
+  "it": "Abilita l'accesso"
+ },
+ {
+  "key": "app.employees.isDefault",
+  "category": "app",
+  "en": "This is the default employee.",
+  "it": "È l'operatore principale."
+ },
+ {
+  "key": "app.employees.isNotDefault",
+  "category": "app",
+  "en": "This is not the default employee.",
+  "it": "Non è l'operatore principale."
+ },
+ {
+  "key": "app.employees.makeDefaultConfirm",
+  "category": "app",
+  "en": "Make {name} the default employee? The current default employee stops being it.",
+  "it": "Rendere {name} l'operatore principale? L'operatore principale attuale smette di esserlo."
+ },
+ {
+  "key": "app.employees.noAdministrator",
+  "category": "app",
+  "en": "No administrator",
+  "it": "Nessun amministratore"
+ },
+ {
+  "key": "app.employees.noSpecializations",
+  "category": "app",
+  "en": "There are no employee specializations yet.",
+  "it": "Non ci sono ancora specializzazioni per gli operatori."
+ },
+ {
+  "key": "app.employees.notFound",
+  "category": "app",
+  "en": "The employee does not exist or has been deleted.",
+  "it": "L'operatore non esiste o è stato eliminato."
+ },
+ {
+  "key": "app.employees.open",
+  "category": "app",
+  "en": "Open",
+  "it": "Apri"
+ },
+ {
+  "key": "app.employees.resetLinkConfirm",
+  "category": "app",
+  "en": "Send the employee a link to choose a new password?",
+  "it": "Inviare all'operatore un link per scegliere una nuova password?"
+ },
+ {
+  "key": "app.employees.resetTemporaryConfirm",
+  "category": "app",
+  "en": "Set a temporary password? The employee will have to change it at the next sign-in.",
+  "it": "Impostare una password temporanea? L'operatore dovrà cambiarla al prossimo accesso."
+ },
+ {
+  "key": "app.employees.signInHint",
+  "category": "app",
+  "en": "When enabled, the employee receives the activation e-mail to choose a password.",
+  "it": "Se abilitato, l'operatore riceve l'e-mail di attivazione per scegliere la password."
+ },
+ {
+  "key": "app.employees.specializationsHint",
+  "category": "app",
+  "en": "An employee can have several specializations of the Employee role.",
+  "it": "Un operatore può avere più specializzazioni del ruolo Operatore."
+ },
+ {
+  "key": "app.employees.temporaryPasswordHint",
+  "category": "app",
+  "en": "Tell it to the employee now: it is shown only once and must be changed at the next sign-in.",
+  "it": "Comunicala ora all'operatore: viene mostrata una sola volta e va cambiata al prossimo accesso."
+ },
+ {
+  "key": "app.employees.unassign",
+  "category": "app",
+  "en": "Remove",
+  "it": "Togli"
+ },
+ {
+  "key": "app.employees.unassignConfirm",
+  "category": "app",
+  "en": "Remove {name} from this employee? Nobody will be in charge of the client.",
+  "it": "Togliere {name} a questo operatore? Nessuno seguirà più il cliente."
+ },
+ {
+  "key": "app.employees.workload",
+  "category": "app",
+  "en": "Workload",
+  "it": "Carico di lavoro"
+ },
+ {
+  "key": "app.profile.data",
+  "category": "app",
+  "en": "Personal data",
+  "it": "Dati personali"
+ },
+ {
+  "key": "app.profile.imageDelete",
+  "category": "app",
+  "en": "Remove the picture",
+  "it": "Rimuovi l'immagine"
+ },
+ {
+  "key": "app.profile.imageDeleteConfirm",
+  "category": "app",
+  "en": "Remove your profile picture?",
+  "it": "Rimuovere l'immagine del profilo?"
+ },
+ {
+  "key": "app.profile.imageDeleted",
+  "category": "app",
+  "en": "Picture removed",
+  "it": "Immagine rimossa"
+ },
+ {
+  "key": "app.profile.imageSaved",
+  "category": "app",
+  "en": "Picture updated",
+  "it": "Immagine aggiornata"
+ },
+ {
+  "key": "app.profile.imageTooLarge",
+  "category": "app",
+  "en": "The picture is larger than 2 MB.",
+  "it": "L'immagine supera i 2 MB."
+ },
+ {
+  "key": "app.profile.imageType",
+  "category": "app",
+  "en": "Choose a JPEG, PNG or WebP image.",
+  "it": "Scegli un'immagine JPEG, PNG o WebP."
+ },
+ {
+  "key": "app.profile.passwordChanged",
+  "category": "app",
+  "en": "Password changed: your other sessions have been closed",
+  "it": "Password cambiata: le altre sessioni sono state chiuse"
+ },
+ {
+  "key": "app.profile.passwordHint",
+  "category": "app",
+  "en": "Changing the password closes your sessions on the other devices.",
+  "it": "Cambiare la password chiude le sessioni sugli altri dispositivi."
+ },
+ {
+  "key": "app.profile.picture",
+  "category": "app",
+  "en": "Profile picture",
+  "it": "Immagine del profilo"
+ },
+ {
+  "key": "app.profile.pictureHint",
+  "category": "app",
+  "en": "JPEG, PNG or WebP up to 2 MB; it is resized to at most 400 × 400 pixels.",
+  "it": "JPEG, PNG o WebP fino a 2 MB; viene ridimensionata al massimo a 400 × 400 pixel."
+ },
+ {
+  "key": "app.profile.preferences",
+  "category": "app",
+  "en": "Preferences",
+  "it": "Preferenze"
+ },
+ {
+  "key": "app.profile.saved",
+  "category": "app",
+  "en": "Profile saved",
+  "it": "Profilo salvato"
+ },
+ {
+  "key": "app.profile.theme",
+  "category": "app",
+  "en": "Theme",
+  "it": "Tema"
+ },
+ {
+  "key": "app.profile.themeSaved",
+  "category": "app",
+  "en": "Theme saved",
+  "it": "Tema salvato"
+ }
+]

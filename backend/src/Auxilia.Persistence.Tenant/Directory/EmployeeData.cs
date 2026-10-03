@@ -74,6 +74,7 @@ internal sealed class EmployeeData(ITenantDbContext db) : IEmployeeData
 
         var profiles = db.Set<EmployeeProfile>();
         var clients = ClientsInCharge();
+        var images = db.Set<UserImage>();
         var items = await sorted
             .ThenBy(employee => employee.user.Id)
             .Skip(filter.Skip)
@@ -87,7 +88,8 @@ internal sealed class EmployeeData(ITenantDbContext db) : IEmployeeData
                 employee.person.Phone,
                 employee.user.IsActive,
                 profiles.Any(profile => profile.Id == employee.user.Id && profile.IsDefault),
-                clients.Count(client => client.EmployeeUserId == employee.user.Id)))
+                clients.Count(client => client.EmployeeUserId == employee.user.Id),
+                images.Where(image => image.Id == employee.user.Id).Select(image => image.Hash).FirstOrDefault()))
             .ToListAsync(cancellationToken);
         return (items, total);
     }
@@ -120,6 +122,13 @@ internal sealed class EmployeeData(ITenantDbContext db) : IEmployeeData
         await db.Set<User>()
             .Where(user => user.Id == userId)
             .Select(user => (DateTimeOffset?)EF.Property<DateTimeOffset>(user, TenantConventions.CreatedAt))
+            .SingleOrDefaultAsync(cancellationToken);
+
+    public Task<string?> ImageVersionAsync(Guid userId, CancellationToken cancellationToken) =>
+        db.Set<UserImage>()
+            .AsNoTracking()
+            .Where(image => image.Id == userId)
+            .Select(image => image.Hash)
             .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<ClientProfile>> ClientsInChargeAsync(Guid userId, CancellationToken cancellationToken) =>

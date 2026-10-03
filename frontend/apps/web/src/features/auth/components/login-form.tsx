@@ -9,10 +9,12 @@ import { Button } from "@auxilia/ui/components/button";
 import { Checkbox } from "@auxilia/ui/components/checkbox";
 import { Input } from "@auxilia/ui/components/input";
 import { Label } from "@auxilia/ui/components/label";
+import { useTheme } from "@auxilia/ui/components/theme-provider";
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { postToBff } from "@/lib/api/browser";
 import { createBffClient } from "@/lib/api/client";
+import { applyProfilePreferences } from "@/features/profile";
 import { tenantHref } from "@/lib/href";
 
 import { PasswordInput } from "./password-input";
@@ -47,6 +49,7 @@ export function LoginForm({
 }) {
   const t = useTranslations();
   const router = useRouter();
+  const { setTheme } = useTheme();
   const [mode, setMode] = React.useState<Mode>("password");
   // The remembered user name is read from this browser after hydration (server snapshot: none).
   const remembered = React.useSyncExternalStore(
@@ -113,6 +116,7 @@ export function LoginForm({
           : { tenant, grantType: "email_otp", userName, code },
       );
       persistRememberedUser();
+      await applyProfilePreferences(setTheme);
       router.replace(next);
       router.refresh();
     } catch (failure) {

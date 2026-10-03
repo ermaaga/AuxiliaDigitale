@@ -57,6 +57,9 @@ public interface IEmployeeQueryService
 
     /// <summary>Administrators an employee can report to (Administrator role, can sign in), by name (Q32).</summary>
     Task<IReadOnlyList<EmployeeAdministratorResponse>> AdministratorsAsync(CancellationToken cancellationToken);
+
+    /// <summary>The active specializations of the Employee role, by name: what an employee can be given (F06).</summary>
+    Task<IReadOnlyList<EmployeeSpecializationResponse>> SpecializationsAsync(CancellationToken cancellationToken);
 }
 
 /// <summary>The fields every employee needs (Q55: first and last name, birth date, e-mail), on top of the person rules.</summary>
@@ -489,7 +492,8 @@ internal sealed class EmployeeQueryService(IEmployeeDataFactory data, IUserAccou
                 row.CanSignIn,
                 row.IsDefault,
                 row.AssignedClients,
-                specializations[row.UserId].ToArray())).ToArray(),
+                specializations[row.UserId].ToArray(),
+                row.ImageVersion)).ToArray(),
             query.Page,
             query.PageSize,
             total);
@@ -530,7 +534,8 @@ internal sealed class EmployeeQueryService(IEmployeeDataFactory data, IUserAccou
             await store.CreatedAtAsync(id, cancellationToken) ?? default,
             administrator,
             specializations,
-            new EmployeeWorkloadResponse(await store.CountClientsInChargeAsync(id, cancellationToken)));
+            new EmployeeWorkloadResponse(await store.CountClientsInChargeAsync(id, cancellationToken)),
+            await store.ImageVersionAsync(id, cancellationToken));
     }
 
     public async Task<IReadOnlyList<EmployeeAdministratorResponse>> AdministratorsAsync(CancellationToken cancellationToken)
@@ -538,6 +543,14 @@ internal sealed class EmployeeQueryService(IEmployeeDataFactory data, IUserAccou
         await using var store = await data.OpenAsync(cancellationToken);
         return (await store.AdministratorsAsync(cancellationToken))
             .Select(administrator => new EmployeeAdministratorResponse(administrator.UserId, administrator.FullName))
+            .ToArray();
+    }
+
+    public async Task<IReadOnlyList<EmployeeSpecializationResponse>> SpecializationsAsync(CancellationToken cancellationToken)
+    {
+        await using var store = await data.OpenAsync(cancellationToken);
+        return (await store.EmployeeSpecializationsAsync(cancellationToken))
+            .Select(specialization => new EmployeeSpecializationResponse(specialization.Id, specialization.Name))
             .ToArray();
     }
 

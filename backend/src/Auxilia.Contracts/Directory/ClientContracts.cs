@@ -7,7 +7,8 @@ public sealed record ClientEmployeeResponse(Guid UserId, string FullName);
 
 /// <summary>
 /// A row of the client lists (F05). <c>status</c> is the business status (<c>Active</c> while a case is open, Q03);
-/// <c>canSignIn</c> is the account access (D-05). <c>customFields</c> is a JSON object (F20).
+/// <c>canSignIn</c> is the account access (D-05). <c>customFields</c> is a JSON object (F20). <c>userId</c> is the
+/// client's account; <c>imageVersion</c> the profile picture hash of the client's account (null without a picture), for <c>GET /users/{id}/image?v=</c> (F04).
 /// </summary>
 public sealed record ClientListItemResponse(
     Guid Id,
@@ -20,7 +21,9 @@ public sealed record ClientListItemResponse(
     string Status,
     bool CanSignIn,
     ClientEmployeeResponse? Employee,
-    JsonElement CustomFields);
+    JsonElement CustomFields,
+    Guid UserId,
+    string? ImageVersion);
 
 /// <summary>The sign-in account of a client: <c>isActivated</c> once the client has set a password (D-06).</summary>
 public sealed record ClientAccountResponse(Guid UserId, string UserName, bool CanSignIn, bool IsActivated);
@@ -30,7 +33,10 @@ public sealed record ClientAssignmentResponse(Guid EmployeeUserId, string? Emplo
 
 public sealed record ClientSpecializationResponse(Guid Id, string Name);
 
-/// <summary>The detail of a client (F05): personal data, account, employee in charge with history, specializations.</summary>
+/// <summary>
+/// The detail of a client (F05): personal data, account, employee in charge with history, specializations and the
+/// profile picture version of the account (F04).
+/// </summary>
 public sealed record ClientDetailResponse(
     Guid Id,
     string FirstName,
@@ -45,7 +51,8 @@ public sealed record ClientDetailResponse(
     ClientAccountResponse? Account,
     ClientEmployeeResponse? Employee,
     IReadOnlyList<ClientAssignmentResponse> Assignments,
-    IReadOnlyList<ClientSpecializationResponse> Specializations);
+    IReadOnlyList<ClientSpecializationResponse> Specializations,
+    string? ImageVersion);
 
 /// <summary>
 /// A new client (F05). The e-mail is also the user name. Created by an Administrator: can sign in, assigned to

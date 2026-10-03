@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@auxilia/ui/components
 
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
+import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
@@ -105,21 +106,31 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
     <div className="flex flex-col gap-4">
       {back}
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">{name}</h1>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <ClientStatusBadge status={client.status} />
-            {client.account ? (
-              client.account.canSignIn ? (
-                <Badge variant="secondary">{t("app.clients.canSignIn")}</Badge>
-              ) : (
-                <Badge variant="outline">{t("app.clients.signInDisabled")}</Badge>
-              )
-            ) : null}
-            <span>
-              {t("app.clients.employee")}:{" "}
-              {client.employee?.fullName ?? t("app.clients.noEmployee")}
-            </span>
+        <div className="flex items-center gap-3">
+          {client.account ? (
+            <UserAvatar
+              userId={client.account.userId}
+              name={name}
+              imageVersion={client.imageVersion}
+              className="size-14 text-lg"
+            />
+          ) : null}
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight">{name}</h1>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <ClientStatusBadge status={client.status} />
+              {client.account ? (
+                client.account.canSignIn ? (
+                  <Badge variant="secondary">{t("app.clients.canSignIn")}</Badge>
+                ) : (
+                  <Badge variant="outline">{t("app.clients.signInDisabled")}</Badge>
+                )
+              ) : null}
+              <span>
+                {t("app.clients.employee")}:{" "}
+                {client.employee?.fullName ?? t("app.clients.noEmployee")}
+              </span>
+            </div>
           </div>
         </div>
         {canDelete ? (

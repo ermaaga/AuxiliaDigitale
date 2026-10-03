@@ -39,6 +39,10 @@ public sealed class ClientPersistenceTests(TenantDatabaseFixture database)
             mine.Items[0].EmployeeName.ShouldBe("Paola Neri" + tag);
             (mine.Items[1].UserName, mine.Items[1].CanSignIn, mine.Items[1].Status, mine.Items[1].CustomFields).ShouldBe(
                 ($"rossi{tag}@example.test", true, ClientStatus.Inactive, "{}"));
+            mine.Items.ShouldAllBe(row => row.ImageVersion == null);
+            var hash = await AddImageAsync(mine.Items[1].UserId);
+            (await data.PageAsync(Filter(employee), Ct)).Items[1].ImageVersion.ShouldBe(hash);
+            (await data.ImageVersionAsync(mine.Items[1].UserId, Ct)).ShouldBe(hash);
 
             (await Ids(data, Filter(fullName: "mario rossi" + tag))).ShouldBe([mario]);
             (await Ids(data, Filter(fullName: "Rossi" + tag + " Mario"))).ShouldBe([mario]);
@@ -178,5 +182,14 @@ public sealed class ClientPersistenceTests(TenantDatabaseFixture database)
         db.Set<User>().Add(user);
         await db.SaveChangesAsync(Ct);
         return user.Id;
+    }
+
+    private async Task<string> AddImageAsync(Guid userId)
+    {
+        await using var db = database.CreateContext();
+        var image = UserImage.Create(userId, [0xFF, 0xD8, 0x02], "image/jpeg");
+        db.Set<UserImage>().Add(image);
+        await db.SaveChangesAsync(Ct);
+        return image.Hash;
     }
 }
