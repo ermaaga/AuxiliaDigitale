@@ -1,6 +1,6 @@
 # F13 — Appointments
 
-Status: [ ] not started · Tasks: B-16, B-17 · Quirks: Q19, Q20, Q21, Q22
+Status: [~] backend done (B-16), pages B-17 · Tasks: B-16, B-17 · Quirks: Q19, Q20, Q21, Q22
 
 ## Legacy behaviour
 Entity `Appointment`: ClientId, EmployeeId, ScheduledDate, DurationMinutes (60), Status string, Notes, CreatedAt, `ShowInGlobalCalendare` (true).
@@ -19,10 +19,10 @@ Notification routing: `Appointment` → employee page if created by final user, 
 
 ## Acceptance criteria
 - [ ] Calendar views month/week/day/list for staff and clients; mobile agenda view.
-- [ ] Staff create (default Approved) for own clients (Admin: any client/employee); future-only validation in tenant time zone; client notified.
-- [ ] Client request (Pending) choosing an employee (assigned preselected); employee notified.
-- [ ] Edit (incl. drag & drop move), approve, reject, complete (confirm), cancel, delete — each notifies the other party; history kept.
-- [ ] Statuses Pending, Approved, Rejected, Completed, Cancelled.
-- [ ] "Show in global calendar" flag honoured by the shared/global calendar and employee dashboard.
-- [ ] Conflict warning when overlapping appointments for the same employee.
-- [ ] Client can cancel its own appointment with confirmation.
+- [x] Staff create (default Approved) for own clients (Admin: any client/employee); future-only validation in tenant time zone; client notified. *(API B-16; realtime `AppointmentChanged`, persisted notification B-19)*
+- [x] Client request (Pending) choosing an employee (assigned preselected); employee notified. *(API B-16: `GET /appointments/employees` marks the one in charge)*
+- [ ] Edit (incl. drag & drop move), approve, reject, complete (confirm), cancel, delete — each notifies the other party; history kept. *(API B-16; UI B-17)*
+- [x] Statuses Pending, Approved, Rejected, Completed, Cancelled.
+- [ ] "Show in global calendar" flag honoured by the shared/global calendar and employee dashboard. *(API `calendar?global=true` B-16; dashboard B-23)*
+- [ ] Conflict warning when overlapping appointments for the same employee. *(API `conflicts` + `hasConflict` B-16; UI B-17)*
+- [ ] Client can cancel its own appointment with confirmation. *(API B-16; confirmation B-17)*

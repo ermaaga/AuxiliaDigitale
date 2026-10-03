@@ -1,0 +1,92 @@
+[
+ {
+  "key": "grids.scheduling.appointments.name",
+  "category": "grids",
+  "en": "Appointments",
+  "it": "Appuntamenti"
+ },
+ {
+  "key": "validation.appointments.future",
+  "category": "validation",
+  "en": "Choose a date and time in the future.",
+  "it": "Scegli una data e un'ora future."
+ },
+ {
+  "key": "validation.appointments.time",
+  "category": "validation",
+  "en": "This time does not exist on that day (daylight saving change): choose another one.",
+  "it": "Quest'ora non esiste in quel giorno (cambio dell'ora legale): scegline un'altra."
+ },
+ {
+  "key": "validation.appointments.duration",
+  "category": "validation",
+  "en": "Enter a duration between 5 and 1440 minutes.",
+  "it": "Inserisci una durata tra 5 e 1440 minuti."
+ },
+ {
+  "key": "validation.appointments.notes",
+  "category": "validation",
+  "en": "Notes can be at most 1000 characters long.",
+  "it": "Le note possono avere al massimo 1000 caratteri."
+ },
+ {
+  "key": "validation.appointments.note",
+  "category": "validation",
+  "en": "The note can be at most 500 characters long.",
+  "it": "La nota può avere al massimo 500 caratteri."
+ },
+ {
+  "key": "validation.appointments.client",
+  "category": "validation",
+  "en": "Choose a client.",
+  "it": "Scegli un cliente."
+ },
+ {
+  "key": "validation.appointments.employee",
+  "category": "validation",
+  "en": "Choose an active operator.",
+  "it": "Scegli un operatore attivo."
+ },
+ {
+  "key": "validation.appointments.status",
+  "category": "validation",
+  "en": "Choose a valid status.",
+  "it": "Scegli uno stato valido."
+ },
+ {
+  "key": "validation.appointments.range",
+  "category": "validation",
+  "en": "The end must not come before the start (at most 62 days for a calendar).",
+  "it": "La fine non può precedere l'inizio (al massimo 62 giorni per un calendario)."
+ },
+ {
+  "key": "errors.AUX-15010",
+  "category": "errors",
+  "en": "The appointment does not exist or has been deleted.",
+  "it": "L'appuntamento non esiste o è stato eliminato."
+ },
+ {
+  "key": "errors.AUX-15011",
+  "category": "errors",
+  "en": "The appointment is rejected, completed or cancelled and can no longer change.",
+  "it": "L'appuntamento è rifiutato, completato o annullato e non può più cambiare."
+ },
+ {
+  "key": "errors.AUX-15012",
+  "category": "errors",
+  "en": "Only a pending appointment can be approved or rejected.",
+  "it": "Solo un appuntamento in attesa può essere approvato o rifiutato."
+ },
+ {
+  "key": "errors.AUX-15013",
+  "category": "errors",
+  "en": "Only an approved appointment can be completed.",
+  "it": "Solo un appuntamento approvato può essere completato."
+ },
+ {
+  "key": "errors.AUX-15014",
+  "category": "errors",
+  "en": "You can schedule appointments only for the clients in your charge.",
+  "it": "Puoi fissare appuntamenti solo per i clienti a te assegnati."
+ }
+]

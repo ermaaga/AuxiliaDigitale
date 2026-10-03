@@ -15,7 +15,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
-| 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
+| 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests | 0 | 17001 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
@@ -227,6 +227,20 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-14031 | Cases.ServiceFolderInvalid | – | Validation | – | – |
 | AUX-14032 | Cases.ServiceFolderNotFound | – | NotFound | – | – |
 | AUX-14033 | Cases.ServiceFolderNameTaken | – | Conflict | – | – |
+| AUX-15001 | Scheduling.AppointmentScheduled | – | – | Scheduling.ScheduleAppointment (success) | – |
+| AUX-15002 | Scheduling.AppointmentRequested | – | – | Scheduling.RequestAppointment (success) | – |
+| AUX-15003 | Scheduling.AppointmentUpdated | – | – | Scheduling.UpdateAppointment (success) | – |
+| AUX-15004 | Scheduling.AppointmentApproved | – | – | Scheduling.ApproveAppointment (success) | – |
+| AUX-15005 | Scheduling.AppointmentRejected | – | – | Scheduling.RejectAppointment (success) | – |
+| AUX-15006 | Scheduling.AppointmentCompleted | – | – | Scheduling.CompleteAppointment (success) | – |
+| AUX-15007 | Scheduling.AppointmentCancelled | – | – | Scheduling.CancelAppointment (success) | – |
+| AUX-15008 | Scheduling.AppointmentDeleted | – | – | Scheduling.DeleteAppointment (success) | – |
+| AUX-15009 | Scheduling.AppointmentInvalid | – | Validation | – | – |
+| AUX-15010 | Scheduling.AppointmentNotFound | – | NotFound | – | – |
+| AUX-15011 | Scheduling.AppointmentClosed | – | Conflict | – | – |
+| AUX-15012 | Scheduling.AppointmentNotPending | – | Conflict | – | – |
+| AUX-15013 | Scheduling.AppointmentNotApproved | – | Conflict | – | – |
+| AUX-15014 | Scheduling.AppointmentClientNotInCharge | – | Forbidden | – | – |
 | AUX-16001 | Documents.FileTypeNotAllowed | – | Validation | – | – |
 | AUX-16002 | Documents.FileContentMismatch | – | Validation | – | – |
 | AUX-16003 | Documents.FileTooLarge | – | Validation | – | – |

@@ -48,13 +48,14 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
         me.Permissions.ShouldAllBe(permission => permission.StartsWith("cases.", StringComparison.Ordinal)
             || permission.StartsWith("identity.", StringComparison.Ordinal)
             || permission.StartsWith("directory.", StringComparison.Ordinal)
-            || permission.StartsWith("documents.", StringComparison.Ordinal));
+            || permission.StartsWith("documents.", StringComparison.Ordinal)
+            || permission.StartsWith("scheduling.", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData("Administrator", new[] { "clients", "employees", "cases", "services", "documents", "sessions", "loginAudit" })]
-    [InlineData("Employee", new[] { "clients", "cases", "documents" })]
-    [InlineData("Client", new string[0])]
+    [InlineData("Administrator", new[] { "clients", "employees", "cases", "services", "appointments", "documents", "sessions", "loginAudit" })]
+    [InlineData("Employee", new[] { "clients", "cases", "appointments", "documents" })]
+    [InlineData("Client", new[] { "appointments" })]
     public async Task Navigation_FollowsModulesRolesAndPermissions(string role, string[] keys)
     {
         var (_, userName) = await factory.AddUserAsync([Enum.Parse<TenantRole>(role)], Password);
@@ -62,7 +63,7 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
 
         var items = (await GetJsonAsync<NavigationItemResponse[]>("/api/v1/me/navigation", token))!;
 
-        // Tenant A: cases, directory and documents in the plan for Administrator and Employee only; identity is Core.
+        // Tenant A: cases, directory and documents in the plan for Administrator and Employee only, scheduling for all; identity is Core.
         items.Select(item => item.Key).ShouldBe(keys);
     }
 
