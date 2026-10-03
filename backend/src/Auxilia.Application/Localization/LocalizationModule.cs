@@ -37,5 +37,6 @@ public sealed class LocalizationModule : IModuleDescriptor
         services.TryAddScoped<ILocalizationQueryService, LocalizationQueryService>();
         services.TryAddScoped<IResourceKeyManager, ResourceKeyManager>();
         services.TryAddScoped<ILocalizer, Localizer>();
+        services.TryAddScoped<ITenantLanguages, TenantLanguages>();
     }
 }

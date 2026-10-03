@@ -181,5 +181,35 @@ public static partial class EventCodes
 
         /// <summary>The user name or e-mail of an account changed (Q52: still unique).</summary>
         public const int UserAccountUpdated = 12059;
+
+        /// <summary>A user changed their own name, e-mail or phone (F04).</summary>
+        public const int ProfileUpdated = 12060;
+
+        /// <summary>A user changed their own language (F04).</summary>
+        public const int LanguageChanged = 12061;
+
+        /// <summary>A user changed their own preferences, e.g. the theme (Q35).</summary>
+        public const int PreferencesChanged = 12062;
+
+        /// <summary>A user uploaded a new profile picture (F04).</summary>
+        public const int ProfileImageChanged = 12063;
+
+        /// <summary>A user removed their profile picture (F04).</summary>
+        public const int ProfileImageRemoved = 12064;
+
+        /// <summary>A user ended one of their own sessions (F04 "my sessions").</summary>
+        public const int OwnSessionEnded = 12065;
+
+        /// <summary>The language is not an active language of the tenant (400).</summary>
+        public const int LanguageNotAvailable = 12066;
+
+        /// <summary>The uploaded file is not a JPEG, PNG or WebP image that can be decoded, or is larger than 2 MB (400).</summary>
+        public const int ProfileImageInvalid = 12067;
+
+        /// <summary>The user has no profile picture (404).</summary>
+        public const int ProfileImageNotFound = 12068;
+
+        /// <summary>No open session of the caller with this id (404).</summary>
+        public const int SessionNotFound = 12069;
     }
 }

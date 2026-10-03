@@ -15,6 +15,17 @@ public enum PasswordFormat
     LegacyBcrypt,
 }
 
+/// <summary>The colour scheme a user chose for the web app (Q35: kept with the account, not in the session).</summary>
+public enum UserTheme
+{
+    /// <summary>Follows the device setting.</summary>
+    System,
+
+    Light,
+
+    Dark,
+}
+
 /// <summary>
 /// A tenant user account (<c>identity.users</c>). Sign-in access (<see cref="IsActive"/>) is independent from the
 /// client's business status (D-05). New accounts have no password until activation (D-06). The user name is unique
@@ -60,6 +71,9 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
     public string? Email { get; private set; }
 
     public string LanguageCode { get; private set; }
+
+    /// <summary>Q35: the colour scheme of the web app, persisted with the account.</summary>
+    public UserTheme Theme { get; private set; }
 
     /// <summary>Can sign in (D-05); a disabled account keeps its data and roles.</summary>
     public bool IsActive { get; private set; }
@@ -209,6 +223,29 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
 
         UserName = name;
         Email = mail;
+        return Result.Success();
+    }
+
+    /// <summary>The language of the user (F04); the caller checks it is an active language of the tenant.</summary>
+    public Result ChangeLanguage(string languageCode)
+    {
+        if (string.IsNullOrWhiteSpace(languageCode) || languageCode.Length > LanguageMaxLength)
+        {
+            return Errors.Identity.UserValueInvalid("languageCode");
+        }
+
+        LanguageCode = languageCode;
+        return Result.Success();
+    }
+
+    public Result ChangeTheme(UserTheme theme)
+    {
+        if (!Enum.IsDefined(theme))
+        {
+            return Errors.Identity.UserValueInvalid("theme");
+        }
+
+        Theme = theme;
         return Result.Success();
     }
 

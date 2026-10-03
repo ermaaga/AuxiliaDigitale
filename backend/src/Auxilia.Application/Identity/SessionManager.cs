@@ -39,6 +39,12 @@ public interface ISessionManager
 
     /// <summary>Ends a session (logout, administrator revocation) and revokes its access tokens.</summary>
     Task<Result> EndSessionAsync(Guid sessionId, SessionEndReason reason, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// F04 "my sessions": the user ends one of their own open sessions (the current one included); its access tokens are
+    /// deny-listed and its connections told to sign out. Another user's session is not found.
+    /// </summary>
+    Task<Result> EndOwnSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken);
 }
 
 public sealed record ClientCredentials(string ClientId, string? ClientSecret);
@@ -249,6 +255,23 @@ internal sealed partial class SessionManager : ISessionManager
             }
 
             await EndAsync(session, reason, timeProvider.GetUtcNow(), cancellationToken);
+            await SaveAsync(store, cancellationToken);
+            return Result.Success();
+        }, cancellationToken);
+
+    public Task<Result> EndOwnSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Identity.EndOwnSession, new { UserId = userId, SessionId = sessionId }, async _ =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var now = timeProvider.GetUtcNow();
+            if (await store.FindSessionAsync(sessionId, cancellationToken) is not { } session
+                || session.UserId != userId
+                || !session.IsActiveAt(now))
+            {
+                return Errors.Identity.SessionNotFound();
+            }
+
+            await EndAsync(session, SessionEndReason.Logout, now, cancellationToken);
             await SaveAsync(store, cancellationToken);
             return Result.Success();
         }, cancellationToken);

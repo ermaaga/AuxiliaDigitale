@@ -33,6 +33,8 @@
   <ItemGroup Label="Outbound channels and templates">
     <PackageVersion Include="Fluid.Core" Version="2.40.0" />
     <PackageVersion Include="MailKit" Version="4.18.1" />
+    <PackageVersion Include="SkiaSharp" Version="4.153.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
   </ItemGroup>
   <ItemGroup Label="Messaging">
     <PackageVersion Include="Rebus" Version="8.9.5" />

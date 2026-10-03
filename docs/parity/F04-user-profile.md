@@ -1,6 +1,6 @@
 # F04 — User profile
 
-Status: [ ] not started · Tasks: B-03, B-05 · Quirks: Q35
+Status: [~] in progress (backend B-03 done; UI B-05) · Tasks: B-03, B-05 · Quirks: Q35
 
 ## Legacy behaviour
 - `Components/Profile.razor` (`/profile`, any authenticated user; header menu "MyProfile").
@@ -11,9 +11,9 @@ Status: [ ] not started · Tasks: B-03, B-05 · Quirks: Q35
 - Header shows profile image or initials.
 
 ## Acceptance criteria
-- [ ] User can edit first name, last name, e-mail, phone; username is read-only.
-- [ ] Changing language switches UI language immediately and persists for next logins.
-- [ ] Change password requires current password + confirmation and policy; other sessions optionally revoked.
-- [ ] Upload profile image (jpg/png/webp), server-side resize to ≤400×400; delete with confirmation; image visible in header and lists.
-- [ ] Theme preference (system/light/dark) persisted (Q35).
-- [ ] "My sessions": list own active sessions and revoke them.
+- [x] User can edit first name, last name, e-mail, phone; username is read-only. (B-03 API: `GET/PUT /me/profile`)
+- [~] Changing language switches UI language immediately and persists for next logins. (B-03 API: `PUT /me/language`, active tenant languages only; immediate switch in B-05)
+- [~] Change password requires current password + confirmation and policy; other sessions optionally revoked. (API `POST /me/password` since P2-08: current password + policy, other sessions always closed; confirmation field in B-05)
+- [~] Upload profile image (jpg/png/webp), server-side resize to ≤400×400; delete with confirmation; image visible in header and lists. (B-03 API: `PUT/DELETE /me/image`, SkiaSharp resize to JPEG, `GET /users/{id}/image` with ETag for the owner and staff; confirmation, header and lists in B-05)
+- [x] Theme preference (system/light/dark) persisted (Q35). (B-03 API: `PUT /me/preferences`, `identity.users.theme`)
+- [x] "My sessions": list own active sessions and revoke them. (B-03 API: `GET /me/sessions`, `DELETE /me/sessions/{id}`; page in B-21)

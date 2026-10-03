@@ -17,6 +17,9 @@ using Auxilia.Infrastructure.Tenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
+using Auxilia.Application.Abstractions.Images;
+using Auxilia.Infrastructure.Adapters.Images.Skia;
+
 namespace Auxilia.Infrastructure;
 
 public static class DependencyInjection
@@ -41,6 +44,9 @@ public static class DependencyInjection
         // Outbound channel adapters (keyed by provider on the account) and the template engine (ARCHITECTURE §6, §8).
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IMessageChannel, SmtpEmailChannel>());
         services.TryAddSingleton<ITemplateRenderer, FluidTemplateRenderer>();
+
+        // Uploaded pictures are decoded and re-encoded by the server (F04).
+        services.TryAddSingleton<IImageProcessor, SkiaImageProcessor>();
 
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 

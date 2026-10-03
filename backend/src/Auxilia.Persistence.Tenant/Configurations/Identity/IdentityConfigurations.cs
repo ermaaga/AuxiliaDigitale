@@ -36,6 +36,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Email).HasMaxLength(User.EmailMaxLength).HasColumnType("citext");
         builder.HasIndex(user => user.Email);
         builder.Property(user => user.LanguageCode).HasMaxLength(User.LanguageMaxLength);
+        builder.Property(user => user.Theme).HasConversion<string>().HasMaxLength(10).HasDefaultValue(UserTheme.System);
         builder.Property(user => user.PasswordHash).HasMaxLength(500);
         builder.Property(user => user.PasswordFormat).HasConversion<string>().HasMaxLength(20);
         builder.Property(user => user.SecurityStamp).HasMaxLength(User.SecurityStampLength);
@@ -114,5 +115,20 @@ internal sealed class LoginAttemptConfiguration : IEntityTypeConfiguration<Login
         builder.HasIndex(attempt => attempt.AttemptedAt);
         builder.HasIndex(attempt => new { attempt.UserName, attempt.AttemptedAt });
         builder.HasIndex(attempt => attempt.UserId);
+    }
+}
+
+/// <summary>Profile pictures (F04): one row per user, removed with the user.</summary>
+internal sealed class UserImageConfiguration : IEntityTypeConfiguration<UserImage>
+{
+    public void Configure(EntityTypeBuilder<UserImage> builder)
+    {
+        builder.ToTable("user_images", TenantSchemas.Identity);
+        builder.HasKey(image => image.Id);
+        builder.Property(image => image.Id).ValueGeneratedNever();
+        builder.HasOne<User>().WithOne().HasForeignKey<UserImage>(image => image.Id).OnDelete(DeleteBehavior.Cascade);
+        builder.Property(image => image.Content).HasColumnType("bytea");
+        builder.Property(image => image.ContentType).HasMaxLength(UserImage.ContentTypeMaxLength);
+        builder.Property(image => image.Hash).HasMaxLength(UserImage.HashLength).IsFixedLength();
     }
 }
