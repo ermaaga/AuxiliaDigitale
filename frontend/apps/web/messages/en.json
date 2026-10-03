@@ -1013,6 +1013,8 @@
   "errors.AUX-12053": "The tenant already has an Administrator.",
   "errors.AUX-12055": "The account is already activated.",
   "errors.AUX-12058": "The role or a permission is not valid.",
+  "errors.AUX-12068": "There is no profile picture.",
+  "errors.AUX-12069": "The session has already ended.",
   "errors.AUX-13005": "The specialization does not exist or was deleted.",
   "errors.AUX-13006": "The role already has a specialization with this name.",
   "errors.AUX-13009": "Every user must have the role of the specialization.",
@@ -1211,6 +1213,8 @@
   "validation.person.phone": "The phone number has 8 to 20 characters: digits, spaces, +, -, ( and ).",
   "validation.plan.code": "The plan code is not valid",
   "validation.plan.nameKey": "The plan name is not valid",
+  "validation.profile.image": "Choose a JPEG, PNG or WebP image of at most 2 MB.",
+  "validation.profile.language": "Choose one of the languages offered.",
   "validation.rolePermissions.role": "Unknown role",
   "validation.rolePermissions.unknown": "Unknown permission",
   "validation.settings.levelNotAllowed": "The setting cannot be changed at this level",
@@ -1233,5 +1237,6 @@
   "validation.tenant.slugReserved": "This name is reserved",
   "validation.tenant.timeZone": "The time zone is not valid",
   "validation.user.emailMissing": "The user has no e-mail address",
-  "validation.user.linkInvalid": "The link is not valid or has expired"
+  "validation.user.linkInvalid": "The link is not valid or has expired",
+  "validation.user.theme": "Choose system, light or dark."
 }

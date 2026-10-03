@@ -60,6 +60,7 @@ builder.Services.AddAuxiliaRateLimiting(builder.Configuration);
 builder.Services.AddRealtime(builder.Configuration.GetConnectionString("Redis"));
 builder.Services.AddSingleton<IApiEndpoints, AuthEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, UserImageEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, TenantLogEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();

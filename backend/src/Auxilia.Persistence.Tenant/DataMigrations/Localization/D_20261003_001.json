@@ -1,0 +1,32 @@
+[
+ {
+  "key": "validation.profile.language",
+  "category": "validation",
+  "en": "Choose one of the languages offered.",
+  "it": "Scegli una delle lingue disponibili."
+ },
+ {
+  "key": "validation.profile.image",
+  "category": "validation",
+  "en": "Choose a JPEG, PNG or WebP image of at most 2 MB.",
+  "it": "Scegli un'immagine JPEG, PNG o WebP di al massimo 2 MB."
+ },
+ {
+  "key": "validation.user.theme",
+  "category": "validation",
+  "en": "Choose system, light or dark.",
+  "it": "Scegli sistema, chiaro o scuro."
+ },
+ {
+  "key": "errors.AUX-12068",
+  "category": "errors",
+  "en": "There is no profile picture.",
+  "it": "Non c'è un'immagine del profilo."
+ },
+ {
+  "key": "errors.AUX-12069",
+  "category": "errors",
+  "en": "The session has already ended.",
+  "it": "La sessione è già terminata."
+ }
+]

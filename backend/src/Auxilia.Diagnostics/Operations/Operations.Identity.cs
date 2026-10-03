@@ -75,5 +75,17 @@ public static partial class Operations
         public static readonly OperationDescriptor ChangeExpiredPassword = new("Identity.ChangeExpiredPassword", EventCodes.Identity.ExpiredPasswordChanged, isWrite: false);
 
         public static readonly OperationDescriptor AddClientApplication = new("Identity.AddClientApplication", EventCodes.Identity.ClientApplicationAdded);
+
+        public static readonly OperationDescriptor UpdateProfile = new("Identity.UpdateProfile", EventCodes.Identity.ProfileUpdated);
+
+        public static readonly OperationDescriptor ChangeLanguage = new("Identity.ChangeLanguage", EventCodes.Identity.LanguageChanged);
+
+        public static readonly OperationDescriptor ChangePreferences = new("Identity.ChangePreferences", EventCodes.Identity.PreferencesChanged);
+
+        public static readonly OperationDescriptor SetProfileImage = new("Identity.SetProfileImage", EventCodes.Identity.ProfileImageChanged);
+
+        public static readonly OperationDescriptor RemoveProfileImage = new("Identity.RemoveProfileImage", EventCodes.Identity.ProfileImageRemoved);
+
+        public static readonly OperationDescriptor EndOwnSession = new("Identity.EndOwnSession", EventCodes.Identity.OwnSessionEnded);
     }
 }

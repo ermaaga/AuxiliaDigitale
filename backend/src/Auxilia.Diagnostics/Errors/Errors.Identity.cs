@@ -91,5 +91,19 @@ public static partial class Errors
         public static Error RolePermissionsInvalid(string field, string messageKey) =>
             Error.Validation(EventCodes.Identity.RolePermissionsInvalid, $"The role permission change is not valid ({field})",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
+
+        public static Error LanguageNotAvailable() =>
+            Error.Validation(EventCodes.Identity.LanguageNotAvailable, "The language is not an active language of the tenant",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["languageCode"] = ["validation.profile.language"] });
+
+        public static Error ProfileImageInvalid() =>
+            Error.Validation(EventCodes.Identity.ProfileImageInvalid, "The profile picture must be a JPEG, PNG or WebP image of at most 2 MB",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["file"] = ["validation.profile.image"] });
+
+        public static Error ProfileImageNotFound() =>
+            Error.NotFound(EventCodes.Identity.ProfileImageNotFound, "The user has no profile picture");
+
+        public static Error SessionNotFound() =>
+            Error.NotFound(EventCodes.Identity.SessionNotFound, "No open session with this id");
     }
 }

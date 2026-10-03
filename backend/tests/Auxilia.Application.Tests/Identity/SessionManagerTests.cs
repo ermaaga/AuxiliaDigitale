@@ -197,6 +197,23 @@ public sealed class SessionManagerTests : IAsyncDisposable
         (await manager.RefreshAsync(new RefreshTokens(Web, pair.RefreshToken, null, null), Ct)).Error!.Code.ShouldBe(EventCodes.Identity.RefreshTokenInvalid);
     }
 
+    [Fact]
+    public async Task EndOwnSession_OnlyAnOpenSessionOfTheCaller()
+    {
+        var user = AddUser();
+        var manager = Manager();
+        var pair = (await manager.SignInAsync(SignIn(), Ct)).Value;
+
+        (await manager.EndOwnSessionAsync(Guid.CreateVersion7(), pair.SessionId, Ct)).Error!.Code.ShouldBe(EventCodes.Identity.SessionNotFound);
+        (await manager.EndOwnSessionAsync(user.Id, Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Identity.SessionNotFound);
+        (await manager.EndOwnSessionAsync(user.Id, pair.SessionId, Ct)).IsSuccess.ShouldBeTrue();
+        (await manager.EndOwnSessionAsync(user.Id, pair.SessionId, Ct)).Error!.Code.ShouldBe(EventCodes.Identity.SessionNotFound);
+
+        sessions.Sessions.ShouldHaveSingleItem().EndReason.ShouldBe(SessionEndReason.Logout);
+        denyList.Sessions.ShouldContainKey(pair.SessionId);
+        realtime.Pushes.ShouldHaveSingleItem().Target.ShouldBe($"session:{pair.SessionId}");
+    }
+
     private static PasswordSignIn SignIn() => new(Web, "mario.rossi", Password, null, null);
 
     private ClientApplication Client(string clientId, ClientApplicationType type, string? secret)

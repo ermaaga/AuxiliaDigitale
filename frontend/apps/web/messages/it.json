@@ -1013,6 +1013,8 @@
   "errors.AUX-12053": "Il tenant ha già un amministratore.",
   "errors.AUX-12055": "L'account è già attivo.",
   "errors.AUX-12058": "Il ruolo o un permesso non è valido.",
+  "errors.AUX-12068": "Non c'è un'immagine del profilo.",
+  "errors.AUX-12069": "La sessione è già terminata.",
   "errors.AUX-13005": "La specializzazione non esiste o è stata eliminata.",
   "errors.AUX-13006": "Il ruolo ha già una specializzazione con questo nome.",
   "errors.AUX-13009": "Ogni utente deve avere il ruolo della specializzazione.",
@@ -1211,6 +1213,8 @@
   "validation.person.phone": "Il telefono ha da 8 a 20 caratteri: cifre, spazi, +, -, ( e ).",
   "validation.plan.code": "Il codice del piano non è valido",
   "validation.plan.nameKey": "Il nome del piano non è valido",
+  "validation.profile.image": "Scegli un'immagine JPEG, PNG o WebP di al massimo 2 MB.",
+  "validation.profile.language": "Scegli una delle lingue disponibili.",
   "validation.rolePermissions.role": "Ruolo sconosciuto",
   "validation.rolePermissions.unknown": "Permesso sconosciuto",
   "validation.settings.levelNotAllowed": "L'impostazione non può essere modificata a questo livello",
@@ -1233,5 +1237,6 @@
   "validation.tenant.slugReserved": "Questo nome è riservato",
   "validation.tenant.timeZone": "Il fuso orario non è valido",
   "validation.user.emailMissing": "L'utente non ha un indirizzo e-mail",
-  "validation.user.linkInvalid": "Il link non è valido o è scaduto"
+  "validation.user.linkInvalid": "Il link non è valido o è scaduto",
+  "validation.user.theme": "Scegli sistema, chiaro o scuro."
 }

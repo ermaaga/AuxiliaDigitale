@@ -109,6 +109,36 @@ public sealed class UserTests
         Should.Throw<ArgumentOutOfRangeException>(() => new Person(Guid.CreateVersion7(), "Mario", new string('r', 101), null));
     }
 
+    [Fact]
+    public void ChangeLanguageAndTheme_ValidateTheValue()
+    {
+        var user = New();
+
+        user.Theme.ShouldBe(UserTheme.System);
+        user.ChangeLanguage("en").IsSuccess.ShouldBeTrue();
+        user.ChangeLanguage(" ").Error!.ValidationErrors.Keys.ShouldBe(["languageCode"]);
+        user.ChangeLanguage("a-very-long-code").Error!.Code.ShouldBe(EventCodes.Identity.UserValueInvalid);
+        user.ChangeTheme(UserTheme.Dark).IsSuccess.ShouldBeTrue();
+        user.ChangeTheme((UserTheme)42).Error!.ValidationErrors.Keys.ShouldBe(["theme"]);
+        (user.LanguageCode, user.Theme).ShouldBe(("en", UserTheme.Dark));
+    }
+
+    [Fact]
+    public void UserImage_KeepsTheHashOfItsContent()
+    {
+        var userId = Guid.CreateVersion7();
+
+        var image = UserImage.Create(userId, [1, 2, 3], "image/jpeg");
+        var first = image.Hash;
+        image.Replace([4, 5], "image/jpeg");
+
+        (image.Id, first.Length).ShouldBe((userId, UserImage.HashLength));
+        image.Content.ShouldBe(new byte[] { 4, 5 });
+        image.Hash.ShouldNotBe(first);
+        image.Hash.ShouldBe(UserImage.Create(userId, [4, 5], "image/jpeg").Hash);
+        Should.Throw<ArgumentOutOfRangeException>(() => UserImage.Create(userId, [], "image/jpeg"));
+    }
+
     private static User New(string userName = "mario", string? email = null) =>
         User.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), userName, email, "it", [TenantRole.Employee, TenantRole.Administrator], isActive: true).Value;
 

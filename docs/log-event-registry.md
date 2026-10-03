@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
-| 12000–12999 | Identity | Identity / Auth | 59 | 12060 |
+| 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
 | 13000–13999 | Directory | Directory (clients, employees) | 33 | 13034 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 0 | 14001 |
 | 15000–15999 | Scheduling | Scheduling | 0 | 15001 |
@@ -141,6 +141,16 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12057 | Identity.RolePermissionsReset | – | – | Identity.ResetRolePermissions (success) | – |
 | AUX-12058 | Identity.RolePermissionsInvalid | – | Validation | – | – |
 | AUX-12059 | Identity.UserAccountUpdated | – | – | Identity.UpdateUserAccount (success) | – |
+| AUX-12060 | Identity.ProfileUpdated | – | – | Identity.UpdateProfile (success) | – |
+| AUX-12061 | Identity.LanguageChanged | – | – | Identity.ChangeLanguage (success) | – |
+| AUX-12062 | Identity.PreferencesChanged | – | – | Identity.ChangePreferences (success) | – |
+| AUX-12063 | Identity.ProfileImageChanged | – | – | Identity.SetProfileImage (success) | – |
+| AUX-12064 | Identity.ProfileImageRemoved | – | – | Identity.RemoveProfileImage (success) | – |
+| AUX-12065 | Identity.OwnSessionEnded | – | – | Identity.EndOwnSession (success) | – |
+| AUX-12066 | Identity.LanguageNotAvailable | – | Validation | – | – |
+| AUX-12067 | Identity.ProfileImageInvalid | – | Validation | – | – |
+| AUX-12068 | Identity.ProfileImageNotFound | – | NotFound | – | – |
+| AUX-12069 | Identity.SessionNotFound | – | NotFound | – | – |
 | AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
 | AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
 | AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |
