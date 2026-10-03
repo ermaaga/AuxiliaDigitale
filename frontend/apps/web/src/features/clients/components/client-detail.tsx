@@ -17,6 +17,7 @@ import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { CASES_PERMISSIONS, CasesTable } from "@/features/cases";
 import { DocumentsPanel, DOCUMENTS_PERMISSIONS } from "@/features/documents";
 import { useCan } from "@/lib/permissions";
 
@@ -29,11 +30,19 @@ import { ClientOverview } from "./client-overview";
 import { ClientSpecializations } from "./client-specializations";
 import { ClientStatusBadge } from "./client-status-badge";
 
-const TABS = ["overview", "data", "assignment", "specializations", "documents", "access"] as const;
+const TABS = [
+  "overview",
+  "data",
+  "assignment",
+  "specializations",
+  "cases",
+  "documents",
+  "access",
+] as const;
 
 /**
  * Client 360° (F05, skill auxilia-ui-design): header with name, status, sign-in and the employee in charge; tabs for
- * the overview, personal data and custom fields, employee with history, specializations, documents (F14) and the account. Actions
+ * the overview, personal data and custom fields, employee with history, specializations, cases (F09), documents (F14) and the account. Actions
  * appear only with their permission (the API checks again). Cases, documents, appointments, requests, tags and
  * consents join the tabs with their modules (B-08…, M-01).
  */
@@ -44,6 +53,7 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
   const confirm = useConfirm();
   const canDelete = useCan(DIRECTORY_PERMISSIONS.deleteClients);
   const canSeeDocuments = useCan(DOCUMENTS_PERMISSIONS.view);
+  const canSeeCases = useCan(CASES_PERMISSIONS.view);
   const [tab, setTab] = useQueryState(
     "tab",
     parseAsStringLiteral(TABS).withDefault("overview").withOptions({ history: "replace" }),
@@ -170,6 +180,11 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
         <TabsContent value="specializations" className="mt-4">
           <ClientSpecializations tenant={tenant} client={client} />
         </TabsContent>
+        {canSeeCases ? (
+          <TabsContent value="cases" className="mt-4">
+            <CasesTable tenant={tenant} label={t("nav.cases")} clientId={client.id} />
+          </TabsContent>
+        ) : null}
         {canSeeDocuments ? (
           <TabsContent value="documents" className="mt-4">
             <DocumentsPanel tenant={tenant} label={t("app.documents.title")} clientId={client.id} />

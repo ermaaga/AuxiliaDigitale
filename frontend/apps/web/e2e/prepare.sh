@@ -76,6 +76,22 @@ insert into identity.users(id, person_id, user_name, email, language_code, is_ac
 values ('0199aaaa-0000-7000-8000-000000000042', '0199aaaa-0000-7000-8000-000000000041', 'elena.russo@example.test',
         'elena.russo@example.test', 'it', false, 'Identity', '00000000000000000000000000000041', 0, 0, now());
 insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000042', 'Client');
+
+-- The case pages (B-14): a client and a service with one folder, used only by tenant-cases.spec.ts.
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000051', 'Marco', 'Ferri', 'marco.ferri@example.test', now());
+insert into directory.client_profiles(id, status, status_changed_at, created_at)
+values ('0199aaaa-0000-7000-8000-000000000051', 'Inactive', now(), now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000052', '0199aaaa-0000-7000-8000-000000000051', 'marco.ferri@example.test',
+        'marco.ferri@example.test', 'it', false, 'Identity', '00000000000000000000000000000051', 0, 0, now());
+insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000052', 'Client');
+insert into cases.services(id, name, description, price, currency, duration_days, is_active, is_deleted, created_at)
+values ('0199aaaa-0000-7000-8000-000000000061', 'Dichiarazione E2E', 'Servizio delle prove E2E', 150.00, 'EUR', 30, true,
+        false, now());
+insert into cases.service_folders(id, service_id, name, sort_order, created_at)
+values ('0199aaaa-0000-7000-8000-000000000062', '0199aaaa-0000-7000-8000-000000000061', 'Redditi', 0, now());
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then

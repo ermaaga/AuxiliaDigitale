@@ -19,6 +19,9 @@ export const E2E = {
   profileUser: { userName: "laura.verdi", fullName: "Laura Verdi" },
   /** Document pages (B-13): a client seeded by prepare.sh, whose documents the spec uploads and deletes. */
   documentsClient: { id: "0199aaaa-0000-7000-8000-000000000041", fullName: "Elena Russo" },
+  /** Case pages (B-14): a client and a service with the folder "Redditi", seeded by prepare.sh. */
+  casesClient: { id: "0199aaaa-0000-7000-8000-000000000051", fullName: "Marco Ferri" },
+  caseService: { name: "Dichiarazione E2E", folder: "Redditi" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */
