@@ -6,3 +6,8 @@ packages:
 onlyBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# Advisories accepted temporarily (ADR 0015; analysis and expiry there, mirrored with an expiry in osv-scanner.toml).
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm
