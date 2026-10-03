@@ -16,6 +16,12 @@
   "dependencies": {
     "@auxilia/api-client": "workspace:*",
     "@auxilia/ui": "workspace:*",
+    "@fullcalendar/core": "^6.1.21",
+    "@fullcalendar/daygrid": "^6.1.21",
+    "@fullcalendar/interaction": "^6.1.21",
+    "@fullcalendar/list": "^6.1.21",
+    "@fullcalendar/react": "^6.1.21",
+    "@fullcalendar/timegrid": "^6.1.21",
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-table": "^9.2.4",

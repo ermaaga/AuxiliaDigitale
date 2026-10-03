@@ -67,7 +67,7 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
   const identity = brandIdentity(tenant, branding);
 
   return (
-    <PermissionsProvider roles={me.roles} permissions={me.permissions}>
+    <PermissionsProvider userId={me.id} roles={me.roles} permissions={me.permissions}>
       <AppShell
         tenant={tenant}
         appName={identity.appName}
