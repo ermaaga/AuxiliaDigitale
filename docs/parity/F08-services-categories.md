@@ -18,10 +18,10 @@ kept on create (Q27); delete = soft delete (Q28), a category only while no servi
 Grid `cases.services`. B-08 must refuse deleting a service that has cases.
 
 ## Acceptance criteria
-- [ ] `/services` list with name, category, specialization, price, duration, active; filters; export.
-- [x] Create/edit service incl. category and specialization (specialization saved on create — Q27). *(API; form with B-15)*
-- [ ] Deactivate instead of delete when cases exist; delete allowed only when unused (Q28).
-- [ ] Service detail shows its cases (paged, export, click → case). *(API `GET /cases?filter[serviceId]=` B-09; page B-15, export B-22)*
-- [ ] Categories CRUD page (Q26).
+- [x] `/services` list with name, category, specialization, price, duration, active; filters; export. *(B-15; export B-22)*
+- [x] Create/edit service incl. category and specialization (specialization saved on create — Q27). *(API B-07; form B-15)*
+- [x] Deactivate instead of delete when cases exist; delete allowed only when unused (Q28). *(409 `AUX-14026` shown, status switch in the form)*
+- [x] Service detail shows its cases (paged, export, click → case). *(API `GET /cases?filter[serviceId]=` B-09; tab B-15, export B-22)*
+- [x] Categories CRUD page (Q26). *(dialog on `/services`, B-15)*
 - [x] Price stored as `numeric(12,2)` + currency EUR.
-- [ ] Folder template editor on service detail (F33).
+- [x] Folder template editor on service detail (F33). *(B-15)*

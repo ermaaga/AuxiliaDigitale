@@ -163,6 +163,7 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
           <TabsTrigger value="data">{t("app.clients.tabs.data")}</TabsTrigger>
           <TabsTrigger value="assignment">{t("app.clients.tabs.assignment")}</TabsTrigger>
           <TabsTrigger value="specializations">{t("app.clients.tabs.specializations")}</TabsTrigger>
+          {canSeeCases ? <TabsTrigger value="cases">{t("nav.cases")}</TabsTrigger> : null}
           {canSeeDocuments ? (
             <TabsTrigger value="documents">{t("app.documents.title")}</TabsTrigger>
           ) : null}

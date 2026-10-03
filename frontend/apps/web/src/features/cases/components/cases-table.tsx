@@ -32,10 +32,12 @@ export function CasesTable({
   tenant,
   label,
   clientId,
+  serviceId,
 }: {
   tenant: string;
   label: string;
   clientId?: string;
+  serviceId?: string;
 }) {
   const t = useTranslations();
   const locale = useLocale();
@@ -50,7 +52,9 @@ export function CasesTable({
   );
   const [showCompleted, setShowCompleted] = useQueryState(
     "showCompleted",
-    parseAsBoolean.withDefault(clientId !== undefined).withOptions({ history: "replace" }),
+    parseAsBoolean
+      .withDefault(clientId !== undefined || serviceId !== undefined)
+      .withOptions({ history: "replace" }),
   );
   const table = useTableState(["clientName", "serviceName", "status"] as const);
   const grid = useGridLayout(tenant, CASES_GRID);
@@ -62,7 +66,8 @@ export function CasesTable({
     showCompleted: employeeOnly ? showCompleted : undefined,
     "filter[clientId]": clientId,
     "filter[clientName]": clientId ? undefined : table.filters.clientName,
-    "filter[serviceName]": table.filters.serviceName,
+    "filter[serviceId]": serviceId,
+    "filter[serviceName]": serviceId ? undefined : table.filters.serviceName,
     "filter[status]": table.filters.status,
   });
   const date = (value: string | null | undefined) =>
@@ -126,7 +131,9 @@ export function CasesTable({
       cell: (row) => row.specialization?.name ?? "—",
     },
   ];
-  const visible = clientId ? columns.filter((column) => column.id !== "client") : columns;
+  const visible = columns.filter(
+    (column) => !(clientId && column.id === "client") && !(serviceId && column.id === "service"),
+  );
   const laid = applyLayout(visible, grid.layout);
 
   const toolbar = (
