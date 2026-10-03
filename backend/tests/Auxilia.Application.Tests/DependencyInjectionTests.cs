@@ -65,7 +65,7 @@ public sealed class DependencyInjectionTests
             "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "branding.appName", "branding.background.color",
             "branding.background.endColor", "branding.background.kind", "branding.background.startColor", "branding.theme.accentColor",
             "branding.theme.fill", "branding.theme.primaryColor", "branding.useAppName", "cases.expiry.enabled",
-            "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.provider", "registration.defaultLanguage",
+            "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.azure.connectionString", "documents.storage.azure.container", "documents.storage.ftp.host", "documents.storage.ftp.password", "documents.storage.ftp.path", "documents.storage.ftp.port", "documents.storage.ftp.tls", "documents.storage.ftp.user", "documents.storage.provider", "registration.defaultLanguage",
             "registration.enabled", "registration.minimumAge", "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);
     }

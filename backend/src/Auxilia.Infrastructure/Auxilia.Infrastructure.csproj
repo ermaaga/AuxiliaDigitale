@@ -6,8 +6,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" />
     <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="Fluid.Core" />
+    <PackageReference Include="FluentFTP" />
     <PackageReference Include="Ixnas.AltchaNet" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" />

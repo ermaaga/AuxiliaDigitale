@@ -509,9 +509,9 @@ appsettings.*.local.json
 logs/
 # Same exception as above (this rule would hide them again)
 !frontend/apps/web/src/**/logs/
-storage/
-# Log storage adapters of Auxilia.ServiceDefaults (source code, not data)
-!backend/src/Auxilia.ServiceDefaults/Logging/Storage/
+# Local document storage in development (Storage:Local:RootPath). Anchored to the root: source folders named
+# Storage (adapters, abstractions) stay tracked, also on case-insensitive file systems.
+/storage/
 
 # OS / editors
 .DS_Store

@@ -85,5 +85,11 @@ public static partial class EventCodes
 
         /// <summary>ALTCHA has no configured key: a random one is used until restart (single node only).</summary>
         public const int CaptchaKeyEphemeral = 29027;
+
+        /// <summary>An upload was refused: type not accepted, content not matching the type, too large (F14).</summary>
+        public const int UploadRejected = 29028;
+
+        /// <summary>A storage key outside the current tenant's prefix was refused (tenant isolation).</summary>
+        public const int StorageKeyRejected = 29029;
     }
 }

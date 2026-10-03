@@ -149,3 +149,17 @@ configure the forwarded headers, otherwise every caller shares the proxy's IP.
 | AUX-11016 | tenant already exists (not in Provisioning/MigrationFailed) | nothing to do, or use `migrate tenants` |
 | AUX-11018 | `--existing-database` cannot connect | check `AUXILIA_TENANT_CONNECTION` and network |
 | AUX-28005 | tenant migration failed; tenant `MigrationFailed` (suspended tenants stay suspended) | read the tenant's log file, fix, re-run `migrate tenants --tenant <slug>` |
+
+## Document storage (B-11, F14)
+Each tenant chooses its provider with the setting `documents.storage.provider` (console → Settings): `local`
+(default), `ftp` or `azure-blob`.
+- `local`: files under `Storage:Local:RootPath` of the API and the Worker (infrastructure, the same folder for both; in
+  development `storage/` at the repository root, git-ignored). Only for one server.
+- `ftp`: `documents.storage.ftp.host`, `.port` (21), `.user`, `.password` (secret), `.path` (`/documents`), `.tls`
+  (explicit FTPS, on by default; the legacy server used plain FTP: turn it off only for that one).
+- `azure-blob`: `documents.storage.azure.connectionString` (secret) and `.container` (`documents`, created at the first
+  upload). Downloads always go through the API (no public or SAS URLs).
+Keys are `tenants/{slug}/staging/{id}` (uploads not committed yet) and `tenants/{slug}/documents/{yyyy}/{MM}/{id}.{ext}`.
+Give the staging prefix a lifecycle rule that deletes files older than one day. When the storage is not configured,
+uploads answer `AUX-16005` and the log has `AUX-16005` with the provider.
+
