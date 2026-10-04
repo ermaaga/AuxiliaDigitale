@@ -14,7 +14,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 70 | 12071 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
-| 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
+| 14000–14999 | Cases | Cases (services, cases, payments) | 37 | 14038 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests | 7 | 17008 |
@@ -228,6 +228,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-14031 | Cases.ServiceFolderInvalid | – | Validation | – | – |
 | AUX-14032 | Cases.ServiceFolderNotFound | – | NotFound | – | – |
 | AUX-14033 | Cases.ServiceFolderNameTaken | – | Conflict | – | – |
+| AUX-14034 | Cases.CaseExpiryReminderSent | – | – | Cases.SendCaseExpiryReminder (success) | – |
+| AUX-14035 | Cases.CaseHasNoEndDate | – | Conflict | – | – |
+| AUX-14036 | Cases.CaseClientHasNoEmail | – | Conflict | – | – |
+| AUX-14037 | Cases.CasesExpiryRun | – | – | Cases.RunCasesExpiry (success) | – |
 | AUX-15001 | Scheduling.AppointmentScheduled | – | – | Scheduling.ScheduleAppointment (success) | – |
 | AUX-15002 | Scheduling.AppointmentRequested | – | – | Scheduling.RequestAppointment (success) | – |
 | AUX-15003 | Scheduling.AppointmentUpdated | – | – | Scheduling.UpdateAppointment (success) | – |

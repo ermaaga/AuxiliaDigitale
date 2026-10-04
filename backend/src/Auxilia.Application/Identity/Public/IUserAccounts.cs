@@ -5,8 +5,10 @@ namespace Auxilia.Application.Identity.Public;
 
 /// <summary>A user account as other modules see it (no password data).</summary>
 /// <param name="IsActivated">The account has a password (activation done, D-06).</param>
+/// <param name="LanguageCode">The user's language (messages to them), empty for the tenant default.</param>
 public sealed record UserAccount(
-    Guid UserId, Guid PersonId, string UserName, string? Email, bool CanSignIn, bool IsActivated, IReadOnlyCollection<TenantRole> Roles);
+    Guid UserId, Guid PersonId, string UserName, string? Email, bool CanSignIn, bool IsActivated, IReadOnlyCollection<TenantRole> Roles,
+    string LanguageCode = "");
 
 /// <param name="TemporaryPassword">Set when no link was sent: shown once to the operator, changed at the next sign-in.</param>
 public sealed record AccountPasswordReset(string? TemporaryPassword);

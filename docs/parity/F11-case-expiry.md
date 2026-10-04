@@ -1,6 +1,6 @@
 # F11 — Case expiry job
 
-Status: [ ] not started · Tasks: P1-12, B-25 · Quirks: Q03, Q14, Q15, Q24 · Decisions D-10 (closed), D-15
+Status: [x] done (B-25) · Tasks: P1-12, B-25 · Quirks: Q03, Q14, Q15, Q24 · Decisions D-10 (closed), D-15
 
 > **Decision D-15:** no scheduled job. The expiry logic is the command `cases.expiry`, registered in the recurring-job registry and run **manually** by System (console or `auxctl jobs run`); each run logged in `ops.job_runs`. The e-mail question (D-10) is closed; the manual "send expiry reminder" action on a case remains.
 
@@ -14,9 +14,9 @@ Status: [ ] not started · Tasks: P1-12, B-25 · Quirks: Q03, Q14, Q15, Q24 · D
 - Because completion sets `EndDate = now` (Q03), the job effectively deactivates completed cases.
 
 ## Acceptance criteria
-- [ ] Worker job every 6 h, fan-out per active tenant, distributed lock, idempotent; gated by `AutoSubscriptionExpiry` per tenant.
-- [ ] Expired active cases → inactive; client status → Inactive when no other active case; one "expired" notification per client.
-- [ ] Expiring within N days → one "expiring" notification per client per day (Q14 fixed).
-- [ ] E-mail sent according to D-10 (localized template).
-- [ ] Case action "Send expiry reminder" (with confirmation) sends the e-mail.
-- [ ] Worker integration test covering expired, expiring, dedup, multi-tenant isolation.
+- [x] ~~Worker job every 6 h, fan-out per active tenant~~ (D-15): command `cases.expiry` (`CaseExpiryJob`) run by hand per tenant by System, lock per tenant and job (`IJobLock`), idempotent; gated by `cases.expiry.enabled` (legacy `AutoSubscriptionExpiry`), days in the tenant time zone.
+- [x] Expired active cases → inactive; client status recomputed (Inactive when no other open case); the user account stays enabled (D-05, differs from legacy on purpose); in-app notification `case.expired` per case to the client's account.
+- [x] Expiring within `cases.expiry.expiringDays` → `case.expiring` once a day per case (Q14 fixed, `cases.cases.expiry_notified_on`).
+- [x] E-mail according to D-10/D-15: the notifications follow the client's e-mail preferences; no automatic expiry e-mail.
+- [x] Case action "Send expiry reminder" (with confirmation) sends the template `case-expiry-reminder` in the client's language (`POST /api/v1/cases/{id}/expiry-reminder`; `AUX-14035` no end date, `AUX-14036` no e-mail).
+- [x] Tests: Application (`CaseExpiryJobTests`: expired, expiring, dedup, no account, disabled; manager reminder) and HTTP (`CaseEndpointsTests`); tenant isolation comes from the per-tenant job scope.

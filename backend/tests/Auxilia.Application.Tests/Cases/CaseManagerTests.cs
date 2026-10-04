@@ -5,11 +5,14 @@ using Auxilia.Application.Abstractions.Cases;
 using Auxilia.Application.Cases;
 using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
+using Auxilia.Application.Identity.Public;
+using Auxilia.Application.Messaging.Public;
 using Auxilia.Application.Tests.Identity;
 using Auxilia.Application.Tests.Platform;
 using Auxilia.Contracts.Cases;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Cases;
+using Auxilia.Domain.Messaging;
 using Auxilia.SharedKernel.Results;
 using Auxilia.SharedKernel.Tenancy;
 
@@ -35,6 +38,8 @@ public sealed class CaseManagerTests : IAsyncDisposable
     private readonly IAccessGuard guard = Substitute.For<IAccessGuard>();
     private readonly IPermissionAccess permissions = Substitute.For<IPermissionAccess>();
     private readonly ICurrentUser caller = Substitute.For<ICurrentUser>();
+    private readonly IUserAccounts accounts = Substitute.For<IUserAccounts>();
+    private readonly IMessageDispatcher messages = Substitute.For<IMessageDispatcher>();
     private readonly ManualTimeProvider clock = new();
     private readonly Dictionary<Guid, bool> clientStatus = [];
     private readonly CaseAccessPolicy policy;
@@ -69,7 +74,7 @@ public sealed class CaseManagerTests : IAsyncDisposable
             await policy.CanAccessAsync(call.ArgAt<CaseResource>(1), call.ArgAt<string>(0), call.ArgAt<CancellationToken>(2))
                 ? Result.Success()
                 : Result.Failure(Errors.Identity.PermissionDenied()));
-        manager = new CaseManager(ManagerHarness.Runner(), data, clients, customFields, guard, policy, caller, clock);
+        manager = new CaseManager(ManagerHarness.Runner(), data, clients, customFields, guard, policy, caller, accounts, messages, clock);
         query = new CaseQueryService(data, policy, permissions, clock);
     }
 
@@ -272,6 +277,41 @@ public sealed class CaseManagerTests : IAsyncDisposable
         invalid.Error!.ValidationErrors.Keys.ShouldBe(["page", "pageSize", "sort", "status", "search"], ignoreOrder: true);
     }
 
+    [Fact]
+    public async Task SendExpiryReminder_QueuesTheTemplateInTheClientLanguage()
+    {
+        var id = (await manager.OpenAsync(new OpenCaseRequest(Client, service, null, new DateOnly(2026, 10, 15), null, null, null), Ct)).Value;
+        accounts.FindByPersonAsync(Client, Arg.Any<CancellationToken>())
+            .Returns(new UserAccount(ClientUser, Client, "mario", "mario@example.test", true, true, [TenantRole.Client], "it"));
+        messages.QueueAsync(Arg.Any<OutboundMessageRequest>(), Arg.Any<CancellationToken>()).Returns(Result.Success(Guid.CreateVersion7()));
+
+        (await manager.SendExpiryReminderAsync(id, Ct)).IsSuccess.ShouldBeTrue();
+
+        await messages.Received(1).QueueAsync(
+            Arg.Is<OutboundMessageRequest>(request => request.Channel == MessageChannel.Email && request.Recipient == "mario@example.test"
+                && request.TemplateCode == MessageTemplates.CaseExpiryReminder && request.Language == "it"
+                && (string?)request.Model["endDate"] == "15/10/2026" && (string?)request.Model["serviceName"] == "Service 0"
+                && (string?)request.Model["name"] == "Mario Rossi" && request.RelatedEntityId == id),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SendExpiryReminder_NeedsAnEndDateAnEmailAndTheRightToManage()
+    {
+        var id = await OpenAsync();
+        (await manager.SendExpiryReminderAsync(id, Ct)).Error!.Code.ShouldBe(EventCodes.Cases.CaseHasNoEndDate);
+
+        var dated = (await manager.OpenAsync(new OpenCaseRequest(Client, service, null, new DateOnly(2026, 10, 15), null, null, null), Ct)).Value;
+        accounts.FindByPersonAsync(Client, Arg.Any<CancellationToken>())
+            .Returns(new UserAccount(ClientUser, Client, "mario", null, true, true, [TenantRole.Client]));
+        (await manager.SendExpiryReminderAsync(dated, Ct)).Error!.Code.ShouldBe(EventCodes.Cases.CaseClientHasNoEmail);
+
+        CallAs(ClientUser, TenantRole.Client);
+        (await manager.SendExpiryReminderAsync(dated, Ct)).Error!.Code.ShouldBe(EventCodes.Identity.PermissionDenied);
+        (await manager.SendExpiryReminderAsync(Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Cases.CaseNotFound);
+        await messages.DidNotReceive().QueueAsync(Arg.Any<OutboundMessageRequest>(), Arg.Any<CancellationToken>());
+    }
+
     [Theory]
     [InlineData(true, null, "Active")]
     [InlineData(true, "2026-09-30", "Active")]
@@ -363,6 +403,20 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
     public Task<bool> HasOpenCasesAsync(Guid clientId, DateOnly today, CancellationToken cancellationToken) =>
         Task.FromResult(Cases.Any(@case => !Deleted.Contains(@case.Id) && @case.ClientId == clientId
             && Case.CountsAsOpen(@case.IsActive, @case.Status, @case.ExpiresOn, today)));
+
+    /// <summary>Client person → user.</summary>
+    public Dictionary<Guid, Guid> ClientUsers { get; } = [];
+
+    public Task<IReadOnlyList<Case>> ExpiredActiveAsync(DateOnly today, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Case>>(Cases.Where(@case => !Deleted.Contains(@case.Id) && @case.IsActive && @case.ExpiresOn <= today).ToArray());
+
+    public Task<IReadOnlyList<Case>> ExpiringAsync(DateOnly today, DateOnly horizon, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<Case>>(Cases
+            .Where(@case => !Deleted.Contains(@case.Id) && @case.IsActive && @case.Status != CaseStatus.Completed && @case.EndsOn > today && @case.EndsOn <= horizon)
+            .ToArray());
+
+    public Task<IReadOnlyDictionary<Guid, Guid>> ClientUsersAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<Guid, Guid>>(ClientUsers.Where(pair => clientIds.Contains(pair.Key)).ToDictionary());
 
     public void Add(Case @case) => Cases.Add(@case);
 

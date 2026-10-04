@@ -97,6 +97,12 @@ public sealed class Case : AggregateRoot<Guid>, IAuditable, ISoftDeletable
 
     public DateTimeOffset? CompletedAt { get; private set; }
 
+    /// <summary>The day the client was last told the case is expiring (F11, Q14: once a day).</summary>
+    public DateOnly? ExpiryNotifiedOn { get; private set; }
+
+    /// <summary>The date the case ends for the expiry job and reminders: the expiry, else the target date.</summary>
+    public DateOnly? EndsOn => ExpiresOn ?? DueOn;
+
     /// <summary>Custom field values (JSON object, already validated, F20).</summary>
     public string CustomFields { get; private set; }
 
@@ -224,6 +230,31 @@ public sealed class Case : AggregateRoot<Guid>, IAuditable, ISoftDeletable
 
         payments.Add(new CasePayment(Guid.CreateVersion7(), Id, amount, paidOn, Text(note), now, actorUserId));
         return Result.Success();
+    }
+
+    /// <summary>The expiry job (F11): an active case whose expiry date has passed becomes inactive.</summary>
+    /// <returns>Whether it changed.</returns>
+    public bool ExpireIfDue(DateOnly today)
+    {
+        if (!IsActive || ExpiresOn is not { } expires || expires > today)
+        {
+            return false;
+        }
+
+        IsActive = false;
+        return true;
+    }
+
+    /// <summary>Records that the client was told today; false when it already was (one "expiring" notice a day).</summary>
+    public bool MarkExpiryNotified(DateOnly today)
+    {
+        if (ExpiryNotifiedOn == today)
+        {
+            return false;
+        }
+
+        ExpiryNotifiedOn = today;
+        return true;
     }
 
     /// <summary>Due date and custom fields of a case not completed yet.</summary>

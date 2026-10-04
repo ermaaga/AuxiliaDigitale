@@ -268,6 +268,31 @@ internal sealed class CaseData(ITenantDbContext db) : ICaseData
             @case => @case.ClientId == clientId && @case.IsActive && @case.Status != CaseStatus.Completed && (@case.ExpiresOn == null || @case.ExpiresOn >= today),
             cancellationToken);
 
+    public async Task<IReadOnlyList<Case>> ExpiredActiveAsync(DateOnly today, CancellationToken cancellationToken) =>
+        await (from @case in db.Set<Case>()
+               join person in db.Set<Person>() on @case.ClientId equals person.Id
+               where @case.IsActive && @case.ExpiresOn != null && @case.ExpiresOn <= today
+               select @case)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<Case>> ExpiringAsync(DateOnly today, DateOnly horizon, CancellationToken cancellationToken) =>
+        await (from @case in db.Set<Case>()
+               join person in db.Set<Person>() on @case.ClientId equals person.Id
+               where @case.IsActive && @case.Status != CaseStatus.Completed
+                   && (@case.ExpiresOn ?? @case.DueOn) > today && (@case.ExpiresOn ?? @case.DueOn) <= horizon
+               select @case)
+            .ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyDictionary<Guid, Guid>> ClientUsersAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken) =>
+        clientIds.Count == 0
+            ? new Dictionary<Guid, Guid>()
+            : (await db.Set<User>().AsNoTracking()
+                    .Where(user => clientIds.Contains(user.PersonId))
+                    .Select(user => new { user.PersonId, user.Id })
+                    .ToListAsync(cancellationToken))
+                .GroupBy(item => item.PersonId)
+                .ToDictionary(group => group.Key, group => group.First().Id);
+
     public void Add(Case @case) => db.Set<Case>().Add(@case);
 
     public void Remove(Case @case) => db.Set<Case>().Remove(@case);

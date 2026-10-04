@@ -1,0 +1,56 @@
+[
+ {
+  "key": "notifications.case.expiring.title",
+  "category": "notifications",
+  "en": "Case expiring",
+  "it": "Pratica in scadenza"
+ },
+ {
+  "key": "notifications.case.expiring.message",
+  "category": "notifications",
+  "en": "Your {service} ({number}) expires on {date}, in {days} days.",
+  "it": "Il tuo {service} ({number}) scade il {date}, tra {days} giorni."
+ },
+ {
+  "key": "notifications.case.expired.title",
+  "category": "notifications",
+  "en": "Case expired",
+  "it": "Pratica scaduta"
+ },
+ {
+  "key": "notifications.case.expired.message",
+  "category": "notifications",
+  "en": "Your {service} ({number}) expired on {date}.",
+  "it": "Il tuo {service} ({number}) è scaduto il {date}."
+ },
+ {
+  "key": "errors.AUX-14035",
+  "category": "errors",
+  "en": "The case has neither an expiry nor a due date.",
+  "it": "La pratica non ha né una scadenza né una data prevista."
+ },
+ {
+  "key": "errors.AUX-14036",
+  "category": "errors",
+  "en": "The client has no e-mail address.",
+  "it": "Il cliente non ha un indirizzo e-mail."
+ },
+ {
+  "key": "app.cases.expiryReminder",
+  "category": "app",
+  "en": "Send expiry reminder",
+  "it": "Invia avviso scadenza"
+ },
+ {
+  "key": "app.cases.expiryReminderConfirm",
+  "category": "app",
+  "en": "Send {client} an e-mail with the end date of this case?",
+  "it": "Inviare a {client} un'e-mail con la data di scadenza di questa pratica?"
+ },
+ {
+  "key": "app.cases.expiryReminderSent",
+  "category": "app",
+  "en": "Expiry reminder sent.",
+  "it": "Avviso di scadenza inviato."
+ }
+]

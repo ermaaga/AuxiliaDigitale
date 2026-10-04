@@ -63,6 +63,26 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
     }
 
     [Fact]
+    public async Task ExpiryReminder_EmailsTheClient_AndNeedsAnEndDate()
+    {
+        var admin = await SignInAsync(TenantRole.Administrator);
+        var (clientId, userName) = await Factory.AddClientAsync();
+        var serviceId = await ServiceAsync(admin, null, 90m);
+        var dated = await OpenAsync(admin, new OpenCaseRequest(clientId, serviceId, null, new DateOnly(2026, 12, 31), null, null, null));
+        var undated = await OpenAsync(admin, new OpenCaseRequest(clientId, serviceId, null, null, null, null, null));
+
+        (await SendAsync(HttpMethod.Post, $"/api/v1/cases/{dated.Id}/expiry-reminder", admin)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        var message = factory.Messages.Single(item => item.RelatedEntityId == dated.Id);
+        (message.Recipient, message.TemplateCode, message.Language, message.Model["endDate"], message.Model["name"])
+            .ShouldBe((userName + "@example.test", "case-expiry-reminder", "it", (object?)"31/12/2026", (object?)"Mario Rossi"));
+
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/cases/{undated.Id}/expiry-reminder", admin), HttpStatusCode.Conflict,
+            EventCodes.Cases.CaseHasNoEndDate);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/cases/{Guid.CreateVersion7()}/expiry-reminder", admin), HttpStatusCode.NotFound,
+            EventCodes.Cases.CaseNotFound);
+    }
+
+    [Fact]
     public async Task InvalidRequests_AreFieldErrors()
     {
         var admin = await SignInAsync(TenantRole.Administrator);

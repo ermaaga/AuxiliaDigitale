@@ -145,6 +145,13 @@ export async function deleteCase(id: string) {
   await unwrap(await api().DELETE("/api/v1/cases/{id}", { params: { path: { id } } }));
 }
 
+/** F11: e-mails the client the end date of the case (expiry, else due date). */
+export async function sendExpiryReminder(id: string) {
+  await unwrap(
+    await api().POST("/api/v1/cases/{id}/expiry-reminder", { params: { path: { id } } }),
+  );
+}
+
 /** Money with the currency of the case, in the page language. */
 export function formatMoney(amount: number | string, currency: string, locale: string): string {
   return new Intl.NumberFormat(locale, { style: "currency", currency }).format(Number(amount));

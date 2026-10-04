@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using Auxilia.Application.Abstractions.Authorization;
@@ -5,10 +6,13 @@ using Auxilia.Application.Abstractions.Cases;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
+using Auxilia.Application.Identity.Public;
+using Auxilia.Application.Messaging.Public;
 using Auxilia.Contracts.Cases;
 using Auxilia.Contracts.Common;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Cases;
+using Auxilia.Domain.Messaging;
 using Auxilia.SharedKernel.Results;
 using Auxilia.SharedKernel.Tenancy;
 
@@ -43,6 +47,12 @@ public interface ICaseManager
 
     /// <summary>Soft delete; employees cannot delete completed cases (F10).</summary>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// F11 (legacy "send expiry e-mail"): e-mails the client the end date of the case (expiry, else due date) with the
+    /// template <c>case-expiry-reminder</c> in the client's language.
+    /// </summary>
+    Task<Result> SendExpiryReminderAsync(Guid id, CancellationToken cancellationToken);
 }
 
 public interface ICaseQueryService
@@ -162,6 +172,8 @@ internal sealed class CaseManager(
     IAccessGuard guard,
     CaseAccessPolicy policy,
     ICurrentUser currentUser,
+    IUserAccounts accounts,
+    IMessageDispatcher messages,
     TimeProvider clock) : ICaseManager
 {
     public const string CustomFieldEntity = "case";
@@ -309,6 +321,45 @@ internal sealed class CaseManager(
             store.Remove(loaded.Value);
             await store.SaveChangesAsync(cancellationToken);
             return await RecomputeClientStatusAsync(store, loaded.Value.ClientId, cancellationToken);
+        }, cancellationToken);
+
+    public Task<Result> SendExpiryReminderAsync(Guid id, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Cases.SendCaseExpiryReminder, new { CaseId = id }, async scope =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var loaded = await LoadAsync(store, id, CasesPermissions.ManageCases, cancellationToken);
+            if (loaded.IsFailure)
+            {
+                return Result.Failure(loaded.Error!);
+            }
+
+            var @case = loaded.Value;
+            if (@case.EndsOn is not { } endsOn)
+            {
+                return Errors.Cases.CaseHasNoEndDate();
+            }
+
+            var client = await clients.FindAsync(@case.ClientId, cancellationToken);
+            if (client is null || await accounts.FindByPersonAsync(@case.ClientId, cancellationToken) is not { Email: { Length: > 0 } email } account)
+            {
+                return Errors.Cases.CaseClientHasNoEmail();
+            }
+
+            var service = await store.ServiceAsync(@case.ServiceId, cancellationToken);
+            var queued = await messages.QueueAsync(
+                new OutboundMessageRequest(
+                    MessageChannel.Email, MessagePurpose.Transactional, email, MessageTemplates.CaseExpiryReminder, account.LanguageCode,
+                    new Dictionary<string, object?>(StringComparer.Ordinal)
+                    {
+                        ["name"] = client.FullName,
+                        ["serviceName"] = service?.Name ?? string.Empty,
+                        ["endDate"] = endsOn.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture),
+                    },
+                    nameof(Case),
+                    @case.Id),
+                cancellationToken);
+            scope.SetEntity(nameof(Case), @case.Id);
+            return queued.IsFailure ? Result.Failure(queued.Error!) : Result.Success();
         }, cancellationToken);
 
     private Task<Result> ChangeAsync(
