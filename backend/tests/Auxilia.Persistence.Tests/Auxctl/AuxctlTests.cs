@@ -107,8 +107,13 @@ public sealed class AuxctlTests : IAsyncLifetime
         again.ExitCode.ShouldBe(AuxctlCli.Failure);
         again.Error.ShouldContain("AUX-11016");
 
-        (await RunAsync("jobs", "list")).Output.ShouldStartWith("bus.outbox");
-        var unknownJob = await RunAsync("jobs", "run", "cases.expiry", "--tenant", "beta");
+        var jobs = await RunAsync("jobs", "list");
+        jobs.Output.ShouldStartWith("bus.outbox");
+        jobs.Output.ShouldContain("cases.expiry\tdaily");
+        var expiry = await RunAsync("jobs", "run", "cases.expiry", "--tenant", "beta");
+        expiry.ExitCode.ShouldBe(AuxctlCli.Success);
+        expiry.Output.ShouldContain("beta: cases.expiry succeeded (disabled)");
+        var unknownJob = await RunAsync("jobs", "run", "no.such.job", "--tenant", "beta");
         unknownJob.ExitCode.ShouldBe(AuxctlCli.Failure);
         unknownJob.Error.ShouldContain("AUX-26002");
     }
