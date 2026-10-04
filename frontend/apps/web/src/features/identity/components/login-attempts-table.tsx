@@ -18,6 +18,7 @@ import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { createBffClient } from "@/lib/api/client";
 import { queryKey } from "@/lib/api/query-keys";
+import { ExportMenu } from "@/features/exports";
 
 type LoginAttempt = components["schemas"]["LoginAttemptResponse"];
 
@@ -164,6 +165,9 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
       // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
       key={grid.layout ? "layout" : "default"}
       label={title}
+      exportMenu={(columns) => (
+        <ExportMenu tenant={tenant} source="login-attempts" params={params} columns={columns} />
+      )}
       columns={laid.columns}
       initiallyHidden={grid.layout ? laid.hidden : ["userAgent"]}
       rows={query.data?.items}

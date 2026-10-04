@@ -15,6 +15,7 @@ import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { tenantHref } from "@/lib/href";
 import { useCan, useHasRole } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   REQUEST_BOXES,
@@ -56,14 +57,15 @@ export function RequestsInbox({ tenant, label }: { tenant: string; label: string
   const table = useTableState(["status", "type"] as const);
   const grid = useGridLayout(tenant, REQUESTS_GRID);
   const current: RequestBox = boxes.includes(box) ? box : boxes[0]!;
-  const query = useRequests(tenant, {
+  const exportParams = {
     box: current,
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
     "filter[status]": table.filters.status,
     "filter[type]": table.filters.type,
-  });
+  };
+  const query = useRequests(tenant, exportParams);
 
   React.useEffect(() => {
     if (openId) {
@@ -167,6 +169,9 @@ export function RequestsInbox({ tenant, label }: { tenant: string; label: string
       <DataTable
         key={grid.layout ? "layout" : "default"}
         label={label}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="requests" params={exportParams} columns={columns} />
+        )}
         columns={laid.columns}
         initiallyHidden={grid.layout ? laid.hidden : []}
         rows={query.data?.items}

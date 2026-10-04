@@ -9,6 +9,7 @@ import { applyLayout, type DataTableColumn } from "@/components/data-table/table
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { useHasRole } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   APPOINTMENT_STATUSES,
@@ -43,13 +44,14 @@ export function AppointmentsTable({
   const staff = isAdministrator || isEmployee;
   const table = useTableState(["status"] as const);
   const grid = useGridLayout(tenant, APPOINTMENTS_GRID);
-  const query = useAppointments(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
     "filter[clientId]": clientId,
     "filter[status]": table.filters.status,
-  });
+  };
+  const query = useAppointments(tenant, exportParams);
 
   const columns: DataTableColumn<AppointmentListItem>[] = [
     {
@@ -129,6 +131,9 @@ export function AppointmentsTable({
     <DataTable
       key={grid.layout ? "layout" : "default"}
       label={label}
+      exportMenu={(columns) => (
+        <ExportMenu tenant={tenant} source="appointments" params={exportParams} columns={columns} />
+      )}
       columns={laid.columns}
       initiallyHidden={grid.layout ? laid.hidden : []}
       rows={query.data?.items}

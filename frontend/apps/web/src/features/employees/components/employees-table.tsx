@@ -23,6 +23,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   deleteEmployee,
@@ -47,14 +48,15 @@ export function EmployeesTable({ tenant, title }: { tenant: string; title: strin
   const canManage = useCan(EMPLOYEE_PERMISSIONS.manage);
   const table = useTableState(["fullName", "email", "status"] as const);
   const grid = useGridLayout(tenant, EMPLOYEES_GRID);
-  const query = useEmployees(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
     "filter[fullName]": table.filters.fullName,
     "filter[email]": table.filters.email,
     "filter[status]": table.filters.status,
-  });
+  };
+  const query = useEmployees(tenant, exportParams);
 
   const columns: DataTableColumn<EmployeeListItem>[] = [
     {
@@ -164,6 +166,9 @@ export function EmployeesTable({ tenant, title }: { tenant: string; title: strin
         // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
         key={grid.layout ? "layout" : "default"}
         label={title}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="employees" params={exportParams} columns={columns} />
+        )}
         columns={laid.columns}
         initiallyHidden={grid.layout ? laid.hidden : []}
         rows={query.data?.items}

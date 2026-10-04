@@ -13,6 +13,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   minutesBetween,
@@ -36,12 +37,13 @@ export function SessionsPage({ tenant, label }: { tenant: string; label: string 
   const canRevoke = useCan("identity.sessions.revoke");
   const table = useTableState(["userName"] as const);
   const summary = useSessionSummary(tenant);
-  const sessions = useActiveSessions(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
     "filter[userName]": table.filters.userName,
-  });
+  };
+  const sessions = useActiveSessions(tenant, exportParams);
   const revoke = useRevokeSession(tenant);
   const date = (value: string) =>
     format.dateTime(new Date(value), { dateStyle: "short", timeStyle: "short" });
@@ -170,6 +172,9 @@ export function SessionsPage({ tenant, label }: { tenant: string; label: string 
       </div>
       <DataTable
         label={label}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="sessions" params={exportParams} columns={columns} />
+        )}
         columns={columns}
         initiallyHidden={["userAgent", "client"]}
         rows={sessions.data?.items}

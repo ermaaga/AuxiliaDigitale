@@ -1,0 +1,176 @@
+[
+ {
+  "key": "app.exports.queued",
+  "category": "app",
+  "en": "Many rows: the export is being prepared, you will be notified when it is ready.",
+  "it": "Molte righe: l'esportazione è in preparazione, riceverai una notifica quando è pronta."
+ },
+ {
+  "key": "app.exports.selected",
+  "category": "app",
+  "en": "Export the {count} selected rows",
+  "it": "Esporta le {count} righe selezionate"
+ },
+ {
+  "key": "app.exports.allRows",
+  "category": "app",
+  "en": "Export every row of the filters",
+  "it": "Esporta tutte le righe dei filtri"
+ },
+ {
+  "key": "app.exports.title",
+  "category": "app",
+  "en": "Exports",
+  "it": "Esportazioni"
+ },
+ {
+  "key": "app.exports.description",
+  "category": "app",
+  "en": "Large exports are prepared in the background and kept for 24 hours.",
+  "it": "Le esportazioni grandi si preparano in background e restano disponibili 24 ore."
+ },
+ {
+  "key": "app.exports.none",
+  "category": "app",
+  "en": "No exports in the last 24 hours.",
+  "it": "Nessuna esportazione nelle ultime 24 ore."
+ },
+ {
+  "key": "app.exports.rows",
+  "category": "app",
+  "en": "{count} rows",
+  "it": "{count} righe"
+ },
+ {
+  "key": "app.exports.status.Queued",
+  "category": "app",
+  "en": "Being prepared",
+  "it": "In preparazione"
+ },
+ {
+  "key": "app.exports.status.Ready",
+  "category": "app",
+  "en": "Ready",
+  "it": "Pronta"
+ },
+ {
+  "key": "app.exports.status.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Non riuscita"
+ },
+ {
+  "key": "app.exports.download",
+  "category": "app",
+  "en": "Download",
+  "it": "Scarica"
+ },
+ {
+  "key": "app.dashboard.figures",
+  "category": "app",
+  "en": "Key figures",
+  "it": "Indicatori"
+ },
+ {
+  "key": "app.dashboard.charts",
+  "category": "app",
+  "en": "Charts",
+  "it": "Grafici"
+ },
+ {
+  "key": "app.dashboard.lists",
+  "category": "app",
+  "en": "Lists",
+  "it": "Elenchi"
+ },
+ {
+  "key": "app.dashboard.period",
+  "category": "app",
+  "en": "Period",
+  "it": "Periodo"
+ },
+ {
+  "key": "app.dashboard.periods.week",
+  "category": "app",
+  "en": "Last 7 days",
+  "it": "Ultimi 7 giorni"
+ },
+ {
+  "key": "app.dashboard.periods.month",
+  "category": "app",
+  "en": "This month",
+  "it": "Questo mese"
+ },
+ {
+  "key": "app.dashboard.periods.year",
+  "category": "app",
+  "en": "This year",
+  "it": "Quest'anno"
+ },
+ {
+  "key": "app.dashboard.periods.all",
+  "category": "app",
+  "en": "All time",
+  "it": "Sempre"
+ },
+ {
+  "key": "app.dashboard.dueOn",
+  "category": "app",
+  "en": "Due on {date}",
+  "it": "Scade il {date}"
+ },
+ {
+  "key": "app.dashboard.noData",
+  "category": "app",
+  "en": "No data in this period.",
+  "it": "Nessun dato in questo periodo."
+ },
+ {
+  "key": "app.dashboard.nothing",
+  "category": "app",
+  "en": "Nothing here for now.",
+  "it": "Niente da mostrare per ora."
+ },
+ {
+  "key": "app.clients.overview.title",
+  "category": "app",
+  "en": "Clients overview",
+  "it": "Panoramica clienti"
+ },
+ {
+  "key": "app.clients.overview.select",
+  "category": "app",
+  "en": "Select",
+  "it": "Seleziona"
+ },
+ {
+  "key": "app.clients.overview.selectClient",
+  "category": "app",
+  "en": "Select {name}",
+  "it": "Seleziona {name}"
+ },
+ {
+  "key": "app.clients.overview.searchName",
+  "category": "app",
+  "en": "Name or surname",
+  "it": "Nome o cognome"
+ },
+ {
+  "key": "app.clients.overview.total",
+  "category": "app",
+  "en": "Total clients: {count}",
+  "it": "Totale clienti: {count}"
+ },
+ {
+  "key": "app.clients.overview.clearSelection",
+  "category": "app",
+  "en": "Clear the selection ({count})",
+  "it": "Annulla la selezione ({count})"
+ },
+ {
+  "key": "app.clients.overview.export",
+  "category": "app",
+  "en": "Export PDF",
+  "it": "Esporta PDF"
+ }
+]

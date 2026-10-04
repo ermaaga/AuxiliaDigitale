@@ -14,6 +14,7 @@ import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { tenantHref } from "@/lib/href";
 import { useCan, useHasRole } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import { CASE_STATUSES, formatMoney, useCases, type CaseListItem } from "../api";
 import { CASES_PERMISSIONS } from "../permissions";
@@ -58,7 +59,7 @@ export function CasesTable({
   );
   const table = useTableState(["clientName", "serviceName", "status"] as const);
   const grid = useGridLayout(tenant, CASES_GRID);
-  const query = useCases(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
@@ -69,7 +70,8 @@ export function CasesTable({
     "filter[serviceId]": serviceId,
     "filter[serviceName]": serviceId ? undefined : table.filters.serviceName,
     "filter[status]": table.filters.status,
-  });
+  };
+  const query = useCases(tenant, exportParams);
   const date = (value: string | null | undefined) =>
     value ? format.dateTime(new Date(value), { dateStyle: "medium" }) : "—";
 
@@ -199,6 +201,9 @@ export function CasesTable({
       <DataTable
         key={grid.layout ? "layout" : "default"}
         label={label}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="cases" params={exportParams} columns={columns} />
+        )}
         columns={laid.columns}
         initiallyHidden={grid.layout ? laid.hidden : ["specialization"]}
         rows={query.data?.items}

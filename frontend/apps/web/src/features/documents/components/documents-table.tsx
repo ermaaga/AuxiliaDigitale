@@ -18,6 +18,7 @@ import {
 } from "@auxilia/ui/components/select";
 
 import { useNotify } from "@/lib/notify";
+import { ExportMenu } from "@/features/exports";
 
 import {
   moveDocument,
@@ -67,7 +68,7 @@ export function DocumentsTable({
   const table = useTableState(["clientName", "fileName", "referenceYear", "areaId"] as const);
   const areas = useDocumentAreas(tenant);
   const year = table.filters.referenceYear ? Number(table.filters.referenceYear) : undefined;
-  const query = useDocuments(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
@@ -78,7 +79,8 @@ export function DocumentsTable({
     "filter[fileName]": table.filters.fileName,
     "filter[referenceYear]": Number.isInteger(year) ? year : undefined,
     "filter[areaId]": table.filters.areaId,
-  });
+  };
+  const query = useDocuments(tenant, exportParams);
 
   const columns: DataTableColumn<DocumentListItem>[] = [
     {
@@ -229,6 +231,9 @@ export function DocumentsTable({
     <>
       <DataTable
         label={label}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="documents" params={exportParams} columns={columns} />
+        )}
         columns={columns}
         initiallyHidden={["description", "size"]}
         rows={query.data?.items}
