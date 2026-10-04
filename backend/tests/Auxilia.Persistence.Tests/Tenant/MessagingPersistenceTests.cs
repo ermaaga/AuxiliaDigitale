@@ -32,7 +32,7 @@ public sealed class MessagingPersistenceTests(TenantDatabaseFixture database)
 
         await using var read = database.CreateContext();
         var templates = await read.Set<MessageTemplate>().AsNoTracking().ToListAsync(Ct);
-        templates.Count.ShouldBe(14);
+        templates.Count.ShouldBe(16);
         templates.GroupBy(item => item.Code).Select(group => string.Join(',', group.Select(item => item.Language).Order())).ShouldAllBe(languages => languages == "en,it");
         templates.Single(item => item.Code == "password-reset" && item.Language == "it").Subject.ShouldBe("Il nostro oggetto");
         templates.ShouldAllBe(item => item.IsSystem && item.Channel == MessageChannel.Email);
