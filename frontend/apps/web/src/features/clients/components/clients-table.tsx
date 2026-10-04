@@ -20,6 +20,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { UserAvatar } from "@/components/user-avatar";
 import { tenantHref } from "@/lib/href";
 import { useCan, useHasRole } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   clientName,
@@ -51,7 +52,7 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
   const table = useTableState(["fullName", "email", "userName", "phone", "status"] as const);
   const grid = useGridLayout(tenant, CLIENTS_GRID);
   const customFields = useClientCustomFields(tenant);
-  const query = useClients(tenant, {
+  const exportParams = {
     view,
     page: table.page,
     pageSize: table.pageSize,
@@ -61,7 +62,8 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
     "filter[userName]": table.filters.userName,
     "filter[phone]": table.filters.phone,
     "filter[status]": table.filters.status,
-  });
+  };
+  const query = useClients(tenant, exportParams);
 
   const columns: DataTableColumn<ClientListItem>[] = [
     {
@@ -194,6 +196,9 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
         // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
         key={grid.layout ? "layout" : "default"}
         label={title}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="clients" params={exportParams} columns={columns} />
+        )}
         columns={laid.columns}
         initiallyHidden={grid.layout ? laid.hidden : ["userName", "fiscalCode"]}
         rows={query.data?.items}

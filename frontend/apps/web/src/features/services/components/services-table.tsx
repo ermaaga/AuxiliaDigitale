@@ -24,6 +24,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { ExportMenu } from "@/features/exports";
 
 import {
   createService,
@@ -59,7 +60,7 @@ export function ServicesTable({ tenant, label }: { tenant: string; label: string
   const create = useServiceMutation(tenant, (values: ServiceOutput) =>
     createService(serviceBody(values)),
   );
-  const query = useServices(tenant, {
+  const exportParams = {
     page: table.page,
     pageSize: table.pageSize,
     sort: table.sort ?? undefined,
@@ -67,7 +68,8 @@ export function ServicesTable({ tenant, label }: { tenant: string; label: string
     "filter[categoryId]": table.filters.categoryId,
     "filter[active]":
       table.filters.active === undefined ? undefined : table.filters.active === "true",
-  });
+  };
+  const query = useServices(tenant, exportParams);
 
   const columns: DataTableColumn<Service>[] = [
     {
@@ -193,6 +195,9 @@ export function ServicesTable({ tenant, label }: { tenant: string; label: string
       <DataTable
         key={grid.layout ? "layout" : "default"}
         label={label}
+        exportMenu={(columns) => (
+          <ExportMenu tenant={tenant} source="services" params={exportParams} columns={columns} />
+        )}
         columns={laid.columns}
         initiallyHidden={grid.layout ? laid.hidden : ["description"]}
         rows={query.data?.items}

@@ -1,13 +1,13 @@
 # F07 — Clients overview + PDF
 
-Status: [~] backend done (B-22: `/exports/clients?format=pdf`), page B-24 · Tasks: B-22, B-24 
+Status: [x] done (B-22, B-24) · Tasks: B-22, B-24 
 
 ## Legacy behaviour
 - `Admin/ClientsOverview.razor` (`/admin/clients-overview`, not in sidebar). Loads all clients; collapsible filters: name contains, status (all/active/inactive), assigned employee; "Clear filters". Table: photo, client name, e-mail, phone, assigned employee (or "Not assigned"), status.
 - "Export PDF" → `DocumentService.GenerateClientsOverviewPdf(filteredIds)` (QuestPDF, A4): title "{AppName} - Clients Overview", generated date, "Total Clients: N", table Name/Email/Phone/Assigned Employee/Status, page X of Y. File `ClientsOverview_yyyyMMdd_HHmmss.pdf`.
 
 ## Acceptance criteria
-- [ ] Overview view reachable from `/clients` (and navigation) with filters name, status, assigned employee.
-- [ ] Export PDF of **all rows matching filters** with the same content (title with app/tenant name, date, total, 5 columns, page numbers), localized, generated server-side with PDFsharp-MigraDoc.
-- [ ] Multi-select rows → export only selected.
+- [x] Overview view reachable from `/clients` (and navigation) with filters name, status, assigned employee. *(`/clients/overview`)*
+- [x] Export PDF of **all rows matching filters** with the same content (title with app/tenant name, date, total, 5 columns, page numbers), localized, generated server-side with PDFsharp-MigraDoc.
+- [x] Multi-select rows → export only selected.
 - [x] Large exports run async and notify `ExportReady`. *(B-22)*

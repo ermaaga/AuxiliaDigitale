@@ -18,7 +18,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   Columns3Icon,
-  DownloadIcon,
   InboxIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -77,8 +76,8 @@ export type DataTableProps<TRow extends RowData> = {
   filtered?: boolean;
   /** Columns hidden at start (grid layout of the role, F21). */
   initiallyHidden?: readonly string[];
-  /** Export of the current filters (F26); the API export endpoints arrive with the lists that need them. */
-  onExport?: () => void;
+  /** Export of the current filters (F26): rendered with the ids of the visible columns (feature `exports`). */
+  exportMenu?: (visibleColumnIds: readonly string[]) => React.ReactNode;
   onRowClick?: (row: TRow) => void;
   /** A short list shown whole (e.g. the modules of a tenant): no page size and page buttons, the total stays. */
   hidePaging?: boolean;
@@ -127,11 +126,7 @@ export function DataTable<TRow extends RowData>(props: DataTableProps<TRow>) {
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-1 flex-wrap items-end gap-2">{props.toolbar}</div>
         <div className="flex items-center gap-2">
-          {props.onExport ? (
-            <Button type="button" variant="outline" size="sm" onClick={props.onExport}>
-              <DownloadIcon aria-hidden /> {t("common.table.export")}
-            </Button>
-          ) : null}
+          {props.exportMenu ? props.exportMenu(visible.map((column) => column.id)) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline" size="sm">
