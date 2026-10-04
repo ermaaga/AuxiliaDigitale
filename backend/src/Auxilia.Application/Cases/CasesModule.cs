@@ -66,6 +66,8 @@ public sealed class CasesModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, CaseExportSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, ServiceExportSource>());
         services.TryAddScoped<IServiceCatalogManager, ServiceCatalogManager>();
         services.TryAddScoped<IServiceCatalogQueryService, ServiceCatalogQueryService>();
         services.TryAddScoped<IServiceFolderManager, ServiceFolderManager>();

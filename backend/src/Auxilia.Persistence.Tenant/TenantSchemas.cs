@@ -15,5 +15,6 @@ public static class TenantSchemas
     public const string Configuration = "configuration";
     public const string Localization = "localization";
     public const string Audit = "audit";
+    public const string Reporting = "reporting";
     public const string Ops = "ops";
 }

@@ -56,6 +56,9 @@ public static class DependencyInjection
         services.AddOptions<AltchaOptions>();
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, NoCaptchaVerifier>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICaptchaVerifier, AltchaCaptchaVerifier>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.CsvExportWriter>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.XlsxExportWriter>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.PdfExportWriter>());
 
         // File storage of the documents (ARCHITECTURE §6): the provider is a tenant setting; local root from Storage:Local.
         services.AddOptions<LocalStorageOptions>();

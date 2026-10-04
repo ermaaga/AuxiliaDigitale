@@ -35,6 +35,8 @@
     <PackageVersion Include="FluentFTP" Version="55.0.0" />
     <PackageVersion Include="Ixnas.AltchaNet" Version="1.2.1" />
     <PackageVersion Include="MailKit" Version="4.18.1" />
+    <PackageVersion Include="ClosedXML" Version="0.105.1" />
+    <PackageVersion Include="PDFsharp-MigraDoc" Version="6.2.4" />
     <PackageVersion Include="SkiaSharp" Version="4.153.1" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
   </ItemGroup>

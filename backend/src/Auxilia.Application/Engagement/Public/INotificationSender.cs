@@ -4,9 +4,10 @@ namespace Auxilia.Application.Engagement.Public;
 
 /// <summary>
 /// A notification to send (F16): <paramref name="Kind"/> one of <see cref="NotificationKinds"/>, the record it is about
-/// and the values of its text placeholders.
+/// and the values of its text placeholders. <paramref name="IncludeActor"/>: also the acting user (e.g. their own
+/// export written by the Worker on their behalf).
 /// </summary>
-public sealed record NotificationMessage(string Kind, Guid? EntityId, IReadOnlyDictionary<string, string> Parameters);
+public sealed record NotificationMessage(string Kind, Guid? EntityId, IReadOnlyDictionary<string, string> Parameters, bool IncludeActor = false);
 
 /// <summary>
 /// Public API of the notifications (Engagement, F16) for the modules that produce them (appointments, requests,
