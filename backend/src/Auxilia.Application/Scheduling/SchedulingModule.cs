@@ -49,6 +49,7 @@ public sealed class SchedulingModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, AppointmentExportSource>());
         services.TryAddScoped<AppointmentAccessPolicy>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IResourceAccessPolicy<AppointmentResource>, AppointmentAccessPolicy>(
             provider => provider.GetRequiredService<AppointmentAccessPolicy>()));

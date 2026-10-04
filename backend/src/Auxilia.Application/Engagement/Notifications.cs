@@ -73,7 +73,7 @@ internal sealed class NotificationSender(
         _ = await operations.RunAsync(Operations.Notifications.SendNotifications, new { message.Kind, message.EntityId }, async scope =>
         {
             await using var store = await data.OpenAsync(cancellationToken);
-            var recipients = (await recipientsOf(store)).Where(recipient => recipient.UserId != currentUser.UserId).ToArray();
+            var recipients = (await recipientsOf(store)).Where(recipient => message.IncludeActor || recipient.UserId != currentUser.UserId).ToArray();
             if (recipients.Length == 0)
             {
                 return Result.Success();

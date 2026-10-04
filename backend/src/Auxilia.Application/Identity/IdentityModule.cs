@@ -49,6 +49,8 @@ public sealed class IdentityModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, LoginAttemptExportSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, ActiveSessionExportSource>());
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddScoped<IPasswordPolicy, PasswordPolicy>();

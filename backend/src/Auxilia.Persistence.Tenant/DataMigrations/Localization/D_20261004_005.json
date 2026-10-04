@@ -1,0 +1,110 @@
+[
+ {
+  "key": "app.exports.loginAttempts",
+  "category": "app",
+  "en": "Login audit",
+  "it": "Audit accessi"
+ },
+ {
+  "key": "app.exports.processedAt",
+  "category": "app",
+  "en": "Processed",
+  "it": "Gestita il"
+ },
+ {
+  "key": "app.exports.registrations",
+  "category": "app",
+  "en": "Registration requests",
+  "it": "Richieste di registrazione"
+ },
+ {
+  "key": "exports.generated",
+  "category": "exports",
+  "en": "{app} - generated on {date}",
+  "it": "{app} - generato il {date}"
+ },
+ {
+  "key": "exports.total",
+  "category": "exports",
+  "en": "Total: {count}",
+  "it": "Totale: {count}"
+ },
+ {
+  "key": "exports.page",
+  "category": "exports",
+  "en": "Page",
+  "it": "Pagina"
+ },
+ {
+  "key": "exports.of",
+  "category": "exports",
+  "en": "of",
+  "it": "di"
+ },
+ {
+  "key": "validation.exports.parameter",
+  "category": "validation",
+  "en": "This filter value is not valid.",
+  "it": "Il valore di questo filtro non è valido."
+ },
+ {
+  "key": "validation.exports.format",
+  "category": "validation",
+  "en": "Choose CSV, Excel or PDF.",
+  "it": "Scegli CSV, Excel o PDF."
+ },
+ {
+  "key": "validation.exports.columns",
+  "category": "validation",
+  "en": "Choose at least one column of the list.",
+  "it": "Scegli almeno una colonna dell'elenco."
+ },
+ {
+  "key": "validation.exports.ids",
+  "category": "validation",
+  "en": "The selected rows are not valid (at most 1000).",
+  "it": "Le righe selezionate non sono valide (al massimo 1000)."
+ },
+ {
+  "key": "validation.exports.tooLarge",
+  "category": "validation",
+  "en": "Too many rows to export: narrow the filters.",
+  "it": "Troppe righe da esportare: restringi i filtri."
+ },
+ {
+  "key": "errors.AUX-27004",
+  "category": "errors",
+  "en": "This list cannot be exported.",
+  "it": "Questo elenco non si può esportare."
+ },
+ {
+  "key": "errors.AUX-27007",
+  "category": "errors",
+  "en": "The export does not exist or has expired.",
+  "it": "L'esportazione non esiste o è scaduta."
+ },
+ {
+  "key": "errors.AUX-27008",
+  "category": "errors",
+  "en": "The export is not ready yet.",
+  "it": "L'esportazione non è ancora pronta."
+ },
+ {
+  "key": "notifications.export.ready.title",
+  "category": "notifications",
+  "en": "Export ready",
+  "it": "Esportazione pronta"
+ },
+ {
+  "key": "notifications.export.ready.message",
+  "category": "notifications",
+  "en": "{file} is ready to download for 24 hours.",
+  "it": "{file} è pronto da scaricare per 24 ore."
+ },
+ {
+  "key": "permissions.reporting.exports.use.description",
+  "category": "permissions",
+  "en": "Export the lists the user sees (CSV, Excel, PDF)",
+  "it": "Esportare gli elenchi visibili (CSV, Excel, PDF)"
+ }
+]

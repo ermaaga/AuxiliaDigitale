@@ -4,6 +4,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Reporting;
 
@@ -29,5 +30,7 @@ public sealed class ReportingModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddScoped<IExportManager, ExportManager>();
+        services.TryAddScoped<IExportQueryService, ExportQueryService>();
     }
 }

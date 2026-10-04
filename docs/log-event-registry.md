@@ -27,7 +27,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 22 | 25023 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
-| 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
+| 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
 | 29000–29999 | Security | Security events | 30 | 29031 |
 
@@ -352,6 +352,14 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |
 | AUX-26004 | Jobs.JobAlreadyRunning | – | Conflict | – | – |
+| AUX-27001 | Audit.ExportGenerated | – | – | Audit.ExportList (success) | – |
+| AUX-27002 | Audit.ExportQueued | – | – | Audit.QueueExport (success) | – |
+| AUX-27003 | Audit.ExportCompleted | – | – | Audit.GenerateExport (success) | – |
+| AUX-27004 | Audit.ExportSourceNotFound | – | NotFound | – | – |
+| AUX-27005 | Audit.ExportInvalid | – | Validation | – | – |
+| AUX-27006 | Audit.ExportTooLarge | – | Validation | – | – |
+| AUX-27007 | Audit.ExportNotFound | – | NotFound | – | – |
+| AUX-27008 | Audit.ExportNotReady | – | Conflict | – | – |
 | AUX-28001 | Runner.DataMigrationApplied | Information | – | – | Data-migration {Key} applied in {DurationMs} ms: {Description} |
 | AUX-28002 | Runner.DataMigrationFailed | Error | – | – | Data-migration {Key} failed |
 | AUX-28003 | Runner.CatalogMigrated | – | – | Runner.MigrateCatalog (success) | – |

@@ -8,6 +8,7 @@ using Auxilia.Api.Endpoints.Identity;
 using Auxilia.Api.Endpoints.Localization;
 using Auxilia.Api.Endpoints.Messaging;
 using Auxilia.Api.Endpoints.Platform;
+using Auxilia.Api.Endpoints.Reporting;
 using Auxilia.Api.Endpoints.Scheduling;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Modules;
@@ -87,6 +88,7 @@ builder.Services.AddSingleton<IModuleEndpoints, DocumentEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, AppointmentEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, RequestEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, NotificationEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, ExportEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 builder.Services.Configure<AltchaOptions>(builder.Configuration.GetSection(AltchaOptions.SectionName));

@@ -67,6 +67,9 @@ public sealed class DirectoryModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, ClientExportSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, EmployeeExportSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, RegistrationExportSource>());
         services.TryAddScoped<ISpecializationManager, SpecializationManager>();
         services.TryAddScoped<ISpecializationQueryService, SpecializationQueryService>();
         services.TryAddScoped<IClientManager, ClientManager>();

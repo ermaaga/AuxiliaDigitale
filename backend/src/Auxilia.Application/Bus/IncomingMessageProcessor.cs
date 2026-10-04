@@ -7,6 +7,7 @@ using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Execution;
 using Auxilia.Diagnostics;
 using Auxilia.SharedKernel.Results;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.Logging;
 
@@ -55,11 +56,17 @@ public sealed class MessageCurrentUser : ICurrentUser
 
     public Guid? UserId { get; private set; }
 
+    /// <summary>Empty unless a handler acts as the user with the roles the message carries (e.g. a queued export).</summary>
+    public IReadOnlyCollection<TenantRole> Roles { get; private set; } = [];
+
     public void Set(ActorType actorType, Guid? userId)
     {
         ActorType = actorType;
         UserId = userId;
     }
+
+    /// <summary>The roles of the user who caused the message, as the message carries them (trusted: it comes from the outbox).</summary>
+    public void SetRoles(IEnumerable<TenantRole> roles) => Roles = roles.ToArray();
 }
 
 /// <summary>

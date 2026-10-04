@@ -32,6 +32,7 @@ public sealed class DocumentsModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, DocumentExportSource>());
         services.TryAddScoped<Public.IFileStore, FileStore>();
         services.TryAddScoped<DocumentAccess>();
         services.TryAddScoped<IDocumentManager, DocumentManager>();

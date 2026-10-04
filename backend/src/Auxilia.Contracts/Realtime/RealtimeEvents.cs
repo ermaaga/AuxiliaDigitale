@@ -23,6 +23,9 @@ public static class RealtimeEvents
 
     /// <summary>A request the user takes part in changed (F15): new, replied or closed; never told to the actor.</summary>
     public const string RequestChanged = "RequestChanged";
+
+    /// <summary>A queued export of the user is ready (F26): download it from <c>/api/v1/exports/{id}/file</c>.</summary>
+    public const string ExportReady = "ExportReady";
 }
 
 /// <param name="Reason">Why the session ended: <c>Logout</c>, <c>SingleSession</c>, <c>SecurityStampChanged</c>, <c>RefreshTokenReuse</c>, <c>Revoked</c>.</param>
@@ -42,3 +45,5 @@ public sealed record RequestChangedEvent(Guid RequestId, string Change, string S
 
 /// <summary>The payload of <c>NotificationReceived</c> (F16): render it like the list item of the same id.</summary>
 public sealed record NotificationReceivedEvent(Guid Id, string Kind, IReadOnlyDictionary<string, string> Parameters, string? Link, DateTimeOffset CreatedAt);
+
+public sealed record ExportReadyEvent(Guid ExportId, string FileName);

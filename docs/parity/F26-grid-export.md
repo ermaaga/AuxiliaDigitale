@@ -1,6 +1,6 @@
 # F26 — Grid export
 
-Status: [ ] not started · Tasks: P3-07, B-22, B-24 · Quirks: Q38
+Status: [~] backend done (B-22), buttons B-24 · Tasks: P3-07, B-22, B-24 · Quirks: Q38
 
 ## Legacy behaviour
 - `DataGrid EnableExport`: buttons Excel (actually CSV, UTF-8, all values quoted) and PDF (A4 "{AppName} - {Title}", header row, footer date). Exports **current page only** (Q38). Enabled on Admin Subscriptions and Membership detail.
@@ -8,6 +8,6 @@ Status: [ ] not started · Tasks: P3-07, B-22, B-24 · Quirks: Q38
 
 ## Acceptance criteria
 - [ ] Every data table offers export CSV, Excel (ClosedXML) and PDF of **all rows matching current filters/sort**, visible columns, localized headers.
-- [ ] Same file naming convention; PDF title with tenant/app name and generation date.
-- [ ] Exports respect permissions and F10 visibility.
-- [ ] Above a row threshold export runs async with `ExportReady` notification and download link.
+- [x] Same file naming convention; PDF title with tenant/app name and generation date. *(B-22)*
+- [x] Exports respect permissions and F10 visibility. *(B-22: each list's own query service)*
+- [x] Above a row threshold export runs async with `ExportReady` notification and download link. *(B-22: > 2000 rows → Worker, notification `export.ready`; download page B-24)*
