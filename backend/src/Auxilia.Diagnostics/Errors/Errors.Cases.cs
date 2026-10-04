@@ -65,6 +65,12 @@ public static partial class Errors
         public static Error CaseClientHasNoEmail() =>
             Error.Conflict(EventCodes.Cases.CaseClientHasNoEmail, "The client of the case has no e-mail address");
 
+        public static Error ServiceChecklistInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Cases.ServiceChecklistInvalid, "The checklist is not valid", errors);
+
+        public static Error CaseChecklistItemNotFound() =>
+            Error.NotFound(EventCodes.Cases.CaseChecklistItemNotFound, "The item is not in the checklist of the case");
+
         public static Error ServiceFolderNameTaken() =>
             Error.Conflict(EventCodes.Cases.ServiceFolderNameTaken, "A folder with this name already exists here");
     }

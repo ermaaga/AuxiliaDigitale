@@ -293,6 +293,38 @@ internal sealed class CaseData(ITenantDbContext db) : ICaseData
                 .GroupBy(item => item.PersonId)
                 .ToDictionary(group => group.Key, group => group.First().Id);
 
+    public async Task<IReadOnlyList<CaseTimelineRow>> TimelineAsync(CaseScope scope, Guid clientId, DateTimeOffset? before, int take, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        // Anonymous projections: a record built by its constructor cannot be filtered or ordered in SQL.
+        var cases = Scoped(scope).Where(row => row.@case.ClientId == clientId);
+        var changes = cases.SelectMany(row => row.@case.History.Select(change => new
+        {
+            row.@case.Id, row.@case.Number, Service = row.service.Name, At = change.ChangedAt, change.FromStatus, change.ToStatus, row.@case.IsRejected, row.@case.Currency,
+            Actor = change.ChangedByUserId,
+        }));
+        var payments = cases.SelectMany(row => row.@case.Payments.Select(payment => new
+        {
+            row.@case.Id, row.@case.Number, Service = row.service.Name, At = payment.RecordedAt, payment.Amount, row.@case.Currency, Actor = payment.RecordedByUserId,
+        }));
+        if (before is { } instant)
+        {
+            changes = changes.Where(row => row.At < instant);
+            payments = payments.Where(row => row.At < instant);
+        }
+
+        var latestChanges = await changes.OrderByDescending(row => row.At).Take(take).ToListAsync(cancellationToken);
+        var latestPayments = await payments.OrderByDescending(row => row.At).Take(take).ToListAsync(cancellationToken);
+        return
+        [
+            .. latestChanges.Select(row => new CaseTimelineRow(row.Id, row.Number, row.Service, row.At, row.FromStatus, row.ToStatus, row.IsRejected, null, row.Currency, row.Actor))
+                .Concat(latestPayments.Select(row => new CaseTimelineRow(row.Id, row.Number, row.Service, row.At, null, null, false, row.Amount, row.Currency, row.Actor)))
+                .OrderByDescending(row => row.At)
+                .Take(take),
+        ];
+    }
+
     public void Add(Case @case) => db.Set<Case>().Add(@case);
 
     public void Remove(Case @case) => db.Set<Case>().Remove(@case);

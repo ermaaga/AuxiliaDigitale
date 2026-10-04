@@ -21,6 +21,10 @@ public sealed record CaseCaller(Guid? PersonId, IReadOnlySet<Guid> Specializatio
 /// Which cases a caller may see (F10, D-04), applied in the query: everything, the cases an employee may see (no
 /// specialization, a non-private one or one held), or the cases of one client. Nothing when none is set.
 /// </summary>
+/// <summary>A case event of the client timeline: a status change (<paramref name="ToStatus"/>) or a payment (<paramref name="Amount"/>).</summary>
+public sealed record CaseTimelineRow(
+    Guid CaseId, string Number, string ServiceName, DateTimeOffset At, CaseStatus? FromStatus, CaseStatus? ToStatus, bool IsRejected, decimal? Amount, string Currency, Guid? ActorUserId);
+
 public sealed record CaseScope(bool Everything, Guid? EmployeeUserId, Guid? ClientId)
 {
     public static readonly CaseScope None = new(false, null, null);
@@ -135,6 +139,12 @@ public interface ICaseData : IAsyncDisposable
 
     /// <summary>The user of each client person (clients without an account are missing).</summary>
     Task<IReadOnlyDictionary<Guid, Guid>> ClientUsersAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The status changes and payments of the client's cases the scope sees (F10), newest first, before an instant
+    /// (client timeline, B-26).
+    /// </summary>
+    Task<IReadOnlyList<CaseTimelineRow>> TimelineAsync(CaseScope scope, Guid clientId, DateTimeOffset? before, int take, CancellationToken cancellationToken);
 
     void Add(Case @case);
 

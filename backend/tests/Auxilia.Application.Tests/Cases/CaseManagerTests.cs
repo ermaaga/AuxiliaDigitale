@@ -33,6 +33,7 @@ public sealed class CaseManagerTests : IAsyncDisposable
     private static readonly Guid Public = Guid.CreateVersion7();
 
     private readonly InMemoryCases data = new();
+    private readonly InMemoryChecklists checklists = new();
     private readonly IClientDirectory clients = Substitute.For<IClientDirectory>();
     private readonly ICustomFieldValidator customFields = Substitute.For<ICustomFieldValidator>();
     private readonly IAccessGuard guard = Substitute.For<IAccessGuard>();
@@ -74,8 +75,8 @@ public sealed class CaseManagerTests : IAsyncDisposable
             await policy.CanAccessAsync(call.ArgAt<CaseResource>(1), call.ArgAt<string>(0), call.ArgAt<CancellationToken>(2))
                 ? Result.Success()
                 : Result.Failure(Errors.Identity.PermissionDenied()));
-        manager = new CaseManager(ManagerHarness.Runner(), data, clients, customFields, guard, policy, caller, accounts, messages, clock);
-        query = new CaseQueryService(data, policy, permissions, clock);
+        manager = new CaseManager(ManagerHarness.Runner(), data, clients, customFields, guard, policy, caller, accounts, messages, checklists, clock);
+        query = new CaseQueryService(data, policy, permissions, checklists, clock);
     }
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
@@ -259,12 +260,12 @@ public sealed class CaseManagerTests : IAsyncDisposable
             .ShouldBe((false, true, "rossi", (CaseStatus?)CaseStatus.Sent, CaseSort.AmountPaid, true, 10));
 
         CallAs(ClientUser, TenantRole.Client);
-        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, clock)
+        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, checklists, clock)
             .ListAsync(new CaseListQuery(null, null, null, null, null, null, null, null, 1, 25), Ct);
         data.LastFilter!.Scope.ShouldBe(new CaseScope(false, null, Client));
 
         caller.Roles.Returns([]);
-        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, clock)
+        await new CaseQueryService(data, new CaseAccessPolicy(caller, data), permissions, checklists, clock)
             .ListAsync(new CaseListQuery(null, null, null, null, null, null, null, null, 1, 25), Ct);
         data.LastFilter!.Scope.ShouldBe(CaseScope.None);
     }
@@ -404,6 +405,16 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
         Task.FromResult(Cases.Any(@case => !Deleted.Contains(@case.Id) && @case.ClientId == clientId
             && Case.CountsAsOpen(@case.IsActive, @case.Status, @case.ExpiresOn, today)));
 
+    public List<CaseTimelineRow> Timeline { get; } = [];
+
+    public CaseScope? LastTimelineScope { get; private set; }
+
+    public Task<IReadOnlyList<CaseTimelineRow>> TimelineAsync(CaseScope scope, Guid clientId, DateTimeOffset? before, int take, CancellationToken cancellationToken)
+    {
+        LastTimelineScope = scope;
+        return Task.FromResult<IReadOnlyList<CaseTimelineRow>>([.. Timeline.Where(row => before is null || row.At < before).OrderByDescending(row => row.At).Take(take)]);
+    }
+
     /// <summary>Client person → user.</summary>
     public Dictionary<Guid, Guid> ClientUsers { get; } = [];
 
@@ -421,6 +432,45 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
     public void Add(Case @case) => Cases.Add(@case);
 
     public void Remove(Case @case) => Deleted.Add(@case.Id);
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+}
+
+/// <summary>Checklists in memory.</summary>
+internal sealed class InMemoryChecklists : IChecklistDataFactory, IChecklistData
+{
+    public List<ServiceChecklistItem> Items { get; } = [];
+
+    public List<CaseChecklistMark> Marks { get; } = [];
+
+    public Task<IChecklistData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<IChecklistData>(this);
+
+    public Task<IReadOnlyList<ServiceChecklistItem>> ItemsAsync(Guid serviceId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<ServiceChecklistItem>>([.. Items.Where(item => item.ServiceId == serviceId).OrderBy(item => item.Order)]);
+
+    public Task<IReadOnlyList<CaseChecklistRow>> OfCaseAsync(Guid caseId, Guid serviceId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<CaseChecklistRow>>([.. Items.Where(item => item.ServiceId == serviceId).OrderBy(item => item.Order).Select(item =>
+        {
+            var mark = Marks.SingleOrDefault(mark => mark.CaseId == caseId && mark.ItemId == item.Id);
+            return new CaseChecklistRow(item.Id, item.Name, item.FolderId, item.IsRequired, mark?.CheckedAt, mark?.CheckedByUserId);
+        })]);
+
+    public Task<CaseChecklistMark?> FindMarkAsync(Guid caseId, Guid itemId, CancellationToken cancellationToken) =>
+        Task.FromResult(Marks.SingleOrDefault(mark => mark.CaseId == caseId && mark.ItemId == itemId));
+
+    public void Add(ServiceChecklistItem item) => Items.Add(item);
+
+    public void Remove(ServiceChecklistItem item)
+    {
+        Items.Remove(item);
+        Marks.RemoveAll(mark => mark.ItemId == item.Id);
+    }
+
+    public void Add(CaseChecklistMark mark) => Marks.Add(mark);
+
+    public void Remove(CaseChecklistMark mark) => Marks.Remove(mark);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

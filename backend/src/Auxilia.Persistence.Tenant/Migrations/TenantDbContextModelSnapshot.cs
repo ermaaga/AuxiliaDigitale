@@ -162,6 +162,36 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Cases.CaseChecklistMark", b =>
+                {
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("item_id");
+
+                    b.Property<DateTimeOffset>("CheckedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("checked_at");
+
+                    b.Property<Guid?>("CheckedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("checked_by_user_id");
+
+                    b.HasKey("CaseId", "ItemId")
+                        .HasName("pk_case_checklist_marks");
+
+                    b.HasIndex("CheckedByUserId")
+                        .HasDatabaseName("ix_case_checklist_marks_checked_by_user_id");
+
+                    b.HasIndex("ItemId")
+                        .HasDatabaseName("ix_case_checklist_marks_item_id");
+
+                    b.ToTable("case_checklist_marks", "cases");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Cases.Service", b =>
                 {
                     b.Property<Guid>("Id")
@@ -317,6 +347,68 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasFilter("is_active");
 
                     b.ToTable("service_categories", "cases");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Cases.ServiceChecklistItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("FolderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("folder_id");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_required");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("service_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_service_checklist_items");
+
+                    b.HasIndex("FolderId")
+                        .HasDatabaseName("ix_service_checklist_items_folder_id");
+
+                    b.HasIndex("ServiceId", "Order")
+                        .HasDatabaseName("ix_service_checklist_items_service_id_order");
+
+                    b.ToTable("service_checklist_items", "cases");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Cases.ServiceFolder", b =>
@@ -1283,6 +1375,73 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("document_areas", "documents");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Engagement.ClientActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuthorUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_user_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_activities");
+
+                    b.HasIndex("AuthorUserId")
+                        .HasDatabaseName("ix_activities_author_user_id");
+
+                    b.HasIndex("ClientId", "OccurredAt")
+                        .HasDatabaseName("ix_activities_client_id_occurred_at");
+
+                    b.ToTable("activities", "engagement", t =>
+                        {
+                            t.HasCheckConstraint("ck_activities_kind", "kind IN ('Note', 'Call', 'Meeting', 'Email')");
+                        });
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Engagement.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1469,6 +1628,117 @@ namespace Auxilia.Persistence.Tenant.Migrations
                             t.HasCheckConstraint("ck_requests_status", "status IN ('Pending', 'Responded', 'Closed')");
 
                             t.HasCheckConstraint("ck_requests_type", "type IN ('Information', 'General', 'Support', 'Appointment')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Engagement.TaskItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssigneeUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignee_user_id");
+
+                    b.Property<Guid?>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<Guid?>("CompletedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("completed_by_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateOnly?>("DueOn")
+                        .HasColumnType("date")
+                        .HasColumnName("due_on");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tasks");
+
+                    b.HasIndex("CaseId")
+                        .HasDatabaseName("ix_tasks_case_id");
+
+                    b.HasIndex("CompletedByUserId")
+                        .HasDatabaseName("ix_tasks_completed_by_user_id");
+
+                    b.HasIndex("CreatedByUserId")
+                        .HasDatabaseName("ix_tasks_created_by_user_id");
+
+                    b.HasIndex("ClientId", "CreatedAt")
+                        .HasDatabaseName("ix_tasks_client_id_created_at");
+
+                    b.HasIndex("AssigneeUserId", "Status", "DueOn")
+                        .HasDatabaseName("ix_tasks_assignee_user_id_status_due_on");
+
+                    b.ToTable("tasks", "engagement", t =>
+                        {
+                            t.HasCheckConstraint("ck_tasks_status", "status IN ('Open', 'Done')");
                         });
                 });
 
@@ -3230,6 +3500,29 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.Navigation("Payments");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Cases.CaseChecklistMark", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Cases.Case", null)
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_case_checklist_marks_case_case_id");
+
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CheckedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_case_checklist_marks_user_checked_by_user_id");
+
+                    b.HasOne("Auxilia.Domain.Cases.ServiceChecklistItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_case_checklist_marks_service_checklist_item_item_id");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Cases.Service", b =>
                 {
                     b.HasOne("Auxilia.Domain.Cases.ServiceCategory", null)
@@ -3243,6 +3536,22 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasForeignKey("SpecializationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_services_specialization_specialization_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Cases.ServiceChecklistItem", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Cases.ServiceFolder", null)
+                        .WithMany()
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_service_checklist_items_service_folder_folder_id");
+
+                    b.HasOne("Auxilia.Domain.Cases.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_service_checklist_items_service_service_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Cases.ServiceFolder", b =>
@@ -3468,6 +3777,23 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasConstraintName("fk_documents_user_uploaded_by_user_id");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Engagement.ClientActivity", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_activities_user_author_user_id");
+
+                    b.HasOne("Auxilia.Domain.Directory.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_activities_people_client_id");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Engagement.Notification", b =>
                 {
                     b.HasOne("Auxilia.Domain.Identity.User", null)
@@ -3562,6 +3888,41 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
 
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Engagement.TaskItem", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("AssigneeUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_tasks_user_assignee_user_id");
+
+                    b.HasOne("Auxilia.Domain.Cases.Case", null)
+                        .WithMany()
+                        .HasForeignKey("CaseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_tasks_cases_case_id");
+
+                    b.HasOne("Auxilia.Domain.Directory.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_tasks_people_client_id");
+
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CompletedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_tasks_user_completed_by_user_id");
+
+                    b.HasOne("Auxilia.Domain.Identity.User", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_tasks_user_created_by_user_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Identity.RefreshSession", b =>

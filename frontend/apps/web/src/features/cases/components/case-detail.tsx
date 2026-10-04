@@ -1,9 +1,17 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { isApiError } from "@auxilia/api-client";
-import { ArrowLeftIcon, ArrowRightIcon, MailIcon, Trash2Icon, Undo2Icon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ListChecksIcon,
+  MailIcon,
+  Trash2Icon,
+  Undo2Icon,
+} from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@auxilia/ui/components/alert";
 import { Badge } from "@auxilia/ui/components/badge";
@@ -13,8 +21,10 @@ import { Skeleton } from "@auxilia/ui/components/skeleton";
 
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
+import { TaskDialog, TASKS_PERMISSIONS } from "@/features/tasks";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { useCan } from "@/lib/permissions";
 
 import {
   advanceCase,
@@ -26,6 +36,7 @@ import {
   useCaseMutation,
   type CaseDetail as Detail,
 } from "../api";
+import { CaseChecklist } from "./case-checklist";
 import { CaseDocuments } from "./case-documents";
 import { CasePayments } from "./case-payments";
 import { CaseStatusBadge } from "./case-status-badge";
@@ -49,6 +60,8 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
   const back = useCaseMutation(tenant, () => moveCaseBack(id));
   const remove = useCaseMutation(tenant, () => deleteCase(id));
   const remind = useCaseMutation(tenant, () => sendExpiryReminder(id));
+  const canCreateTask = useCan(TASKS_PERMISSIONS.manage);
+  const [creatingTask, setCreatingTask] = React.useState(false);
   const backLink = (
     <Button variant="ghost" size="sm" className="self-start" asChild>
       <Link href={tenantHref(tenant, "/cases")}>
@@ -160,6 +173,11 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {canCreateTask ? (
+            <Button type="button" variant="outline" onClick={() => setCreatingTask(true)}>
+              <ListChecksIcon aria-hidden /> {t("app.tasks.new")}
+            </Button>
+          ) : null}
           {canRemind ? (
             <Button type="button" variant="outline" onClick={() => void onRemind()} disabled={busy}>
               <MailIcon aria-hidden /> {t("app.cases.expiryReminder")}
@@ -197,6 +215,20 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
       ) : null}
 
       <StatusContent tenant={tenant} value={value} />
+      <CaseChecklist tenant={tenant} value={value} />
+      {creatingTask ? (
+        <TaskDialog
+          tenant={tenant}
+          context={{
+            clientId: value.client.id,
+            clientName: value.client.fullName,
+            caseId: value.id,
+            caseNumber: value.number,
+          }}
+          open
+          onOpenChange={setCreatingTask}
+        />
+      ) : null}
       <div className="grid gap-4 lg:grid-cols-2">
         <CasePayments tenant={tenant} value={value} />
         <CaseTimeline value={value} />

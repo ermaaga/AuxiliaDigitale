@@ -29,14 +29,15 @@ internal sealed class ImportData(ITenantDbContext db) : IImportData
 
     public async Task<(IReadOnlyList<ImportJobListRow> Items, int Total)> JobsAsync(int page, int pageSize, CancellationToken cancellationToken)
     {
-        var jobs = Rows();
+        var jobs = db.Set<ImportJob>().AsNoTracking();
         var total = await jobs.CountAsync(cancellationToken);
-        var items = await jobs.OrderByDescending(job => job.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(cancellationToken);
+        var items = await Rows(jobs.OrderByDescending(job => job.CreatedAt).ThenBy(job => job.Id).Skip((page - 1) * pageSize).Take(pageSize))
+            .ToListAsync(cancellationToken);
         return (items, total);
     }
 
     public Task<ImportJobListRow?> JobAsync(Guid id, CancellationToken cancellationToken) =>
-        Rows().SingleOrDefaultAsync(job => job.Id == id, cancellationToken);
+        Rows(db.Set<ImportJob>().AsNoTracking().Where(job => job.Id == id)).SingleOrDefaultAsync(cancellationToken);
 
     public Task<ImportJob?> FindJobAsync(Guid id, CancellationToken cancellationToken) =>
         db.Set<ImportJob>().SingleOrDefaultAsync(job => job.Id == id, cancellationToken);
@@ -81,8 +82,9 @@ internal sealed class ImportData(ITenantDbContext db) : IImportData
 
     public ValueTask DisposeAsync() => db.DisposeAsync();
 
-    private IQueryable<ImportJobListRow> Rows() =>
-        from job in db.Set<ImportJob>().AsNoTracking()
+    /// <summary>Filter and order the jobs before: a projected record cannot be filtered in SQL.</summary>
+    private IQueryable<ImportJobListRow> Rows(IQueryable<ImportJob> jobs) =>
+        from job in jobs
         join type in db.Set<ImportType>() on job.ImportTypeId equals type.Id
         select new ImportJobListRow(
             job.Id, type.Id, type.Name, type.TargetEntity, job.Name, job.FileName, job.Status, job.TotalRows, job.ProcessedRows,

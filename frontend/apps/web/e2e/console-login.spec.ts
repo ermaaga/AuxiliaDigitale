@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { expect, test, type Page } from "@playwright/test";
 
 import { E2E, required } from "./support/env";
@@ -676,7 +678,12 @@ test("console journey of a System user", async ({ page }) => {
       .click();
     const template = await downloading;
     expect(template.suggestedFilename()).toMatch(/_template\.xlsx$/);
-    const file = await template.path();
+    // The download is saved under a random name: upload it with its own (.xlsx).
+    const file = {
+      name: template.suggestedFilename(),
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      buffer: await readFile(await template.path()),
+    };
 
     // No Worker in the E2E run: the upload waits for validation.
     const importName = `Import E2E ${Date.now().toString(36)}`;

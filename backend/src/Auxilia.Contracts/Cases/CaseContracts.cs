@@ -71,7 +71,11 @@ public sealed record CaseResponse(
     IReadOnlyList<CaseStatusChangeResponse> History,
     IReadOnlyList<CasePaymentResponse> Payments,
     bool CanManage,
-    bool CanDelete);
+    bool CanDelete,
+    IReadOnlyList<CaseChecklistItemResponse> Checklist);
+
+/// <summary>An item of the document checklist of the case's service (B-26): ticked when the case has it.</summary>
+public sealed record CaseChecklistItemResponse(Guid ItemId, string Name, Guid? FolderId, bool Required, DateTimeOffset? CheckedAt, CaseUserResponse? CheckedBy);
 
 /// <summary>
 /// A row of the case lists (F09): <c>validity</c> is what clients see — <c>Active</c>, <c>Expired</c> (expiry date

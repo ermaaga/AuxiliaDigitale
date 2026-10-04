@@ -14,10 +14,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 70 | 12071 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
-| 14000–14999 | Cases | Cases (services, cases, payments) | 37 | 14038 |
+| 14000–14999 | Cases | Cases (services, cases, payments) | 41 | 14042 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
-| 17000–17999 | Requests | Engagement: requests | 7 | 17008 |
+| 17000–17999 | Requests | Engagement: requests, tasks, activities | 18 | 17019 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
@@ -232,6 +232,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-14035 | Cases.CaseHasNoEndDate | – | Conflict | – | – |
 | AUX-14036 | Cases.CaseClientHasNoEmail | – | Conflict | – | – |
 | AUX-14037 | Cases.CasesExpiryRun | – | – | Cases.RunCasesExpiry (success) | – |
+| AUX-14038 | Cases.ServiceChecklistSaved | – | – | Cases.SaveServiceChecklist (success) | – |
+| AUX-14039 | Cases.ServiceChecklistInvalid | – | Validation | – | – |
+| AUX-14040 | Cases.CaseChecklistMarked | – | – | Cases.MarkCaseChecklist (success) | – |
+| AUX-14041 | Cases.CaseChecklistItemNotFound | – | NotFound | – | – |
 | AUX-15001 | Scheduling.AppointmentScheduled | – | – | Scheduling.ScheduleAppointment (success) | – |
 | AUX-15002 | Scheduling.AppointmentRequested | – | – | Scheduling.RequestAppointment (success) | – |
 | AUX-15003 | Scheduling.AppointmentUpdated | – | – | Scheduling.UpdateAppointment (success) | – |
@@ -275,6 +279,17 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-17005 | Requests.RequestInvalid | – | Validation | – | – |
 | AUX-17006 | Requests.RequestNotFound | – | NotFound | – | – |
 | AUX-17007 | Requests.RequestIsClosed | – | Conflict | – | – |
+| AUX-17008 | Requests.TaskCreated | – | – | Requests.CreateTask (success) | – |
+| AUX-17009 | Requests.TaskUpdated | – | – | Requests.UpdateTask (success) | – |
+| AUX-17010 | Requests.TaskCompleted | – | – | Requests.CompleteTask (success) | – |
+| AUX-17011 | Requests.TaskReopened | – | – | Requests.ReopenTask (success) | – |
+| AUX-17012 | Requests.TaskDeleted | – | – | Requests.DeleteTask (success) | – |
+| AUX-17013 | Requests.TaskInvalid | – | Validation | – | – |
+| AUX-17014 | Requests.TaskNotFound | – | NotFound | – | – |
+| AUX-17015 | Requests.ActivityAdded | – | – | Requests.AddActivity (success) | – |
+| AUX-17016 | Requests.ActivityDeleted | – | – | Requests.DeleteActivity (success) | – |
+| AUX-17017 | Requests.ActivityInvalid | – | Validation | – | – |
+| AUX-17018 | Requests.ActivityNotFound | – | NotFound | – | – |
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
