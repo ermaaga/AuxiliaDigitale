@@ -109,3 +109,42 @@ export function FilterSelect({
     </div>
   );
 }
+
+/** A day filter of a table toolbar (`YYYY-MM-DD` in the URL); empty = no filter. */
+export function DateFilter({
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string | undefined;
+  onChange: (value: string | undefined) => void;
+}) {
+  return (
+    <div className="flex min-w-36 flex-col gap-1">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type="date"
+        value={value ?? ""}
+        onChange={(event) => onChange(event.target.value || undefined)}
+      />
+    </div>
+  );
+}
+
+/** The instant a local day starts (`from`) or the next one starts (`to`, exclusive end), for date-range filters. */
+export function dayBoundary(day: string | undefined, edge: "from" | "to"): string | undefined {
+  if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    return undefined;
+  }
+
+  const start = new Date(`${day}T00:00:00`);
+  if (edge === "to") {
+    start.setDate(start.getDate() + 1);
+  }
+
+  return start.toISOString();
+}
