@@ -1,0 +1,164 @@
+[
+ {
+  "key": "notifications.appointment.scheduled.title",
+  "category": "notifications",
+  "en": "New appointment",
+  "it": "Nuovo appuntamento"
+ },
+ {
+  "key": "notifications.appointment.scheduled.message",
+  "category": "notifications",
+  "en": "Appointment on {when} with {employee}.",
+  "it": "Appuntamento il {when} con {employee}."
+ },
+ {
+  "key": "notifications.appointment.requested.title",
+  "category": "notifications",
+  "en": "New appointment request",
+  "it": "Nuova richiesta di appuntamento"
+ },
+ {
+  "key": "notifications.appointment.requested.message",
+  "category": "notifications",
+  "en": "{client} asks for an appointment on {when}.",
+  "it": "{client} chiede un appuntamento il {when}."
+ },
+ {
+  "key": "notifications.appointment.updated.title",
+  "category": "notifications",
+  "en": "Appointment changed",
+  "it": "Appuntamento modificato"
+ },
+ {
+  "key": "notifications.appointment.updated.message",
+  "category": "notifications",
+  "en": "The appointment is now on {when}.",
+  "it": "L'appuntamento ora è il {when}."
+ },
+ {
+  "key": "notifications.appointment.approved.title",
+  "category": "notifications",
+  "en": "Appointment approved",
+  "it": "Appuntamento approvato"
+ },
+ {
+  "key": "notifications.appointment.approved.message",
+  "category": "notifications",
+  "en": "Your appointment on {when} has been approved.",
+  "it": "Il tuo appuntamento del {when} è stato approvato."
+ },
+ {
+  "key": "notifications.appointment.rejected.title",
+  "category": "notifications",
+  "en": "Appointment rejected",
+  "it": "Appuntamento rifiutato"
+ },
+ {
+  "key": "notifications.appointment.rejected.message",
+  "category": "notifications",
+  "en": "Your appointment on {when} has been rejected.",
+  "it": "Il tuo appuntamento del {when} è stato rifiutato."
+ },
+ {
+  "key": "notifications.appointment.completed.title",
+  "category": "notifications",
+  "en": "Appointment completed",
+  "it": "Appuntamento completato"
+ },
+ {
+  "key": "notifications.appointment.completed.message",
+  "category": "notifications",
+  "en": "The appointment on {when} is completed.",
+  "it": "L'appuntamento del {when} è completato."
+ },
+ {
+  "key": "notifications.appointment.cancelled.title",
+  "category": "notifications",
+  "en": "Appointment cancelled",
+  "it": "Appuntamento annullato"
+ },
+ {
+  "key": "notifications.appointment.cancelled.message",
+  "category": "notifications",
+  "en": "The appointment on {when} has been cancelled.",
+  "it": "L'appuntamento del {when} è stato annullato."
+ },
+ {
+  "key": "notifications.appointment.deleted.title",
+  "category": "notifications",
+  "en": "Appointment deleted",
+  "it": "Appuntamento eliminato"
+ },
+ {
+  "key": "notifications.appointment.deleted.message",
+  "category": "notifications",
+  "en": "The appointment on {when} has been deleted.",
+  "it": "L'appuntamento del {when} è stato eliminato."
+ },
+ {
+  "key": "notifications.request.created.title",
+  "category": "notifications",
+  "en": "New request",
+  "it": "Nuova richiesta"
+ },
+ {
+  "key": "notifications.request.created.message",
+  "category": "notifications",
+  "en": "{name} sent the request \"{subject}\".",
+  "it": "{name} ha inviato la richiesta \"{subject}\"."
+ },
+ {
+  "key": "notifications.request.replied.title",
+  "category": "notifications",
+  "en": "New reply",
+  "it": "Nuova risposta"
+ },
+ {
+  "key": "notifications.request.replied.message",
+  "category": "notifications",
+  "en": "{name} replied to \"{subject}\".",
+  "it": "{name} ha risposto a \"{subject}\"."
+ },
+ {
+  "key": "notifications.request.closed.title",
+  "category": "notifications",
+  "en": "Request closed",
+  "it": "Richiesta chiusa"
+ },
+ {
+  "key": "notifications.request.closed.message",
+  "category": "notifications",
+  "en": "{name} closed \"{subject}\".",
+  "it": "{name} ha chiuso \"{subject}\"."
+ },
+ {
+  "key": "notifications.registration.requested.title",
+  "category": "notifications",
+  "en": "New registration",
+  "it": "Nuova registrazione"
+ },
+ {
+  "key": "notifications.registration.requested.message",
+  "category": "notifications",
+  "en": "{name} asked to register.",
+  "it": "{name} ha chiesto di registrarsi."
+ },
+ {
+  "key": "permissions.engagement.notifications.view.description",
+  "category": "permissions",
+  "en": "Own notifications and notification preferences",
+  "it": "Notifiche personali e preferenze di notifica"
+ },
+ {
+  "key": "validation.notifications.kind",
+  "category": "validation",
+  "en": "Each kind of notification once, among the known ones.",
+  "it": "Ogni tipo di notifica una sola volta, tra quelli previsti."
+ },
+ {
+  "key": "errors.AUX-18009",
+  "category": "errors",
+  "en": "The notification does not exist or has been deleted.",
+  "it": "La notifica non esiste o è stata eliminata."
+ }
+]

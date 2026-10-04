@@ -11,6 +11,9 @@ public static class MessageTemplates
     public const string RequestReply = "request-reply";
     public const string AccountTest = "account-test";
 
+    /// <summary>A notification by e-mail (F16): <c>title</c>, <c>message</c> (already in the recipient's language) and <c>link</c>.</summary>
+    public const string Notification = "notification";
+
     /// <summary>Language of last resort when neither the recipient's nor the tenant's language has the template.</summary>
     public const string FallbackLanguage = "en";
 }

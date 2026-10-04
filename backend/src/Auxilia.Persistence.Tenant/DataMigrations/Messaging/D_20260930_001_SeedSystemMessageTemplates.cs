@@ -71,5 +71,9 @@ internal static class SystemEmailTemplates
             "<p>This is a test message sent through the account \"{{ accountName }}\" of {{ tenantName }}. If you received it, the account works.</p>"),
         ("account-test", "it", "Messaggio di prova da {{ accountName }}",
             "<p>Questo è un messaggio di prova inviato tramite l'account \"{{ accountName }}\" di {{ tenantName }}. Se lo hai ricevuto, l'account funziona.</p>"),
+        ("notification", "en", "{{ title }}",
+            "<p>{{ message }}</p><p><a href=\"{{ link }}\">Open {{ appName }}</a></p><p>You receive this e-mail because of your notification preferences; change them in your profile.</p>"),
+        ("notification", "it", "{{ title }}",
+            "<p>{{ message }}</p><p><a href=\"{{ link }}\">Apri {{ appName }}</a></p><p>Ricevi questa e-mail per le tue preferenze di notifica; puoi cambiarle nel tuo profilo.</p>"),
     ];
 }

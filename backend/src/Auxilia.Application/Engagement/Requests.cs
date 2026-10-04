@@ -3,6 +3,7 @@ using Auxilia.Application.Abstractions.Engagement;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Directory.Public;
+using Auxilia.Application.Engagement.Public;
 using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Engagement;
 using Auxilia.Contracts.Realtime;
@@ -71,6 +72,7 @@ internal sealed class RequestManager(
     IAccessGuard guard,
     RequestAccessPolicy policy,
     IRealtimeNotifier notifier,
+    INotificationSender notifications,
     TimeProvider clock) : IRequestManager
 {
     public Task<Result<Guid>> CreateAsync(CreateRequestRequest request, CancellationToken cancellationToken)
@@ -108,7 +110,7 @@ internal sealed class RequestManager(
             store.Add(opened.Value);
             await store.SaveChangesAsync(cancellationToken);
             scope.SetEntity(nameof(Request), opened.Value.Id);
-            Tell(scope, opened.Value, "Created", fromSender: true);
+            await TellAsync(scope, store, opened.Value, "Created", fromSender: true, cancellationToken);
             return opened.Value.Id;
         }, cancellationToken);
     }
@@ -173,33 +175,49 @@ internal sealed class RequestManager(
             }
 
             await store.SaveChangesAsync(cancellationToken);
-            Tell(scope, loaded, change, fromSender: me == loaded.SenderUserId);
+            await TellAsync(scope, store, loaded, change, fromSender: me == loaded.SenderUserId, cancellationToken);
             return Result.Success();
         }, cancellationToken);
 
     /// <summary>
-    /// The other party hears of the change after the commit: from the sender → the employee asked or every
-    /// Administrator (office); from anybody else → the sender. Never the actor.
+    /// The other party hears of the change (a notification, F16, and the realtime <c>RequestChanged</c> after the
+    /// commit): from the sender → the employee asked or every Administrator (office); from anybody else → the sender.
+    /// Never the actor.
     /// </summary>
-    private void Tell(IOperationScope scope, Request request, string change, bool fromSender)
+    private async Task TellAsync(IOperationScope scope, IRequestData store, Request request, string change, bool fromSender, CancellationToken cancellationToken)
     {
         var pushed = new RequestChangedEvent(request.Id, change, request.Subject);
+        var actorName = policy.Me is { } me ? (await store.UserNamesAsync([me], cancellationToken)).GetValueOrDefault(me, string.Empty) : string.Empty;
+        var message = new NotificationMessage(
+            Kinds[change],
+            request.Id,
+            new Dictionary<string, string>(StringComparer.Ordinal) { ["subject"] = request.Subject, ["name"] = actorName });
         if (!fromSender)
         {
             if (request.SenderUserId != policy.Me)
             {
                 scope.OnCommitted(ct => notifier.ToUserAsync(request.SenderUserId, RealtimeEvents.RequestChanged, pushed, ct));
+                await notifications.NotifyUsersAsync([request.SenderUserId], message, cancellationToken);
             }
         }
         else if (request.RecipientUserId is { } recipient)
         {
             scope.OnCommitted(ct => notifier.ToUserAsync(recipient, RealtimeEvents.RequestChanged, pushed, ct));
+            await notifications.NotifyUsersAsync([recipient], message, cancellationToken);
         }
         else
         {
             scope.OnCommitted(ct => notifier.ToRoleAsync(TenantRole.Administrator, RealtimeEvents.RequestChanged, pushed, ct));
+            await notifications.NotifyRoleAsync(TenantRole.Administrator, message, cancellationToken);
         }
     }
+
+    private static readonly Dictionary<string, string> Kinds = new(StringComparer.Ordinal)
+    {
+        ["Created"] = NotificationKinds.RequestCreated,
+        ["Replied"] = NotificationKinds.RequestReplied,
+        ["Closed"] = NotificationKinds.RequestClosed,
+    };
 }
 
 internal sealed class RequestQueryService(IRequestDataFactory data, RequestAccessPolicy policy, IPermissionAccess permissions) : IRequestQueryService

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 using Auxilia.Application.Abstractions.Authorization;
@@ -7,6 +8,7 @@ using Auxilia.Application.Abstractions.Scheduling;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
+using Auxilia.Application.Engagement.Public;
 using Auxilia.Application.Identity.Public;
 using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Realtime;
@@ -198,6 +200,7 @@ internal sealed class AppointmentManager(
     IAccessGuard guard,
     AppointmentAccessPolicy policy,
     IRealtimeNotifier notifier,
+    INotificationSender notifications,
     ITenantContext tenant,
     ICurrentUser currentUser,
     TimeProvider clock) : IAppointmentManager
@@ -411,16 +414,41 @@ internal sealed class AppointmentManager(
         return allowed.IsFailure ? Result.Failure<Appointment>(allowed.Error!) : appointment;
     }
 
-    /// <summary>The other party (client's user and employee, never the actor) hears of the change after the commit.</summary>
+    /// <summary>
+    /// The other party (client's user and employee, never the actor) hears of the change: a notification (F16, in the
+    /// same transaction) and, after the commit, the realtime <c>AppointmentChanged</c> that refreshes calendars.
+    /// </summary>
     private async Task TellAsync(IOperationScope scope, IAppointmentData store, Appointment appointment, string change, CancellationToken cancellationToken)
     {
         var people = await store.PeopleAsync(appointment.ClientId, appointment.EmployeeUserId, cancellationToken);
         var pushed = new AppointmentChangedEvent(appointment.Id, change, appointment.StartsAt);
-        foreach (var recipient in new[] { people.ClientUserId, appointment.EmployeeUserId }.OfType<Guid>().Distinct().Where(user => user != currentUser.UserId))
+        var recipients = new[] { people.ClientUserId, appointment.EmployeeUserId }.OfType<Guid>().Distinct().Where(user => user != currentUser.UserId).ToArray();
+        foreach (var recipient in recipients)
         {
             scope.OnCommitted(ct => notifier.ToUserAsync(recipient, RealtimeEvents.AppointmentChanged, pushed, ct));
         }
+
+        var (date, time) = TenantTime.Local(appointment.StartsAt, TenantTime.Zone(tenant));
+        var parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["when"] = $"{date.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)} {time.ToString("HH:mm", CultureInfo.InvariantCulture)}",
+            ["client"] = people.ClientName,
+            ["employee"] = people.EmployeeName,
+        };
+        await notifications.NotifyUsersAsync(recipients, new NotificationMessage(Kinds[change], appointment.Id, parameters), cancellationToken);
     }
+
+    private static readonly Dictionary<string, string> Kinds = new(StringComparer.Ordinal)
+    {
+        ["Scheduled"] = NotificationKinds.AppointmentScheduled,
+        ["Requested"] = NotificationKinds.AppointmentRequested,
+        ["Updated"] = NotificationKinds.AppointmentUpdated,
+        ["Approved"] = NotificationKinds.AppointmentApproved,
+        ["Rejected"] = NotificationKinds.AppointmentRejected,
+        ["Completed"] = NotificationKinds.AppointmentCompleted,
+        ["Cancelled"] = NotificationKinds.AppointmentCancelled,
+        ["Deleted"] = NotificationKinds.AppointmentDeleted,
+    };
 }
 
 internal sealed class AppointmentQueryService(

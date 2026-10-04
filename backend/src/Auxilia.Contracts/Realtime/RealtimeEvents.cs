@@ -39,3 +39,6 @@ public sealed record AppointmentChangedEvent(Guid AppointmentId, string Change, 
 
 /// <param name="Change"><c>Created</c>, <c>Replied</c> or <c>Closed</c>.</param>
 public sealed record RequestChangedEvent(Guid RequestId, string Change, string Subject);
+
+/// <summary>The payload of <c>NotificationReceived</c> (F16): render it like the list item of the same id.</summary>
+public sealed record NotificationReceivedEvent(Guid Id, string Kind, IReadOnlyDictionary<string, string> Parameters, string? Link, DateTimeOffset CreatedAt);
