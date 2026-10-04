@@ -45,5 +45,15 @@ public static partial class Operations
         public static readonly OperationDescriptor ApproveRegistration = new("Directory.ApproveRegistration", EventCodes.Directory.RegistrationApproved);
 
         public static readonly OperationDescriptor RejectRegistration = new("Directory.RejectRegistration", EventCodes.Directory.RegistrationRejected);
+
+        public static readonly OperationDescriptor CreateTag = new("Directory.CreateTag", EventCodes.Directory.TagCreated);
+
+        public static readonly OperationDescriptor UpdateTag = new("Directory.UpdateTag", EventCodes.Directory.TagUpdated);
+
+        public static readonly OperationDescriptor DeleteTag = new("Directory.DeleteTag", EventCodes.Directory.TagDeleted);
+
+        public static readonly OperationDescriptor ChangeClientTags = new("Directory.ChangeClientTags", EventCodes.Directory.ClientTagsChanged);
+
+        public static readonly OperationDescriptor RecordConsent = new("Directory.RecordConsent", EventCodes.Directory.ConsentRecorded);
     }
 }

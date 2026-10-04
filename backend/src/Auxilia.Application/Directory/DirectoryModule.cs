@@ -71,6 +71,11 @@ public sealed class DirectoryModule : IModuleDescriptor
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, ClientExportSource>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, EmployeeExportSource>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, ClientImportTarget>());
+        services.TryAddScoped<ITagManager, TagManager>();
+        services.TryAddScoped<ITagQueryService, TagQueryService>();
+        services.TryAddScoped<ConsentManager>();
+        services.TryAddScoped<IConsentManager>(provider => provider.GetRequiredService<ConsentManager>());
+        services.TryAddScoped<IConsentQueryService, ConsentQueryService>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, EmployeeImportTarget>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, RegistrationExportSource>());
         services.TryAddScoped<ISpecializationManager, SpecializationManager>();

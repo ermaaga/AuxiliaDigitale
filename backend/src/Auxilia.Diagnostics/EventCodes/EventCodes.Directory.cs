@@ -133,5 +133,29 @@ public static partial class EventCodes
 
         /// <summary>The captcha of a registration request is missing or not valid (400).</summary>
         public const int RegistrationCaptchaInvalid = 13043;
+
+        /// <summary>A tag was created (N01, M-01).</summary>
+        public const int TagCreated = 13044;
+
+        /// <summary>A tag was renamed or recoloured.</summary>
+        public const int TagUpdated = 13045;
+
+        /// <summary>A tag was deleted with its assignments.</summary>
+        public const int TagDeleted = 13046;
+
+        /// <summary>A value of a tag is not valid or the name is taken (400, field errors).</summary>
+        public const int TagInvalid = 13047;
+
+        /// <summary>No tag with this id (404).</summary>
+        public const int TagNotFound = 13048;
+
+        /// <summary>The tags of one or more clients changed.</summary>
+        public const int ClientTagsChanged = 13049;
+
+        /// <summary>A consent of a client was granted or revoked (N01): purpose, channel, source.</summary>
+        public const int ConsentRecorded = 13050;
+
+        /// <summary>A consent change is not valid (400, field errors).</summary>
+        public const int ConsentInvalid = 13051;
     }
 }

@@ -53,6 +53,12 @@ internal sealed class ClientData(ITenantDbContext db) : IClientData
             clients = clients.Where(client => client.profile.EmployeeUserId == employeeUserId);
         }
 
+        if (filter.TagId is { } tagId)
+        {
+            var tagged = db.Set<PersonTag>();
+            clients = clients.Where(client => tagged.Any(assignment => assignment.PersonId == client.person.Id && assignment.TagId == tagId));
+        }
+
         if (filter.Status is { } status)
         {
             clients = clients.Where(client => client.profile.Status == status);

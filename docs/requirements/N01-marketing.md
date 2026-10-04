@@ -1,6 +1,6 @@
 # N01 — Marketing campaigns (v1: e-mail)
 
-Status: [ ] not started · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
+Status: [~] in progress (consents and tags M-01) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
 
 Not present in the legacy. Module `Marketing`, optional (plan/override per tenant and role), event codes 19000–19999.
 
@@ -12,9 +12,9 @@ Not present in the legacy. Module `Marketing`, optional (plan/override per tenan
 
 ## Acceptance criteria
 **Consents and tags**
-- [ ] A person has a consent history per purpose (`Marketing`, `Privacy`) and channel (`Email`, later `WhatsApp`): granted/revoked, when, source (staff, import, API, `LegacyMigration`), version.
-- [ ] Staff can record/revoke consent from the Client 360° and via import; every change is audited.
-- [ ] Tags: create, assign/remove on clients (single and bulk from the clients table).
+- [x] A person has a consent history per purpose (`Marketing`, `Privacy`) and channel (`Email`, later `WhatsApp`): granted/revoked, when, source (staff, import, API, `LegacyMigration`), version.
+- [x] Staff can record/revoke consent from the Client 360° and via import; every change is audited. *(M-01: append-only `directory.consents` with who/when/source)*
+- [x] Tags: create, assign/remove on clients (single and bulk from the clients table). *(M-01: bulk from the clients overview selection)*
 
 **Segments and lists**
 - [ ] Dynamic segment = validated rule (AND/OR groups) over: client status, assigned employee, tags, specializations, services and case status, custom fields, age range, city/province, creation date; translated into a parameterised query (no raw SQL from users); live count preview.

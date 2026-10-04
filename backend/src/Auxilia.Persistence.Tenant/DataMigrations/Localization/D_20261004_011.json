@@ -1,0 +1,398 @@
+[
+ {
+  "key": "app.clients.tabs.consents",
+  "category": "app",
+  "en": "Consents and tags",
+  "it": "Consensi e tag"
+ },
+ {
+  "key": "app.clients.tags.title",
+  "category": "app",
+  "en": "Tags",
+  "it": "Tag"
+ },
+ {
+  "key": "app.clients.tags.description",
+  "category": "app",
+  "en": "Labels to group clients; marketing segments select clients by tag.",
+  "it": "Etichette per raggruppare i clienti; i segmenti marketing scelgono i clienti per tag."
+ },
+ {
+  "key": "app.clients.tags.none",
+  "category": "app",
+  "en": "No tags yet: an Administrator creates them.",
+  "it": "Ancora nessun tag: li crea un amministratore."
+ },
+ {
+  "key": "app.clients.tags.saved",
+  "category": "app",
+  "en": "Tags saved.",
+  "it": "Tag salvati."
+ },
+ {
+  "key": "app.clients.tags.manage",
+  "category": "app",
+  "en": "Manage tags",
+  "it": "Gestisci tag"
+ },
+ {
+  "key": "app.clients.tags.manageDescription",
+  "category": "app",
+  "en": "Create, rename and delete the tags of the clients.",
+  "it": "Crea, rinomina ed elimina i tag dei clienti."
+ },
+ {
+  "key": "app.clients.tags.new",
+  "category": "app",
+  "en": "New tag",
+  "it": "Nuovo tag"
+ },
+ {
+  "key": "app.clients.tags.color",
+  "category": "app",
+  "en": "Colour",
+  "it": "Colore"
+ },
+ {
+  "key": "app.clients.tags.created",
+  "category": "app",
+  "en": "Tag created.",
+  "it": "Tag creato."
+ },
+ {
+  "key": "app.clients.tags.deleted",
+  "category": "app",
+  "en": "Tag deleted.",
+  "it": "Tag eliminato."
+ },
+ {
+  "key": "app.clients.tags.count",
+  "category": "app",
+  "en": "{count} clients",
+  "it": "{count} clienti"
+ },
+ {
+  "key": "app.clients.tags.renameNamed",
+  "category": "app",
+  "en": "Rename {name}",
+  "it": "Rinomina {name}"
+ },
+ {
+  "key": "app.clients.tags.renamePrompt",
+  "category": "app",
+  "en": "New name of the tag",
+  "it": "Nuovo nome del tag"
+ },
+ {
+  "key": "app.clients.tags.deleteNamed",
+  "category": "app",
+  "en": "Delete {name}",
+  "it": "Elimina {name}"
+ },
+ {
+  "key": "app.clients.tags.deleteText",
+  "category": "app",
+  "en": "The tag {name} will be deleted and removed from {count} clients.",
+  "it": "Il tag {name} verrà eliminato e tolto da {count} clienti."
+ },
+ {
+  "key": "app.clients.tags.filter",
+  "category": "app",
+  "en": "Tag",
+  "it": "Tag"
+ },
+ {
+  "key": "app.clients.tags.bulk",
+  "category": "app",
+  "en": "Tags of the selected clients",
+  "it": "Tag dei clienti selezionati"
+ },
+ {
+  "key": "app.clients.tags.chooseTag",
+  "category": "app",
+  "en": "Choose a tag",
+  "it": "Scegli un tag"
+ },
+ {
+  "key": "app.clients.tags.addSelected",
+  "category": "app",
+  "en": "Add to {count} selected",
+  "it": "Aggiungi ai {count} selezionati"
+ },
+ {
+  "key": "app.clients.tags.removeSelected",
+  "category": "app",
+  "en": "Remove from {count} selected",
+  "it": "Togli dai {count} selezionati"
+ },
+ {
+  "key": "app.clients.tags.bulkDone",
+  "category": "app",
+  "en": "{count} changes saved.",
+  "it": "{count} modifiche salvate."
+ },
+ {
+  "key": "app.clients.consents.title",
+  "category": "app",
+  "en": "Consents",
+  "it": "Consensi"
+ },
+ {
+  "key": "app.clients.consents.description",
+  "category": "app",
+  "en": "Every change is kept: the latest one per purpose and channel is the current consent. Marketing e-mails go only to clients with the marketing e-mail consent.",
+  "it": "Ogni modifica viene conservata: l'ultima per finalità e canale è il consenso attuale. Le e-mail marketing vanno solo ai clienti con il consenso marketing e-mail."
+ },
+ {
+  "key": "app.clients.consents.granted",
+  "category": "app",
+  "en": "Granted",
+  "it": "Concesso"
+ },
+ {
+  "key": "app.clients.consents.notGranted",
+  "category": "app",
+  "en": "Not granted",
+  "it": "Non concesso"
+ },
+ {
+  "key": "app.clients.consents.revoked",
+  "category": "app",
+  "en": "Revoked",
+  "it": "Revocato"
+ },
+ {
+  "key": "app.clients.consents.grant",
+  "category": "app",
+  "en": "Grant",
+  "it": "Concedi"
+ },
+ {
+  "key": "app.clients.consents.revoke",
+  "category": "app",
+  "en": "Revoke",
+  "it": "Revoca"
+ },
+ {
+  "key": "app.clients.consents.grantNamed",
+  "category": "app",
+  "en": "Grant {consent}",
+  "it": "Concedi {consent}"
+ },
+ {
+  "key": "app.clients.consents.revokeNamed",
+  "category": "app",
+  "en": "Revoke {consent}",
+  "it": "Revoca {consent}"
+ },
+ {
+  "key": "app.clients.consents.grantText",
+  "category": "app",
+  "en": "Record that the client grants the consent {consent}?",
+  "it": "Registrare che il cliente concede il consenso {consent}?"
+ },
+ {
+  "key": "app.clients.consents.revokeText",
+  "category": "app",
+  "en": "Record that the client revokes the consent {consent}?",
+  "it": "Registrare che il cliente revoca il consenso {consent}?"
+ },
+ {
+  "key": "app.clients.consents.saved",
+  "category": "app",
+  "en": "Consent recorded.",
+  "it": "Consenso registrato."
+ },
+ {
+  "key": "app.clients.consents.since",
+  "category": "app",
+  "en": "Since {date} ({source})",
+  "it": "Dal {date} ({source})"
+ },
+ {
+  "key": "app.clients.consents.never",
+  "category": "app",
+  "en": "Never recorded",
+  "it": "Mai registrato"
+ },
+ {
+  "key": "app.clients.consents.version",
+  "category": "app",
+  "en": "Text version (optional)",
+  "it": "Versione del testo (facoltativa)"
+ },
+ {
+  "key": "app.clients.consents.note",
+  "category": "app",
+  "en": "Note (optional)",
+  "it": "Nota (facoltativa)"
+ },
+ {
+  "key": "app.clients.consents.history",
+  "category": "app",
+  "en": "History",
+  "it": "Storico"
+ },
+ {
+  "key": "app.clients.consents.noHistory",
+  "category": "app",
+  "en": "No changes yet.",
+  "it": "Ancora nessuna modifica."
+ },
+ {
+  "key": "app.clients.consents.when",
+  "category": "app",
+  "en": "When",
+  "it": "Quando"
+ },
+ {
+  "key": "app.clients.consents.consent",
+  "category": "app",
+  "en": "Consent",
+  "it": "Consenso"
+ },
+ {
+  "key": "app.clients.consents.source",
+  "category": "app",
+  "en": "Source",
+  "it": "Origine"
+ },
+ {
+  "key": "app.clients.consents.purposes.Marketing",
+  "category": "app",
+  "en": "Marketing",
+  "it": "Marketing"
+ },
+ {
+  "key": "app.clients.consents.purposes.Privacy",
+  "category": "app",
+  "en": "Privacy",
+  "it": "Privacy"
+ },
+ {
+  "key": "app.clients.consents.channels.Email",
+  "category": "app",
+  "en": "E-mail",
+  "it": "E-mail"
+ },
+ {
+  "key": "app.clients.consents.channels.WhatsApp",
+  "category": "app",
+  "en": "WhatsApp",
+  "it": "WhatsApp"
+ },
+ {
+  "key": "app.clients.consents.sources.Staff",
+  "category": "app",
+  "en": "staff",
+  "it": "staff"
+ },
+ {
+  "key": "app.clients.consents.sources.Import",
+  "category": "app",
+  "en": "import",
+  "it": "import"
+ },
+ {
+  "key": "app.clients.consents.sources.Api",
+  "category": "app",
+  "en": "API",
+  "it": "API"
+ },
+ {
+  "key": "app.clients.consents.sources.LegacyMigration",
+  "category": "app",
+  "en": "old application",
+  "it": "vecchia applicazione"
+ },
+ {
+  "key": "app.imports.field.tags",
+  "category": "app",
+  "en": "Tags (names separated by commas)",
+  "it": "Tag (nomi separati da virgole)"
+ },
+ {
+  "key": "app.imports.field.marketingEmailConsent",
+  "category": "app",
+  "en": "Marketing e-mail consent (yes/no)",
+  "it": "Consenso marketing e-mail (sì/no)"
+ },
+ {
+  "key": "permissions.directory.tags.manage.description",
+  "category": "permissions",
+  "en": "Create, rename and delete the tags of the clients",
+  "it": "Creare, rinominare ed eliminare i tag dei clienti"
+ },
+ {
+  "key": "validation.tags.name",
+  "category": "validation",
+  "en": "Enter a name (at most 50 characters).",
+  "it": "Inserisci un nome (al massimo 50 caratteri)."
+ },
+ {
+  "key": "validation.tags.color",
+  "category": "validation",
+  "en": "Use a colour like #72FA29.",
+  "it": "Usa un colore come #72FA29."
+ },
+ {
+  "key": "validation.tags.nameTaken",
+  "category": "validation",
+  "en": "Another tag has this name.",
+  "it": "Un altro tag ha questo nome."
+ },
+ {
+  "key": "validation.tags.unknown",
+  "category": "validation",
+  "en": "Choose existing tags.",
+  "it": "Scegli tag esistenti."
+ },
+ {
+  "key": "validation.tags.clients",
+  "category": "validation",
+  "en": "Select from 1 to 500 clients.",
+  "it": "Seleziona da 1 a 500 clienti."
+ },
+ {
+  "key": "validation.consents.purpose",
+  "category": "validation",
+  "en": "Choose Marketing or Privacy.",
+  "it": "Scegli Marketing o Privacy."
+ },
+ {
+  "key": "validation.consents.channel",
+  "category": "validation",
+  "en": "Choose E-mail or WhatsApp.",
+  "it": "Scegli E-mail o WhatsApp."
+ },
+ {
+  "key": "validation.consents.version",
+  "category": "validation",
+  "en": "At most 50 characters.",
+  "it": "Al massimo 50 caratteri."
+ },
+ {
+  "key": "validation.consents.note",
+  "category": "validation",
+  "en": "At most 500 characters.",
+  "it": "Al massimo 500 caratteri."
+ },
+ {
+  "key": "errors.AUX-13047",
+  "category": "errors",
+  "en": "The tag is not valid.",
+  "it": "Il tag non è valido."
+ },
+ {
+  "key": "errors.AUX-13048",
+  "category": "errors",
+  "en": "The tag does not exist.",
+  "it": "Il tag non esiste."
+ },
+ {
+  "key": "errors.AUX-13051",
+  "category": "errors",
+  "en": "The consent is not valid.",
+  "it": "Il consenso non è valido."
+ }
+]

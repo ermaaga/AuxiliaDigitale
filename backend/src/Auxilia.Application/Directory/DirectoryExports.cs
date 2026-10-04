@@ -33,7 +33,7 @@ internal sealed class ClientExportSource(IClientQueryService clients) : IExportS
         var query = new ClientListQuery(
             parameters.Text("view"), parameters.Text("filter[fullName]"), parameters.Text("filter[lastName]"), parameters.Text("filter[email]"),
             parameters.Text("filter[userName]"), parameters.Text("filter[phone]"), parameters.Text("filter[status]"), parameters.Text("sort"),
-            page, pageSize, parameters.Id("filter[employeeUserId]"));
+            page, pageSize, parameters.Id("filter[employeeUserId]"), parameters.Id("filter[tagId]"));
         if (parameters.Errors is { } invalid)
         {
             return invalid;

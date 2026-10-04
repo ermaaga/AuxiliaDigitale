@@ -13,7 +13,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 70 | 12071 |
-| 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
+| 13000–13999 | Directory | Directory (clients, employees) | 51 | 13052 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 41 | 14042 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
@@ -195,6 +195,14 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-13041 | Directory.RegistrationProcessed | – | Conflict | – | – |
 | AUX-13042 | Directory.RegistrationInvalid | – | Validation | – | – |
 | AUX-13043 | Directory.RegistrationCaptchaInvalid | – | Validation | – | – |
+| AUX-13044 | Directory.TagCreated | – | – | Directory.CreateTag (success) | – |
+| AUX-13045 | Directory.TagUpdated | – | – | Directory.UpdateTag (success) | – |
+| AUX-13046 | Directory.TagDeleted | – | – | Directory.DeleteTag (success) | – |
+| AUX-13047 | Directory.TagInvalid | – | Validation | – | – |
+| AUX-13048 | Directory.TagNotFound | – | NotFound | – | – |
+| AUX-13049 | Directory.ClientTagsChanged | – | – | Directory.ChangeClientTags (success) | – |
+| AUX-13050 | Directory.ConsentRecorded | – | – | Directory.RecordConsent (success) | – |
+| AUX-13051 | Directory.ConsentInvalid | – | Validation | – | – |
 | AUX-14001 | Cases.ServiceCategoryCreated | – | – | Cases.CreateServiceCategory (success) | – |
 | AUX-14002 | Cases.ServiceCategoryUpdated | – | – | Cases.UpdateServiceCategory (success) | – |
 | AUX-14003 | Cases.ServiceCategoryDeleted | – | – | Cases.DeleteServiceCategory (success) | – |

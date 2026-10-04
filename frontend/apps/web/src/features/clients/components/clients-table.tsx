@@ -27,6 +27,7 @@ import {
   CLIENTS_GRID,
   useClientCustomFields,
   useClients,
+  useTags,
   type ClientListItem,
 } from "../api";
 import { DIRECTORY_PERMISSIONS } from "../permissions";
@@ -49,7 +50,15 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
       .withDefault(isEmployee ? "mine" : "all")
       .withOptions({ history: "replace" }),
   );
-  const table = useTableState(["fullName", "email", "userName", "phone", "status"] as const);
+  const table = useTableState([
+    "fullName",
+    "email",
+    "userName",
+    "phone",
+    "status",
+    "tagId",
+  ] as const);
+  const tags = useTags(tenant);
   const grid = useGridLayout(tenant, CLIENTS_GRID);
   const customFields = useClientCustomFields(tenant);
   const exportParams = {
@@ -62,6 +71,7 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
     "filter[userName]": table.filters.userName,
     "filter[phone]": table.filters.phone,
     "filter[status]": table.filters.status,
+    "filter[tagId]": table.filters.tagId,
   };
   const query = useClients(tenant, exportParams);
 
@@ -153,6 +163,15 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
           { value: "Inactive", label: t("Inactive") },
         ]}
       />
+      {(tags.data?.length ?? 0) > 0 ? (
+        <FilterSelect
+          id="clients-tag"
+          label={t("app.clients.tags.filter")}
+          value={table.filters.tagId}
+          onChange={(value) => table.setFilter("tagId", value)}
+          options={(tags.data ?? []).map((tag) => ({ value: tag.id, label: tag.name }))}
+        />
+      ) : null}
       {table.hasFilters ? (
         <Button type="button" variant="ghost" size="sm" onClick={table.clearFilters}>
           {t("ClearFilters")}

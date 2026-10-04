@@ -14,6 +14,10 @@ export type ClientSpecialization = components["schemas"]["ClientSpecializationRe
 export type CreateClient = components["schemas"]["CreateClientRequest"];
 export type CreateClientResult = components["schemas"]["CreateClientResponse"];
 export type UpdateClient = components["schemas"]["UpdateClientRequest"];
+export type Tag = components["schemas"]["TagResponse"];
+export type ClientTag = components["schemas"]["ClientTagResponse"];
+export type ClientConsents = components["schemas"]["ClientConsentsResponse"];
+export type RecordConsent = components["schemas"]["RecordConsentRequest"];
 
 /** Query of the client lists (F05): `view` `all` or `mine`, the legacy filters and sorts. */
 export type ClientListParams = {
@@ -28,6 +32,7 @@ export type ClientListParams = {
   "filter[phone]"?: string;
   "filter[status]"?: string;
   "filter[employeeUserId]"?: string;
+  "filter[tagId]"?: string;
 };
 
 /** The custom field entity of clients (F20, `ClientRules.CustomFieldEntity`). */
@@ -177,4 +182,72 @@ export async function resetClientPassword(id: string, sendLink: boolean) {
 /** "Rossi Mario" style full name used in lists and headers. */
 export function clientName(client: Pick<ClientListItem, "firstName" | "lastName">): string {
   return `${client.firstName} ${client.lastName}`.trim();
+}
+
+/** The tags of the tenant (N01), with the number of clients of each. */
+export function useTags(tenant: string, enabled = true) {
+  return useQuery({
+    queryKey: clientsKey(tenant, "tags"),
+    queryFn: async () => unwrap(await api().GET("/api/v1/tags")),
+    staleTime: 60_000,
+    enabled,
+  });
+}
+
+export function useClientTags(tenant: string, id: string) {
+  return useQuery({
+    queryKey: clientsKey(tenant, "client-tags", { id }),
+    queryFn: async () =>
+      unwrap(await api().GET("/api/v1/clients/{id}/tags", { params: { path: { id } } })),
+  });
+}
+
+export function useClientConsents(tenant: string, id: string) {
+  return useQuery({
+    queryKey: clientsKey(tenant, "consents", { id }),
+    queryFn: async () =>
+      unwrap(await api().GET("/api/v1/clients/{id}/consents", { params: { path: { id } } })),
+  });
+}
+
+export async function createTag(name: string, color: string | null) {
+  return unwrap(await api().POST("/api/v1/tags", { body: { name, color } }));
+}
+
+export async function updateTag(id: string, name: string, color: string | null) {
+  await unwrap(
+    await api().PUT("/api/v1/tags/{id}", { params: { path: { id } }, body: { name, color } }),
+  );
+}
+
+export async function deleteTag(id: string) {
+  await unwrap(await api().DELETE("/api/v1/tags/{id}", { params: { path: { id } } }));
+}
+
+export async function setClientTags(id: string, tagIds: readonly string[]) {
+  return unwrap(
+    await api().PUT("/api/v1/clients/{id}/tags", {
+      params: { path: { id } },
+      body: { tagIds: [...tagIds] },
+    }),
+  );
+}
+
+/** Adds or removes tags on the selected clients (N01: bulk from the clients table). */
+export async function changeClientsTags(
+  clientIds: readonly string[],
+  add: readonly string[],
+  remove: readonly string[],
+) {
+  return unwrap(
+    await api().POST("/api/v1/clients/tags", {
+      body: { clientIds: [...clientIds], add: [...add], remove: [...remove] },
+    }),
+  );
+}
+
+export async function recordConsent(id: string, body: RecordConsent) {
+  return unwrap(
+    await api().POST("/api/v1/clients/{id}/consents", { params: { path: { id } }, body }),
+  );
 }

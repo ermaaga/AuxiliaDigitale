@@ -114,4 +114,5 @@ public sealed record ClientListQuery(
     string? Sort,
     int Page,
     int PageSize,
-    Guid? EmployeeUserId = null);
+    Guid? EmployeeUserId = null,
+    Guid? TagId = null);

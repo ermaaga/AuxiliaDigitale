@@ -5,4 +5,5 @@ export const DIRECTORY_PERMISSIONS = {
   assignClients: "directory.clients.assign",
   deleteClients: "directory.clients.delete",
   resetClientPasswords: "directory.clients.credentials",
+  manageTags: "directory.tags.manage",
 } as const;

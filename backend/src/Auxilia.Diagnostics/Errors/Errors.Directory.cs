@@ -82,5 +82,17 @@ public static partial class Errors
         public static Error RegistrationCaptchaInvalid() =>
             Error.Validation(EventCodes.Directory.RegistrationCaptchaInvalid, "The captcha is missing or not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["captcha"] = ["validation.registration.captcha"] });
+
+        public static Error TagInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Directory.TagInvalid, "The tag is not valid", errors);
+
+        public static Error TagInvalid(string field, string messageKey) =>
+            TagInvalid(new Dictionary<string, string[]>(StringComparer.Ordinal) { [field] = [messageKey] });
+
+        public static Error TagNotFound() =>
+            Error.NotFound(EventCodes.Directory.TagNotFound, "Tag not found");
+
+        public static Error ConsentInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Directory.ConsentInvalid, "The consent is not valid", errors);
     }
 }

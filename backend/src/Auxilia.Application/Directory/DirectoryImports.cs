@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Directory;
 using Auxilia.Application.Abstractions.Imports;
 using Auxilia.Contracts.Directory;
 using Auxilia.Domain.Directory;
@@ -8,9 +9,12 @@ namespace Auxilia.Application.Directory;
 /// <summary>
 /// Clients from a workbook (F19, Q47): the staff form rules (person, e-mail = user name, fiscal code, birth date),
 /// fiscal code and user name unique in the file and in the tenant, the employee in charge by user name (else the
-/// default employee, Q31). Created by <see cref="IClientManager"/>: sign-in enabled, activation e-mail (D-06).
+/// default employee, Q31). Created by <see cref="IClientManager"/>: sign-in enabled, activation e-mail (D-06). Optional
+/// tags by name (separated by commas or semicolons) and the e-mail marketing consent (yes/no, source Import, N01).
 /// </summary>
-internal sealed class ClientImportTarget(IClientManager clients, IImportLookups lookups, TimeProvider clock) : IImportTarget
+internal sealed class ClientImportTarget(
+    IClientManager clients, IImportLookups lookups, IConsentTagDataFactory tags, ITagManager tagManager, ConsentManager consents, TimeProvider clock)
+    : IImportTarget
 {
     public string Entity => "Client";
 
@@ -23,6 +27,8 @@ internal sealed class ClientImportTarget(IClientManager clients, IImportLookups 
         new("birthDate", "BirthDate", Required: true),
         new("phone", "Phone", Required: false),
         new("employee", "app.imports.field.employee", Required: false),
+        new("tags", "app.imports.field.tags", Required: false),
+        new("marketingEmailConsent", "app.imports.field.marketingEmailConsent", Required: false),
     ];
 
     public async Task<IReadOnlyList<ImportRowErrors>> ValidateAsync(IReadOnlyList<ImportRow> rows, CancellationToken cancellationToken)
@@ -34,11 +40,18 @@ internal sealed class ClientImportTarget(IClientManager clients, IImportLookups 
         var takenCodes = await lookups.TakenFiscalCodesAsync(Values(rows, "fiscalCode", Person.NormalizeFiscalCode), cancellationToken);
         var takenNames = await lookups.TakenUserNamesAsync(Values(rows, "email"), cancellationToken);
         var employees = await lookups.EmployeesAsync(Values(rows, "employee"), cancellationToken);
+        var tagIds = await TagIdsAsync([.. rows.SelectMany(TagNames)], cancellationToken);
         for (var index = 0; index < rows.Count; index++)
         {
             var row = rows[index];
             var rowErrors = errors[index];
             ImportValues.CheckRequired(row, Fields, rowErrors);
+            ImportValues.Boolean(row, "marketingEmailConsent", rowErrors);
+            if (TagNames(row).Any(name => !tagIds.ContainsKey(name)))
+            {
+                rowErrors.Add("tags", ImportValues.NotFound);
+            }
+
             var details = Details(row, rowErrors);
             if (Person.Create(Guid.Empty, details, today) is { IsFailure: true } person)
             {
@@ -81,7 +94,47 @@ internal sealed class ClientImportTarget(IClientManager clients, IImportLookups 
         var created = await clients.CreateAsync(
             new CreateClientRequest(details.FirstName!, details.LastName!, details.BirthDate, details.Email!, details.Phone, details.FiscalCode!, null, employee),
             cancellationToken);
-        return created.IsFailure ? Result.Failure<Guid>(created.Error!) : created.Value.Id;
+        if (created.IsFailure)
+        {
+            return Result.Failure<Guid>(created.Error!);
+        }
+
+        var clientId = created.Value.Id;
+        var names = TagNames(row).ToArray();
+        if (names.Length > 0)
+        {
+            var ids = await TagIdsAsync(names, cancellationToken);
+            var tagged = await tagManager.SetClientTagsAsync(clientId, [.. names.Select(name => ids.GetValueOrDefault(name)).Where(id => id != Guid.Empty)], cancellationToken);
+            if (tagged.IsFailure)
+            {
+                return Result.Failure<Guid>(tagged.Error!);
+            }
+        }
+
+        if (ImportValues.Boolean(row, "marketingEmailConsent", new ImportRowErrors()) is { } granted)
+        {
+            var recorded = await consents.RecordAsync(clientId, ConsentPurpose.Marketing, ConsentChannel.Email, granted, ConsentSource.Import, null, null, cancellationToken);
+            if (recorded.IsFailure)
+            {
+                return Result.Failure<Guid>(recorded.Error!);
+            }
+        }
+
+        return clientId;
+    }
+
+    private static IEnumerable<string> TagNames(ImportRow row) =>
+        (row.Value("tags") ?? string.Empty).Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private async Task<IReadOnlyDictionary<string, Guid>> TagIdsAsync(string[] names, CancellationToken cancellationToken)
+    {
+        if (names.Length == 0)
+        {
+            return new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        await using var store = await tags.OpenAsync(cancellationToken);
+        return await store.TagIdsByNameAsync(names, cancellationToken);
     }
 
     private static PersonDetails Details(ImportRow row, ImportRowErrors errors) =>

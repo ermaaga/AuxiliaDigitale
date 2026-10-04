@@ -81,6 +81,7 @@ builder.Services.AddSingleton<IApiEndpoints, SpecializationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, RegistrationSubmissionEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, IdentityModuleEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ClientEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, TagEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, EmployeeEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, RegistrationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ServiceEndpoints>();

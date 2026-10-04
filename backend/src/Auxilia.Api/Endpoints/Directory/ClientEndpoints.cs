@@ -131,12 +131,13 @@ internal sealed class ClientEndpoints : IModuleEndpoints
         [FromQuery(Name = "filter[phone]")] string? phone,
         [FromQuery(Name = "filter[status]")] string? status,
         [FromQuery(Name = "filter[employeeUserId]")] Guid? employeeUserId,
+        [FromQuery(Name = "filter[tagId]")] Guid? tagId,
         string? sort,
         int? page,
         int? pageSize,
         CancellationToken cancellationToken) =>
         (await clients.ListAsync(
-            new ClientListQuery(view, fullName, lastName, email, userName, phone, status, sort, page ?? 1, pageSize ?? 25, employeeUserId), cancellationToken))
+            new ClientListQuery(view, fullName, lastName, email, userName, phone, status, sort, page ?? 1, pageSize ?? 25, employeeUserId, tagId), cancellationToken))
             .ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> AssignableEmployeesAsync(IClientQueryService clients, CancellationToken cancellationToken) =>

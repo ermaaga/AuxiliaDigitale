@@ -1,3 +1,4 @@
+using Auxilia.Application.Abstractions.Directory;
 using Auxilia.Application.Abstractions.Imports;
 using Auxilia.Application.Cases;
 using Auxilia.Application.Directory;
@@ -16,6 +17,7 @@ public sealed class ImportTargetTests
 
     private readonly IImportLookups lookups = Substitute.For<IImportLookups>();
     private readonly ManualTimeProvider clock = new();
+    private readonly IConsentTagDataFactory tagData = Substitute.For<IConsentTagDataFactory>();
 
     public ImportTargetTests()
     {
@@ -46,7 +48,7 @@ public sealed class ImportTargetTests
         lookups.EmployeesAsync(Arg.Any<IReadOnlyCollection<string>>(), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase) { ["sara.gallo"] = employee });
         var clients = Substitute.For<IClientManager>();
-        var target = new ClientImportTarget(clients, lookups, clock);
+        var target = new ClientImportTarget(clients, lookups, tagData, Substitute.For<ITagManager>(), null!, clock);
 
         var errors = await target.ValidateAsync(
             [

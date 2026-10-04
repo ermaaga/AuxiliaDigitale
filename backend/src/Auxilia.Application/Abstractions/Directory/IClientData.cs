@@ -26,7 +26,8 @@ public sealed record ClientFilter(
     ClientSort Sort,
     bool Descending,
     int Skip,
-    int Take);
+    int Take,
+    Guid? TagId = null);
 
 /// <summary>A client as the lists show it (person, profile, account and employee name in one row).</summary>
 public sealed record ClientRow(
