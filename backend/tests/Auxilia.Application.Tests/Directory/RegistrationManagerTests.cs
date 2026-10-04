@@ -43,6 +43,7 @@ public sealed class RegistrationManagerTests : IAsyncDisposable
     private readonly ITenantLanguages languages = Substitute.For<ITenantLanguages>();
     private readonly IMessageDispatcher messages = Substitute.For<IMessageDispatcher>();
     private readonly IRealtimeNotifier notifier = Substitute.For<IRealtimeNotifier>();
+    private readonly Engagement.RecordingNotificationSender notifications = new();
     private readonly ICurrentUser caller = Substitute.For<ICurrentUser>();
     private readonly ManualTimeProvider clock = new();
     private readonly RegistrationManager manager;
@@ -71,7 +72,7 @@ public sealed class RegistrationManagerTests : IAsyncDisposable
 
         manager = new RegistrationManager(
             ManagerHarness.Runner(), registrations, clients, accounts, clientApplications, [captcha], settings, modules, languages, messages, notifier,
-            tenant, caller, clock, NullLogger<RegistrationManager>.Instance);
+            notifications, tenant, caller, clock, NullLogger<RegistrationManager>.Instance);
         query = new RegistrationQueryService(registrations);
     }
 
@@ -98,6 +99,7 @@ public sealed class RegistrationManagerTests : IAsyncDisposable
         (stored.Id, stored.Email, stored.Language, stored.ClientApplication, stored.Status).ShouldBe((id, "mario.rossi@example.test", "it", "site", RegistrationStatus.Pending));
         await messages.DidNotReceiveWithAnyArgs().QueueAsync(default!, Ct);
         await notifier.DidNotReceiveWithAnyArgs().ToRoleAsync(default, default!, default!, Ct);
+        notifications.Sent.ShouldBeEmpty();
     }
 
     [Fact]
@@ -115,6 +117,8 @@ public sealed class RegistrationManagerTests : IAsyncDisposable
             Arg.Any<CancellationToken>());
         await notifier.Received(1).ToRoleAsync(
             TenantRole.Administrator, RealtimeEvents.RegistrationRequested, Arg.Is<RegistrationRequestedEvent>(pushed => pushed.RegistrationId == id), Arg.Any<CancellationToken>());
+        var notified = notifications.Sent.ShouldHaveSingleItem();
+        (notified.Target, notified.Message.Kind, notified.Message.EntityId).ShouldBe(("role:Administrator", "registration.requested", (Guid?)id));
     }
 
     [Fact]

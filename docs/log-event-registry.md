@@ -18,7 +18,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests | 7 | 17008 |
-| 18000–18999 | Notifications | Engagement: notifications / realtime | 3 | 18004 |
+| 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
@@ -273,6 +273,13 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-18001 | Notifications.RealtimeConnected | Debug | – | – | Realtime connection {ConnectionId} of user {UserId} joined its groups |
 | AUX-18002 | Notifications.RealtimeConnectionRejected | Warning | – | – | Realtime connection {ConnectionId} rejected ({Reason}) |
 | AUX-18003 | Notifications.RealtimePushFailed | Warning | – | – | Realtime push {EventName} to {Target} failed |
+| AUX-18004 | Notifications.NotificationsSent | – | – | Notifications.SendNotifications (success) | – |
+| AUX-18005 | Notifications.NotificationRead | – | – | Notifications.MarkNotificationRead (success) | – |
+| AUX-18006 | Notifications.AllNotificationsRead | – | – | Notifications.MarkAllNotificationsRead (success) | – |
+| AUX-18007 | Notifications.NotificationDeleted | – | – | Notifications.DeleteNotification (success) | – |
+| AUX-18008 | Notifications.NotificationPreferencesSaved | – | – | Notifications.SaveNotificationPreferences (success) | – |
+| AUX-18009 | Notifications.NotificationNotFound | – | NotFound | – | – |
+| AUX-18010 | Notifications.NotificationPreferencesInvalid | – | Validation | – | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |

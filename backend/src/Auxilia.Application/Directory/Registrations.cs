@@ -6,6 +6,7 @@ using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Application.Engagement.Public;
 using Auxilia.Application.Identity.Public;
 using Auxilia.Application.Localization.Public;
 using Auxilia.Application.Messaging.Public;
@@ -73,6 +74,7 @@ internal sealed class RegistrationManager(
     ITenantLanguages languages,
     IMessageDispatcher messages,
     IRealtimeNotifier notifier,
+    INotificationSender notifications,
     ITenantContext tenantContext,
     ICurrentUser currentUser,
     TimeProvider clock,
@@ -163,9 +165,16 @@ internal sealed class RegistrationManager(
 
             if (await settings.GetAsync(DirectorySettings.RegistrationNotifyAdmins, cancellationToken))
             {
-                // Persistent notifications arrive with the notification centre (B-19); until then a real-time push.
+                // A notification for every Administrator (F16) and the real-time push of the registration list.
                 var pushed = new RegistrationRequestedEvent(registration.Id, registration.FullName);
                 scope.OnCommitted(ct => notifier.ToRoleAsync(TenantRole.Administrator, RealtimeEvents.RegistrationRequested, pushed, ct));
+                await notifications.NotifyRoleAsync(
+                    TenantRole.Administrator,
+                    new NotificationMessage(
+                        NotificationKinds.RegistrationRequested,
+                        registration.Id,
+                        new Dictionary<string, string>(StringComparer.Ordinal) { ["name"] = registration.FullName }),
+                    cancellationToken);
             }
 
             return new RegistrationSubmittedResponse(registration.Id);

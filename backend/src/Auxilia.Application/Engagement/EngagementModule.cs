@@ -51,5 +51,8 @@ public sealed class EngagementModule : IModuleDescriptor
         services.TryAddScoped<RequestAccessPolicy>();
         services.TryAddScoped<IRequestManager, RequestManager>();
         services.TryAddScoped<IRequestQueryService, RequestQueryService>();
+        services.TryAddScoped<Public.INotificationSender, NotificationSender>();
+        services.TryAddScoped<INotificationManager, NotificationManager>();
+        services.TryAddScoped<INotificationQueryService, NotificationQueryService>();
     }
 }

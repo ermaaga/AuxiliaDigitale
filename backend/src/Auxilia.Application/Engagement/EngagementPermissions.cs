@@ -12,6 +12,9 @@ public static class EngagementPermissions
     /// <summary>Create, reply to and close requests (F15).</summary>
     public const string ManageRequests = "engagement.requests.manage";
 
+    /// <summary>The user's own notifications and preferences (F16).</summary>
+    public const string ViewNotifications = "engagement.notifications.view";
+
     /// <summary>Delete requests (F15).</summary>
     public const string DeleteRequests = "engagement.requests.delete";
 
@@ -20,5 +23,6 @@ public static class EngagementPermissions
         new(ViewRequests, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
         new(ManageRequests, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
         new(DeleteRequests, [TenantRole.Administrator]),
+        new(ViewNotifications, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]),
     ];
 }

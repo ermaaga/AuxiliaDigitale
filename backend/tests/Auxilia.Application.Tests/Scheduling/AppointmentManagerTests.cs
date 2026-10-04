@@ -6,6 +6,7 @@ using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
 using Auxilia.Application.Identity.Public;
 using Auxilia.Application.Scheduling;
+using Auxilia.Application.Tests.Engagement;
 using Auxilia.Application.Tests.Identity;
 using Auxilia.Application.Tests.Platform;
 using Auxilia.Contracts.Realtime;
@@ -39,6 +40,7 @@ public sealed class AppointmentManagerTests : IAsyncDisposable
     private readonly IPermissionAccess permissions = Substitute.For<IPermissionAccess>();
     private readonly ICurrentUser caller = Substitute.For<ICurrentUser>();
     private readonly RecordingRealtimeNotifier notifier = new();
+    private readonly RecordingNotificationSender notifications = new();
     private readonly ManualTimeProvider clock = new();
     private readonly AppointmentAccessPolicy policy;
     private readonly AppointmentManager manager;
@@ -72,7 +74,7 @@ public sealed class AppointmentManagerTests : IAsyncDisposable
                 ? Result.Success()
                 : Result.Failure(Errors.Identity.PermissionDenied()));
         var tenant = SessionSettings.Tenant();
-        manager = new AppointmentManager(ManagerHarness.Runner(), data, clients, accounts, customFields, guard, policy, notifier, tenant, caller, clock);
+        manager = new AppointmentManager(ManagerHarness.Runner(), data, clients, accounts, customFields, guard, policy, notifier, notifications, tenant, caller, clock);
         query = new AppointmentQueryService(data, policy, permissions, clients, tenant);
     }
 
@@ -115,6 +117,10 @@ public sealed class AppointmentManagerTests : IAsyncDisposable
         // The client is told; the actor (an Administrator) is not the employee, so the employee is told too.
         notifier.Pushes.Select(push => push.Target).ShouldBe([$"user:{ClientUser}", $"user:{Employee}"], ignoreOrder: true);
         notifier.Pushes.ShouldAllBe(push => push.EventName == RealtimeEvents.AppointmentChanged && ((AppointmentChangedEvent)push.Payload).Change == "Scheduled");
+        notifications.Sent.Select(sent => sent.Target).ShouldBe([$"user:{ClientUser}", $"user:{Employee}"], ignoreOrder: true);
+        var message = notifications.Sent[0].Message;
+        (message.Kind, message.EntityId, message.Parameters["when"], message.Parameters["client"]).ShouldBe(
+            ("appointment.scheduled", (Guid?)id, "01/10/2026 09:00", "Mario Rossi"));
     }
 
     [Fact]

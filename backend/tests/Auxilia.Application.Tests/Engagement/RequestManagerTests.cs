@@ -31,6 +31,7 @@ public sealed class RequestManagerTests : IAsyncDisposable
     private readonly IPermissionAccess permissions = Substitute.For<IPermissionAccess>();
     private readonly ICurrentUser caller = Substitute.For<ICurrentUser>();
     private readonly RecordingRealtimeNotifier notifier = new();
+    private readonly RecordingNotificationSender notifications = new();
     private readonly ManualTimeProvider clock = new();
     private readonly RequestManager manager;
     private readonly RequestQueryService query;
@@ -45,7 +46,7 @@ public sealed class RequestManagerTests : IAsyncDisposable
         permissions.HasAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(true);
 
         var policy = new RequestAccessPolicy(caller);
-        manager = new RequestManager(ManagerHarness.Runner(), data, clients, guard, policy, notifier, clock);
+        manager = new RequestManager(ManagerHarness.Runner(), data, clients, guard, policy, notifier, notifications, clock);
         query = new RequestQueryService(data, policy, permissions);
     }
 
@@ -79,6 +80,8 @@ public sealed class RequestManagerTests : IAsyncDisposable
         var toOffice = await CreateAsync(ClientUser, TenantRole.Client, askMyOperator: false);
         Stored(toOffice).RecipientUserId.ShouldBeNull();
         notifier.Pushes.ShouldHaveSingleItem().Target.ShouldBe("role:Administrator");
+        notifications.Sent[^1].Target.ShouldBe("role:Administrator");
+        (notifications.Sent[^1].Message.Kind, notifications.Sent[^1].Message.Parameters["subject"]).ShouldBe(("request.created", "Invoice"));
 
         // Without an employee in charge the office answers (legacy).
         var lone = await CreateAsync(LoneClientUser, TenantRole.Client);
