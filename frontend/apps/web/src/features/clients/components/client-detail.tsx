@@ -27,6 +27,7 @@ import { clientName, deleteClient, useClient, useClientMutation } from "../api";
 import { DIRECTORY_PERMISSIONS } from "../permissions";
 import { ClientAccess } from "./client-access";
 import { ClientAssignment } from "./client-assignment";
+import { ClientConsentsTags } from "./client-consents-tags";
 import { ClientDataForm } from "./client-data-form";
 import { ClientOverview } from "./client-overview";
 import { ClientSpecializations } from "./client-specializations";
@@ -37,6 +38,7 @@ const TABS = [
   "data",
   "assignment",
   "specializations",
+  "consents",
   "cases",
   "appointments",
   "documents",
@@ -170,6 +172,7 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
           <TabsTrigger value="data">{t("app.clients.tabs.data")}</TabsTrigger>
           <TabsTrigger value="assignment">{t("app.clients.tabs.assignment")}</TabsTrigger>
           <TabsTrigger value="specializations">{t("app.clients.tabs.specializations")}</TabsTrigger>
+          <TabsTrigger value="consents">{t("app.clients.tabs.consents")}</TabsTrigger>
           {canSeeCases ? <TabsTrigger value="cases">{t("nav.cases")}</TabsTrigger> : null}
           {canSeeAppointments ? (
             <TabsTrigger value="appointments">{t("nav.appointments")}</TabsTrigger>
@@ -194,6 +197,9 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
         </TabsContent>
         <TabsContent value="specializations" className="mt-4">
           <ClientSpecializations tenant={tenant} client={client} />
+        </TabsContent>
+        <TabsContent value="consents" className="mt-4">
+          <ClientConsentsTags tenant={tenant} clientId={client.id} />
         </TabsContent>
         {canSeeCases ? (
           <TabsContent value="cases" className="mt-4">

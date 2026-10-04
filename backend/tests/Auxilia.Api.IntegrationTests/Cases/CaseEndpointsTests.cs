@@ -130,6 +130,44 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
     }
 
     [Fact]
+    public async Task ConsentsAndTags_AreKeptPerClient()
+    {
+        var admin = await SignInAsync(TenantRole.Administrator);
+        var (clientId, _) = await Factory.AddClientAsync();
+        var (otherId, _) = await Factory.AddClientAsync();
+        var name = "Tag " + Guid.NewGuid().ToString("N")[..8];
+
+        using var created = await SendAsync(HttpMethod.Post, "/api/v1/tags", admin, new SaveTagRequest(name, "#72fa29"));
+        created.StatusCode.ShouldBe(HttpStatusCode.Created, await created.Content.ReadAsStringAsync(Ct));
+        var tagId = (await created.Content.ReadFromJsonAsync<CreateTagResponse>(Ct))!.Id;
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, "/api/v1/tags", admin, new SaveTagRequest(name.ToUpperInvariant(), null)),
+            HttpStatusCode.BadRequest, EventCodes.Directory.TagInvalid);
+
+        using var set = await SendAsync(HttpMethod.Put, $"/api/v1/clients/{clientId}/tags", admin, new SetClientTagsRequest([tagId]));
+        (await set.Content.ReadFromJsonAsync<ClientTagResponse[]>(Ct))!.ShouldHaveSingleItem().Color.ShouldBe("#72FA29");
+        using var bulk = await SendAsync(HttpMethod.Post, "/api/v1/clients/tags", admin, new BulkClientTagsRequest([clientId, otherId], [tagId], null));
+        (await bulk.Content.ReadFromJsonAsync<BulkClientTagsResponse>(Ct))!.Changed.ShouldBe(1);
+        using var tagged = await SendAsync(HttpMethod.Get, $"/api/v1/clients?filter[tagId]={tagId}", admin);
+        (await tagged.Content.ReadFromJsonAsync<PagedResponse<ClientListItemResponse>>(Ct))!.Items.Select(item => item.Id).ShouldBe([clientId, otherId], ignoreOrder: true);
+
+        (await SendAsync(HttpMethod.Post, $"/api/v1/clients/{clientId}/consents", admin, new RecordConsentRequest("Marketing", "Email", true, "2026-01", null)))
+            .StatusCode.ShouldBe(HttpStatusCode.OK);
+        using var revoked = await SendAsync(HttpMethod.Post, $"/api/v1/clients/{clientId}/consents", admin, new RecordConsentRequest("Marketing", "Email", false, null, "asked"));
+        var consents = (await revoked.Content.ReadFromJsonAsync<ClientConsentsResponse>(Ct))!;
+        consents.Current.Single(state => state.Purpose == "Marketing" && state.Channel == "Email").ShouldSatisfyAllConditions(
+            state => state.Granted.ShouldBeFalse(), state => state.Source.ShouldBe("Staff"));
+        consents.History.Select(change => change.Granted).ShouldBe([false, true]);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/clients/{clientId}/consents", admin, new RecordConsentRequest("Spam", "Email", true, null, null)),
+            HttpStatusCode.BadRequest, EventCodes.Directory.ConsentInvalid);
+
+        var employee = await SignInAsync(TenantRole.Employee);
+        (await SendAsync(HttpMethod.Post, "/api/v1/tags", employee, new SaveTagRequest("Nope", null))).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await SendAsync(HttpMethod.Delete, $"/api/v1/tags/{tagId}", admin)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        using var after = await SendAsync(HttpMethod.Get, $"/api/v1/clients/{clientId}/tags", admin);
+        (await after.Content.ReadFromJsonAsync<ClientTagResponse[]>(Ct))!.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task InvalidRequests_AreFieldErrors()
     {
         var admin = await SignInAsync(TenantRole.Administrator);

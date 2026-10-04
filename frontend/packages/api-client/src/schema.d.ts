@@ -1667,6 +1667,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tags of the clients, by name, with the number of clients that have each */
+        get: operations["ListTags"];
+        put?: never;
+        /** Creates a tag (unique name, optional colour #rrggbb) */
+        post: operations["CreateTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames or recolours a tag */
+        put: operations["UpdateTag"];
+        post?: never;
+        /** Deletes a tag and takes it off every client */
+        delete: operations["DeleteTag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adds and removes tags on many clients at once (at most 500) */
+        post: operations["ChangeClientsTags"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The tags of a client */
+        get: operations["GetClientTags"];
+        /** Replaces the tags of a client */
+        put: operations["SetClientTags"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/clients/{id}/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The consents of a client: current state per purpose and channel and every change */
+        get: operations["GetClientConsents"];
+        put?: never;
+        /** Grants or revokes a consent of a client (source Staff); answers with the consents */
+        post: operations["RecordClientConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/employees": {
         parameters: {
             query?: never;
@@ -3047,6 +3136,15 @@ export interface components {
             background: components["schemas"]["BrandingBackgroundResponse"];
             logoVersion: null | string;
         };
+        BulkClientTagsRequest: {
+            clientIds: string[];
+            add: null | string[];
+            remove: null | string[];
+        };
+        BulkClientTagsResponse: {
+            /** Format: int32 */
+            changed: number | string;
+        };
         CaptchaChallengeResponse: {
             provider: string;
             altcha: null | components["schemas"]["AltchaChallengeResponse"];
@@ -3201,6 +3299,10 @@ export interface components {
             /** Format: date-time */
             endedAt: null | string;
         };
+        ClientConsentsResponse: {
+            current: components["schemas"]["ConsentStateResponse"][];
+            history: components["schemas"]["ConsentChangeResponse"][];
+        };
         ClientDetailResponse: {
             /** Format: uuid */
             id: string;
@@ -3255,11 +3357,38 @@ export interface components {
             id: string;
             name: string;
         };
+        ClientTagResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            color: null | string;
+        };
         CompleteCaseRequest: {
             /** Format: double */
             amountPaid: null | number | string;
             rejected: boolean;
             note: null | string;
+        };
+        ConsentChangeResponse: {
+            /** Format: uuid */
+            id: string;
+            purpose: string;
+            channel: string;
+            granted: boolean;
+            source: string;
+            version: null | string;
+            note: null | string;
+            /** Format: date-time */
+            recordedAt: string;
+            recordedBy: null | string;
+        };
+        ConsentStateResponse: {
+            purpose: string;
+            channel: string;
+            granted: boolean;
+            /** Format: date-time */
+            since: null | string;
+            source: null | string;
         };
         CreateClientRequest: {
             firstName: string;
@@ -3390,6 +3519,10 @@ export interface components {
             isPrivate: boolean;
         };
         CreateSpecializationResponse: {
+            /** Format: uuid */
+            id: string;
+        };
+        CreateTagResponse: {
             /** Format: uuid */
             id: string;
         };
@@ -4138,6 +4271,13 @@ export interface components {
             theme: string;
             imageVersion: null | string;
         };
+        RecordConsentRequest: {
+            purpose: string;
+            channel: string;
+            granted: boolean;
+            version: null | string;
+            note: null | string;
+        };
         RegistrationProcessorResponse: {
             /** Format: uuid */
             userId: string;
@@ -4276,6 +4416,10 @@ export interface components {
         SaveServiceChecklistRequest: {
             items: components["schemas"]["ServiceChecklistItemRequest"][];
         };
+        SaveTagRequest: {
+            name: string;
+            color: null | string;
+        };
         SaveTaskRequest: {
             title: string;
             notes: null | string;
@@ -4399,6 +4543,9 @@ export interface components {
         SetClientSpecializationsRequest: {
             specializationIds: string[];
         };
+        SetClientTagsRequest: {
+            tagIds: string[];
+        };
         SetEmployeeAdministratorRequest: {
             /** Format: uuid */
             administratorUserId: string;
@@ -4488,6 +4635,14 @@ export interface components {
             privacyVersion: string;
             language: null | string;
             captcha: null | string;
+        };
+        TagResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            color: null | string;
+            /** Format: int32 */
+            clientCount: number | string;
         };
         TaskAssigneeResponse: {
             /** Format: uuid */
@@ -10065,6 +10220,7 @@ export interface operations {
                 "filter[phone]"?: string;
                 "filter[status]"?: string;
                 "filter[employeeUserId]"?: string;
+                "filter[tagId]"?: string;
                 sort?: string;
                 page?: number | string;
                 pageSize?: number | string;
@@ -10533,6 +10689,313 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClientPasswordResetResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagResponse"][];
+                };
+            };
+        };
+    };
+    CreateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveTagRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateTagResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveTagRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ChangeClientsTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkClientTagsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkClientTagsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    GetClientTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientTagResponse"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SetClientTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetClientTagsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientTagResponse"][];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetClientConsents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientConsentsResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    RecordClientConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClientConsentsResponse"];
                 };
             };
             /** @description Bad Request */

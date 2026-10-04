@@ -467,7 +467,7 @@ internal sealed class ClientQueryService(IClientDataFactory data, IUserAccounts 
         var (items, total) = await store.PageAsync(
             new ClientFilter(
                 mine, Text(query.FullName), Text(query.LastName), Text(query.Email), Text(query.UserName), Text(query.Phone), status,
-                sort, query.Sort?.StartsWith('-') == true, (query.Page - 1) * query.PageSize, query.PageSize),
+                sort, query.Sort?.StartsWith('-') == true, (query.Page - 1) * query.PageSize, query.PageSize, query.TagId),
             cancellationToken);
 
         return new PagedResponse<ClientListItemResponse>(

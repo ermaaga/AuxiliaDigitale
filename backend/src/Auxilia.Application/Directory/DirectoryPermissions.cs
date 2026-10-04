@@ -30,6 +30,9 @@ public static class DirectoryPermissions
     /// <summary>Approve or reject registration requests (F03).</summary>
     public const string ReviewRegistrations = "directory.registrations.review";
 
+    /// <summary>Create, rename and delete the tags of the clients (N01, M-01).</summary>
+    public const string ManageTags = "directory.tags.manage";
+
     public static IReadOnlyList<PermissionDefinition> All { get; } =
     [
         new(ViewClients, [TenantRole.Administrator, TenantRole.Employee]),
@@ -40,5 +43,6 @@ public static class DirectoryPermissions
         new(ViewEmployees, [TenantRole.Administrator]),
         new(ManageEmployees, [TenantRole.Administrator]),
         new(ReviewRegistrations, [TenantRole.Administrator, TenantRole.Employee]),
+        new(ManageTags, [TenantRole.Administrator]),
     ];
 }

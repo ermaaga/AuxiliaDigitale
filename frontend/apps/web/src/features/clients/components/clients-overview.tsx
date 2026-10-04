@@ -16,6 +16,7 @@ import { tenantHref } from "@/lib/href";
 import { useHasRole } from "@/lib/permissions";
 
 import { clientName, useAssignableEmployees, useClients, type ClientListItem } from "../api";
+import { BulkTags } from "./bulk-tags";
 import { ClientStatusBadge } from "./client-status-badge";
 
 /** The columns of the overview and of its PDF (legacy `ClientsOverview`, F07). */
@@ -155,9 +156,12 @@ export function ClientsOverview({ tenant, title }: { tenant: string; title: stri
           {t("app.clients.overview.total", { count: Number(query.data?.totalCount ?? 0) })}
         </span>
         {selected.size > 0 ? (
-          <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
-            {t("app.clients.overview.clearSelection", { count: selected.size })}
-          </Button>
+          <span className="flex flex-wrap items-center gap-2">
+            <BulkTags tenant={tenant} clientIds={[...selected]} />
+            <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+              {t("app.clients.overview.clearSelection", { count: selected.size })}
+            </Button>
+          </span>
         ) : null}
       </div>
       <DataTable
