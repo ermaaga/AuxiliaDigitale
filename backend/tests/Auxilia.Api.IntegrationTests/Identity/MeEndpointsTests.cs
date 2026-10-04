@@ -44,19 +44,20 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
         me.Permissions.ShouldNotContain(CasesPermissions.ManageServices);
         me.Permissions.ShouldNotContain(IdentityPermissions.ViewSessions);
 
-        // Modules outside the tenant's catalog (e.g. marketing in this test catalog) grant nothing.
+        // Only the modules of the tenant's catalog grant permissions.
         me.Permissions.ShouldAllBe(permission => permission.StartsWith("cases.", StringComparison.Ordinal)
             || permission.StartsWith("identity.", StringComparison.Ordinal)
             || permission.StartsWith("directory.", StringComparison.Ordinal)
             || permission.StartsWith("documents.", StringComparison.Ordinal)
             || permission.StartsWith("scheduling.", StringComparison.Ordinal)
             || permission.StartsWith("engagement.", StringComparison.Ordinal)
-            || permission.StartsWith("reporting.", StringComparison.Ordinal));
+            || permission.StartsWith("reporting.", StringComparison.Ordinal)
+            || permission.StartsWith("marketing.", StringComparison.Ordinal));
     }
 
     [Theory]
-    [InlineData("Administrator", new[] { "dashboard", "clients", "employees", "cases", "services", "appointments", "documents", "requests", "tasks", "sessions", "loginAudit" })]
-    [InlineData("Employee", new[] { "dashboard", "clients", "cases", "appointments", "documents", "requests", "tasks" })]
+    [InlineData("Administrator", new[] { "dashboard", "clients", "employees", "cases", "services", "appointments", "documents", "requests", "tasks", "marketing", "sessions", "loginAudit" })]
+    [InlineData("Employee", new[] { "dashboard", "clients", "cases", "appointments", "documents", "requests", "tasks", "marketing" })]
     [InlineData("Client", new[] { "dashboard", "appointments", "requests" })]
     public async Task Navigation_FollowsModulesRolesAndPermissions(string role, string[] keys)
     {
@@ -65,7 +66,7 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
 
         var items = (await GetJsonAsync<NavigationItemResponse[]>("/api/v1/me/navigation", token))!;
 
-        // Tenant A: cases, directory and documents in the plan for Administrator and Employee only, scheduling, engagement and reporting for all; identity is Core.
+        // Tenant A: cases, directory and documents in the plan for Administrator and Employee only, scheduling, engagement and reporting for all, marketing for staff; identity is Core.
         items.Select(item => item.Key).ShouldBe(keys);
     }
 

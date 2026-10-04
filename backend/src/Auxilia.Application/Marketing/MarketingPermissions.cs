@@ -12,9 +12,17 @@ public static class MarketingPermissions
     /// <summary>Create, schedule and send campaigns (N01).</summary>
     public const string ManageCampaigns = "marketing.campaigns.manage";
 
+    /// <summary>Segments and static lists (N01, M-02).</summary>
+    public const string ViewAudiences = "marketing.audiences.view";
+
+    /// <summary>Create and change segments and static lists (N01, M-02).</summary>
+    public const string ManageAudiences = "marketing.audiences.manage";
+
     public static IReadOnlyList<PermissionDefinition> All { get; } =
     [
         new(ViewCampaigns, [TenantRole.Administrator, TenantRole.Employee]),
         new(ManageCampaigns, [TenantRole.Administrator, TenantRole.Employee]),
+        new(ViewAudiences, [TenantRole.Administrator, TenantRole.Employee]),
+        new(ManageAudiences, [TenantRole.Administrator, TenantRole.Employee]),
     ];
 }

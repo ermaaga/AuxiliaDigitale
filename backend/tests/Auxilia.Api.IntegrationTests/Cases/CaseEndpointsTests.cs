@@ -8,6 +8,7 @@ using Auxilia.Contracts.Cases;
 using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Directory;
 using Auxilia.Contracts.Engagement;
+using Auxilia.Contracts.Marketing;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
@@ -165,6 +166,59 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
         (await SendAsync(HttpMethod.Delete, $"/api/v1/tags/{tagId}", admin)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
         using var after = await SendAsync(HttpMethod.Get, $"/api/v1/clients/{clientId}/tags", admin);
         (await after.Content.ReadFromJsonAsync<ClientTagResponse[]>(Ct))!.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Segments_TranslateEveryConditionToSql_AndListsKeepTheirMembers()
+    {
+        var admin = await SignInAsync(TenantRole.Administrator);
+        var (first, _) = await Factory.AddClientAsync();
+        var (second, _) = await Factory.AddClientAsync();
+        var serviceId = await ServiceAsync(admin, null, 50m);
+        await OpenAsync(admin, new OpenCaseRequest(first, serviceId, null, null, null, null, null));
+        using var tag = await SendAsync(HttpMethod.Post, "/api/v1/tags", admin, new SaveTagRequest("Segment " + Guid.NewGuid().ToString("N")[..8], null));
+        var tagId = (await tag.Content.ReadFromJsonAsync<CreateTagResponse>(Ct))!.Id;
+        await SendAsync(HttpMethod.Put, $"/api/v1/clients/{second}/tags", admin, new SetClientTagsRequest([tagId]));
+
+        static SegmentConditionRequest Condition(string field, string op, object? value, string? key = null) =>
+            new(field, op, value is null ? null : JsonSerializer.SerializeToElement(value), key);
+
+        // Every field once, to run its SQL; the count itself depends on the shared database.
+        using var everything = await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments/preview", admin, new SegmentRuleRequest("any",
+        [
+            Condition("status", "isNot", "Active"), Condition("employee", "none", null), Condition("tag", "hasNot", tagId.ToString()),
+            Condition("specialization", "has", Guid.NewGuid().ToString()), Condition("service", "has", serviceId.ToString()), Condition("caseStatus", "has", "Inserted"),
+            Condition("age", "atLeast", 18), Condition("age", "atMost", 99), Condition("createdOn", "onOrAfter", "2020-01-01"), Condition("createdOn", "onOrBefore", "2100-01-01"),
+            Condition("customField", "is", true, "caf"),
+        ], [new SegmentGroupRequest("all", [Condition("employee", "isNot", Guid.NewGuid().ToString())])]));
+        everything.StatusCode.ShouldBe(HttpStatusCode.OK, await everything.Content.ReadAsStringAsync(Ct));
+
+        using var preview = await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments/preview", admin, new SegmentRuleRequest("any",
+            [Condition("tag", "has", tagId.ToString()), Condition("service", "has", serviceId.ToString())], null));
+        var selected = (await preview.Content.ReadFromJsonAsync<SegmentPreviewResponse>(Ct))!;
+        (selected.Count, selected.Sample.Select(member => member.Id).Order().ToArray()).ShouldBe((2, new[] { first, second }.Order().ToArray()));
+
+        using var created = await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments", admin,
+            new SaveSegmentRequest("Tagged " + Guid.NewGuid().ToString("N")[..8], null, new SegmentRuleRequest("all", [Condition("tag", "has", tagId.ToString())], null)));
+        created.StatusCode.ShouldBe(HttpStatusCode.Created, await created.Content.ReadAsStringAsync(Ct));
+        var segmentId = (await created.Content.ReadFromJsonAsync<CreatedAudienceResponse>(Ct))!.Id;
+        using var segment = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/segments/{segmentId}", admin);
+        (await segment.Content.ReadFromJsonAsync<SegmentResponse>(Ct))!.MemberCount.ShouldBe(1);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments/preview", admin, new SegmentRuleRequest("all", [Condition("age", "atLeast", "old")], null)),
+            HttpStatusCode.BadRequest, EventCodes.Marketing.SegmentInvalid);
+
+        using var list = await SendAsync(HttpMethod.Post, "/api/v1/marketing/lists", admin, new SaveStaticListRequest("List " + Guid.NewGuid().ToString("N")[..8], null));
+        var listId = (await list.Content.ReadFromJsonAsync<CreatedAudienceResponse>(Ct))!.Id;
+        using var added = await SendAsync(HttpMethod.Post, $"/api/v1/marketing/lists/{listId}/members", admin, new ListMembersRequest([first, second, Guid.NewGuid()]));
+        (await added.Content.ReadFromJsonAsync<ListMembersChangedResponse>(Ct))!.Changed.ShouldBe(2);
+        await SendAsync(HttpMethod.Post, $"/api/v1/marketing/lists/{listId}/members/remove", admin, new ListMembersRequest([first]));
+        using var members = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/lists/{listId}/members", admin);
+        (await members.Content.ReadFromJsonAsync<PagedResponse<AudienceMemberResponse>>(Ct))!.Items.Select(member => member.Id).ShouldBe([second]);
+
+        // An employee sees only the clients in their charge (none of these).
+        var employee = await SignInAsync(TenantRole.Employee);
+        using var theirs = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/lists/{listId}", employee);
+        (await theirs.Content.ReadFromJsonAsync<StaticListResponse>(Ct))!.MemberCount.ShouldBe(0);
     }
 
     [Fact]
