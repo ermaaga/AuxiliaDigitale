@@ -20,6 +20,7 @@ import {
   ShieldCheckIcon,
   SlidersHorizontalIcon,
   Table2Icon,
+  UploadIcon,
   UserCogIcon,
   UsersIcon,
   type LucideIcon,
@@ -47,6 +48,7 @@ const icons: Record<string, LucideIcon> = {
   "shield-check": ShieldCheckIcon,
   sliders: SlidersHorizontalIcon,
   table: Table2Icon,
+  upload: UploadIcon,
   "user-cog": UserCogIcon,
   users: UsersIcon,
 };

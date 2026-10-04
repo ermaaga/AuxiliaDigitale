@@ -1,0 +1,632 @@
+[
+ {
+  "key": "modules.imports.name",
+  "category": "modules",
+  "en": "Imports",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.nav.imports",
+  "category": "app",
+  "en": "Imports",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.imports.title",
+  "category": "app",
+  "en": "Imports",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.imports.description",
+  "category": "app",
+  "en": "Load employees, clients, services and cases from Excel files: the rows are checked before anything is created.",
+  "it": "Carica operatori, clienti, servizi e pratiche da file Excel: le righe vengono controllate prima di creare qualcosa."
+ },
+ {
+  "key": "app.platform.imports.typesTitle",
+  "category": "app",
+  "en": "Import types",
+  "it": "Tipi di import"
+ },
+ {
+  "key": "app.platform.imports.typesDescription",
+  "category": "app",
+  "en": "A type says what a file contains. Download its template, fill it in and upload it below.",
+  "it": "Un tipo indica cosa contiene un file. Scarica il suo modello, compilalo e caricalo qui sotto."
+ },
+ {
+  "key": "app.platform.imports.entity",
+  "category": "app",
+  "en": "Entity",
+  "it": "Entità"
+ },
+ {
+  "key": "app.platform.imports.chooseEntity",
+  "category": "app",
+  "en": "Choose the entity",
+  "it": "Scegli l'entità"
+ },
+ {
+  "key": "app.platform.imports.typeName",
+  "category": "app",
+  "en": "Type name (optional)",
+  "it": "Nome del tipo (facoltativo)"
+ },
+ {
+  "key": "app.platform.imports.newType",
+  "category": "app",
+  "en": "New type",
+  "it": "Nuovo tipo"
+ },
+ {
+  "key": "app.platform.imports.typeCreated",
+  "category": "app",
+  "en": "Import type created.",
+  "it": "Tipo di import creato."
+ },
+ {
+  "key": "app.platform.imports.typeDeleted",
+  "category": "app",
+  "en": "Import type deleted.",
+  "it": "Tipo di import eliminato."
+ },
+ {
+  "key": "app.platform.imports.createdAt",
+  "category": "app",
+  "en": "Created",
+  "it": "Creato"
+ },
+ {
+  "key": "app.platform.imports.startedAt",
+  "category": "app",
+  "en": "Started",
+  "it": "Avviato"
+ },
+ {
+  "key": "app.platform.imports.completedAt",
+  "category": "app",
+  "en": "Finished",
+  "it": "Concluso"
+ },
+ {
+  "key": "app.platform.imports.count",
+  "category": "app",
+  "en": "Imports",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.imports.template",
+  "category": "app",
+  "en": "Template",
+  "it": "Modello"
+ },
+ {
+  "key": "app.platform.imports.templateNamed",
+  "category": "app",
+  "en": "Download the template of {type}",
+  "it": "Scarica il modello di {type}"
+ },
+ {
+  "key": "app.platform.imports.fields",
+  "category": "app",
+  "en": "Columns",
+  "it": "Colonne"
+ },
+ {
+  "key": "app.platform.imports.fieldsNamed",
+  "category": "app",
+  "en": "Columns of {type}",
+  "it": "Colonne di {type}"
+ },
+ {
+  "key": "app.platform.imports.fieldsOf",
+  "category": "app",
+  "en": "Columns of {type}",
+  "it": "Colonne di {type}"
+ },
+ {
+  "key": "app.platform.imports.fieldsHint",
+  "category": "app",
+  "en": "The first row of the file holds these column names; the required ones are red in the template.",
+  "it": "La prima riga del file contiene questi nomi di colonna; quelle obbligatorie sono rosse nel modello."
+ },
+ {
+  "key": "app.platform.imports.required",
+  "category": "app",
+  "en": "Required",
+  "it": "Obbligatoria"
+ },
+ {
+  "key": "app.platform.imports.optional",
+  "category": "app",
+  "en": "Optional",
+  "it": "Facoltativa"
+ },
+ {
+  "key": "app.platform.imports.deleteTypeNamed",
+  "category": "app",
+  "en": "Delete the type {type}",
+  "it": "Elimina il tipo {type}"
+ },
+ {
+  "key": "app.platform.imports.deleteTypeTitle",
+  "category": "app",
+  "en": "Delete the import type?",
+  "it": "Eliminare il tipo di import?"
+ },
+ {
+  "key": "app.platform.imports.deleteTypeText",
+  "category": "app",
+  "en": "The type {type} will be deleted. Types with imports cannot be deleted.",
+  "it": "Il tipo {type} verrà eliminato. I tipi con import non si possono eliminare."
+ },
+ {
+  "key": "app.platform.imports.newTitle",
+  "category": "app",
+  "en": "New import",
+  "it": "Nuovo import"
+ },
+ {
+  "key": "app.platform.imports.newDescription",
+  "category": "app",
+  "en": "Upload an Excel file (.xlsx) made from the template of a type: its rows are checked, then you see a preview.",
+  "it": "Carica un file Excel (.xlsx) fatto dal modello di un tipo: le righe vengono controllate, poi ne vedi l'anteprima."
+ },
+ {
+  "key": "app.platform.imports.name",
+  "category": "app",
+  "en": "Import name",
+  "it": "Nome dell'import"
+ },
+ {
+  "key": "app.platform.imports.type",
+  "category": "app",
+  "en": "Import type",
+  "it": "Tipo di import"
+ },
+ {
+  "key": "app.platform.imports.chooseType",
+  "category": "app",
+  "en": "Choose the type",
+  "it": "Scegli il tipo"
+ },
+ {
+  "key": "app.platform.imports.file",
+  "category": "app",
+  "en": "Excel file",
+  "it": "File Excel"
+ },
+ {
+  "key": "app.platform.imports.fileHint",
+  "category": "app",
+  "en": "Excel .xlsx, at most 10 MB and 5000 rows.",
+  "it": "Excel .xlsx, al massimo 10 MB e 5000 righe."
+ },
+ {
+  "key": "app.platform.imports.upload",
+  "category": "app",
+  "en": "Upload and check",
+  "it": "Carica e controlla"
+ },
+ {
+  "key": "app.platform.imports.started",
+  "category": "app",
+  "en": "File uploaded: the rows are being checked.",
+  "it": "File caricato: le righe sono in controllo."
+ },
+ {
+  "key": "app.platform.imports.listTitle",
+  "category": "app",
+  "en": "Imports",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.imports.listDescription",
+  "category": "app",
+  "en": "Newest first. The list refreshes by itself while an import is running.",
+  "it": "Dal più recente. L'elenco si aggiorna da solo mentre un import è in corso."
+ },
+ {
+  "key": "app.platform.imports.progress",
+  "category": "app",
+  "en": "Progress",
+  "it": "Avanzamento"
+ },
+ {
+  "key": "app.platform.imports.progressOf",
+  "category": "app",
+  "en": "Progress of {name}",
+  "it": "Avanzamento di {name}"
+ },
+ {
+  "key": "app.platform.imports.counters",
+  "category": "app",
+  "en": "{total} rows: {success} ok, {failed} with errors",
+  "it": "{total} righe: {success} corrette, {failed} con errori"
+ },
+ {
+  "key": "app.platform.imports.details",
+  "category": "app",
+  "en": "Details",
+  "it": "Dettagli"
+ },
+ {
+  "key": "app.platform.imports.detailsNamed",
+  "category": "app",
+  "en": "Details of {name}",
+  "it": "Dettagli di {name}"
+ },
+ {
+  "key": "app.platform.imports.deleteNamed",
+  "category": "app",
+  "en": "Delete {name}",
+  "it": "Elimina {name}"
+ },
+ {
+  "key": "app.platform.imports.deleteTitle",
+  "category": "app",
+  "en": "Delete the import?",
+  "it": "Eliminare l'import?"
+ },
+ {
+  "key": "app.platform.imports.deleteText",
+  "category": "app",
+  "en": "The import {name} and its rows will be deleted. The records already created stay.",
+  "it": "L'import {name} e le sue righe verranno eliminati. I dati già creati restano."
+ },
+ {
+  "key": "app.platform.imports.deleted",
+  "category": "app",
+  "en": "Import deleted.",
+  "it": "Import eliminato."
+ },
+ {
+  "key": "app.platform.imports.back",
+  "category": "app",
+  "en": "Back to the imports",
+  "it": "Torna agli import"
+ },
+ {
+  "key": "app.platform.imports.notFound",
+  "category": "app",
+  "en": "This import does not exist.",
+  "it": "Questo import non esiste."
+ },
+ {
+  "key": "app.platform.imports.detailTitle",
+  "category": "app",
+  "en": "Import",
+  "it": "Import"
+ },
+ {
+  "key": "app.platform.imports.detailDescription",
+  "category": "app",
+  "en": "The rows read from the file with their errors; import the valid ones or cancel.",
+  "it": "Le righe lette dal file con i loro errori; importa quelle corrette o annulla."
+ },
+ {
+  "key": "app.platform.imports.failed",
+  "category": "app",
+  "en": "The file could not be used:",
+  "it": "Il file non è utilizzabile:"
+ },
+ {
+  "key": "app.platform.imports.confirm",
+  "category": "app",
+  "en": "Import the valid rows",
+  "it": "Importa le righe corrette"
+ },
+ {
+  "key": "app.platform.imports.confirmTitle",
+  "category": "app",
+  "en": "Import the valid rows?",
+  "it": "Importare le righe corrette?"
+ },
+ {
+  "key": "app.platform.imports.confirmText",
+  "category": "app",
+  "en": "{count} rows will be created; the rows with errors are skipped. New employees and clients receive the activation e-mail.",
+  "it": "Verranno create {count} righe; quelle con errori sono saltate. I nuovi operatori e clienti ricevono l'e-mail di attivazione."
+ },
+ {
+  "key": "app.platform.imports.confirmed",
+  "category": "app",
+  "en": "Import started.",
+  "it": "Import avviato."
+ },
+ {
+  "key": "app.platform.imports.cancel",
+  "category": "app",
+  "en": "Cancel the import",
+  "it": "Annulla l'import"
+ },
+ {
+  "key": "app.platform.imports.cancelTitle",
+  "category": "app",
+  "en": "Cancel the import?",
+  "it": "Annullare l'import?"
+ },
+ {
+  "key": "app.platform.imports.cancelText",
+  "category": "app",
+  "en": "Nothing will be created and the rows read are discarded.",
+  "it": "Non verrà creato nulla e le righe lette saranno scartate."
+ },
+ {
+  "key": "app.platform.imports.cancelled",
+  "category": "app",
+  "en": "Import cancelled.",
+  "it": "Import annullato."
+ },
+ {
+  "key": "app.platform.imports.rowsTitle",
+  "category": "app",
+  "en": "Rows",
+  "it": "Righe"
+ },
+ {
+  "key": "app.platform.imports.rowsDescription",
+  "category": "app",
+  "en": "The values read for every column; errors are shown under the value.",
+  "it": "I valori letti per ogni colonna; gli errori sono sotto al valore."
+ },
+ {
+  "key": "app.platform.imports.rowsDiscarded",
+  "category": "app",
+  "en": "The import was cancelled: its rows were discarded.",
+  "it": "L'import è stato annullato: le sue righe sono state scartate."
+ },
+ {
+  "key": "app.platform.imports.row",
+  "category": "app",
+  "en": "Row",
+  "it": "Riga"
+ },
+ {
+  "key": "app.platform.imports.rowErrors",
+  "category": "app",
+  "en": "Other errors",
+  "it": "Altri errori"
+ },
+ {
+  "key": "app.platform.imports.entities.Employee",
+  "category": "app",
+  "en": "Employees",
+  "it": "Operatori"
+ },
+ {
+  "key": "app.platform.imports.entities.Client",
+  "category": "app",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "app.platform.imports.entities.Service",
+  "category": "app",
+  "en": "Services",
+  "it": "Servizi"
+ },
+ {
+  "key": "app.platform.imports.entities.Case",
+  "category": "app",
+  "en": "Cases",
+  "it": "Pratiche"
+ },
+ {
+  "key": "app.platform.imports.status.Pending",
+  "category": "app",
+  "en": "Waiting",
+  "it": "In attesa"
+ },
+ {
+  "key": "app.platform.imports.status.Validating",
+  "category": "app",
+  "en": "Checking",
+  "it": "In controllo"
+ },
+ {
+  "key": "app.platform.imports.status.AwaitingConfirmation",
+  "category": "app",
+  "en": "To confirm",
+  "it": "Da confermare"
+ },
+ {
+  "key": "app.platform.imports.status.Processing",
+  "category": "app",
+  "en": "Importing",
+  "it": "In importazione"
+ },
+ {
+  "key": "app.platform.imports.status.Completed",
+  "category": "app",
+  "en": "Completed",
+  "it": "Completato"
+ },
+ {
+  "key": "app.platform.imports.status.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallito"
+ },
+ {
+  "key": "app.platform.imports.status.Cancelled",
+  "category": "app",
+  "en": "Cancelled",
+  "it": "Annullato"
+ },
+ {
+  "key": "app.platform.imports.rowStatus.Valid",
+  "category": "app",
+  "en": "Valid",
+  "it": "Corretta"
+ },
+ {
+  "key": "app.platform.imports.rowStatus.Invalid",
+  "category": "app",
+  "en": "With errors",
+  "it": "Con errori"
+ },
+ {
+  "key": "app.platform.imports.rowStatus.Imported",
+  "category": "app",
+  "en": "Imported",
+  "it": "Importata"
+ },
+ {
+  "key": "app.platform.imports.rowStatus.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Non importata"
+ },
+ {
+  "key": "app.imports.field.employee",
+  "category": "app",
+  "en": "Employee in charge (user name)",
+  "it": "Operatore di riferimento (user name)"
+ },
+ {
+  "key": "app.imports.field.canSignIn",
+  "category": "app",
+  "en": "Can sign in (yes/no)",
+  "it": "Può accedere (sì/no)"
+ },
+ {
+  "key": "app.imports.field.clientFiscalCode",
+  "category": "app",
+  "en": "Client fiscal code",
+  "it": "Codice fiscale del cliente"
+ },
+ {
+  "key": "validation.imports.required",
+  "category": "validation",
+  "en": "Required.",
+  "it": "Obbligatorio."
+ },
+ {
+  "key": "validation.imports.date",
+  "category": "validation",
+  "en": "Not a date (use dd/mm/yyyy or yyyy-mm-dd).",
+  "it": "Non è una data (usa gg/mm/aaaa o aaaa-mm-gg)."
+ },
+ {
+  "key": "validation.imports.number",
+  "category": "validation",
+  "en": "Not a number.",
+  "it": "Non è un numero."
+ },
+ {
+  "key": "validation.imports.boolean",
+  "category": "validation",
+  "en": "Use yes or no.",
+  "it": "Usa sì o no."
+ },
+ {
+  "key": "validation.imports.duplicate",
+  "category": "validation",
+  "en": "Repeated in the file.",
+  "it": "Ripetuto nel file."
+ },
+ {
+  "key": "validation.imports.notFound",
+  "category": "validation",
+  "en": "Not found.",
+  "it": "Non trovato."
+ },
+ {
+  "key": "validation.imports.taken",
+  "category": "validation",
+  "en": "Already used.",
+  "it": "Già usato."
+ },
+ {
+  "key": "validation.imports.entity",
+  "category": "validation",
+  "en": "Choose an entity that can be imported.",
+  "it": "Scegli un'entità importabile."
+ },
+ {
+  "key": "validation.imports.typeName",
+  "category": "validation",
+  "en": "Enter at most 100 characters.",
+  "it": "Inserisci al massimo 100 caratteri."
+ },
+ {
+  "key": "validation.imports.typeNameTaken",
+  "category": "validation",
+  "en": "Another import type has this name.",
+  "it": "Un altro tipo di import ha questo nome."
+ },
+ {
+  "key": "validation.imports.name",
+  "category": "validation",
+  "en": "Enter a name (at most 100 characters).",
+  "it": "Inserisci un nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.imports.file",
+  "category": "validation",
+  "en": "Choose an Excel file (.xlsx).",
+  "it": "Scegli un file Excel (.xlsx)."
+ },
+ {
+  "key": "validation.imports.fileSize",
+  "category": "validation",
+  "en": "The file is larger than 10 MB.",
+  "it": "Il file supera i 10 MB."
+ },
+ {
+  "key": "validation.imports.type",
+  "category": "validation",
+  "en": "Choose an import type.",
+  "it": "Scegli un tipo di import."
+ },
+ {
+  "key": "validation.imports.rowStatus",
+  "category": "validation",
+  "en": "Unknown row status.",
+  "it": "Stato della riga sconosciuto."
+ },
+ {
+  "key": "errors.AUX-22003",
+  "category": "errors",
+  "en": "The import type is not valid.",
+  "it": "Il tipo di import non è valido."
+ },
+ {
+  "key": "errors.AUX-22004",
+  "category": "errors",
+  "en": "The import type does not exist.",
+  "it": "Il tipo di import non esiste."
+ },
+ {
+  "key": "errors.AUX-22005",
+  "category": "errors",
+  "en": "The import type has imports: delete them first.",
+  "it": "Il tipo di import ha degli import: eliminali prima."
+ },
+ {
+  "key": "errors.AUX-22007",
+  "category": "errors",
+  "en": "The import is not valid.",
+  "it": "L'import non è valido."
+ },
+ {
+  "key": "errors.AUX-22008",
+  "category": "errors",
+  "en": "The import does not exist.",
+  "it": "L'import non esiste."
+ },
+ {
+  "key": "errors.AUX-22010",
+  "category": "errors",
+  "en": "The file cannot be read: check that it is an Excel file made from the template.",
+  "it": "Il file non è leggibile: verifica che sia un file Excel fatto dal modello."
+ },
+ {
+  "key": "errors.AUX-22012",
+  "category": "errors",
+  "en": "This is not possible in the current status of the import.",
+  "it": "Non è possibile nello stato attuale dell'import."
+ }
+]

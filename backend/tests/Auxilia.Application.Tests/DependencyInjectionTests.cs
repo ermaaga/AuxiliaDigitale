@@ -83,11 +83,11 @@ public sealed class DependencyInjectionTests
 
         registry.All.Select(module => module.Code).ShouldBe(
         [
-            "cases", "configuration", "directory", "documents", "engagement", "identity", "localization", "marketing",
+            "cases", "configuration", "directory", "documents", "engagement", "identity", "imports", "localization", "marketing",
             "messaging", "reporting", "scheduling", "testing",
         ]);
         extra.ServicesAdded.ShouldBe(1);
         registry.All.Where(module => module.Kind == ModuleKind.Core).Select(module => module.Code)
-            .ShouldBe(["configuration", "identity", "localization", "messaging"]);
+            .ShouldBe(["configuration", "identity", "imports", "localization", "messaging"]);
     }
 }

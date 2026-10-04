@@ -22,7 +22,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 19000–19999 | Marketing | Marketing | 0 | 19001 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
-| 22000–22999 | Imports | Imports | 0 | 22001 |
+| 22000–22999 | Imports | Imports | 16 | 22017 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 22 | 25023 |
@@ -318,6 +318,22 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-21009 | Localization.TranslationRemoved | – | – | Localization.RemoveTranslation (success) | – |
 | AUX-21010 | Localization.MissingKey | Warning | – | – | Translation key {ResourceKey} has no translation (language {LanguageCode}); the key is shown |
 | AUX-21011 | Localization.TranslationNotFound | – | NotFound | – | – |
+| AUX-22001 | Imports.ImportTypeCreated | – | – | Imports.CreateImportType (success) | – |
+| AUX-22002 | Imports.ImportTypeDeleted | – | – | Imports.DeleteImportType (success) | – |
+| AUX-22003 | Imports.ImportTypeInvalid | – | Validation | – | – |
+| AUX-22004 | Imports.ImportTypeNotFound | – | NotFound | – | – |
+| AUX-22005 | Imports.ImportTypeInUse | – | Conflict | – | – |
+| AUX-22006 | Imports.ImportStarted | – | – | Imports.StartImport (success) | – |
+| AUX-22007 | Imports.ImportInvalid | – | Validation | – | – |
+| AUX-22008 | Imports.ImportNotFound | – | NotFound | – | – |
+| AUX-22009 | Imports.ImportValidated | – | – | Imports.ValidateImport (success) | – |
+| AUX-22010 | Imports.ImportFileUnreadable | – | Failure | – | – |
+| AUX-22011 | Imports.ImportConfirmed | – | – | Imports.ConfirmImport (success) | – |
+| AUX-22012 | Imports.ImportStatusInvalid | – | Conflict | – | – |
+| AUX-22013 | Imports.ImportProcessed | – | – | Imports.ProcessImport (success) | – |
+| AUX-22014 | Imports.ImportCancelled | – | – | Imports.CancelImport (success) | – |
+| AUX-22015 | Imports.ImportDeleted | – | – | Imports.DeleteImport (success) | – |
+| AUX-22016 | Imports.ImportProgressSaved | – | – | Imports.SaveImportProgress (success) | – |
 | AUX-23001 | Bus.MessageHandled | – | – | Bus.HandleMessage (success) | – |
 | AUX-23002 | Bus.DuplicateMessageSkipped | Information | – | – | Message {MessageId} already handled by {Handler}: skipped |
 | AUX-23003 | Bus.MessageTenantMissing | Error | Validation | – | Tenant message {MessageType} {MessageId} has no tenant header |

@@ -70,6 +70,8 @@ public sealed class DirectoryModule : IModuleDescriptor
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Reporting.IDashboardContributor, DirectoryDashboard>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, ClientExportSource>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, EmployeeExportSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, ClientImportTarget>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, EmployeeImportTarget>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, RegistrationExportSource>());
         services.TryAddScoped<ISpecializationManager, SpecializationManager>();
         services.TryAddScoped<ISpecializationQueryService, SpecializationQueryService>();

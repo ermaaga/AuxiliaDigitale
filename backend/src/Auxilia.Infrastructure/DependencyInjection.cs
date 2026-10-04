@@ -59,6 +59,7 @@ public static class DependencyInjection
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.CsvExportWriter>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.XlsxExportWriter>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Exports.IExportWriter, Adapters.Exports.PdfExportWriter>());
+        services.TryAddSingleton<Application.Abstractions.Imports.IImportWorkbook, Adapters.Imports.XlsxImportWorkbook>();
 
         // File storage of the documents (ARCHITECTURE §6): the provider is a tenant setting; local root from Storage:Local.
         services.AddOptions<LocalStorageOptions>();

@@ -9,7 +9,7 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
  * password + TOTP, tenant list, tenant selector, tenant overview through the tenant-scoped platform token, settings
  * and branding of a tenant (S-02) seen on its sign-in page, messaging accounts and rules (S-03),
  * custom fields and grid layouts (S-04), translations (S-05), role permissions and specializations (S-06), logs and
- * temporary debug level (S-07), sign-out.
+ * temporary debug level (S-07), imports (S-08), sign-out.
  */
 const password = `Console-Pw-${Date.now()}`;
 const newSlug = `e2e-${Date.now().toString(36)}`;
@@ -646,6 +646,56 @@ test("console journey of a System user", async ({ page }) => {
     await disable.click();
     await expect(page.getByText(t("app.platform.logs.debugDisabled"))).toBeVisible();
     await expect(disable).toHaveCount(0);
+  });
+
+  await test.step("imports: a type with its template, an upload waiting for the Worker, its details", async () => {
+    await page.goto(`/platform/tenants/${E2E.tenant}/imports`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.imports.title"), level: 1 }),
+    ).toBeVisible();
+    const typeName = `Servizi E2E ${Date.now().toString(36)}`;
+    await page.getByRole("combobox", { name: t("app.platform.imports.entity") }).click();
+    await page.getByRole("option", { name: t("app.platform.imports.entities.Service") }).click();
+    await page.getByLabel(t("app.platform.imports.typeName")).fill(typeName);
+    await page.getByRole("button", { name: t("app.platform.imports.newType") }).click();
+    await expect(page.getByText(t("app.platform.imports.typeCreated"))).toBeVisible();
+
+    const types = page.getByRole("table", { name: t("app.platform.imports.typesTitle") });
+    await expect(types.getByText(typeName)).toBeVisible();
+    await page
+      .getByRole("button", { name: t("app.platform.imports.fieldsNamed", { type: typeName }) })
+      .click();
+    const fields = page.getByRole("dialog");
+    await expect(fields.getByText("durationDays")).toBeVisible();
+    await expectAccessible(page, "import columns");
+    await page.keyboard.press("Escape");
+
+    const downloading = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: t("app.platform.imports.templateNamed", { type: typeName }) })
+      .click();
+    const template = await downloading;
+    expect(template.suggestedFilename()).toMatch(/_template\.xlsx$/);
+    const file = await template.path();
+
+    // No Worker in the E2E run: the upload waits for validation.
+    const importName = `Import E2E ${Date.now().toString(36)}`;
+    await page.getByLabel(t("app.platform.imports.name")).fill(importName);
+    await page.getByRole("combobox", { name: t("app.platform.imports.type") }).click();
+    await page.getByRole("option", { name: typeName }).click();
+    await page.getByLabel(t("app.platform.imports.file")).setInputFiles(file);
+    await page.getByRole("button", { name: t("app.platform.imports.upload") }).click();
+    await expect(page.getByText(t("app.platform.imports.started"))).toBeVisible();
+    const jobs = page.getByRole("table", { name: t("app.platform.imports.listTitle") });
+    await expect(jobs.getByRole("link", { name: importName })).toBeVisible();
+    await expect(jobs.getByText(t("app.platform.imports.status.Pending")).first()).toBeVisible();
+    await expectAccessible(page, "imports");
+
+    await jobs.getByRole("link", { name: importName }).click();
+    await expect(page).toHaveURL(/\/imports\/[0-9a-f-]{36}$/);
+    await expect(page.getByRole("heading", { name: importName })).toBeVisible();
+    await expect(page.getByRole("progressbar")).toBeVisible();
+    await expectAccessible(page, "import details");
   });
 
   await test.step("an unknown tenant is not found inside the console", async () => {
