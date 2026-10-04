@@ -196,7 +196,8 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
         using var preview = await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments/preview", admin, new SegmentRuleRequest("any",
             [Condition("tag", "has", tagId.ToString()), Condition("service", "has", serviceId.ToString())], null));
         var selected = (await preview.Content.ReadFromJsonAsync<SegmentPreviewResponse>(Ct))!;
-        (selected.Count, selected.Sample.Select(member => member.Id).Order().ToArray()).ShouldBe((2, new[] { first, second }.Order().ToArray()));
+        selected.Count.ShouldBe(2);
+        selected.Sample.Select(member => member.Id).ShouldBe([first, second], ignoreOrder: true);
 
         using var created = await SendAsync(HttpMethod.Post, "/api/v1/marketing/segments", admin,
             new SaveSegmentRequest("Tagged " + Guid.NewGuid().ToString("N")[..8], null, new SegmentRuleRequest("all", [Condition("tag", "has", tagId.ToString())], null)));
