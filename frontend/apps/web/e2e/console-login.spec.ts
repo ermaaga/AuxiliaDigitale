@@ -694,11 +694,11 @@ test("console journey of a System user", async ({ page }) => {
     await page.getByRole("button", { name: t("app.platform.imports.upload") }).click();
     await expect(page.getByText(t("app.platform.imports.started"))).toBeVisible();
     const jobs = page.getByRole("table", { name: t("app.platform.imports.listTitle") });
-    await expect(jobs.getByRole("link", { name: importName })).toBeVisible();
+    await expect(jobs.getByRole("link", { name: importName, exact: true })).toBeVisible();
     await expect(jobs.getByText(t("app.platform.imports.status.Pending")).first()).toBeVisible();
     await expectAccessible(page, "imports");
 
-    await jobs.getByRole("link", { name: importName }).click();
+    await jobs.getByRole("link", { name: importName, exact: true }).click();
     await expect(page).toHaveURL(/\/imports\/[0-9a-f-]{36}$/);
     await expect(page.getByRole("heading", { name: importName })).toBeVisible();
     await expect(page.getByRole("progressbar")).toBeVisible();

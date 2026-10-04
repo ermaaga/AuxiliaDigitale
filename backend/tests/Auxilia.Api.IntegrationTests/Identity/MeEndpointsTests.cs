@@ -55,8 +55,8 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
     }
 
     [Theory]
-    [InlineData("Administrator", new[] { "dashboard", "clients", "employees", "cases", "services", "appointments", "documents", "requests", "sessions", "loginAudit" })]
-    [InlineData("Employee", new[] { "dashboard", "clients", "cases", "appointments", "documents", "requests" })]
+    [InlineData("Administrator", new[] { "dashboard", "clients", "employees", "cases", "services", "appointments", "documents", "requests", "tasks", "sessions", "loginAudit" })]
+    [InlineData("Employee", new[] { "dashboard", "clients", "cases", "appointments", "documents", "requests", "tasks" })]
     [InlineData("Client", new[] { "dashboard", "appointments", "requests" })]
     public async Task Navigation_FollowsModulesRolesAndPermissions(string role, string[] keys)
     {
