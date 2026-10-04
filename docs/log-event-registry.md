@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
-| 12000–12999 | Identity | Identity / Auth | 69 | 12070 |
+| 12000–12999 | Identity | Identity / Auth | 70 | 12071 |
 | 13000–13999 | Directory | Directory (clients, employees) | 43 | 13044 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 33 | 14034 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 0 | 27001 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
-| 29000–29999 | Security | Security events | 29 | 29030 |
+| 29000–29999 | Security | Security events | 30 | 29031 |
 
 ## Codes
 
@@ -151,6 +151,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12067 | Identity.ProfileImageInvalid | – | Validation | – | – |
 | AUX-12068 | Identity.ProfileImageNotFound | – | NotFound | – | – |
 | AUX-12069 | Identity.SessionNotFound | – | NotFound | – | – |
+| AUX-12070 | Identity.SessionRevoked | – | – | Identity.RevokeSession (success) | – |
 | AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
 | AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
 | AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |
@@ -385,3 +386,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29027 | Security.CaptchaKeyEphemeral | Warning | – | – | Captcha:Altcha:Key is not configured: challenges are signed with a random key until restart (one node only) |
 | AUX-29028 | Security.UploadRejected | Warning | – | – | Upload of a {Extension} file rejected: {Reason} |
 | AUX-29029 | Security.StorageKeyRejected | Warning | – | – | Storage key outside tenant {TenantSlug} refused |
+| AUX-29030 | Security.SessionRevokedByAdministrator | Warning | – | – | Session {SessionId} of user {UserId} revoked by {ActorUserId} |

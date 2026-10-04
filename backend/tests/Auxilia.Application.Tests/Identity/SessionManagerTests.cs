@@ -214,6 +214,24 @@ public sealed class SessionManagerTests : IAsyncDisposable
         realtime.Pushes.ShouldHaveSingleItem().Target.ShouldBe($"session:{pair.SessionId}");
     }
 
+    [Fact]
+    public async Task Revoke_EndsAnyOpenSession_DeniesItsTokens_AndSignsItsConnectionsOut()
+    {
+        AddUser();
+        var manager = Manager();
+        var pair = (await manager.SignInAsync(SignIn(), Ct)).Value;
+
+        (await manager.RevokeAsync(Guid.CreateVersion7(), Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Identity.SessionNotFound);
+        (await manager.RevokeAsync(pair.SessionId, Guid.CreateVersion7(), Ct)).IsSuccess.ShouldBeTrue();
+        (await manager.RevokeAsync(pair.SessionId, Guid.CreateVersion7(), Ct)).Error!.Code.ShouldBe(EventCodes.Identity.SessionNotFound);
+
+        sessions.Sessions.ShouldHaveSingleItem().EndReason.ShouldBe(SessionEndReason.Revoked);
+        denyList.Sessions.ShouldContainKey(pair.SessionId);
+        var push = realtime.Pushes.ShouldHaveSingleItem();
+        push.Target.ShouldBe($"session:{pair.SessionId}");
+        push.Payload.ShouldBe(new Auxilia.Contracts.Realtime.ForceLogoutEvent("Revoked"));
+    }
+
     private static PasswordSignIn SignIn() => new(Web, "mario.rossi", Password, null, null);
 
     private ClientApplication Client(string clientId, ClientApplicationType type, string? secret)

@@ -91,5 +91,8 @@ public static partial class EventCodes
 
         /// <summary>A storage key outside the current tenant's prefix was refused (tenant isolation).</summary>
         public const int StorageKeyRejected = 29029;
+
+        /// <summary>An Administrator revoked a user's session (F17, forced logout).</summary>
+        public const int SessionRevokedByAdministrator = 29030;
     }
 }

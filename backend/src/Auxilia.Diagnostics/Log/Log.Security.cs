@@ -39,6 +39,10 @@ public static partial class Log
             Level = LogLevel.Information, Message = "Session {SessionId} of user {UserId} ended: {Reason}")]
         public static partial void SessionEnded(ILogger logger, Guid sessionId, Guid userId, string reason);
 
+        [LoggerMessage(EventId = EventCodes.Security.SessionRevokedByAdministrator, EventName = "Security.SessionRevokedByAdministrator",
+            Level = LogLevel.Warning, Message = "Session {SessionId} of user {UserId} revoked by {ActorUserId}")]
+        public static partial void SessionRevokedByAdministrator(ILogger logger, Guid sessionId, Guid userId, Guid? actorUserId);
+
         [LoggerMessage(EventId = EventCodes.Security.PasswordResetRequested, EventName = "Security.PasswordResetRequested",
             Level = LogLevel.Information, Message = "Password reset requested for user {UserId}")]
         public static partial void PasswordResetRequested(ILogger logger, Guid? userId);
