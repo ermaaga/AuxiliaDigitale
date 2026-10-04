@@ -4,6 +4,7 @@ using Auxilia.Domain.Platform;
 using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Marketing;
 
@@ -29,5 +30,12 @@ public sealed class MarketingModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddScoped<AudiencePolicy>();
+        services.TryAddScoped<ISegmentManager, SegmentManager>();
+        services.TryAddScoped<ISegmentQueryService, SegmentQueryService>();
+        services.TryAddScoped<IStaticListManager, StaticListManager>();
+        services.TryAddScoped<IStaticListQueryService, StaticListQueryService>();
+        services.TryAddScoped<Public.IAudienceResolver, Public.AudienceResolver>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, ListMemberImportTarget>());
     }
 }

@@ -1,6 +1,6 @@
 # N01 — Marketing campaigns (v1: e-mail)
 
-Status: [~] in progress (consents and tags M-01) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
+Status: [~] in progress (consents and tags M-01, segments and lists M-02) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
 
 Not present in the legacy. Module `Marketing`, optional (plan/override per tenant and role), event codes 19000–19999.
 
@@ -17,9 +17,9 @@ Not present in the legacy. Module `Marketing`, optional (plan/override per tenan
 - [x] Tags: create, assign/remove on clients (single and bulk from the clients table). *(M-01: bulk from the clients overview selection)*
 
 **Segments and lists**
-- [ ] Dynamic segment = validated rule (AND/OR groups) over: client status, assigned employee, tags, specializations, services and case status, custom fields, age range, city/province, creation date; translated into a parameterised query (no raw SQL from users); live count preview.
-- [ ] Static list: add/remove clients manually, from a clients-table multi-selection, or by import.
-- [ ] Segments and lists respect tenant isolation and F10 visibility for employees.
+- [x] Dynamic segment = validated rule (AND/OR groups) over: client status, assigned employee, tags, specializations, services and case status, custom fields, age range, city/province, creation date; translated into a parameterised query (no raw SQL from users); live count preview.
+- [x] Static list: add/remove clients manually, from a clients-table multi-selection, or by import.
+- [x] Segments and lists respect tenant isolation and F10 visibility for employees. *(M-02: employees count and see the clients in their charge; city/province not available: `Person` has no address)*
 
 **Templates**
 - [ ] E-mail templates with subject and body (Liquid placeholders: person first/last name, tenant name), language, preview with a sample client, **test send** to an arbitrary address.

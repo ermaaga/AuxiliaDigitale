@@ -19,7 +19,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests, tasks, activities | 18 | 17019 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
-| 19000–19999 | Marketing | Marketing | 0 | 19001 |
+| 19000–19999 | Marketing | Marketing | 11 | 19012 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 16 | 22017 |
@@ -308,6 +308,17 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-18008 | Notifications.NotificationPreferencesSaved | – | – | Notifications.SaveNotificationPreferences (success) | – |
 | AUX-18009 | Notifications.NotificationNotFound | – | NotFound | – | – |
 | AUX-18010 | Notifications.NotificationPreferencesInvalid | – | Validation | – | – |
+| AUX-19001 | Marketing.SegmentCreated | – | – | Marketing.CreateSegment (success) | – |
+| AUX-19002 | Marketing.SegmentUpdated | – | – | Marketing.UpdateSegment (success) | – |
+| AUX-19003 | Marketing.SegmentDeleted | – | – | Marketing.DeleteSegment (success) | – |
+| AUX-19004 | Marketing.SegmentInvalid | – | Validation | – | – |
+| AUX-19005 | Marketing.SegmentNotFound | – | NotFound | – | – |
+| AUX-19006 | Marketing.ListCreated | – | – | Marketing.CreateList (success) | – |
+| AUX-19007 | Marketing.ListUpdated | – | – | Marketing.UpdateList (success) | – |
+| AUX-19008 | Marketing.ListDeleted | – | – | Marketing.DeleteList (success) | – |
+| AUX-19009 | Marketing.ListInvalid | – | Validation | – | – |
+| AUX-19010 | Marketing.ListNotFound | – | NotFound | – | – |
+| AUX-19011 | Marketing.ListMembersChanged | – | – | Marketing.ChangeListMembers (success) | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |

@@ -1,0 +1,140 @@
+[
+ {
+  "key": "app.imports.field.list",
+  "category": "app",
+  "en": "Static list (name)",
+  "it": "Lista statica (nome)"
+ },
+ {
+  "key": "app.platform.imports.entities.ListMember",
+  "category": "app",
+  "en": "Static list members",
+  "it": "Membri di liste statiche"
+ },
+ {
+  "key": "permissions.marketing.audiences.view.description",
+  "category": "permissions",
+  "en": "See the segments and the static lists",
+  "it": "Vedere segmenti e liste statiche"
+ },
+ {
+  "key": "permissions.marketing.audiences.manage.description",
+  "category": "permissions",
+  "en": "Create and change segments and static lists",
+  "it": "Creare e modificare segmenti e liste statiche"
+ },
+ {
+  "key": "validation.segments.empty",
+  "category": "validation",
+  "en": "Add at least one condition.",
+  "it": "Aggiungi almeno una condizione."
+ },
+ {
+  "key": "validation.segments.tooMany",
+  "category": "validation",
+  "en": "At most 50 conditions in 10 groups.",
+  "it": "Al massimo 50 condizioni in 10 gruppi."
+ },
+ {
+  "key": "validation.segments.emptyGroup",
+  "category": "validation",
+  "en": "A group needs at least one condition.",
+  "it": "Un gruppo richiede almeno una condizione."
+ },
+ {
+  "key": "validation.segments.field",
+  "category": "validation",
+  "en": "Unknown field.",
+  "it": "Campo sconosciuto."
+ },
+ {
+  "key": "validation.segments.op",
+  "category": "validation",
+  "en": "This comparison is not available for the field.",
+  "it": "Confronto non disponibile per il campo."
+ },
+ {
+  "key": "validation.segments.value",
+  "category": "validation",
+  "en": "The value is not valid for the field.",
+  "it": "Il valore non è valido per il campo."
+ },
+ {
+  "key": "validation.segments.key",
+  "category": "validation",
+  "en": "Choose the custom field.",
+  "it": "Scegli il campo personalizzato."
+ },
+ {
+  "key": "validation.segments.match",
+  "category": "validation",
+  "en": "Choose all or any.",
+  "it": "Scegli tutte o almeno una."
+ },
+ {
+  "key": "validation.segments.name",
+  "category": "validation",
+  "en": "Enter a name (at most 100 characters).",
+  "it": "Inserisci un nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.segments.description",
+  "category": "validation",
+  "en": "At most 500 characters.",
+  "it": "Al massimo 500 caratteri."
+ },
+ {
+  "key": "validation.segments.nameTaken",
+  "category": "validation",
+  "en": "Another segment has this name.",
+  "it": "Un altro segmento ha questo nome."
+ },
+ {
+  "key": "validation.lists.name",
+  "category": "validation",
+  "en": "Enter a name (at most 100 characters).",
+  "it": "Inserisci un nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.lists.description",
+  "category": "validation",
+  "en": "At most 500 characters.",
+  "it": "Al massimo 500 caratteri."
+ },
+ {
+  "key": "validation.lists.nameTaken",
+  "category": "validation",
+  "en": "Another list has this name.",
+  "it": "Un'altra lista ha questo nome."
+ },
+ {
+  "key": "validation.lists.clients",
+  "category": "validation",
+  "en": "Select from 1 to 500 clients.",
+  "it": "Seleziona da 1 a 500 clienti."
+ },
+ {
+  "key": "errors.AUX-19004",
+  "category": "errors",
+  "en": "The segment is not valid.",
+  "it": "Il segmento non è valido."
+ },
+ {
+  "key": "errors.AUX-19005",
+  "category": "errors",
+  "en": "The segment does not exist.",
+  "it": "Il segmento non esiste."
+ },
+ {
+  "key": "errors.AUX-19009",
+  "category": "errors",
+  "en": "The list is not valid.",
+  "it": "La lista non è valida."
+ },
+ {
+  "key": "errors.AUX-19010",
+  "category": "errors",
+  "en": "The list does not exist.",
+  "it": "La lista non esiste."
+ }
+]

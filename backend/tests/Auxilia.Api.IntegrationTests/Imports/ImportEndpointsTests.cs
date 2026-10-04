@@ -36,7 +36,7 @@ public sealed class ImportEndpointsTests : IClassFixture<PlatformIdentityTests.F
         var suffix = Guid.NewGuid().ToString("N")[..8];
 
         using var entities = await SendAsync(HttpMethod.Get, "/api/v1/imports/entities", token);
-        (await entities.Content.ReadFromJsonAsync<ImportEntityResponse[]>(Ct))!.Select(entity => entity.Entity).ShouldBe(["Case", "Client", "Employee", "Service"]);
+        (await entities.Content.ReadFromJsonAsync<ImportEntityResponse[]>(Ct))!.Select(entity => entity.Entity).ShouldBe(["Case", "Client", "Employee", "ListMember", "Service"]);
 
         using var created = await SendAsync(HttpMethod.Post, "/api/v1/imports/types", token, new CreateImportTypeRequest("Servizi " + suffix, "Service"));
         created.StatusCode.ShouldBe(HttpStatusCode.Created, await created.Content.ReadAsStringAsync(Ct));
