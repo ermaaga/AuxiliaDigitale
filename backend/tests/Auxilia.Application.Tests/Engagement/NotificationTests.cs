@@ -109,7 +109,7 @@ public sealed class NotificationTests : IAsyncDisposable
         await sender.NotifyRoleAsync(TenantRole.Administrator, new NotificationMessage(NotificationKinds.RegistrationRequested, registration, new Dictionary<string, string>()), Ct);
 
         var stored = data.Notifications.ShouldHaveSingleItem();
-        (stored.UserId, stored.Link).ShouldBe((Admin, $"/registrations?open={registration}"));
+        (stored.UserId, stored.Link).ShouldBe((Admin, (string?)null));
     }
 
     [Fact]

@@ -2,11 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { BellIcon, UserIcon } from "lucide-react";
+import { UserIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@auxilia/ui/components/button";
 import { DropdownMenuItem } from "@auxilia/ui/components/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@auxilia/ui/components/popover";
 
 import { userImageUrl } from "@/components/user-avatar";
 import { createBffClient } from "@/lib/api/client";
@@ -28,8 +26,8 @@ export type ShellUser = {
 };
 
 /**
- * The tenant app frame (skill auxilia-ui-design, F34): sidebar from `/me/navigation`, notifications (placeholder until
- * B-19/B-21) and the account menu of the tenant user with the profile picture and the link to the profile (F04); the
+ * The tenant app frame (skill auxilia-ui-design, F34): sidebar from `/me/navigation`, the notification bell given by the
+ * layout (F16) and the account menu of the tenant user with the profile picture and the link to the profile (F04); the
  * language and theme chosen in the topbar are saved in the profile too, so they hold at the next sign-in (F04, Q35).
  * The rest is the shared {@link ShellFrame}.
  */
@@ -40,6 +38,7 @@ export function AppShell({
   navigation,
   user,
   languages,
+  notifications,
   children,
 }: {
   tenant: string;
@@ -49,6 +48,8 @@ export function AppShell({
   navigation: readonly ShellNavigationItem[];
   user: ShellUser;
   languages: readonly LanguageOption[];
+  /** The notification bell (feature `notifications`). */
+  notifications?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const t = useTranslations();
@@ -75,21 +76,7 @@ export function AppShell({
       languages={languages}
       onLanguageChange={saveLanguage}
       onThemeChange={saveTheme}
-      actions={
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={t("Notifications")}>
-              <BellIcon aria-hidden />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-72">
-            <p className="text-sm font-medium">{t("Notifications")}</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("app.shell.notificationsEmpty")}
-            </p>
-          </PopoverContent>
-        </Popover>
-      }
+      actions={notifications}
       accountItems={
         <DropdownMenuItem asChild>
           <Link href={tenantHref(tenant, "/profile")}>

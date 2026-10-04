@@ -72,7 +72,8 @@ export function AppointmentsView({
     "global",
     parseAsBoolean.withDefault(false).withOptions({ history: "replace" }),
   );
-  const [opened, setOpened] = React.useState<string | null>(null);
+  // `?open={id}`: the deep link of a notification (F16) opens the drawer.
+  const [opened, setOpened] = useQueryState("open", { history: "replace" });
   const [creating, setCreating] = React.useState<Creating>(null);
   const move = useAppointmentMutation(tenant, (input: CalendarMove) =>
     moveAppointment(input.appointment.id, input.date, apiTime(input.time), input.durationMinutes),
@@ -177,14 +178,19 @@ export function AppointmentsView({
           canCreate={canCreate}
           canMove={canMove}
           onCreate={(date, time) => setCreating({ date, time })}
-          onOpen={setOpened}
+          onOpen={(id) => void setOpened(id)}
           onMove={(input) => void onMove(input)}
         />
       ) : (
-        <AppointmentsTable tenant={tenant} label={label} clientId={clientId} onOpen={setOpened} />
+        <AppointmentsTable
+          tenant={tenant}
+          label={label}
+          clientId={clientId}
+          onOpen={(id) => void setOpened(id)}
+        />
       )}
 
-      <AppointmentSheet tenant={tenant} id={opened} onClose={() => setOpened(null)} />
+      <AppointmentSheet tenant={tenant} id={opened} onClose={() => void setOpened(null)} />
       {creating && staff ? (
         <AppointmentFormDialog
           tenant={tenant}
@@ -192,7 +198,7 @@ export function AppointmentsView({
           onOpenChange={(open) => (open ? undefined : setCreating(null))}
           clientId={clientId}
           initial={{ date: creating.date, time: creating.time ?? "09:00" }}
-          onSaved={setOpened}
+          onSaved={(id) => void setOpened(id)}
         />
       ) : null}
       {creating && !staff ? (
@@ -202,7 +208,7 @@ export function AppointmentsView({
           onOpenChange={(open) => (open ? undefined : setCreating(null))}
           date={creating.date}
           time={creating.time}
-          onSaved={setOpened}
+          onSaved={(id) => void setOpened(id)}
         />
       ) : null}
     </div>

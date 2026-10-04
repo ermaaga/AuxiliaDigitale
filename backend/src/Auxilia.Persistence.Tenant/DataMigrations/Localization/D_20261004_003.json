@@ -1,0 +1,314 @@
+[
+ {
+  "key": "app.notifications.all",
+  "category": "app",
+  "en": "See all notifications",
+  "it": "Vedi tutte le notifiche"
+ },
+ {
+  "key": "app.notifications.allRead",
+  "category": "app",
+  "en": "All notifications read",
+  "it": "Tutte le notifiche lette"
+ },
+ {
+  "key": "app.notifications.delete",
+  "category": "app",
+  "en": "Delete notification",
+  "it": "Elimina notifica"
+ },
+ {
+  "key": "app.notifications.inApp",
+  "category": "app",
+  "en": "In the app",
+  "it": "Nell'app"
+ },
+ {
+  "key": "app.notifications.markAllRead",
+  "category": "app",
+  "en": "Mark all as read",
+  "it": "Segna tutte come lette"
+ },
+ {
+  "key": "app.notifications.preferences",
+  "category": "app",
+  "en": "Notification preferences",
+  "it": "Preferenze di notifica"
+ },
+ {
+  "key": "app.notifications.preferencesDescription",
+  "category": "app",
+  "en": "Choose how to be told of each kind of event: in the app (bell) and by e-mail.",
+  "it": "Scegli come essere avvisato per ogni tipo di evento: nell'app (campanella) e per e-mail."
+ },
+ {
+  "key": "app.notifications.preferencesSaved",
+  "category": "app",
+  "en": "Preferences saved",
+  "it": "Preferenze salvate"
+ },
+ {
+  "key": "app.notifications.unread",
+  "category": "app",
+  "en": "unread",
+  "it": "non letta"
+ },
+ {
+  "key": "app.notifications.unreadCount",
+  "category": "app",
+  "en": "Unread notifications: {count}",
+  "it": "Notifiche non lette: {count}"
+ },
+ {
+  "key": "app.notifications.unreadOnly",
+  "category": "app",
+  "en": "Unread only",
+  "it": "Solo non lette"
+ },
+ {
+  "key": "app.requests.askMyOperator",
+  "category": "app",
+  "en": "Ask my operator (otherwise the office)",
+  "it": "Chiedi al mio operatore (altrimenti all'ufficio)"
+ },
+ {
+  "key": "app.requests.back",
+  "category": "app",
+  "en": "Back to requests",
+  "it": "Torna alle richieste"
+ },
+ {
+  "key": "app.requests.box.received",
+  "category": "app",
+  "en": "Received",
+  "it": "Ricevute"
+ },
+ {
+  "key": "app.requests.box.sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviate"
+ },
+ {
+  "key": "app.requests.box.all",
+  "category": "app",
+  "en": "All",
+  "it": "Tutte"
+ },
+ {
+  "key": "app.requests.close",
+  "category": "app",
+  "en": "Close request",
+  "it": "Chiudi richiesta"
+ },
+ {
+  "key": "app.requests.closeConfirm",
+  "category": "app",
+  "en": "Close this request? No more replies can be added.",
+  "it": "Chiudere questa richiesta? Non si potranno aggiungere altre risposte."
+ },
+ {
+  "key": "app.requests.closed",
+  "category": "app",
+  "en": "Request closed",
+  "it": "Richiesta chiusa"
+ },
+ {
+  "key": "app.requests.deleteConfirm",
+  "category": "app",
+  "en": "Delete this request? The thread is kept in the archive.",
+  "it": "Eliminare questa richiesta? Il thread resta in archivio."
+ },
+ {
+  "key": "app.requests.deleted",
+  "category": "app",
+  "en": "Request deleted",
+  "it": "Richiesta eliminata"
+ },
+ {
+  "key": "app.requests.isClosed",
+  "category": "app",
+  "en": "This request is closed.",
+  "it": "Questa richiesta è chiusa."
+ },
+ {
+  "key": "app.requests.newDescriptionClient",
+  "category": "app",
+  "en": "Write to your operator or to the office: you will be told when they reply.",
+  "it": "Scrivi al tuo operatore o all'ufficio: sarai avvisato quando rispondono."
+ },
+ {
+  "key": "app.requests.newDescriptionStaff",
+  "category": "app",
+  "en": "Your request goes to the office (the administrators).",
+  "it": "La tua richiesta va all'ufficio (gli amministratori)."
+ },
+ {
+  "key": "app.requests.office",
+  "category": "app",
+  "en": "Office",
+  "it": "Ufficio"
+ },
+ {
+  "key": "app.requests.replied",
+  "category": "app",
+  "en": "Reply sent",
+  "it": "Risposta inviata"
+ },
+ {
+  "key": "app.requests.reply",
+  "category": "app",
+  "en": "Reply",
+  "it": "Rispondi"
+ },
+ {
+  "key": "app.requests.sent",
+  "category": "app",
+  "en": "Request sent",
+  "it": "Richiesta inviata"
+ },
+ {
+  "key": "app.requests.status.Pending",
+  "category": "app",
+  "en": "Waiting for a reply",
+  "it": "In attesa di risposta"
+ },
+ {
+  "key": "app.requests.status.Responded",
+  "category": "app",
+  "en": "Answered",
+  "it": "Risposta ricevuta"
+ },
+ {
+  "key": "app.requests.status.Closed",
+  "category": "app",
+  "en": "Closed",
+  "it": "Chiusa"
+ },
+ {
+  "key": "app.requests.thread",
+  "category": "app",
+  "en": "Messages",
+  "it": "Messaggi"
+ },
+ {
+  "key": "app.requests.type.Information",
+  "category": "app",
+  "en": "Information",
+  "it": "Informazioni"
+ },
+ {
+  "key": "app.requests.type.General",
+  "category": "app",
+  "en": "General",
+  "it": "Generale"
+ },
+ {
+  "key": "app.requests.type.Support",
+  "category": "app",
+  "en": "Support",
+  "it": "Supporto"
+ },
+ {
+  "key": "app.requests.type.Appointment",
+  "category": "app",
+  "en": "Appointment",
+  "it": "Appuntamento"
+ },
+ {
+  "key": "app.sessions.actions",
+  "category": "app",
+  "en": "Actions",
+  "it": "Azioni"
+ },
+ {
+  "key": "app.sessions.cards.activeNow",
+  "category": "app",
+  "en": "Active now",
+  "it": "Attive ora"
+ },
+ {
+  "key": "app.sessions.cards.sessions",
+  "category": "app",
+  "en": "Open sessions",
+  "it": "Sessioni aperte"
+ },
+ {
+  "key": "app.sessions.cards.users",
+  "category": "app",
+  "en": "Users",
+  "it": "Utenti"
+ },
+ {
+  "key": "app.sessions.client",
+  "category": "app",
+  "en": "Application",
+  "it": "Applicazione"
+ },
+ {
+  "key": "app.sessions.current",
+  "category": "app",
+  "en": "this session",
+  "it": "questa sessione"
+ },
+ {
+  "key": "app.sessions.ip",
+  "category": "app",
+  "en": "IP address",
+  "it": "Indirizzo IP"
+ },
+ {
+  "key": "app.sessions.lastUsed",
+  "category": "app",
+  "en": "Last activity",
+  "it": "Ultima attività"
+ },
+ {
+  "key": "app.sessions.revoke",
+  "category": "app",
+  "en": "End session",
+  "it": "Termina sessione"
+ },
+ {
+  "key": "app.sessions.revokeConfirm",
+  "category": "app",
+  "en": "End the session of {name}? They are signed out at once.",
+  "it": "Terminare la sessione di {name}? Viene disconnesso subito."
+ },
+ {
+  "key": "app.sessions.revoked",
+  "category": "app",
+  "en": "Session ended",
+  "it": "Sessione terminata"
+ },
+ {
+  "key": "app.sessions.revokeOf",
+  "category": "app",
+  "en": "End the session of {name}",
+  "it": "Termina la sessione di {name}"
+ },
+ {
+  "key": "app.sessions.roles",
+  "category": "app",
+  "en": "Roles",
+  "it": "Ruoli"
+ },
+ {
+  "key": "app.sessions.started",
+  "category": "app",
+  "en": "Started",
+  "it": "Iniziata"
+ },
+ {
+  "key": "app.sessions.user",
+  "category": "app",
+  "en": "User",
+  "it": "Utente"
+ },
+ {
+  "key": "app.sessions.userAgent",
+  "category": "app",
+  "en": "Browser",
+  "it": "Browser"
+ }
+]

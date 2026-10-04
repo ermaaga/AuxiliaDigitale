@@ -1,6 +1,6 @@
 # F15 — Requests
 
-Status: [~] backend done (B-18), pages B-21 · Tasks: B-18, B-21 · Quirks: Q16, Q17, Q18
+Status: [x] done (B-18, B-21; legacy data with S-08) · Tasks: B-18, B-21 · Quirks: Q16, Q17, Q18
 
 ## Legacy behaviour
 Entity `Request`: SenderId, ReceiverId?, Type, Subject, Message, Status (`Pending`/`Responded`/`Closed`), Response, CreatedAt, RespondedAt.
@@ -12,8 +12,8 @@ Entity `Request`: SenderId, ReceiverId?, Type, Subject, Message, Status (`Pendin
 ## Acceptance criteria
 - [x] Client creates a request to its assigned employee (default) or to the office (admins); correct recipients notified. *(API B-18, realtime `RequestChanged`; persisted notification B-19)*
 - [x] Employee creates a request to the office. *(API B-18)*
-- [ ] Inbox with "received" and "sent" views per role; admin additionally "all". *(API `box=` B-18; pages B-21)*
+- [x] Inbox with "received" and "sent" views per role; admin additionally "all". *(API `box=` B-18; pages B-21)*
 - [x] Thread: first message = original, replies appended; replying sets `Responded` and **always** notifies the other party; close request. *(API B-18; a follow-up of the sender sets `Pending` again)*
 - [x] Types Information, General, Support, Appointment.
-- [ ] Admin can delete (soft) with confirmation. *(API B-18; confirmation B-21)*
+- [x] Admin can delete (soft) with confirmation. *(API B-18; confirmation B-21)*
 - [ ] Legacy data: `Message` → message #1, `Response` → message #2.

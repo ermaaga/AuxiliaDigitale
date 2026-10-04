@@ -269,6 +269,41 @@ export async function sessionInfo(
 }
 
 /**
+ * `POST /api/realtime/token` (tenant app): the short-lived access token of the session for the SignalR hub only
+ * (skill auxilia-frontend-feature "Realtime": browsers cannot send the BFF cookie to the API), with the hub URL.
+ * 204 when no public API URL is configured (no realtime: the pages poll). Mutating-call CSRF rules apply.
+ */
+export async function realtimeToken(
+  request: Request,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  if (csrfRefusal(request, context.config.publicOrigin)) {
+    return Problems.csrf();
+  }
+
+  if (context.config.apiPublicUrl === undefined) {
+    return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+  }
+
+  const current = await readSession(request, "tenant", context);
+  const session = current
+    ? await withFreshAccessToken(context.config, context.store, current, context.now)
+    : undefined;
+  if (session === undefined) {
+    return Problems.unauthenticated();
+  }
+
+  return Response.json(
+    {
+      accessToken: session.accessToken,
+      expiresAt: new Date(session.accessTokenExpiresAt).toISOString(),
+      hubUrl: `${context.config.apiPublicUrl}/hubs/notifications`,
+    },
+    { headers: { "cache-control": "no-store" } },
+  );
+}
+
+/**
  * `/api/bff/[...path]` and `/api/platform-bff/[...path]` → `/api/v1/[...path]` with the session's access token,
  * the client application and the tenant. Anonymous calls (e.g. the tenant's translations on the login page) are
  * forwarded without a token. In the console, a request with `X-Tenant` outside `platform/…` uses a tenant-scoped

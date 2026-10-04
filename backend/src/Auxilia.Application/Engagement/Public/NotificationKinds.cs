@@ -40,7 +40,7 @@ public static class NotificationKinds
             AppointmentDeleted => "/appointments",
             _ when kind.StartsWith("appointment.", StringComparison.Ordinal) => $"/appointments?open={id}",
             _ when kind.StartsWith("request.", StringComparison.Ordinal) => $"/requests?open={id}",
-            RegistrationRequested => $"/registrations?open={id}",
+            // Registrations have no staff page yet (API only, D-14): the notification opens nothing.
             _ => null,
         };
     }

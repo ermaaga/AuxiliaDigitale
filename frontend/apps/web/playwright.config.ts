@@ -75,6 +75,8 @@ export default defineConfig({
       env: {
         AUXILIA_API_URL: API_URL,
         AUXILIA_PUBLIC_ORIGIN: BASE_URL,
+        // The browser connects to the API hub (SignalR, F16/F17).
+        AUXILIA_API_PUBLIC_URL: API_URL,
         AUXILIA_WEB_CLIENT_ID: process.env.AUXILIA_WEB_CLIENT_ID ?? "",
         AUXILIA_WEB_CLIENT_SECRET: process.env.AUXILIA_WEB_CLIENT_SECRET ?? "",
         AUXILIA_CONSOLE_CLIENT_ID: process.env.AUXILIA_CONSOLE_CLIENT_ID ?? "",

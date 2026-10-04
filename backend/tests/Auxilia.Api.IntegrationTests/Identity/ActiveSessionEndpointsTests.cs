@@ -28,7 +28,8 @@ public sealed class ActiveSessionEndpointsTests(AuthEndpointsTests.Factory facto
 
         var page = await GetAsync<PagedResponse<ActiveSessionResponse>>(admin, $"/api/v1/identity/sessions?filter[userName]={employeeName}");
         var session = page.Items.ShouldHaveSingleItem();
-        (session.UserId, session.UserName, session.Roles, session.IsCurrent).ShouldBe((employeeId, employeeName, (IReadOnlyList<string>)["Employee"], false));
+        (session.UserId, session.UserName, session.IsCurrent).ShouldBe((employeeId, employeeName, false));
+        session.Roles.ShouldBe(["Employee"]);
         (await GetAsync<PagedResponse<ActiveSessionResponse>>(admin, $"/api/v1/identity/sessions?filter[userName]={adminName}"))
             .Items.ShouldHaveSingleItem().IsCurrent.ShouldBeTrue();
 

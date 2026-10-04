@@ -1,6 +1,6 @@
 # F17 — Active sessions and forced logout
 
-Status: [~] backend done (P2-02, P2-04, B-20), page B-21 · Tasks: P2-02, P2-04, B-20, B-21 · Quirks: Q36, Q56, Q58
+Status: [x] done (P2-02, P2-04, P2-05, B-20, B-21) · Tasks: P2-02, P2-04, B-20, B-21 · Quirks: Q36, Q56, Q58
 
 > **Decision D-08:** single session per user is a tenant setting, default **off**.
 
@@ -15,7 +15,7 @@ Status: [~] backend done (P2-02, P2-04, B-20), page B-21 · Tasks: P2-02, P2-04,
 - Session timeout 120 min (Q58).
 
 ## Acceptance criteria
-- [ ] `/sessions` lists active refresh sessions with user, roles, client app, IP, user agent, created, last used, duration; KPIs; auto refresh. *(API B-20: `/identity/sessions` + `/summary`; page B-21)*
+- [x] `/sessions` lists active refresh sessions with user, roles, client app, IP, user agent, created, last used, duration; KPIs; auto refresh. *(API B-20; page B-21, refresh every 10 s)*
 - [x] Admin can revoke a session → immediate `ForceLogout` push + deny-list of access token. *(API B-20; button B-21)*
 - [x] Single-session per user honoured per D-08. *(P2-02/P2-04)*
 - [x] Idle/absolute timeouts configurable per tenant (default equivalent to 120 min idle). *(P2-02: `auth.session.idleMinutes`, `auth.session.absoluteDays`)*

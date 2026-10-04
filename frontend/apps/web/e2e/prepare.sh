@@ -107,6 +107,21 @@ insert into identity.user_roles(user_id, role)
 values ('0199aaaa-0000-7000-8000-000000000082', 'Employee'), ('0199aaaa-0000-7000-8000-000000000072', 'Client');
 insert into directory.client_profiles(id, status, status_changed_at, employee_user_id, created_at)
 values ('0199aaaa-0000-7000-8000-000000000071', 'Inactive', now(), '0199aaaa-0000-7000-8000-000000000082', now());
+
+-- The request, notification and session pages (B-21): an employee and a client in her charge, used only by tenant-requests.spec.ts.
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000091', 'Chiara', 'Lodi', 'chiara.lodi@example.test', now()),
+       ('0199aaaa-0000-7000-8000-000000000101', 'Paolo', 'Greco', 'paolo.greco@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000092', '0199aaaa-0000-7000-8000-000000000091', 'chiara.lodi',
+        'chiara.lodi@example.test', 'it', true, 'Identity', '00000000000000000000000000000091', 0, 0, now()),
+       ('0199aaaa-0000-7000-8000-000000000102', '0199aaaa-0000-7000-8000-000000000101', 'paolo.greco',
+        'paolo.greco@example.test', 'it', true, 'Identity', '00000000000000000000000000000101', 0, 0, now());
+insert into identity.user_roles(user_id, role)
+values ('0199aaaa-0000-7000-8000-000000000092', 'Employee'), ('0199aaaa-0000-7000-8000-000000000102', 'Client');
+insert into directory.client_profiles(id, status, status_changed_at, employee_user_id, created_at)
+values ('0199aaaa-0000-7000-8000-000000000101', 'Inactive', now(), '0199aaaa-0000-7000-8000-000000000092', now());
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then
