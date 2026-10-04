@@ -37,7 +37,8 @@ public sealed class ExportEndpointsTests(AppointmentEndpointsTests.Factory facto
         response.Content.Headers.ContentDisposition!.FileName!.Trim('"').ShouldMatch(@"^[A-Za-z_]+_\d{8}_\d{6}\.csv$");
         var text = Encoding.UTF8.GetString(await response.Content.ReadAsByteArrayAsync(Ct));
         var lines = text.TrimStart('﻿').Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-        lines[0].ShouldBe("\"Cognome\";\"Nome\";\"Stato\"");
+        // The test tenant has no translations: headers are their keys (ILocalizer falls back to the key).
+        lines[0].ShouldBe("\"Surname\";\"Name\";\"Status\"");
         // pageSize of the list is ignored: every client named Ferri is there.
         lines.Count(line => line.StartsWith("\"Ferri\";\"Marco\"", StringComparison.Ordinal)).ShouldBeGreaterThanOrEqualTo(2);
 
