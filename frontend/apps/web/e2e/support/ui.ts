@@ -33,6 +33,8 @@ export async function expectAccessible(page: Page, name: string): Promise<void> 
         .map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
+  // The metadata (title) is streamed after a client navigation: wait for it instead of reporting a race.
+  await expect(page).toHaveTitle(/\S/);
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
     .analyze();
