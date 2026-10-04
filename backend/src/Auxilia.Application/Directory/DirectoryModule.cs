@@ -76,6 +76,7 @@ public sealed class DirectoryModule : IModuleDescriptor
         services.TryAddScoped<ConsentManager>();
         services.TryAddScoped<IConsentManager>(provider => provider.GetRequiredService<ConsentManager>());
         services.TryAddScoped<IConsentQueryService, ConsentQueryService>();
+        services.TryAddScoped<Public.IMarketingContacts, Public.MarketingContacts>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, EmployeeImportTarget>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, RegistrationExportSource>());
         services.TryAddScoped<ISpecializationManager, SpecializationManager>();

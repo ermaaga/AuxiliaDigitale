@@ -1,0 +1,152 @@
+[
+ {
+  "key": "permissions.marketing.campaigns.send.description",
+  "category": "permissions",
+  "en": "Send campaigns (send now) and cancel them",
+  "it": "Inviare le campagne (invia ora) e annullarle"
+ },
+ {
+  "key": "validation.templates.name",
+  "category": "validation",
+  "en": "Enter a name (at most 100 characters).",
+  "it": "Inserisci un nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.templates.language",
+  "category": "validation",
+  "en": "Choose the language.",
+  "it": "Scegli la lingua."
+ },
+ {
+  "key": "validation.templates.subject",
+  "category": "validation",
+  "en": "Enter a valid subject (at most 300 characters).",
+  "it": "Inserisci un oggetto valido (al massimo 300 caratteri)."
+ },
+ {
+  "key": "validation.templates.body",
+  "category": "validation",
+  "en": "Enter a valid body: check the {{ placeholders }}.",
+  "it": "Inserisci un testo valido: controlla i {{ segnaposto }}."
+ },
+ {
+  "key": "validation.templates.nameTaken",
+  "category": "validation",
+  "en": "Another template has this name.",
+  "it": "Un altro template ha questo nome."
+ },
+ {
+  "key": "validation.templates.testEmail",
+  "category": "validation",
+  "en": "Enter the address for the test.",
+  "it": "Inserisci l'indirizzo per la prova."
+ },
+ {
+  "key": "validation.campaigns.name",
+  "category": "validation",
+  "en": "Enter a name (at most 100 characters).",
+  "it": "Inserisci un nome (al massimo 100 caratteri)."
+ },
+ {
+  "key": "validation.campaigns.audience",
+  "category": "validation",
+  "en": "Choose a segment or a static list.",
+  "it": "Scegli un segmento o una lista statica."
+ },
+ {
+  "key": "validation.campaigns.template",
+  "category": "validation",
+  "en": "Choose an existing template.",
+  "it": "Scegli un template esistente."
+ },
+ {
+  "key": "validation.campaigns.segment",
+  "category": "validation",
+  "en": "Choose an existing segment.",
+  "it": "Scegli un segmento esistente."
+ },
+ {
+  "key": "validation.campaigns.list",
+  "category": "validation",
+  "en": "Choose an existing list.",
+  "it": "Scegli una lista esistente."
+ },
+ {
+  "key": "validation.campaigns.recipientStatus",
+  "category": "validation",
+  "en": "Unknown recipient status.",
+  "it": "Stato del destinatario sconosciuto."
+ },
+ {
+  "key": "validation.suppressions.email",
+  "category": "validation",
+  "en": "Enter a valid e-mail address.",
+  "it": "Inserisci un indirizzo e-mail valido."
+ },
+ {
+  "key": "validation.suppressions.reason",
+  "category": "validation",
+  "en": "At most 200 characters.",
+  "it": "Al massimo 200 caratteri."
+ },
+ {
+  "key": "validation.suppressions.taken",
+  "category": "validation",
+  "en": "The address is already suppressed.",
+  "it": "L'indirizzo è già escluso."
+ },
+ {
+  "key": "errors.AUX-19015",
+  "category": "errors",
+  "en": "The template is not valid.",
+  "it": "Il template non è valido."
+ },
+ {
+  "key": "errors.AUX-19016",
+  "category": "errors",
+  "en": "The template does not exist.",
+  "it": "Il template non esiste."
+ },
+ {
+  "key": "errors.AUX-19017",
+  "category": "errors",
+  "en": "The template is used by campaigns.",
+  "it": "Il template è usato da campagne."
+ },
+ {
+  "key": "errors.AUX-19022",
+  "category": "errors",
+  "en": "The campaign is not valid.",
+  "it": "La campagna non è valida."
+ },
+ {
+  "key": "errors.AUX-19023",
+  "category": "errors",
+  "en": "The campaign does not exist.",
+  "it": "La campagna non esiste."
+ },
+ {
+  "key": "errors.AUX-19024",
+  "category": "errors",
+  "en": "The campaign was already sent or cancelled.",
+  "it": "La campagna è già stata inviata o annullata."
+ },
+ {
+  "key": "errors.AUX-19027",
+  "category": "errors",
+  "en": "The campaign could not be sent.",
+  "it": "Non è stato possibile inviare la campagna."
+ },
+ {
+  "key": "errors.AUX-19031",
+  "category": "errors",
+  "en": "The suppression is not valid.",
+  "it": "L'esclusione non è valida."
+ },
+ {
+  "key": "errors.AUX-19032",
+  "category": "errors",
+  "en": "The suppression does not exist.",
+  "it": "L'esclusione non esiste."
+ }
+]

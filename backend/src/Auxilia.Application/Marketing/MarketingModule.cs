@@ -37,5 +37,11 @@ public sealed class MarketingModule : IModuleDescriptor
         services.TryAddScoped<IStaticListQueryService, StaticListQueryService>();
         services.TryAddScoped<Public.IAudienceResolver, Public.AudienceResolver>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Imports.IImportTarget, ListMemberImportTarget>());
+        services.TryAddScoped<IEmailTemplateManager, EmailTemplateManager>();
+        services.TryAddScoped<IEmailTemplateQueryService, EmailTemplateQueryService>();
+        services.TryAddScoped<ICampaignManager, CampaignManager>();
+        services.TryAddScoped<ICampaignQueryService, CampaignQueryService>();
+        services.TryAddScoped<ISuppressionManager, SuppressionManager>();
+        services.TryAddScoped<ISuppressionQueryService, SuppressionQueryService>();
     }
 }

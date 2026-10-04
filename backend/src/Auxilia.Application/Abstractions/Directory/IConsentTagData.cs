@@ -10,6 +10,9 @@ public sealed record ConsentRow(
     Guid Id, ConsentPurpose Purpose, ConsentChannel Channel, bool Granted, ConsentSource Source, string? Version, string? Note, DateTimeOffset RecordedAt,
     Guid? RecordedByUserId, string? RecordedByName);
 
+/// <summary>What a marketing message needs about a client: e-mail, language and the current e-mail marketing consent.</summary>
+public sealed record MarketingContactRow(Guid PersonId, string FirstName, string LastName, string? Email, string? Language, bool EmailMarketingConsent);
+
 /// <summary>Tags and consents of the people of the current tenant (N01, M-01), one unit of work.</summary>
 public interface IConsentTagData : IAsyncDisposable
 {
@@ -37,6 +40,9 @@ public interface IConsentTagData : IAsyncDisposable
 
     /// <summary>The consent changes of a person, newest first.</summary>
     Task<IReadOnlyList<ConsentRow>> ConsentsAsync(Guid personId, CancellationToken cancellationToken);
+
+    /// <summary>The clients (not deleted) among <paramref name="personIds"/> with their e-mail marketing consent now.</summary>
+    Task<IReadOnlyList<MarketingContactRow>> MarketingContactsAsync(IReadOnlyCollection<Guid> personIds, CancellationToken cancellationToken);
 
     /// <summary>Removes every assignment of a tag (before deleting it).</summary>
     Task RemoveAssignmentsAsync(Guid tagId, CancellationToken cancellationToken);

@@ -76,6 +76,25 @@ internal sealed class ConsentTagData(ITenantDbContext db) : IConsentTagData
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<MarketingContactRow>> MarketingContactsAsync(IReadOnlyCollection<Guid> personIds, CancellationToken cancellationToken)
+    {
+        var consents = db.Set<Consent>();
+        var users = db.Set<User>();
+        return await (from person in db.Set<Person>().AsNoTracking()
+                      join profile in db.Set<ClientProfile>() on person.Id equals profile.Id
+                      where personIds.Contains(person.Id)
+                      select new MarketingContactRow(
+                          person.Id,
+                          person.FirstName,
+                          person.LastName,
+                          person.Email,
+                          users.Where(user => user.PersonId == person.Id).Select(user => user.LanguageCode).FirstOrDefault(),
+                          consents.Where(consent => consent.PersonId == person.Id && consent.Purpose == ConsentPurpose.Marketing && consent.Channel == ConsentChannel.Email)
+                              .OrderByDescending(consent => consent.RecordedAt).ThenByDescending(consent => consent.Id)
+                              .Select(consent => consent.Granted).FirstOrDefault()))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task RemoveAssignmentsAsync(Guid tagId, CancellationToken cancellationToken) =>
         db.Set<PersonTag>().Where(assignment => assignment.TagId == tagId).ExecuteDeleteAsync(cancellationToken);
 

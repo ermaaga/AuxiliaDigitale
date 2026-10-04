@@ -15,6 +15,8 @@ using Auxilia.Domain.Identity;
 using Auxilia.Persistence.Tenant;
 using Auxilia.SharedKernel.Tenancy;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using Npgsql;
 
 namespace Auxilia.Api.IntegrationTests.Cases;
@@ -223,6 +225,67 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
     }
 
     [Fact]
+    public async Task Campaigns_GoOnlyToConsentingClients_OnceAndInBatches()
+    {
+        var admin = await SignInAsync(TenantRole.Administrator);
+        var suffix = Guid.NewGuid().ToString("N")[..8];
+        var (consenting, _) = await Factory.AddClientAsync($"yes-{suffix}@example.test");
+        var (silent, _) = await Factory.AddClientAsync($"no-{suffix}@example.test");
+        var (suppressed, _) = await Factory.AddClientAsync($"stop-{suffix}@example.test");
+        foreach (var client in new[] { consenting, suppressed })
+        {
+            (await SendAsync(HttpMethod.Post, $"/api/v1/clients/{client}/consents", admin, new RecordConsentRequest("Marketing", "Email", true, null, null)))
+                .StatusCode.ShouldBe(HttpStatusCode.OK);
+        }
+
+        (await SendAsync(HttpMethod.Post, "/api/v1/marketing/suppressions", admin, new AddSuppressionRequest($"STOP-{suffix}@example.test", "asked")))
+            .StatusCode.ShouldBe(HttpStatusCode.Created);
+        using var list = await SendAsync(HttpMethod.Post, "/api/v1/marketing/lists", admin, new SaveStaticListRequest("Campaign " + suffix, null));
+        var listId = (await list.Content.ReadFromJsonAsync<CreatedAudienceResponse>(Ct))!.Id;
+        await SendAsync(HttpMethod.Post, $"/api/v1/marketing/lists/{listId}/members", admin, new ListMembersRequest([consenting, silent, suppressed]));
+
+        using var template = await SendAsync(HttpMethod.Post, "/api/v1/marketing/templates", admin,
+            new SaveEmailTemplateRequest("Spring " + suffix, "it", "Ciao {{ firstName }}", "<p>Ciao {{ fullName }} da {{ tenantName }}</p>"));
+        template.StatusCode.ShouldBe(HttpStatusCode.Created, await template.Content.ReadAsStringAsync(Ct));
+        var templateId = (await template.Content.ReadFromJsonAsync<CreatedAudienceResponse>(Ct))!.Id;
+        using var preview = await SendAsync(HttpMethod.Post, $"/api/v1/marketing/templates/{templateId}/preview", admin, new PreviewEmailTemplateRequest(consenting));
+        (await preview.Content.ReadFromJsonAsync<EmailPreviewResponse>(Ct))!.Subject.ShouldBe("Ciao Mario");
+        (await SendAsync(HttpMethod.Post, $"/api/v1/marketing/templates/{templateId}/test", admin, new TestEmailTemplateRequest($"test-{suffix}@example.test")))
+            .StatusCode.ShouldBe(HttpStatusCode.Accepted);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, "/api/v1/marketing/templates", admin, new SaveEmailTemplateRequest("Bad " + suffix, "it", "x", "{% if %}")),
+            HttpStatusCode.BadRequest, EventCodes.Marketing.TemplateInvalid);
+
+        using var created = await SendAsync(HttpMethod.Post, "/api/v1/marketing/campaigns", admin, new SaveCampaignRequest("Spring " + suffix, templateId, null, listId));
+        created.StatusCode.ShouldBe(HttpStatusCode.Created, await created.Content.ReadAsStringAsync(Ct));
+        var campaignId = (await created.Content.ReadFromJsonAsync<CreatedAudienceResponse>(Ct))!.Id;
+        using var audience = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/campaigns/{campaignId}/audience", admin);
+        (await audience.Content.ReadFromJsonAsync<CampaignAudienceResponse>(Ct))!.Count.ShouldBe(3);
+
+        var employee = await SignInAsync(TenantRole.Employee);
+        (await SendAsync(HttpMethod.Post, $"/api/v1/marketing/campaigns/{campaignId}/send", employee)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await SendAsync(HttpMethod.Post, $"/api/v1/marketing/campaigns/{campaignId}/send", admin)).StatusCode.ShouldBe(HttpStatusCode.Accepted);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/marketing/campaigns/{campaignId}/send", admin), HttpStatusCode.Conflict, EventCodes.Marketing.CampaignNotDraft);
+
+        // What the Worker handler does, twice (a redelivery sends nothing more).
+        for (var run = 0; run < 2; run++)
+        {
+            await using var scope = factory.Services.CreateAsyncScope();
+            var tenant = await scope.ServiceProvider.GetRequiredService<Application.Abstractions.Tenancy.ITenantDirectory>().FindBySlugAsync(ApiDatabase.TenantA, Ct);
+            scope.ServiceProvider.GetRequiredService<Application.Abstractions.Tenancy.ITenantContextSetter>().Set(tenant!);
+            (await scope.ServiceProvider.GetRequiredService<Application.Marketing.ICampaignManager>().ProcessAsync(campaignId, Ct)).IsSuccess.ShouldBeTrue();
+        }
+
+        using var campaign = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/campaigns/{campaignId}", admin);
+        var result = (await campaign.Content.ReadFromJsonAsync<CampaignResponse>(Ct))!;
+        (result.Status, result.RecipientCount, result.SentCount, result.ExcludedCount).ShouldBe(("Sent", 3, 1, 2));
+        factory.Contents.Where(content => content.RelatedEntityId == campaignId).Select(content => content.Recipient).ShouldBe([$"yes-{suffix}@example.test"]);
+        factory.Contents.Single(content => content.RelatedEntityId == campaignId).Body.ShouldContain("Mario Rossi");
+        using var excluded = await SendAsync(HttpMethod.Get, $"/api/v1/marketing/campaigns/{campaignId}/recipients?status=Excluded", admin);
+        (await excluded.Content.ReadFromJsonAsync<PagedResponse<CampaignRecipientResponse>>(Ct))!.Items.Select(item => (item.ClientId, item.Exclusion))
+            .ShouldBe([(silent, "NoConsent"), (suppressed, "Suppressed")], ignoreOrder: true);
+    }
+
+    [Fact]
     public async Task InvalidRequests_AreFieldErrors()
     {
         var admin = await SignInAsync(TenantRole.Administrator);
@@ -417,11 +480,11 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
             NpgsqlDataSource.Create(new NpgsqlConnectionStringBuilder(ApiDatabase.Instance.CatalogConnectionString) { Database = "tenant_a" }.ConnectionString);
 
         /// <summary>A client of tenant A (person, profile, account with the Client role).</summary>
-        public static async Task<(Guid ClientId, string UserName)> AddClientAsync()
+        public static async Task<(Guid ClientId, string UserName)> AddClientAsync(string? email = null)
         {
             await using var dataSource = DataSource();
             await using var db = Tenant(dataSource);
-            var person = new Person(Guid.CreateVersion7(), "Mario", "Rossi", null);
+            var person = new Person(Guid.CreateVersion7(), "Mario", "Rossi", email);
             db.Set<Person>().Add(person);
             db.Set<ClientProfile>().Add(ClientProfile.Create(person.Id, null, DateTimeOffset.UtcNow));
             var userName = "client-" + Guid.NewGuid().ToString("N")[..10];

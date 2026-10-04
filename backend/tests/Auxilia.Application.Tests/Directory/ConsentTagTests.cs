@@ -169,6 +169,12 @@ internal sealed class InMemoryConsentTags : IConsentTagDataFactory, IConsentTagD
         Task.FromResult<IReadOnlyList<ConsentRow>>([.. Consents.Where(item => item.PersonId == personId).OrderByDescending(item => item.RecordedAt)
             .Select(item => new ConsentRow(item.Id, item.Purpose, item.Channel, item.Granted, item.Source, item.Version, item.Note, item.RecordedAt, item.RecordedByUserId, "Staff"))]);
 
+    public Task<IReadOnlyList<MarketingContactRow>> MarketingContactsAsync(IReadOnlyCollection<Guid> personIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<MarketingContactRow>>([.. Clients.Where(personIds.Contains).Select(id => new MarketingContactRow(
+            id, "Mario", "Rossi", "mario@example.test", "it",
+            Consents.Where(consent => consent.PersonId == id && consent.Purpose == ConsentPurpose.Marketing && consent.Channel == ConsentChannel.Email)
+                .OrderByDescending(consent => consent.RecordedAt).Select(consent => consent.Granted).FirstOrDefault()))]);
+
     public Task RemoveAssignmentsAsync(Guid tagId, CancellationToken cancellationToken)
     {
         Assignments.RemoveAll(item => item.TagId == tagId);

@@ -19,7 +19,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
 | 17000–17999 | Requests | Engagement: requests, tasks, activities | 18 | 17019 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
-| 19000–19999 | Marketing | Marketing | 11 | 19012 |
+| 19000–19999 | Marketing | Marketing | 33 | 19034 |
 | 20000–20999 | Configuration | Configuration | 22 | 20023 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 16 | 22017 |
@@ -319,6 +319,28 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-19009 | Marketing.ListInvalid | – | Validation | – | – |
 | AUX-19010 | Marketing.ListNotFound | – | NotFound | – | – |
 | AUX-19011 | Marketing.ListMembersChanged | – | – | Marketing.ChangeListMembers (success) | – |
+| AUX-19012 | Marketing.TemplateCreated | – | – | Marketing.CreateTemplate (success) | – |
+| AUX-19013 | Marketing.TemplateUpdated | – | – | Marketing.UpdateTemplate (success) | – |
+| AUX-19014 | Marketing.TemplateDeleted | – | – | Marketing.DeleteTemplate (success) | – |
+| AUX-19015 | Marketing.TemplateInvalid | – | Validation | – | – |
+| AUX-19016 | Marketing.TemplateNotFound | – | NotFound | – | – |
+| AUX-19017 | Marketing.TemplateInUse | – | Conflict | – | – |
+| AUX-19018 | Marketing.TemplateTestSent | – | – | Marketing.SendTemplateTest (success) | – |
+| AUX-19019 | Marketing.CampaignCreated | – | – | Marketing.CreateCampaign (success) | – |
+| AUX-19020 | Marketing.CampaignUpdated | – | – | Marketing.UpdateCampaign (success) | – |
+| AUX-19021 | Marketing.CampaignDeleted | – | – | Marketing.DeleteCampaign (success) | – |
+| AUX-19022 | Marketing.CampaignInvalid | – | Validation | – | – |
+| AUX-19023 | Marketing.CampaignNotFound | – | NotFound | – | – |
+| AUX-19024 | Marketing.CampaignNotDraft | – | Conflict | – | – |
+| AUX-19025 | Marketing.CampaignQueued | – | – | Marketing.QueueCampaign (success) | – |
+| AUX-19026 | Marketing.CampaignSent | – | – | Marketing.SendCampaign (success) | – |
+| AUX-19027 | Marketing.CampaignFailed | – | Failure | – | – |
+| AUX-19028 | Marketing.CampaignCancelled | – | – | Marketing.CancelCampaign (success) | – |
+| AUX-19029 | Marketing.SuppressionAdded | – | – | Marketing.AddSuppression (success) | – |
+| AUX-19030 | Marketing.SuppressionRemoved | – | – | Marketing.RemoveSuppression (success) | – |
+| AUX-19031 | Marketing.SuppressionInvalid | – | Validation | – | – |
+| AUX-19032 | Marketing.SuppressionNotFound | – | NotFound | – | – |
+| AUX-19033 | Marketing.CampaignBatchSent | – | – | Marketing.SendCampaignBatch (success) | – |
 | AUX-20001 | Configuration.SettingNotFound | – | NotFound | – | – |
 | AUX-20002 | Configuration.SettingScopeNotAllowed | – | Validation | – | – |
 | AUX-20003 | Configuration.SettingValueInvalid | – | Validation | – | – |
