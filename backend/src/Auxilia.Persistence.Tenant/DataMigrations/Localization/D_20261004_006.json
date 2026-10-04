@@ -1,0 +1,116 @@
+[
+ {
+  "key": "app.dashboard.totalEmployees",
+  "category": "app",
+  "en": "Employees",
+  "it": "Operatori"
+ },
+ {
+  "key": "app.dashboard.totalClients",
+  "category": "app",
+  "en": "Clients",
+  "it": "Clienti"
+ },
+ {
+  "key": "app.dashboard.myClients",
+  "category": "app",
+  "en": "My clients",
+  "it": "I miei clienti"
+ },
+ {
+  "key": "app.dashboard.customFieldCounter",
+  "category": "app",
+  "en": "Clients with the flag",
+  "it": "Clienti con il contrassegno"
+ },
+ {
+  "key": "app.dashboard.pendingRegistrations",
+  "category": "app",
+  "en": "Pending registrations",
+  "it": "Registrazioni in attesa"
+ },
+ {
+  "key": "app.dashboard.activeCase",
+  "category": "app",
+  "en": "Active case",
+  "it": "Pratica attiva"
+ },
+ {
+  "key": "app.dashboard.openCases",
+  "category": "app",
+  "en": "Open cases",
+  "it": "Pratiche aperte"
+ },
+ {
+  "key": "app.dashboard.casesPerService",
+  "category": "app",
+  "en": "Cases per service",
+  "it": "Pratiche per tipologia"
+ },
+ {
+  "key": "app.dashboard.revenuePerMonth",
+  "category": "app",
+  "en": "Revenue per month",
+  "it": "Incassi per mese"
+ },
+ {
+  "key": "app.dashboard.casesDueSoon",
+  "category": "app",
+  "en": "Cases due in the next 30 days",
+  "it": "Pratiche in scadenza nei prossimi 30 giorni"
+ },
+ {
+  "key": "app.dashboard.upcomingAppointments",
+  "category": "app",
+  "en": "Upcoming appointments",
+  "it": "Prossimi appuntamenti"
+ },
+ {
+  "key": "app.dashboard.appointmentsToday",
+  "category": "app",
+  "en": "Today's appointments",
+  "it": "Appuntamenti di oggi"
+ },
+ {
+  "key": "app.dashboard.appointmentsPerDay",
+  "category": "app",
+  "en": "Appointments per day",
+  "it": "Appuntamenti per giorno"
+ },
+ {
+  "key": "app.dashboard.appointmentStatuses",
+  "category": "app",
+  "en": "Appointments by status",
+  "it": "Appuntamenti per stato"
+ },
+ {
+  "key": "app.dashboard.recentAppointments",
+  "category": "app",
+  "en": "Appointments from yesterday on",
+  "it": "Appuntamenti da ieri in poi"
+ },
+ {
+  "key": "app.dashboard.globalAppointments",
+  "category": "app",
+  "en": "Global calendar",
+  "it": "Calendario globale"
+ },
+ {
+  "key": "app.dashboard.nextAppointments",
+  "category": "app",
+  "en": "Your next appointments",
+  "it": "I tuoi prossimi appuntamenti"
+ },
+ {
+  "key": "app.dashboard.pendingRequests",
+  "category": "app",
+  "en": "Pending requests",
+  "it": "Richieste in attesa"
+ },
+ {
+  "key": "validation.dashboard.period",
+  "category": "validation",
+  "en": "Choose week, month, year or all.",
+  "it": "Scegli settimana, mese, anno o tutto."
+ }
+]

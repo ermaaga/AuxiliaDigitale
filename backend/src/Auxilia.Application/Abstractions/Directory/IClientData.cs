@@ -56,6 +56,9 @@ public interface IClientData : IAsyncDisposable
 {
     Task<(IReadOnlyList<ClientRow> Items, int Total)> PageAsync(ClientFilter filter, CancellationToken cancellationToken);
 
+    /// <summary>Clients not deleted whose boolean custom field <paramref name="key"/> is true (dashboard counters, Q41), optionally of one employee.</summary>
+    Task<int> CountFlaggedAsync(string key, Guid? employeeUserId, CancellationToken cancellationToken);
+
     /// <summary>The person of a client (tracked); <c>null</c> when it is not a client.</summary>
     Task<Person?> FindPersonAsync(Guid clientId, CancellationToken cancellationToken);
 

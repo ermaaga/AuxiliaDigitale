@@ -380,6 +380,18 @@ internal sealed class InMemoryAppointments : IAppointmentDataFactory, IAppointme
         return Task.FromResult<(IReadOnlyList<AppointmentRow>, int)>((rows, rows.Length));
     }
 
+    public Task<IReadOnlyList<DateTimeOffset>> StartsAsync(AppointmentFilter filter, int max, CancellationToken cancellationToken)
+    {
+        LastFilter = filter;
+        return Task.FromResult<IReadOnlyList<DateTimeOffset>>(Live().Select(item => item.StartsAt).Take(max).ToArray());
+    }
+
+    public Task<IReadOnlyDictionary<AppointmentStatus, int>> CountByStatusAsync(AppointmentFilter filter, CancellationToken cancellationToken)
+    {
+        LastFilter = filter;
+        return Task.FromResult<IReadOnlyDictionary<AppointmentStatus, int>>(Live().GroupBy(item => item.Status).ToDictionary(group => group.Key, group => group.Count()));
+    }
+
     public Task<IReadOnlyList<AppointmentRow>> OverlappingAsync(
         Guid employeeUserId, DateTimeOffset startsAt, DateTimeOffset endsAt, Guid? excludeId, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<AppointmentRow>>(Live()

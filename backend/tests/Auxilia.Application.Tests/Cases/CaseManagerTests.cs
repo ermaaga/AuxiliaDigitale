@@ -324,6 +324,16 @@ internal sealed class InMemoryCases : ICaseDataFactory, ICaseData
         return Task.FromResult<(IReadOnlyList<CaseRow>, int)>((rows, rows.Length));
     }
 
+    public CaseDashboard Dashboard { get; set; } = new(0, [], [], [], null);
+
+    public CaseScope? LastDashboardScope { get; private set; }
+
+    public Task<CaseDashboard> DashboardAsync(CaseScope scope, DateOnly? from, DateOnly today, DateOnly horizon, int take, CancellationToken cancellationToken)
+    {
+        LastDashboardScope = scope;
+        return Task.FromResult(Dashboard);
+    }
+
     public Task<int> NextNumberAsync(int year, CancellationToken cancellationToken)
     {
         numbers[year] = numbers.GetValueOrDefault(year) + 1;
