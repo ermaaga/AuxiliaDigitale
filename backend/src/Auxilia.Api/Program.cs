@@ -91,6 +91,7 @@ builder.Services.AddSingleton<IModuleEndpoints, AppointmentEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, RequestEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, TaskEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, Auxilia.Api.Endpoints.Marketing.AudienceEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, Auxilia.Api.Endpoints.Marketing.CampaignEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, NotificationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ExportEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, DashboardEndpoints>();

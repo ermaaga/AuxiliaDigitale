@@ -50,13 +50,39 @@ internal sealed class MessageDispatcher : IMessageDispatcher
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return operations.RunAsync(Operations.Messaging.QueueMessage, new { request.Channel, request.Purpose, request.TemplateCode }, async scope =>
+        return QueueAsync(
+            request.Channel, request.Purpose, request.Recipient, request.TemplateCode, request.RelatedEntityType, request.RelatedEntityId,
+            store => MessageContent.RenderAsync(
+                store, templates, request.Channel, request.TemplateCode, request.Language, tenantContext.Tenant.DefaultLanguage, request.Model, cancellationToken),
+            cancellationToken);
+    }
+
+    public Task<Result<Guid>> QueueContentAsync(OutboundContentRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return QueueAsync(
+            request.Channel, request.Purpose, request.Recipient, null, request.RelatedEntityType, request.RelatedEntityId,
+            _ => Task.FromResult(Result.Success(new RenderedContent(request.Language, request.Subject.Trim(), request.Body))),
+            cancellationToken);
+    }
+
+    private Task<Result<Guid>> QueueAsync(
+        MessageChannel channelKind,
+        MessagePurpose purpose,
+        string recipient,
+        string? templateCode,
+        string? relatedEntityType,
+        Guid? relatedEntityId,
+        Func<IMessagingData, Task<Result<RenderedContent>>> render,
+        CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Messaging.QueueMessage, new { Channel = channelKind, Purpose = purpose, TemplateCode = templateCode }, async scope =>
         {
             var roles = currentUser.Roles.Select(role => role.ToString()).ToArray();
             var snapshot = await snapshots.GetAsync(cancellationToken);
-            if (SendingAccountResolution.Resolve(snapshot, request.Channel, request.Purpose, roles) is not { } account)
+            if (SendingAccountResolution.Resolve(snapshot, channelKind, purpose, roles) is not { } account)
             {
-                return Errors.Messaging.NoAccountForMessage(request.Channel.ToString(), request.Purpose.ToString());
+                return Errors.Messaging.NoAccountForMessage(channelKind.ToString(), purpose.ToString());
             }
 
             var channel = channels.FirstOrDefault(item => string.Equals(item.Provider, account.Provider, StringComparison.Ordinal));
@@ -65,23 +91,22 @@ internal sealed class MessageDispatcher : IMessageDispatcher
                 return Errors.Messaging.ChannelNotAvailable(account.Provider);
             }
 
-            if (!channel.IsValidRecipient(request.Recipient))
+            if (!channel.IsValidRecipient(recipient))
             {
                 return Errors.Messaging.RecipientInvalid();
             }
 
             await using var store = await data.OpenAsync(cancellationToken);
-            var content = await MessageContent.RenderAsync(
-                store, templates, request.Channel, request.TemplateCode, request.Language, tenantContext.Tenant.DefaultLanguage, request.Model, cancellationToken);
+            var content = await render(store);
             if (content.IsFailure)
             {
                 return Result.Failure<Guid>(content.Error!);
             }
 
             var message = new OutboundMessage(
-                Guid.CreateVersion7(), request.Channel, request.Purpose, account.Id, request.Recipient.Trim(), request.TemplateCode,
+                Guid.CreateVersion7(), channelKind, purpose, account.Id, recipient.Trim(), templateCode,
                 content.Value.Language, content.Value.Subject, content.Value.Body, timeProvider.GetUtcNow(),
-                request.RelatedEntityType, request.RelatedEntityId);
+                relatedEntityType, relatedEntityId);
             store.Add(message);
             await store.SaveChangesAsync(cancellationToken);
             scope.SetEntity("OutboundMessage", message.Id);
@@ -89,5 +114,4 @@ internal sealed class MessageDispatcher : IMessageDispatcher
             await outbox.EnqueueAsync(scope, new DeliverOutboundMessageCommand(message.Id), cancellationToken);
             return Result.Success(message.Id);
         }, cancellationToken);
-    }
 }

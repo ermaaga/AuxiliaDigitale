@@ -280,6 +280,8 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factor
 
         public IReadOnlyCollection<OutboundMessageRequest> Messages => dispatcher.Requests.ToArray();
 
+        public IReadOnlyCollection<OutboundContentRequest> Contents => dispatcher.Contents.ToArray();
+
         protected override IApiEndpoints? Endpoints { get; } = new MeEndpoints();
 
         public virtual async ValueTask InitializeAsync()
@@ -371,6 +373,14 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthEndpointsTests.Factor
         public Task<Result<Guid>> QueueAsync(OutboundMessageRequest request, CancellationToken cancellationToken)
         {
             requests.Enqueue(request);
+            return Task.FromResult(Result.Success(Guid.CreateVersion7()));
+        }
+
+        public ConcurrentQueue<OutboundContentRequest> Contents { get; } = new();
+
+        public Task<Result<Guid>> QueueContentAsync(OutboundContentRequest request, CancellationToken cancellationToken)
+        {
+            Contents.Enqueue(request);
             return Task.FromResult(Result.Success(Guid.CreateVersion7()));
         }
     }

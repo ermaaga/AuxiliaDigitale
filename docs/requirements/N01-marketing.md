@@ -1,6 +1,6 @@
 # N01 — Marketing campaigns (v1: e-mail)
 
-Status: [~] in progress (consents and tags M-01, segments and lists M-02) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
+Status: [~] in progress (backend done: M-01, M-02, M-03; pages M-04; migrated consents E-05) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
 
 Not present in the legacy. Module `Marketing`, optional (plan/override per tenant and role), event codes 19000–19999.
 
@@ -22,17 +22,17 @@ Not present in the legacy. Module `Marketing`, optional (plan/override per tenan
 - [x] Segments and lists respect tenant isolation and F10 visibility for employees. *(M-02: employees count and see the clients in their charge; city/province not available: `Person` has no address)*
 
 **Templates**
-- [ ] E-mail templates with subject and body (Liquid placeholders: person first/last name, tenant name), language, preview with a sample client, **test send** to an arbitrary address.
+- [x] E-mail templates with subject and body (Liquid placeholders: person first/last name, tenant name), language, preview with a sample client, **test send** to an arbitrary address.
 
 **Campaigns**
-- [ ] Create campaign: name, segment or list, template, sender account resolved by rules (purpose `Marketing` × sender role, N03) with override if allowed.
-- [ ] States `Draft → Sending → Sent`, plus `Cancelled` and `Failed`; `scheduled_at` stored but unused (D-15).
-- [ ] "Send now" (confirmation with recipient count) enqueues the campaign; the Worker snapshots recipients, **excludes** people without valid e-mail marketing consent, without e-mail, or in suppressions, and sends in batches with per-provider rate limit.
-- [ ] Per-recipient status (`Pending`, `Sent`, `Failed`, `Excluded` + reason); campaign summary (recipients, sent, failed, excluded).
-- [ ] A campaign cannot be sent twice; retries never duplicate e-mails to the same recipient (idempotency per recipient).
-- [ ] Permissions: create/edit/send separated (e.g. only Administrator sends); module visibility per plan/role.
+- [x] Create campaign: name, segment or list, template, sender account resolved by rules (purpose `Marketing` × sender role, N03) with override if allowed.
+- [x] States `Draft → Sending → Sent`, plus `Cancelled` and `Failed`; `scheduled_at` stored but unused (D-15).
+- [x] "Send now" (confirmation with recipient count) enqueues the campaign; the Worker snapshots recipients, **excludes** people without valid e-mail marketing consent, without e-mail, or in suppressions, and sends in batches with per-provider rate limit.
+- [x] Per-recipient status (`Pending`, `Sent`, `Failed`, `Excluded` + reason); campaign summary (recipients, sent, failed, excluded).
+- [x] A campaign cannot be sent twice; retries never duplicate e-mails to the same recipient (idempotency per recipient).
+- [x] Permissions: create/edit/send separated (e.g. only Administrator sends); module visibility per plan/role.
 
 **Exclusions**
-- [ ] Staff can revoke marketing consent and add an address to `suppressions`; suppressed addresses are never contacted by marketing (transactional e-mails still allowed).
+- [x] Staff can revoke marketing consent and add an address to `suppressions`; suppressed addresses are never contacted by marketing (transactional e-mails still allowed).
 - [ ] Legacy clients are migrated with e-mail marketing consent = true, source `LegacyMigration` (D-23).
 - [ ] *(Deferred, D-24)* self-service unsubscribe link/page.

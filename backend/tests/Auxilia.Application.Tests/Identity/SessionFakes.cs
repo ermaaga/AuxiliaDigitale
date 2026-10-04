@@ -127,6 +127,14 @@ internal sealed class RecordingDispatcher : IMessageDispatcher
         Requests.Add(request);
         return Task.FromResult(Outcome ?? Result.Success(Guid.CreateVersion7()));
     }
+
+    public List<OutboundContentRequest> Contents { get; } = [];
+
+    public Task<Result<Guid>> QueueContentAsync(OutboundContentRequest request, CancellationToken cancellationToken)
+    {
+        Contents.Add(request);
+        return Task.FromResult(Outcome ?? Result.Success(Guid.CreateVersion7()));
+    }
 }
 
 internal sealed class ManualTimeProvider : TimeProvider
