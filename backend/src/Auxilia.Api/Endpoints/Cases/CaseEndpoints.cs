@@ -89,6 +89,15 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        cases.MapPost("/{id:guid}/expiry-reminder", SendExpiryReminderAsync)
+            .RequirePermission(CasesPermissions.ManageCases)
+            .WithName("SendCaseExpiryReminder")
+            .WithSummary("E-mails the client the end date of the case (expiry, else due date) in the client's language (F11)")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
         cases.MapDelete("/{id:guid}", DeleteAsync)
             .RequirePermission(CasesPermissions.DeleteCases)
             .WithName("DeleteCase")
@@ -145,6 +154,9 @@ internal sealed class CaseEndpoints : IModuleEndpoints
 
     private static async Task<IResult> DeleteAsync(Guid id, ICaseManager manager, CancellationToken cancellationToken) =>
         (await manager.DeleteAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
+
+    private static async Task<IResult> SendExpiryReminderAsync(Guid id, ICaseManager manager, CancellationToken cancellationToken) =>
+        (await manager.SendExpiryReminderAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
 
     /// <summary>A change answers with the case as it is now.</summary>
     private static async Task<IResult> DetailAfterAsync(Result change, Guid id, ICaseQueryService cases, CancellationToken cancellationToken) =>

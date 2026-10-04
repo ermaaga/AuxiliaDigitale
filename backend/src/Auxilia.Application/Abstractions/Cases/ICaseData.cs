@@ -127,6 +127,15 @@ public interface ICaseData : IAsyncDisposable
     /// <summary>Q03: the client has a case still open on <paramref name="today"/> (<see cref="Case.CountsAsOpen"/>).</summary>
     Task<bool> HasOpenCasesAsync(Guid clientId, DateOnly today, CancellationToken cancellationToken);
 
+    /// <summary>Active cases (clients not deleted) whose expiry date is <paramref name="today"/> or earlier (tracked).</summary>
+    Task<IReadOnlyList<Case>> ExpiredActiveAsync(DateOnly today, CancellationToken cancellationToken);
+
+    /// <summary>Active open cases ending (expiry, else due date) between tomorrow and <paramref name="horizon"/> (tracked).</summary>
+    Task<IReadOnlyList<Case>> ExpiringAsync(DateOnly today, DateOnly horizon, CancellationToken cancellationToken);
+
+    /// <summary>The user of each client person (clients without an account are missing).</summary>
+    Task<IReadOnlyDictionary<Guid, Guid>> ClientUsersAsync(IReadOnlyCollection<Guid> clientIds, CancellationToken cancellationToken);
+
     void Add(Case @case);
 
     /// <summary>Soft delete.</summary>

@@ -66,5 +66,5 @@ internal sealed class UserAccounts(
     }
 
     private static UserAccount ToAccount(User user) =>
-        new(user.Id, user.PersonId, user.UserName, user.Email, user.IsActive, !string.IsNullOrEmpty(user.PasswordHash), user.Roles);
+        new(user.Id, user.PersonId, user.UserName, user.Email, user.IsActive, !string.IsNullOrEmpty(user.PasswordHash), user.Roles, user.LanguageCode);
 }

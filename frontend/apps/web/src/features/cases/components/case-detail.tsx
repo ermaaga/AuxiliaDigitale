@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { isApiError } from "@auxilia/api-client";
-import { ArrowLeftIcon, ArrowRightIcon, Trash2Icon, Undo2Icon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, MailIcon, Trash2Icon, Undo2Icon } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import { Alert, AlertDescription } from "@auxilia/ui/components/alert";
 import { Badge } from "@auxilia/ui/components/badge";
@@ -21,6 +21,7 @@ import {
   deleteCase,
   formatMoney,
   moveCaseBack,
+  sendExpiryReminder,
   useCase,
   useCaseMutation,
   type CaseDetail as Detail,
@@ -47,6 +48,7 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
   const advance = useCaseMutation(tenant, () => advanceCase(id));
   const back = useCaseMutation(tenant, () => moveCaseBack(id));
   const remove = useCaseMutation(tenant, () => deleteCase(id));
+  const remind = useCaseMutation(tenant, () => sendExpiryReminder(id));
   const backLink = (
     <Button variant="ghost" size="sm" className="self-start" asChild>
       <Link href={tenantHref(tenant, "/cases")}>
@@ -116,7 +118,20 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
     }
   };
 
-  const busy = advance.isPending || back.isPending || remove.isPending;
+  const onRemind = async () => {
+    if (
+      await confirm({
+        description: t("app.cases.expiryReminderConfirm", { client: value.client.fullName }),
+        confirmLabel: t("app.cases.expiryReminder"),
+      })
+    ) {
+      await run(() => remind.mutateAsync(undefined), "app.cases.expiryReminderSent");
+    }
+  };
+
+  const busy = advance.isPending || back.isPending || remove.isPending || remind.isPending;
+  // F11 (legacy "send expiry e-mail"): needs an end date, the API checks the e-mail.
+  const canRemind = value.canManage && (value.expiresOn ?? value.dueOn) != null;
   const manage = value.canManage && value.status !== "Completed";
 
   return (
@@ -144,11 +159,18 @@ export function CaseDetail({ tenant, id }: { tenant: string; id: string }) {
             </Link>
           </div>
         </div>
-        {value.canDelete ? (
-          <Button type="button" variant="outline" onClick={() => void onDelete()} disabled={busy}>
-            <Trash2Icon aria-hidden /> {t("Delete")}
-          </Button>
-        ) : null}
+        <div className="flex flex-wrap gap-2">
+          {canRemind ? (
+            <Button type="button" variant="outline" onClick={() => void onRemind()} disabled={busy}>
+              <MailIcon aria-hidden /> {t("app.cases.expiryReminder")}
+            </Button>
+          ) : null}
+          {value.canDelete ? (
+            <Button type="button" variant="outline" onClick={() => void onDelete()} disabled={busy}>
+              <Trash2Icon aria-hidden /> {t("Delete")}
+            </Button>
+          ) : null}
+        </div>
       </header>
 
       <CaseStepper status={value.status} />

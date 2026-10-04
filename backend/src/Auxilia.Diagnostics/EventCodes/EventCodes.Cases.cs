@@ -103,5 +103,17 @@ public static partial class EventCodes
 
         /// <summary>A folder under the same parent already has this name (409).</summary>
         public const int ServiceFolderNameTaken = 14033;
+
+        /// <summary>The expiry e-mail of a case was sent to its client by staff (F11, Q24).</summary>
+        public const int CaseExpiryReminderSent = 14034;
+
+        /// <summary>A case without expiry or due date has nothing to remind (409).</summary>
+        public const int CaseHasNoEndDate = 14035;
+
+        /// <summary>The client of the case has no e-mail address (409).</summary>
+        public const int CaseClientHasNoEmail = 14036;
+
+        /// <summary>The expiry job ran for the tenant (F11, D-15): expired cases deactivated, clients told.</summary>
+        public const int CasesExpiryRun = 14037;
     }
 }

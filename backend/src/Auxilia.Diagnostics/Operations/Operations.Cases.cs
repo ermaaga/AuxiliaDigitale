@@ -37,5 +37,9 @@ public static partial class Operations
         public static readonly OperationDescriptor ReorderServiceFolders = new("Cases.ReorderServiceFolders", EventCodes.Cases.ServiceFoldersReordered);
 
         public static readonly OperationDescriptor DeleteServiceFolder = new("Cases.DeleteServiceFolder", EventCodes.Cases.ServiceFolderDeleted);
+
+        public static readonly OperationDescriptor SendCaseExpiryReminder = new("Cases.SendCaseExpiryReminder", EventCodes.Cases.CaseExpiryReminderSent);
+
+        public static readonly OperationDescriptor RunCasesExpiry = new("Cases.RunCasesExpiry", EventCodes.Cases.CasesExpiryRun);
     }
 }

@@ -78,5 +78,6 @@ public sealed class CasesModule : IModuleDescriptor
         services.TryAddScoped<ICaseManager, CaseManager>();
         services.TryAddScoped<ICaseQueryService, CaseQueryService>();
         services.TryAddScoped<Public.ICaseDirectory, Public.CaseDirectory>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Jobs.IRecurringJob, CaseExpiryJob>());
     }
 }
