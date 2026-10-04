@@ -51,10 +51,18 @@ export async function expectAccessible(page: Page, name: string): Promise<void> 
   expect(blocking, `axe on ${name}`).toEqual([]);
 }
 
-/** Mobile check: the page fits a 360 px screen (no horizontal scrolling). */
+/**
+ * Mobile check: the page fits a 360 px screen (no horizontal scrolling). Polled: after a viewport change, resizing
+ * content (charts) settles in a moment.
+ */
 export async function expectNoHorizontalScroll(page: Page): Promise<void> {
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        ),
+      { timeout: 5_000 },
+    )
+    .toBeLessThanOrEqual(0);
 }
