@@ -12,6 +12,8 @@ export type BffConfig = {
   apiUrl: string;
   /** Origin the browser uses for this app, checked on every mutating BFF call (CSRF). */
   publicOrigin: string | undefined;
+  /** API URL the browser connects to for the realtime hub (SignalR); none = no realtime, the pages poll. */
+  apiPublicUrl: string | undefined;
   clients: Record<BffArea, ClientCredentials>;
   /** Absolute lifetime of a BFF session; the API session (idle timeout, revocation) ends it earlier. */
   sessionMaxAgeSeconds: number;
@@ -21,6 +23,7 @@ export function readBffConfig(env: Record<string, string | undefined> = process.
   return {
     apiUrl: (env.AUXILIA_API_URL ?? "http://localhost:5080").replace(/\/+$/, ""),
     publicOrigin: env.AUXILIA_PUBLIC_ORIGIN?.replace(/\/+$/, "") || undefined,
+    apiPublicUrl: env.AUXILIA_API_PUBLIC_URL?.replace(/\/+$/, "") || undefined,
     clients: {
       tenant: {
         id: env.AUXILIA_WEB_CLIENT_ID ?? "web-bff",

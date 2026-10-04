@@ -8,6 +8,7 @@ import {
   login,
   logout,
   proxy,
+  realtimeToken,
   sessionInfo,
   type BffContext,
 } from "./handlers";
@@ -116,6 +117,33 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe("realtime token", () => {
+  it("gives the session's access token and the hub URL only when realtime is configured", async () => {
+    const { cookie } = await signedIn();
+    const post = () => browser("/api/realtime/token", { method: "POST", cookie });
+
+    expect((await realtimeToken(post(), context)).status).toBe(204);
+
+    context.config = { ...context.config, apiPublicUrl: "https://api.public.test" };
+    const response = await realtimeToken(post(), context);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(await response.json()).toMatchObject({
+      accessToken: "access-1",
+      hubUrl: "https://api.public.test/hubs/notifications",
+    });
+
+    expect(
+      (await realtimeToken(browser("/api/realtime/token", { method: "POST" }), context)).status,
+    ).toBe(401);
+    const crossSite = new Request(`${ORIGIN}/api/realtime/token`, {
+      method: "POST",
+      headers: { cookie },
+    });
+    expect((await realtimeToken(crossSite, context)).status).toBe(403);
+  });
+});
 
 describe("CSRF", () => {
   it("lets safe methods through and requires the header and the origin on the others", () => {

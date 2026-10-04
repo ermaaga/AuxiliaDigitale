@@ -5,7 +5,9 @@ import { brandIdentity } from "@/features/branding/branding";
 import { loadBranding } from "@/features/branding/server";
 import { tenantLanguages } from "@/i18n/bundles";
 import { currentSession, serverApi } from "@/lib/api/server";
+import { NotificationBell } from "@/features/notifications";
 import { PermissionsProvider } from "@/lib/permissions";
+import { RealtimeProvider } from "@/lib/realtime/realtime";
 import { tenantHref } from "@/lib/href";
 
 /**
@@ -68,16 +70,23 @@ export default async function AppLayout({ children, params }: LayoutProps<"/[ten
 
   return (
     <PermissionsProvider userId={me.id} roles={me.roles} permissions={me.permissions}>
-      <AppShell
-        tenant={tenant}
-        appName={identity.appName}
-        logoUrl={identity.logoUrl}
-        navigation={navigation}
-        user={user}
-        languages={languages}
-      >
-        {children}
-      </AppShell>
+      <RealtimeProvider tenant={tenant}>
+        <AppShell
+          tenant={tenant}
+          appName={identity.appName}
+          logoUrl={identity.logoUrl}
+          navigation={navigation}
+          user={user}
+          languages={languages}
+          notifications={
+            me.permissions.includes("engagement.notifications.view") ? (
+              <NotificationBell tenant={tenant} />
+            ) : undefined
+          }
+        >
+          {children}
+        </AppShell>
+      </RealtimeProvider>
     </PermissionsProvider>
   );
 }
