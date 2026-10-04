@@ -111,7 +111,8 @@ export function RealtimeProvider({
         void postToBff("/api/auth/logout")
           .catch(() => undefined)
           .finally(() => {
-            router.replace(`${tenantHref(tenant, "/login")}?reason=session-ended`);
+            // The same path as a sign-out: also this tab's own logout gets the push.
+            router.replace(tenantHref(tenant, "/login"));
             router.refresh();
           });
       });

@@ -1,0 +1,14 @@
+[
+ {
+  "key": "app.identity.loginAttempts.from",
+  "category": "app",
+  "en": "From",
+  "it": "Dal"
+ },
+ {
+  "key": "app.identity.loginAttempts.to",
+  "category": "app",
+  "en": "To",
+  "it": "Al"
+ }
+]

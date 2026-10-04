@@ -7,7 +7,12 @@ import { Button } from "@auxilia/ui/components/button";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { DataTable } from "@/components/data-table/data-table";
-import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
+import {
+  DateFilter,
+  dayBoundary,
+  FilterSelect,
+  SearchFilter,
+} from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
 import { useTableState } from "@/components/data-table/use-table-state";
@@ -18,13 +23,13 @@ type LoginAttempt = components["schemas"]["LoginAttemptResponse"];
 
 /**
  * Login audit (F35, `GET /identity/login-attempts`, permission `identity.loginAttempts.view`): every sign-in attempt,
- * filtered by user name, method and result, sorted by date or user, paged by the API; the state lives in the URL. The
+ * filtered by user name, method, result and day range, sorted by date or user, paged by the API; the state lives in the URL. The
  * columns follow the grid layout `identity.loginAttempts` of the user's role (F21).
  */
 export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: string }) {
   const t = useTranslations();
   const format = useFormatter();
-  const table = useTableState(["userName", "method", "succeeded"] as const);
+  const table = useTableState(["userName", "method", "succeeded", "from", "to"] as const);
   const grid = useGridLayout(tenant, "identity.loginAttempts");
   const params = {
     page: table.page,
@@ -34,6 +39,9 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
     "filter[method]": table.filters.method,
     "filter[succeeded]":
       table.filters.succeeded === undefined ? undefined : table.filters.succeeded === "true",
+    // Days of the browser's calendar, both included (the API takes instants).
+    "filter[from]": dayBoundary(table.filters.from, "from"),
+    "filter[to]": dayBoundary(table.filters.to, "to"),
   };
 
   const query = useQuery({
@@ -130,6 +138,18 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
           { value: "true", label: t("app.identity.loginAttempts.succeeded") },
           { value: "false", label: t("Failed") },
         ]}
+      />
+      <DateFilter
+        id="attempts-from"
+        label={t("app.identity.loginAttempts.from")}
+        value={table.filters.from}
+        onChange={(value) => table.setFilter("from", value)}
+      />
+      <DateFilter
+        id="attempts-to"
+        label={t("app.identity.loginAttempts.to")}
+        value={table.filters.to}
+        onChange={(value) => table.setFilter("to", value)}
       />
       {table.hasFilters ? (
         <Button type="button" variant="ghost" size="sm" onClick={table.clearFilters}>
