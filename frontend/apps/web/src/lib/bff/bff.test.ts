@@ -649,7 +649,7 @@ describe("content security policy", () => {
     const production = contentSecurityPolicy("abc", false, "https://api.test");
     expect(production).toContain("script-src 'self' 'nonce-abc' 'strict-dynamic'");
     expect(production).not.toContain("unsafe-eval");
-    expect(production).toContain("connect-src 'self' https://api.test");
+    expect(production).toContain("connect-src 'self' https://api.test wss://api.test");
     expect(production).toContain("frame-ancestors 'none'");
     expect(production).toContain("upgrade-insecure-requests");
     expect(contentSecurityPolicy("abc", true)).toContain("'unsafe-eval'");

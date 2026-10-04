@@ -4,7 +4,9 @@ export function contentSecurityPolicy(
   development: boolean,
   apiPublicUrl?: string,
 ): string {
-  const connect = ["'self'", apiPublicUrl].filter(Boolean).join(" ");
+  // The hub is a WebSocket: Chrome does not let an http(s) source cover ws(s), so both are listed.
+  const socket = apiPublicUrl?.replace(/^http/, "ws");
+  const connect = ["'self'", apiPublicUrl, socket].filter(Boolean).join(" ");
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,

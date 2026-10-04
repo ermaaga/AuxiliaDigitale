@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormatter, useTranslations } from "next-intl";
+import { useFormatter, useNow, useTranslations } from "next-intl";
 
 import { notificationKeys, notificationValues, type NotificationItem } from "../api";
 
@@ -8,6 +8,7 @@ import { notificationKeys, notificationValues, type NotificationItem } from "../
 export function NotificationText({ notification }: { notification: NotificationItem }) {
   const t = useTranslations();
   const format = useFormatter();
+  const now = useNow({ updateInterval: 60_000 });
   const keys = notificationKeys(notification.kind);
   const values = notificationValues(notification.parameters);
   return (
@@ -25,7 +26,7 @@ export function NotificationText({ notification }: { notification: NotificationI
         <span className="text-sm text-muted-foreground">{t(keys.message, values)}</span>
       ) : null}
       <span className="text-xs text-muted-foreground">
-        {format.relativeTime(new Date(notification.createdAt))}
+        {format.relativeTime(new Date(notification.createdAt), now)}
       </span>
     </span>
   );
