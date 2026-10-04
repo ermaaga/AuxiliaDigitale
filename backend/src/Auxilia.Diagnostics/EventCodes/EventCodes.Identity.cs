@@ -211,5 +211,8 @@ public static partial class EventCodes
 
         /// <summary>No open session of the caller with this id (404).</summary>
         public const int SessionNotFound = 12069;
+
+        /// <summary>An Administrator ended another user's session (F17): tokens denied, its connections sign out.</summary>
+        public const int SessionRevoked = 12070;
     }
 }

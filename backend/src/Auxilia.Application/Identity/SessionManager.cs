@@ -45,6 +45,12 @@ public interface ISessionManager
     /// deny-listed and its connections told to sign out. Another user's session is not found.
     /// </summary>
     Task<Result> EndOwnSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// An Administrator ends an open session of any user of the tenant (F17): its access tokens are denied at once and
+    /// its connections receive <c>ForceLogout</c> (reason <c>Revoked</c>).
+    /// </summary>
+    Task<Result> RevokeAsync(Guid sessionId, Guid? actorUserId, CancellationToken cancellationToken);
 }
 
 public sealed record ClientCredentials(string ClientId, string? ClientSecret);
@@ -272,6 +278,22 @@ internal sealed partial class SessionManager : ISessionManager
             }
 
             await EndAsync(session, SessionEndReason.Logout, now, cancellationToken);
+            await SaveAsync(store, cancellationToken);
+            return Result.Success();
+        }, cancellationToken);
+
+    public Task<Result> RevokeAsync(Guid sessionId, Guid? actorUserId, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Identity.RevokeSession, new { SessionId = sessionId }, async _ =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var now = timeProvider.GetUtcNow();
+            if (await store.FindSessionAsync(sessionId, cancellationToken) is not { } session || !session.IsActiveAt(now))
+            {
+                return Errors.Identity.SessionNotFound();
+            }
+
+            await EndAsync(session, SessionEndReason.Revoked, now, cancellationToken);
+            Log.Security.SessionRevokedByAdministrator(logger, session.Id, session.UserId, actorUserId);
             await SaveAsync(store, cancellationToken);
             return Result.Success();
         }, cancellationToken);

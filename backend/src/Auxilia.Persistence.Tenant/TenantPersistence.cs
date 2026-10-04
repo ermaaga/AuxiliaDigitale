@@ -71,6 +71,7 @@ public static class TenantPersistence
         services.AddScoped<Application.Abstractions.Engagement.IRequestDataFactory, Engagement.RequestDataFactory>();
         services.AddScoped<Application.Abstractions.Engagement.INotificationDataFactory, Engagement.NotificationDataFactory>();
         services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
+        services.AddScoped<IActiveSessionReader, Identity.ActiveSessionReader>();
         services.AddScoped<ILocalizationDataFactory, LocalizationDataFactory>();
         services.AddScoped<ILocalizationReader, LocalizationReader>();
         services.AddSingleton<PermissionSynchronizer>();

@@ -38,3 +38,30 @@ public sealed record MySessionResponse(
     string? IpAddress,
     string? UserAgent,
     bool IsCurrent);
+
+/// <summary>
+/// An open session of the tenant (F17, Administrators): who (user name, full name, roles), the client app, IP and
+/// user agent, when it started and was last used, when it expires; <c>isCurrent</c> marks the caller's own.
+/// </summary>
+public sealed record ActiveSessionResponse(
+    Guid Id,
+    Guid UserId,
+    string UserName,
+    string FullName,
+    IReadOnlyList<string> Roles,
+    string ClientId,
+    string? IpAddress,
+    string? UserAgent,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset LastUsedAt,
+    DateTimeOffset ExpiresAt,
+    bool IsCurrent);
+
+/// <summary>The cards of the sessions page: open sessions, distinct users, sessions used in the last 5 minutes.</summary>
+public sealed record ActiveSessionSummaryResponse(int Sessions, int Users, int ActiveNow);
+
+/// <summary>
+/// The open sessions (F17): <c>userName</c> matches user name or full name; <c>sort</c> one of <c>lastUsedAt</c>
+/// (default, descending), <c>createdAt</c>, <c>userName</c>; <c>-</c> for descending.
+/// </summary>
+public sealed record ActiveSessionQuery(string? UserName, string? Sort, int Page, int PageSize);

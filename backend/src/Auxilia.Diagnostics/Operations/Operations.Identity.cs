@@ -87,5 +87,7 @@ public static partial class Operations
         public static readonly OperationDescriptor RemoveProfileImage = new("Identity.RemoveProfileImage", EventCodes.Identity.ProfileImageRemoved);
 
         public static readonly OperationDescriptor EndOwnSession = new("Identity.EndOwnSession", EventCodes.Identity.OwnSessionEnded);
+
+        public static readonly OperationDescriptor RevokeSession = new("Identity.RevokeSession", EventCodes.Identity.SessionRevoked);
     }
 }

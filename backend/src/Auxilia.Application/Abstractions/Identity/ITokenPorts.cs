@@ -186,3 +186,38 @@ public interface ILoginAttemptReader
 {
     Task<(IReadOnlyList<LoginAttempt> Items, long TotalCount)> ListAsync(LoginAttemptQuery query, CancellationToken cancellationToken);
 }
+
+/// <summary>Sortable columns of the sessions page (F17).</summary>
+public enum ActiveSessionSort
+{
+    LastUsedAt,
+    CreatedAt,
+    UserName,
+}
+
+/// <summary>A page of the open sessions at <see cref="Now"/>, already validated.</summary>
+public sealed record ActiveSessionFilter(string? UserName, ActiveSessionSort Sort, bool Descending, int Skip, int Take, DateTimeOffset Now);
+
+public sealed record ActiveSessionRow(
+    Guid Id,
+    Guid UserId,
+    string UserName,
+    string FullName,
+    IReadOnlyList<TenantRole> Roles,
+    string ClientId,
+    string? IpAddress,
+    string? UserAgent,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset LastUsedAt,
+    DateTimeOffset ExpiresAt);
+
+public sealed record ActiveSessionCounts(int Sessions, int Users, int ActiveNow);
+
+/// <summary>The open sessions of the current tenant (not ended, before their idle and absolute expiry), read-only.</summary>
+public interface IActiveSessionReader
+{
+    Task<(IReadOnlyList<ActiveSessionRow> Items, int Total)> PageAsync(ActiveSessionFilter filter, CancellationToken cancellationToken);
+
+    /// <summary>Open sessions, distinct users, and sessions used since <paramref name="activeSince"/>.</summary>
+    Task<ActiveSessionCounts> CountAsync(DateTimeOffset now, DateTimeOffset activeSince, CancellationToken cancellationToken);
+}
