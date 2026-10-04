@@ -20,6 +20,9 @@ public static class RealtimeEvents
 
     /// <summary>An appointment of the user changed (F13): told to the other party (client or employee), never to the actor.</summary>
     public const string AppointmentChanged = "AppointmentChanged";
+
+    /// <summary>A request the user takes part in changed (F15): new, replied or closed; never told to the actor.</summary>
+    public const string RequestChanged = "RequestChanged";
 }
 
 /// <param name="Reason">Why the session ended: <c>Logout</c>, <c>SingleSession</c>, <c>SecurityStampChanged</c>, <c>RefreshTokenReuse</c>, <c>Revoked</c>.</param>
@@ -33,3 +36,6 @@ public sealed record DocumentProcessedEvent(Guid DocumentId, string FileName, st
 
 /// <param name="Change"><c>Scheduled</c>, <c>Requested</c>, <c>Updated</c>, <c>Approved</c>, <c>Rejected</c>, <c>Completed</c>, <c>Cancelled</c> or <c>Deleted</c>.</param>
 public sealed record AppointmentChangedEvent(Guid AppointmentId, string Change, DateTimeOffset StartsAt);
+
+/// <param name="Change"><c>Created</c>, <c>Replied</c> or <c>Closed</c>.</param>
+public sealed record RequestChangedEvent(Guid RequestId, string Change, string Subject);

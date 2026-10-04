@@ -68,6 +68,7 @@ public static class TenantPersistence
         services.AddScoped<Application.Abstractions.Cases.ICaseDataFactory, Cases.CaseDataFactory>();
         services.AddScoped<Application.Abstractions.Documents.IDocumentDataFactory, Documents.DocumentDataFactory>();
         services.AddScoped<Application.Abstractions.Scheduling.IAppointmentDataFactory, Scheduling.AppointmentDataFactory>();
+        services.AddScoped<Application.Abstractions.Engagement.IRequestDataFactory, Engagement.RequestDataFactory>();
         services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
         services.AddScoped<ILocalizationDataFactory, LocalizationDataFactory>();
         services.AddScoped<ILocalizationReader, LocalizationReader>();

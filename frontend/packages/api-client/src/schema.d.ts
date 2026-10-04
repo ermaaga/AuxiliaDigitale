@@ -2212,6 +2212,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The inbox: requests received (employee: addressed to me; Administrators: the office), sent, or all (Administrators) */
+        get: operations["ListRequests"];
+        put?: never;
+        /** Clients ask the employee in charge (default) or the office; employees ask the office */
+        post: operations["CreateRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A request with its thread and what the caller may do */
+        get: operations["GetRequest"];
+        put?: never;
+        post?: never;
+        /** Administrators delete a request (soft delete, thread kept) */
+        delete: operations["DeleteRequest"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adds a message to an open request; the other party is told */
+        post: operations["ReplyToRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/requests/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Closes an open request */
+        post: operations["CloseRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2627,6 +2697,12 @@ export interface components {
             defaultLanguage: string;
             timeZone: string;
             administrator: null | components["schemas"]["TenantAdministratorInvite"];
+        };
+        CreateRequestRequest: {
+            type: string;
+            subject: string;
+            message: string;
+            askMyOperator: null | boolean;
         };
         CreateResourceKeyRequest: {
             key: string;
@@ -3095,6 +3171,15 @@ export interface components {
             /** Format: int64 */
             totalCount: number | string;
         };
+        PagedResponseOfRequestListItemResponse: {
+            items: components["schemas"]["RequestListItemResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
         PagedResponseOfResourceKeyResponse: {
             items: components["schemas"]["ResourceKeyResponse"][];
             /** Format: int32 */
@@ -3251,6 +3336,9 @@ export interface components {
             parentId: null | string;
             folderIds: string[];
         };
+        ReplyToRequestRequest: {
+            message: string;
+        };
         RequestAppointmentRequest: {
             /** Format: uuid */
             employeeUserId: string;
@@ -3261,6 +3349,54 @@ export interface components {
             /** Format: int32 */
             durationMinutes: null | number | string;
             notes: null | string;
+        };
+        RequestListItemResponse: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            subject: string;
+            status: string;
+            sender: components["schemas"]["RequestUserResponse"];
+            recipient: null | components["schemas"]["RequestUserResponse"];
+            /** Format: date-time */
+            sentAt: string;
+            /** Format: date-time */
+            lastMessageAt: string;
+            /** Format: int32 */
+            messageCount: number | string;
+        };
+        RequestMessageResponse: {
+            /** Format: uuid */
+            id: string;
+            author: components["schemas"]["RequestUserResponse"];
+            body: string;
+            /** Format: date-time */
+            sentAt: string;
+            mine: boolean;
+        };
+        RequestResponse: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            subject: string;
+            status: string;
+            sender: components["schemas"]["RequestUserResponse"];
+            recipient: null | components["schemas"]["RequestUserResponse"];
+            /** Format: date-time */
+            sentAt: string;
+            /** Format: date-time */
+            lastMessageAt: string;
+            /** Format: date-time */
+            closedAt: null | string;
+            messages: components["schemas"]["RequestMessageResponse"][];
+            canReply: boolean;
+            canClose: boolean;
+            canDelete: boolean;
+        };
+        RequestUserResponse: {
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
         };
         ResetClientPasswordRequest: {
             sendLink: boolean;
@@ -11553,6 +11689,264 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListRequests: {
+        parameters: {
+            query?: {
+                box?: string;
+                "filter[status]"?: string;
+                "filter[type]"?: string;
+                sort?: string;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfRequestListItemResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CreateRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRequestRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ReplyToRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplyToRequestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CloseRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestResponse"];
                 };
             };
             /** @description Not Found */

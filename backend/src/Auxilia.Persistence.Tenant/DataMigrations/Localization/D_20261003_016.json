@@ -1,0 +1,56 @@
+[
+ {
+  "key": "grids.engagement.requests.name",
+  "category": "grids",
+  "en": "Requests",
+  "it": "Richieste"
+ },
+ {
+  "key": "app.requests.recipient",
+  "category": "app",
+  "en": "Addressed to",
+  "it": "Destinatario"
+ },
+ {
+  "key": "validation.requests.type",
+  "category": "validation",
+  "en": "Choose a type: information, general, support or appointment.",
+  "it": "Scegli un tipo: informazioni, generale, supporto o appuntamento."
+ },
+ {
+  "key": "validation.requests.subject",
+  "category": "validation",
+  "en": "Enter a subject (at most 200 characters).",
+  "it": "Inserisci un oggetto (al massimo 200 caratteri)."
+ },
+ {
+  "key": "validation.requests.message",
+  "category": "validation",
+  "en": "Write a message (at most 4000 characters).",
+  "it": "Scrivi un messaggio (al massimo 4000 caratteri)."
+ },
+ {
+  "key": "validation.requests.status",
+  "category": "validation",
+  "en": "Choose a valid status.",
+  "it": "Scegli uno stato valido."
+ },
+ {
+  "key": "validation.requests.box",
+  "category": "validation",
+  "en": "Choose received, sent or all.",
+  "it": "Scegli ricevute, inviate o tutte."
+ },
+ {
+  "key": "errors.AUX-17006",
+  "category": "errors",
+  "en": "The request does not exist or has been deleted.",
+  "it": "La richiesta non esiste o è stata eliminata."
+ },
+ {
+  "key": "errors.AUX-17007",
+  "category": "errors",
+  "en": "The request is closed: it takes no more messages.",
+  "it": "La richiesta è chiusa: non accetta altri messaggi."
+ }
+]
