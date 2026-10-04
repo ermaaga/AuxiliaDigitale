@@ -39,10 +39,10 @@ export default function DashboardChart({
   points: readonly ChartPoint[];
 }) {
   return (
-    <div className="h-64 w-full" aria-hidden>
+    <div className="h-64 w-full" aria-hidden inert>
       <ResponsiveContainer width="100%" height="100%">
         {kind === "pie" ? (
-          <PieChart>
+          <PieChart accessibilityLayer={false}>
             <Pie
               data={[...points]}
               dataKey="value"
@@ -59,7 +59,7 @@ export default function DashboardChart({
             <Legend />
           </PieChart>
         ) : kind === "line" ? (
-          <LineChart data={[...points]}>
+          <LineChart data={[...points]} accessibilityLayer={false}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
             <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} width={56} />
@@ -73,7 +73,7 @@ export default function DashboardChart({
             />
           </LineChart>
         ) : (
-          <BarChart data={[...points]}>
+          <BarChart data={[...points]} accessibilityLayer={false}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="name" tick={{ fill: "var(--muted-foreground)", fontSize: 12 }} />
             <YAxis

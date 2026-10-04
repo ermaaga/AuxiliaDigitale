@@ -33,7 +33,7 @@ test("an Administrator reads the dashboard and exports lists", async ({ page }) 
     await page.getByRole("combobox", { name: t("app.dashboard.period") }).click();
     await page.getByRole("option", { name: t("app.dashboard.periods.year") }).click();
     await expect(page).toHaveURL(/period=year/);
-    await expect(page.getByText(t("app.dashboard.casesPerService"))).toBeVisible();
+    await expect(page.getByText(t("app.dashboard.casesPerService")).first()).toBeVisible();
     await expectAccessible(page, "dashboard");
     await page.setViewportSize({ width: 360, height: 780 });
     await expectNoHorizontalScroll(page);
