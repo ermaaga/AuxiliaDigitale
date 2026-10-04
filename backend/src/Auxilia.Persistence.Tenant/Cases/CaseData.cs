@@ -21,33 +21,12 @@ internal sealed class CaseData(ITenantDbContext db) : ICaseData
     {
         ArgumentNullException.ThrowIfNull(filter);
 
-        // Cases are the root and people are joined: their soft-delete filters apply (no deleted case, no deleted client).
         var specializations = db.Set<Specialization>();
-        var cases =
-            from @case in db.Set<Case>().AsNoTracking()
-            join person in db.Set<Person>() on @case.ClientId equals person.Id
-            join service in db.Set<Service>() on @case.ServiceId equals service.Id
-            select new { @case, person, service };
-
-        var scope = filter.Scope;
-        if (scope.ClientId is { } clientId)
+        var cases = Scoped(filter.Scope);
+        if (filter.OnlyHeldOrUnspecialized && filter.Scope.ClientId is null && filter.Scope.EmployeeUserId is { } heldBy)
         {
-            cases = cases.Where(row => row.@case.ClientId == clientId);
-        }
-        else if (scope.EmployeeUserId is { } employeeUserId)
-        {
-            // F10 (D-04): no specialization, a non-private one, or one the employee holds.
             cases = cases.Where(row => row.@case.SpecializationId == null
-                || specializations.Any(item => item.Id == row.@case.SpecializationId && (!item.IsPrivate || item.Members.Any(member => member.UserId == employeeUserId))));
-            if (filter.OnlyHeldOrUnspecialized)
-            {
-                cases = cases.Where(row => row.@case.SpecializationId == null
-                    || specializations.Any(item => item.Id == row.@case.SpecializationId && item.Members.Any(member => member.UserId == employeeUserId)));
-            }
-        }
-        else if (!scope.Everything)
-        {
-            cases = cases.Where(_ => false);
+                || specializations.Any(item => item.Id == row.@case.SpecializationId && item.Members.Any(member => member.UserId == heldBy)));
         }
 
         if (filter.ClientId is { } onlyClient)
@@ -125,6 +104,90 @@ internal sealed class CaseData(ITenantDbContext db) : ICaseData
             .ToListAsync(cancellationToken);
         return (items, total);
     }
+
+    public async Task<CaseDashboard> DashboardAsync(CaseScope scope, DateOnly? from, DateOnly today, DateOnly horizon, int take, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        var visible = Scoped(scope);
+        var open = visible.Where(row => row.@case.IsActive && row.@case.Status != CaseStatus.Completed);
+        var started = from is { } first ? visible.Where(row => row.@case.StartedOn >= first) : visible;
+
+        var openCount = await open.CountAsync(cancellationToken);
+        var perService = await started
+            .GroupBy(row => row.service.Name)
+            .Select(group => new { Service = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Service)
+            .Take(20)
+            .ToListAsync(cancellationToken);
+        // Legacy: the money received of the cases started in each month (one row per payment, then grouped).
+        var revenue = await started
+            .SelectMany(row => row.@case.Payments.Select(payment => new { row.@case.StartedOn.Year, row.@case.StartedOn.Month, payment.Amount }))
+            .GroupBy(item => new { item.Year, item.Month })
+            .Select(group => new { group.Key.Year, group.Key.Month, Amount = group.Sum(item => item.Amount) })
+            .OrderBy(item => item.Year)
+            .ThenBy(item => item.Month)
+            .ToListAsync(cancellationToken);
+        var dueSoon = await open
+            .Where(row => row.@case.DueOn != null && row.@case.DueOn >= today && row.@case.DueOn <= horizon)
+            .OrderBy(row => row.@case.DueOn)
+            .ThenBy(row => row.@case.Number)
+            .Take(take)
+            .Select(row => new CaseDashboardItem(row.@case.Id, row.@case.Number, row.person.FirstName + " " + row.person.LastName, row.service.Name, row.@case.DueOn))
+            .ToListAsync(cancellationToken);
+        var latest = await open
+            .OrderByDescending(row => row.@case.StartedOn)
+            .ThenByDescending(row => row.@case.Number)
+            .Select(row => new CaseDashboardItem(row.@case.Id, row.@case.Number, row.person.FirstName + " " + row.person.LastName, row.service.Name, row.@case.DueOn))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return new CaseDashboard(
+            openCount,
+            perService.Select(item => (item.Service, item.Count)).ToArray(),
+            revenue.Select(item => (item.Year, item.Month, item.Amount)).ToArray(),
+            dueSoon,
+            latest);
+    }
+
+    /// <summary>
+    /// The cases a scope sees (F10, D-04): every case, the client's own, or for an employee those without a
+    /// specialization, with a non-private one or with one held. Cases are the root and people are joined: their
+    /// soft-delete filters apply (no deleted case, no deleted client).
+    /// </summary>
+    private IQueryable<CaseJoin> Scoped(CaseScope scope)
+    {
+        var specializations = db.Set<Specialization>();
+        var cases =
+            from @case in db.Set<Case>().AsNoTracking()
+            join person in db.Set<Person>() on @case.ClientId equals person.Id
+            join service in db.Set<Service>() on @case.ServiceId equals service.Id
+            select new CaseJoin { @case = @case, person = person, service = service };
+
+        if (scope.ClientId is { } clientId)
+        {
+            return cases.Where(row => row.@case.ClientId == clientId);
+        }
+
+        if (scope.EmployeeUserId is { } employeeUserId)
+        {
+            return cases.Where(row => row.@case.SpecializationId == null
+                || specializations.Any(item => item.Id == row.@case.SpecializationId && (!item.IsPrivate || item.Members.Any(member => member.UserId == employeeUserId))));
+        }
+
+        return scope.Everything ? cases : cases.Where(_ => false);
+    }
+
+#pragma warning disable SA1300, IDE1006, CA1716 // Lower-case members keep the existing query shapes (`row.@case`, `row.person`).
+    private sealed class CaseJoin
+    {
+        public Case @case { get; init; } = null!;
+
+        public Person person { get; init; } = null!;
+
+        public Service service { get; init; } = null!;
+    }
+#pragma warning restore SA1300, IDE1006, CA1716
 
     public async Task<int> NextNumberAsync(int year, CancellationToken cancellationToken) =>
         // The upsert locks the year's row until the operation's transaction ends: concurrent cases get distinct numbers.

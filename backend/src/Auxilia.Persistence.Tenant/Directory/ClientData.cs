@@ -17,6 +17,26 @@ internal sealed class ClientDataFactory(ITenantDbContextFactory databases) : ICl
 /// <inheritdoc cref="IClientData"/>
 internal sealed class ClientData(ITenantDbContext db) : IClientData
 {
+
+    public Task<int> CountFlaggedAsync(string key, Guid? employeeUserId, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
+
+        // Profiles are joined to people (soft-delete filter: deleted clients are not counted); the flag is a JSON true.
+        var contained = $"{{{System.Text.Json.JsonSerializer.Serialize(key)}: true}}";
+        var flagged =
+            from profile in db.Set<ClientProfile>().AsNoTracking()
+            join person in db.Set<Person>() on profile.Id equals person.Id
+            where EF.Functions.JsonContains(person.CustomFields, contained)
+            select profile;
+        if (employeeUserId is { } employee)
+        {
+            flagged = flagged.Where(profile => profile.EmployeeUserId == employee);
+        }
+
+        return flagged.CountAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<ClientRow> Items, int Total)> PageAsync(ClientFilter filter, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(filter);

@@ -21,6 +21,42 @@ internal sealed class AppointmentData(ITenantDbContext db) : IAppointmentData
     {
         ArgumentNullException.ThrowIfNull(filter);
 
+        var appointments = Filtered(filter);
+        var total = await appointments.CountAsync(cancellationToken);
+        var sorted = (filter.Sort, filter.Descending) switch
+        {
+            (AppointmentSort.Status, false) => appointments.OrderBy(row => row.Appointment.Status).ThenByDescending(row => row.Appointment.StartsAt),
+            (AppointmentSort.Status, true) => appointments.OrderByDescending(row => row.Appointment.Status).ThenByDescending(row => row.Appointment.StartsAt),
+            (AppointmentSort.Client, false) => appointments.OrderBy(row => row.Client.LastName).ThenBy(row => row.Client.FirstName),
+            (AppointmentSort.Client, true) => appointments.OrderByDescending(row => row.Client.LastName).ThenByDescending(row => row.Client.FirstName),
+            (AppointmentSort.Employee, false) => appointments.OrderBy(row => row.Employee.LastName).ThenBy(row => row.Employee.FirstName),
+            (AppointmentSort.Employee, true) => appointments.OrderByDescending(row => row.Employee.LastName).ThenByDescending(row => row.Employee.FirstName),
+            (_, false) => appointments.OrderBy(row => row.Appointment.StartsAt),
+            (_, true) => appointments.OrderByDescending(row => row.Appointment.StartsAt),
+        };
+
+        var items = await Project(sorted.ThenBy(row => row.Appointment.Id).Skip(filter.Skip).Take(filter.Take)).ToListAsync(cancellationToken);
+        return (items, total);
+    }
+
+    public async Task<IReadOnlyList<DateTimeOffset>> StartsAsync(AppointmentFilter filter, int max, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+        return await Filtered(filter).OrderBy(row => row.Appointment.StartsAt).Take(max).Select(row => row.Appointment.StartsAt).ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyDictionary<AppointmentStatus, int>> CountByStatusAsync(AppointmentFilter filter, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(filter);
+        return await Filtered(filter)
+            .GroupBy(row => row.Appointment.Status)
+            .Select(group => new { Status = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(item => item.Status, item => item.Count, cancellationToken);
+    }
+
+    /// <summary>The scope and the filters of <paramref name="filter"/> (sort and paging aside).</summary>
+    private IQueryable<AppointmentJoin> Filtered(AppointmentFilter filter)
+    {
         var appointments = Rows();
         var scope = filter.Scope;
         if (scope.ClientId is { } clientId)
@@ -68,21 +104,7 @@ internal sealed class AppointmentData(ITenantDbContext db) : IAppointmentData
             appointments = appointments.Where(row => row.Appointment.StartsAt < to);
         }
 
-        var total = await appointments.CountAsync(cancellationToken);
-        var sorted = (filter.Sort, filter.Descending) switch
-        {
-            (AppointmentSort.Status, false) => appointments.OrderBy(row => row.Appointment.Status).ThenByDescending(row => row.Appointment.StartsAt),
-            (AppointmentSort.Status, true) => appointments.OrderByDescending(row => row.Appointment.Status).ThenByDescending(row => row.Appointment.StartsAt),
-            (AppointmentSort.Client, false) => appointments.OrderBy(row => row.Client.LastName).ThenBy(row => row.Client.FirstName),
-            (AppointmentSort.Client, true) => appointments.OrderByDescending(row => row.Client.LastName).ThenByDescending(row => row.Client.FirstName),
-            (AppointmentSort.Employee, false) => appointments.OrderBy(row => row.Employee.LastName).ThenBy(row => row.Employee.FirstName),
-            (AppointmentSort.Employee, true) => appointments.OrderByDescending(row => row.Employee.LastName).ThenByDescending(row => row.Employee.FirstName),
-            (_, false) => appointments.OrderBy(row => row.Appointment.StartsAt),
-            (_, true) => appointments.OrderByDescending(row => row.Appointment.StartsAt),
-        };
-
-        var items = await Project(sorted.ThenBy(row => row.Appointment.Id).Skip(filter.Skip).Take(filter.Take)).ToListAsync(cancellationToken);
-        return (items, total);
+        return appointments;
     }
 
     public async Task<IReadOnlyList<AppointmentRow>> OverlappingAsync(

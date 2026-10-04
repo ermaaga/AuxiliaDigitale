@@ -81,8 +81,25 @@ public sealed record CaseRow(
 /// Cases of the current tenant (F09), one unit of work (inside a write operation it joins the operation's
 /// transaction). Deleted cases are never returned.
 /// </summary>
+/// <summary>A case on the dashboards (due soon, the client's active case).</summary>
+public sealed record CaseDashboardItem(Guid Id, string Number, string ClientName, string ServiceName, DateOnly? DueOn);
+
+/// <summary>
+/// The case figures of a dashboard (F27) within a <see cref="CaseScope"/>: open cases, cases per service and money
+/// received per month of start since <c>from</c>, open cases due between today and the horizon (soonest first), the
+/// latest open case.
+/// </summary>
+public sealed record CaseDashboard(
+    int Open,
+    IReadOnlyList<(string Service, int Count)> PerService,
+    IReadOnlyList<(int Year, int Month, decimal Amount)> Revenue,
+    IReadOnlyList<CaseDashboardItem> DueSoon,
+    CaseDashboardItem? Latest);
+
 public interface ICaseData : IAsyncDisposable
 {
+    Task<CaseDashboard> DashboardAsync(CaseScope scope, DateOnly? from, DateOnly today, DateOnly horizon, int take, CancellationToken cancellationToken);
+
     /// <summary>Cases of clients not deleted, within <see cref="CaseFilter.Scope"/>.</summary>
     Task<(IReadOnlyList<CaseRow> Items, int Total)> PageAsync(CaseFilter filter, CancellationToken cancellationToken);
 

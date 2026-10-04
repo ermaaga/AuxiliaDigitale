@@ -66,6 +66,12 @@ public interface IAppointmentData : IAsyncDisposable
 {
     Task<(IReadOnlyList<AppointmentRow> Items, int Total)> PageAsync(AppointmentFilter filter, CancellationToken cancellationToken);
 
+    /// <summary>The starts of the appointments of the filter (paging ignored, at most <paramref name="max"/>), for per-day charts in the tenant time zone.</summary>
+    Task<IReadOnlyList<DateTimeOffset>> StartsAsync(AppointmentFilter filter, int max, CancellationToken cancellationToken);
+
+    /// <summary>How many appointments of the filter are in each status (paging ignored).</summary>
+    Task<IReadOnlyDictionary<AppointmentStatus, int>> CountByStatusAsync(AppointmentFilter filter, CancellationToken cancellationToken);
+
     /// <summary>The open appointments of the employee overlapping [<paramref name="startsAt"/>, <paramref name="endsAt"/>).</summary>
     Task<IReadOnlyList<AppointmentRow>> OverlappingAsync(
         Guid employeeUserId, DateTimeOffset startsAt, DateTimeOffset endsAt, Guid? excludeId, CancellationToken cancellationToken);

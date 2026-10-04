@@ -300,6 +300,12 @@ public sealed class ClientManagerTests : IAsyncDisposable
 /// <summary>Clients in memory: the page applies only the employee filter (the SQL filters are tested on PostgreSQL).</summary>
 internal sealed class InMemoryClientData : IClientDataFactory, IClientData
 {
+    /// <summary>Custom field key → clients flagged (any employee).</summary>
+    public Dictionary<string, int> Flagged { get; } = new(StringComparer.Ordinal);
+
+    public Task<int> CountFlaggedAsync(string key, Guid? employeeUserId, CancellationToken cancellationToken) =>
+        Task.FromResult(Flagged.GetValueOrDefault(key));
+
     public List<Person> People { get; } = [];
 
     public List<ClientProfile> Profiles { get; } = [];

@@ -32,6 +32,7 @@ public sealed class ConfigurationModule : IModuleDescriptor
         services.TryAddScoped<ICustomFieldManager, CustomFieldManager>();
         services.TryAddScoped<ICustomFieldQueryService, CustomFieldQueryService>();
         services.TryAddScoped<Public.ICustomFieldValidator, CustomFieldValidator>();
+        services.TryAddScoped<Public.ICustomFieldCatalog, Public.CustomFieldCatalog>();
         services.TryAddScoped<GridLayoutCache>();
         services.TryAddScoped<IGridLayoutManager, GridLayoutManager>();
         services.TryAddScoped<IGridQueryService, GridQueryService>();

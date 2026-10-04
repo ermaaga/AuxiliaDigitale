@@ -48,6 +48,7 @@ public sealed class EngagementModule : IModuleDescriptor
 
     public void AddServices(IServiceCollection services)
     {
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Reporting.IDashboardContributor, EngagementDashboard>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Exports.IExportSource, RequestExportSource>());
         services.TryAddScoped<RequestAccessPolicy>();
         services.TryAddScoped<IRequestManager, RequestManager>();

@@ -32,5 +32,6 @@ public sealed class ReportingModule : IModuleDescriptor
     {
         services.TryAddScoped<IExportManager, ExportManager>();
         services.TryAddScoped<IExportQueryService, ExportQueryService>();
+        services.TryAddScoped<IDashboardQueryService, DashboardQueryService>();
     }
 }
