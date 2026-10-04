@@ -1893,6 +1893,188 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Imports.ImportJob", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("error_code");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("error_message");
+
+                    b.Property<int>("FailedRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("failed_rows");
+
+                    b.Property<byte[]>("FileContent")
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<Guid>("ImportTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("import_type_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("ProcessedRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("processed_rows");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("SuccessRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("success_rows");
+
+                    b.Property<int>("TotalRows")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_rows");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_import_jobs");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_import_jobs_created_at");
+
+                    b.HasIndex("ImportTypeId")
+                        .HasDatabaseName("ix_import_jobs_import_type_id");
+
+                    b.ToTable("import_jobs", "imports", t =>
+                        {
+                            t.HasCheckConstraint("ck_import_jobs_status", "status IN ('Pending', 'Validating', 'AwaitingConfirmation', 'Processing', 'Completed', 'Failed', 'Cancelled')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Imports.ImportJobRow", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("job_id");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("row_number");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("data");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("Errors")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("errors");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("JobId", "RowNumber")
+                        .HasName("pk_import_job_rows");
+
+                    b.HasIndex("JobId", "Status")
+                        .HasDatabaseName("ix_import_job_rows_job_id_status");
+
+                    b.ToTable("import_job_rows", "imports", t =>
+                        {
+                            t.HasCheckConstraint("ck_import_job_rows_status", "status IN ('Valid', 'Invalid', 'Imported', 'Failed')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Imports.ImportType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("TargetEntity")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("target_entity");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_import_types");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_import_types_name");
+
+                    b.ToTable("import_types", "imports");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Localization.Language", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3521,6 +3703,26 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Imports.ImportJob", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Imports.ImportType", null)
+                        .WithMany()
+                        .HasForeignKey("ImportTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_import_jobs_import_type_import_type_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Imports.ImportJobRow", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Imports.ImportJob", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_import_job_rows_import_jobs_job_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Localization.ResourceTranslation", b =>

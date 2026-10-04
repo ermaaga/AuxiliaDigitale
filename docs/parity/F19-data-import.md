@@ -1,6 +1,6 @@
 # F19 — Data import
 
-Status: [ ] not started · Tasks: S-08 · Quirks: Q47, Q48
+Status: [x] done (S-08) · Tasks: S-08 · Quirks: Q47, Q48
 
 > **Decision D-18:** imports are operated by the platform **System** role from the console.
 
@@ -10,8 +10,8 @@ Status: [ ] not started · Tasks: S-08 · Quirks: Q47, Q48
 - **Details** `/system/import/{id}`: info (name, type, file, status, created, completed, error); when `Completed` shows preview table + "Save import" (creates entities: users inactive with password "password" + role Employee/Client; memberships; subscriptions — reflection, errors swallowed) → `Concluded`; "Cancel import" → discards data → `Concluded`; when `Concluded` → delete.
 
 ## Acceptance criteria
-- [ ] Import types for Employee, Client, Service, Case with field metadata and required flags; Excel template download with required columns highlighted.
-- [ ] Wizard: type → template → upload → server validation per row (required, formats, CF, uniqueness, FK by natural keys) → preview with per-row errors → confirm or cancel.
-- [ ] Processing in Worker with real-time progress (`ImportProgress`); statuses Pending/Validating/AwaitingConfirmation/Processing/Completed/Failed/Cancelled.
-- [ ] Imported people get client/employee profiles and activation per D-06; imported entities linked to the job rows.
-- [ ] Delete job only when finished.
+- [x] Import types (name defaults to the entity, unique) for Employee, Client, Service (legacy Membership), Case (legacy Subscription): `IImportTarget` per module with column keys, label keys and required flags; Excel template (header row of keys, required columns red, others light grey); a type with imports cannot be deleted.
+- [x] Console page `/platform/tenants/{slug}/imports`: type → template → upload (`.xlsx` ≤ 10 MB, ≤ 5000 rows) → validation per row (required, dates, numbers, yes/no, domain rules, fiscal code, duplicates in the file, uniqueness in the tenant, references by natural keys: employee user name, client fiscal code, service/category/specialization name) → preview with errors per column → confirm or cancel. `.xls` (legacy) is not accepted: ClosedXML reads only `.xlsx`.
+- [x] Validation and import in the Worker (queue `auxilia.imports`), statuses Pending/Validating/AwaitingConfirmation/Processing/Completed/Failed/Cancelled, progress saved every 50 rows; the console refreshes every 2 s while an import runs (it has no SignalR hub; no `ImportProgress` push).
+- [x] People are created by the Employee/Client Managers (profiles, account, activation e-mail per D-06 — no "password" default, Q47); services and cases by their Managers; each row keeps the id of the record created (`import_job_rows.entity_id`); a failing row does not undo the others.
+- [x] Delete only when finished (completed, failed, cancelled); cancel discards the rows.

@@ -74,6 +74,7 @@ builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, AdministratorEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, ConfigurationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, CustomizationEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, Auxilia.Api.Endpoints.Imports.ImportEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, MessagingEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, RolePermissionEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, SpecializationEndpoints>();

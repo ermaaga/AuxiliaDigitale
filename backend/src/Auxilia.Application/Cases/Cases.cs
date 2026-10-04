@@ -182,7 +182,12 @@ internal sealed class CaseManager(
 
     private bool CallerIsAdministrator => currentUser.Roles.Contains(TenantRole.Administrator);
 
-    public Task<Result<Guid>> OpenAsync(OpenCaseRequest request, CancellationToken cancellationToken)
+    public Task<Result<Guid>> OpenAsync(OpenCaseRequest request, CancellationToken cancellationToken) => OpenAsync(request, checkAccess: true, cancellationToken);
+
+    /// <summary>A case from an import (F19, D-18): the System opens it, the F10 rules of staff do not apply.</summary>
+    internal Task<Result<Guid>> ImportAsync(OpenCaseRequest request, CancellationToken cancellationToken) => OpenAsync(request, checkAccess: false, cancellationToken);
+
+    private Task<Result<Guid>> OpenAsync(OpenCaseRequest request, bool checkAccess, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -233,15 +238,16 @@ internal sealed class CaseManager(
             }
 
             // F10: an employee opens cases only for specializations held (or none).
-            var allowed = await guard.EnsureAsync(
-                CasesPermissions.ManageCases, new CaseResource(client!.Id, specialization, isPrivate, CaseStatus.Inserted), cancellationToken);
+            var allowed = checkAccess
+                ? await guard.EnsureAsync(CasesPermissions.ManageCases, new CaseResource(client!.Id, specialization, isPrivate, CaseStatus.Inserted), cancellationToken)
+                : Result.Success();
             if (allowed.IsFailure)
             {
                 return Result.Failure<Guid>(allowed.Error!);
             }
 
             // Only an Administrator chooses who is in charge (legacy admin panel); otherwise the default employee when nobody is.
-            var assigned = await clients.EnsureEmployeeAsync(client.Id, CallerIsAdministrator ? request.EmployeeUserId : null, cancellationToken);
+            var assigned = await clients.EnsureEmployeeAsync(client!.Id, CallerIsAdministrator ? request.EmployeeUserId : null, cancellationToken);
             if (assigned.IsFailure)
             {
                 return Result.Failure<Guid>(assigned.Error!);

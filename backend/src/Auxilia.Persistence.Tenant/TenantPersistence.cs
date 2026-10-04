@@ -71,6 +71,8 @@ public static class TenantPersistence
         services.AddScoped<Application.Abstractions.Engagement.IRequestDataFactory, Engagement.RequestDataFactory>();
         services.AddScoped<Application.Abstractions.Engagement.INotificationDataFactory, Engagement.NotificationDataFactory>();
         services.AddScoped<Application.Abstractions.Exports.IExportJobDataFactory, Reporting.ExportJobDataFactory>();
+        services.AddScoped<Application.Abstractions.Imports.IImportDataFactory, Imports.ImportDataFactory>();
+        services.AddScoped<Application.Abstractions.Imports.IImportLookups, Imports.ImportLookups>();
         services.AddScoped<ILoginAttemptReader, LoginAttemptReader>();
         services.AddScoped<IActiveSessionReader, Identity.ActiveSessionReader>();
         services.AddScoped<ILocalizationDataFactory, LocalizationDataFactory>();
