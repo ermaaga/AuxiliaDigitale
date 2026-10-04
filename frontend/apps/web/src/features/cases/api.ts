@@ -145,6 +145,16 @@ export async function deleteCase(id: string) {
   await unwrap(await api().DELETE("/api/v1/cases/{id}", { params: { path: { id } } }));
 }
 
+/** B-26: ticks (or unticks) an item of the service checklist on the case; answers with the case. */
+export async function setChecklistItem(id: string, itemId: string, done: boolean) {
+  const params = { params: { path: { id, itemId } } };
+  return unwrap(
+    done
+      ? await api().PUT("/api/v1/cases/{id}/checklist/{itemId}", params)
+      : await api().DELETE("/api/v1/cases/{id}/checklist/{itemId}", params),
+  );
+}
+
 /** F11: e-mails the client the end date of the case (expiry, else due date). */
 export async function sendExpiryReminder(id: string) {
   await unwrap(

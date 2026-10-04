@@ -73,6 +73,30 @@ export function useServiceFolders(tenant: string, serviceId: string) {
   });
 }
 
+export type ChecklistItem = components["schemas"]["ServiceChecklistItemResponse"];
+export type ChecklistItemInput = components["schemas"]["ServiceChecklistItemRequest"];
+
+/** The document checklist of a service (B-26), in order. */
+export function useServiceChecklist(tenant: string, serviceId: string) {
+  return useQuery({
+    queryKey: servicesKey(tenant, "checklist", { serviceId }),
+    queryFn: async () =>
+      unwrap(
+        await api().GET("/api/v1/services/{id}/checklist", { params: { path: { id: serviceId } } }),
+      ),
+  });
+}
+
+/** Replaces the whole checklist; items with an id keep the ticks of the cases. */
+export async function saveChecklist(serviceId: string, items: ChecklistItemInput[]) {
+  return unwrap(
+    await api().PUT("/api/v1/services/{id}/checklist", {
+      params: { path: { id: serviceId } },
+      body: { items },
+    }),
+  );
+}
+
 /** The active Employee specializations a service can require (F12). */
 export function useEmployeeSpecializations(tenant: string) {
   return useQuery({

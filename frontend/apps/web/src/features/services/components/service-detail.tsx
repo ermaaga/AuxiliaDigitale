@@ -23,11 +23,12 @@ import { useCan } from "@/lib/permissions";
 import { deleteService, updateService, useService, useServiceMutation } from "../api";
 import { SERVICES_PERMISSIONS } from "../permissions";
 import { serviceBody, type ServiceOutput } from "../schemas/service";
+import { ChecklistEditor } from "./checklist-editor";
 import { FolderEditor } from "./folder-editor";
 import { ServiceForm } from "./service-form";
 import { euro } from "./services-table";
 
-const TABS = ["data", "folders", "cases"] as const;
+const TABS = ["data", "folders", "checklist", "cases"] as const;
 
 /**
  * A service (F08): header with price, duration, category and status; tabs for its data (edit, delete — refused with
@@ -135,6 +136,7 @@ export function ServiceDetail({ tenant, id }: { tenant: string; id: string }) {
         <TabsList aria-label={service.name} className="h-auto flex-wrap">
           <TabsTrigger value="data">{t("app.services.tabs.data")}</TabsTrigger>
           <TabsTrigger value="folders">{t("FolderTemplate")}</TabsTrigger>
+          <TabsTrigger value="checklist">{t("app.services.checklist.title")}</TabsTrigger>
           {canSeeCases ? <TabsTrigger value="cases">{t("nav.cases")}</TabsTrigger> : null}
         </TabsList>
         <TabsContent value="data" className="mt-4">
@@ -157,6 +159,9 @@ export function ServiceDetail({ tenant, id }: { tenant: string; id: string }) {
         </TabsContent>
         <TabsContent value="folders" className="mt-4">
           <FolderEditor tenant={tenant} serviceId={service.id} canManage={canManage} />
+        </TabsContent>
+        <TabsContent value="checklist" className="mt-4">
+          <ChecklistEditor tenant={tenant} serviceId={service.id} canManage={canManage} />
         </TabsContent>
         {canSeeCases ? (
           <TabsContent value="cases" className="mt-4">

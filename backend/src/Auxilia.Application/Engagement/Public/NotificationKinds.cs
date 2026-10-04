@@ -21,12 +21,13 @@ public static class NotificationKinds
     public const string ExportReady = "export.ready";
     public const string CaseExpiring = "case.expiring";
     public const string CaseExpired = "case.expired";
+    public const string TaskAssigned = "task.assigned";
 
     public static IReadOnlyList<string> All { get; } =
     [
         AppointmentScheduled, AppointmentRequested, AppointmentUpdated, AppointmentApproved, AppointmentRejected,
         AppointmentCompleted, AppointmentCancelled, AppointmentDeleted, RequestCreated, RequestReplied, RequestClosed,
-        RegistrationRequested, ExportReady, CaseExpiring, CaseExpired,
+        RegistrationRequested, ExportReady, CaseExpiring, CaseExpired, TaskAssigned,
     ];
 
     /// <summary>The route (without the tenant) a notification opens; <c>null</c> when the record is gone.</summary>
@@ -46,6 +47,7 @@ public static class NotificationKinds
             // Registrations have no staff page yet (API only, D-14): the notification opens nothing.
             ExportReady => $"/exports?download={id}",
             CaseExpiring or CaseExpired => $"/cases/{id}",
+            TaskAssigned => $"/tasks?open={id}",
             _ => null,
         };
     }

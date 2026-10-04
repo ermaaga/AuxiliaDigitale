@@ -1,0 +1,656 @@
+[
+ {
+  "key": "nav.tasks",
+  "category": "nav",
+  "en": "Tasks",
+  "it": "Attività da fare"
+ },
+ {
+  "key": "app.tasks.title",
+  "category": "app",
+  "en": "Title",
+  "it": "Titolo"
+ },
+ {
+  "key": "app.tasks.notes",
+  "category": "app",
+  "en": "Notes",
+  "it": "Note"
+ },
+ {
+  "key": "app.tasks.dueOn",
+  "category": "app",
+  "en": "Due date",
+  "it": "Scadenza"
+ },
+ {
+  "key": "app.tasks.assignee",
+  "category": "app",
+  "en": "Assigned to",
+  "it": "Assegnato a"
+ },
+ {
+  "key": "app.tasks.case",
+  "category": "app",
+  "en": "Case",
+  "it": "Pratica"
+ },
+ {
+  "key": "app.tasks.chooseAssignee",
+  "category": "app",
+  "en": "Choose who does it",
+  "it": "Scegli chi la svolge"
+ },
+ {
+  "key": "app.tasks.chooseClient",
+  "category": "app",
+  "en": "Choose a client (optional)",
+  "it": "Scegli un cliente (facoltativo)"
+ },
+ {
+  "key": "app.tasks.me",
+  "category": "app",
+  "en": "me",
+  "it": "io"
+ },
+ {
+  "key": "app.tasks.new",
+  "category": "app",
+  "en": "New task",
+  "it": "Nuova attività"
+ },
+ {
+  "key": "app.tasks.edit",
+  "category": "app",
+  "en": "Edit task",
+  "it": "Modifica attività"
+ },
+ {
+  "key": "app.tasks.dialogDescription",
+  "category": "app",
+  "en": "Something to do by a date. There are no automatic reminders: due tasks show on the dashboard.",
+  "it": "Qualcosa da fare entro una data. Non ci sono promemoria automatici: le attività in scadenza compaiono nella dashboard."
+ },
+ {
+  "key": "app.tasks.created",
+  "category": "app",
+  "en": "Task created.",
+  "it": "Attività creata."
+ },
+ {
+  "key": "app.tasks.saved",
+  "category": "app",
+  "en": "Task saved.",
+  "it": "Attività salvata."
+ },
+ {
+  "key": "app.tasks.complete",
+  "category": "app",
+  "en": "Done",
+  "it": "Fatta"
+ },
+ {
+  "key": "app.tasks.completeNamed",
+  "category": "app",
+  "en": "Mark {title} as done",
+  "it": "Segna {title} come fatta"
+ },
+ {
+  "key": "app.tasks.completed",
+  "category": "app",
+  "en": "Task done.",
+  "it": "Attività completata."
+ },
+ {
+  "key": "app.tasks.reopen",
+  "category": "app",
+  "en": "Open again",
+  "it": "Riapri"
+ },
+ {
+  "key": "app.tasks.reopenNamed",
+  "category": "app",
+  "en": "Open {title} again",
+  "it": "Riapri {title}"
+ },
+ {
+  "key": "app.tasks.reopened",
+  "category": "app",
+  "en": "Task opened again.",
+  "it": "Attività riaperta."
+ },
+ {
+  "key": "app.tasks.editNamed",
+  "category": "app",
+  "en": "Edit {title}",
+  "it": "Modifica {title}"
+ },
+ {
+  "key": "app.tasks.deleteNamed",
+  "category": "app",
+  "en": "Delete {title}",
+  "it": "Elimina {title}"
+ },
+ {
+  "key": "app.tasks.deleteTitle",
+  "category": "app",
+  "en": "Delete the task?",
+  "it": "Eliminare l'attività?"
+ },
+ {
+  "key": "app.tasks.deleteText",
+  "category": "app",
+  "en": "The task {title} will be deleted.",
+  "it": "L'attività {title} verrà eliminata."
+ },
+ {
+  "key": "app.tasks.deleted",
+  "category": "app",
+  "en": "Task deleted.",
+  "it": "Attività eliminata."
+ },
+ {
+  "key": "app.tasks.due",
+  "category": "app",
+  "en": "Due",
+  "it": "Scadenza"
+ },
+ {
+  "key": "app.tasks.dueToday",
+  "category": "app",
+  "en": "Due today or before",
+  "it": "In scadenza oggi o prima"
+ },
+ {
+  "key": "app.tasks.overdue",
+  "category": "app",
+  "en": "Overdue",
+  "it": "In ritardo"
+ },
+ {
+  "key": "app.tasks.scope",
+  "category": "app",
+  "en": "Which tasks",
+  "it": "Quali attività"
+ },
+ {
+  "key": "app.tasks.scopes.mine",
+  "category": "app",
+  "en": "Mine",
+  "it": "Le mie"
+ },
+ {
+  "key": "app.tasks.scopes.all",
+  "category": "app",
+  "en": "All",
+  "it": "Tutte"
+ },
+ {
+  "key": "app.tasks.status.Open",
+  "category": "app",
+  "en": "Open",
+  "it": "Aperta"
+ },
+ {
+  "key": "app.tasks.status.Done",
+  "category": "app",
+  "en": "Done",
+  "it": "Fatta"
+ },
+ {
+  "key": "app.timeline.title",
+  "category": "app",
+  "en": "Timeline",
+  "it": "Cronologia"
+ },
+ {
+  "key": "app.timeline.description",
+  "category": "app",
+  "en": "Notes, calls and meetings with the client, its tasks and its cases, newest first.",
+  "it": "Note, chiamate e incontri con il cliente, le sue attività e le sue pratiche, dalla più recente."
+ },
+ {
+  "key": "app.timeline.kind",
+  "category": "app",
+  "en": "Type",
+  "it": "Tipo"
+ },
+ {
+  "key": "app.timeline.text",
+  "category": "app",
+  "en": "What happened",
+  "it": "Cosa è successo"
+ },
+ {
+  "key": "app.timeline.add",
+  "category": "app",
+  "en": "Add to the timeline",
+  "it": "Aggiungi alla cronologia"
+ },
+ {
+  "key": "app.timeline.added",
+  "category": "app",
+  "en": "Added to the timeline.",
+  "it": "Aggiunto alla cronologia."
+ },
+ {
+  "key": "app.timeline.empty",
+  "category": "app",
+  "en": "Nothing yet.",
+  "it": "Ancora nulla."
+ },
+ {
+  "key": "app.timeline.more",
+  "category": "app",
+  "en": "Show older",
+  "it": "Mostra i precedenti"
+ },
+ {
+  "key": "app.timeline.deleteNamed",
+  "category": "app",
+  "en": "Delete {title}",
+  "it": "Elimina {title}"
+ },
+ {
+  "key": "app.timeline.deleteText",
+  "category": "app",
+  "en": "The entry will be deleted from the timeline.",
+  "it": "La voce verrà eliminata dalla cronologia."
+ },
+ {
+  "key": "app.timeline.deleted",
+  "category": "app",
+  "en": "Entry deleted.",
+  "it": "Voce eliminata."
+ },
+ {
+  "key": "app.timeline.kinds.Note",
+  "category": "app",
+  "en": "Note",
+  "it": "Nota"
+ },
+ {
+  "key": "app.timeline.kinds.Call",
+  "category": "app",
+  "en": "Call",
+  "it": "Telefonata"
+ },
+ {
+  "key": "app.timeline.kinds.Meeting",
+  "category": "app",
+  "en": "Meeting",
+  "it": "Incontro"
+ },
+ {
+  "key": "app.timeline.kinds.Email",
+  "category": "app",
+  "en": "E-mail",
+  "it": "E-mail"
+ },
+ {
+  "key": "app.timeline.activity.Note",
+  "category": "app",
+  "en": "Note",
+  "it": "Nota"
+ },
+ {
+  "key": "app.timeline.activity.Call",
+  "category": "app",
+  "en": "Call",
+  "it": "Telefonata"
+ },
+ {
+  "key": "app.timeline.activity.Meeting",
+  "category": "app",
+  "en": "Meeting",
+  "it": "Incontro"
+ },
+ {
+  "key": "app.timeline.activity.Email",
+  "category": "app",
+  "en": "E-mail",
+  "it": "E-mail"
+ },
+ {
+  "key": "app.timeline.task.created",
+  "category": "app",
+  "en": "Task: {title}",
+  "it": "Attività: {title}"
+ },
+ {
+  "key": "app.timeline.task.completed",
+  "category": "app",
+  "en": "Task done: {title}",
+  "it": "Attività completata: {title}"
+ },
+ {
+  "key": "app.timeline.case.opened",
+  "category": "app",
+  "en": "Case {number} opened ({service})",
+  "it": "Pratica {number} aperta ({service})"
+ },
+ {
+  "key": "app.timeline.case.completed",
+  "category": "app",
+  "en": "Case {number} completed ({service})",
+  "it": "Pratica {number} completata ({service})"
+ },
+ {
+  "key": "app.timeline.case.rejected",
+  "category": "app",
+  "en": "Case {number} rejected ({service})",
+  "it": "Pratica {number} respinta ({service})"
+ },
+ {
+  "key": "app.timeline.case.status.Inserted",
+  "category": "app",
+  "en": "Case {number} back to inserted ({service})",
+  "it": "Pratica {number} riportata a inserita ({service})"
+ },
+ {
+  "key": "app.timeline.case.status.InProgress",
+  "category": "app",
+  "en": "Case {number} in progress ({service})",
+  "it": "Pratica {number} in lavorazione ({service})"
+ },
+ {
+  "key": "app.timeline.case.status.Sent",
+  "category": "app",
+  "en": "Case {number} sent ({service})",
+  "it": "Pratica {number} inviata ({service})"
+ },
+ {
+  "key": "app.timeline.case.payment",
+  "category": "app",
+  "en": "Payment of {amount} {currency} on case {number}",
+  "it": "Pagamento di {amount} {currency} sulla pratica {number}"
+ },
+ {
+  "key": "app.services.checklist.title",
+  "category": "app",
+  "en": "Document checklist",
+  "it": "Checklist documenti"
+ },
+ {
+  "key": "app.services.checklist.description",
+  "category": "app",
+  "en": "The documents the cases of this service need: staff tick them on each case; required ones not ticked show as missing.",
+  "it": "I documenti che servono alle pratiche di questo servizio: lo staff li spunta su ogni pratica; quelli obbligatori non spuntati risultano mancanti."
+ },
+ {
+  "key": "app.services.checklist.empty",
+  "category": "app",
+  "en": "No documents in the checklist.",
+  "it": "Nessun documento nella checklist."
+ },
+ {
+  "key": "app.services.checklist.name",
+  "category": "app",
+  "en": "Document",
+  "it": "Documento"
+ },
+ {
+  "key": "app.services.checklist.folder",
+  "category": "app",
+  "en": "Folder",
+  "it": "Cartella"
+ },
+ {
+  "key": "app.services.checklist.noFolder",
+  "category": "app",
+  "en": "No folder",
+  "it": "Nessuna cartella"
+ },
+ {
+  "key": "app.services.checklist.required",
+  "category": "app",
+  "en": "Required",
+  "it": "Obbligatorio"
+ },
+ {
+  "key": "app.services.checklist.add",
+  "category": "app",
+  "en": "Add a document",
+  "it": "Aggiungi un documento"
+ },
+ {
+  "key": "app.services.checklist.saved",
+  "category": "app",
+  "en": "Checklist saved.",
+  "it": "Checklist salvata."
+ },
+ {
+  "key": "app.services.checklist.up",
+  "category": "app",
+  "en": "Move {name} up",
+  "it": "Sposta {name} su"
+ },
+ {
+  "key": "app.services.checklist.down",
+  "category": "app",
+  "en": "Move {name} down",
+  "it": "Sposta {name} giù"
+ },
+ {
+  "key": "app.services.checklist.remove",
+  "category": "app",
+  "en": "Remove {name}",
+  "it": "Rimuovi {name}"
+ },
+ {
+  "key": "app.cases.checklist.title",
+  "category": "app",
+  "en": "Document checklist",
+  "it": "Checklist documenti"
+ },
+ {
+  "key": "app.cases.checklist.missing",
+  "category": "app",
+  "en": "{count} required documents missing.",
+  "it": "{count} documenti obbligatori mancanti."
+ },
+ {
+  "key": "app.cases.checklist.complete",
+  "category": "app",
+  "en": "Every required document is there.",
+  "it": "Tutti i documenti obbligatori sono presenti."
+ },
+ {
+  "key": "app.cases.checklist.missingBadge",
+  "category": "app",
+  "en": "Missing",
+  "it": "Mancante"
+ },
+ {
+  "key": "app.cases.checklist.checkedBy",
+  "category": "app",
+  "en": "{name}, {date}",
+  "it": "{name}, {date}"
+ },
+ {
+  "key": "app.dashboard.openTasks",
+  "category": "app",
+  "en": "My open tasks",
+  "it": "Le mie attività aperte"
+ },
+ {
+  "key": "app.dashboard.overdueTasks",
+  "category": "app",
+  "en": "My overdue tasks",
+  "it": "Le mie attività in ritardo"
+ },
+ {
+  "key": "app.dashboard.todayTasks",
+  "category": "app",
+  "en": "Tasks due",
+  "it": "Attività in scadenza"
+ },
+ {
+  "key": "notifications.task.assigned.title",
+  "category": "notifications",
+  "en": "New task",
+  "it": "Nuova attività"
+ },
+ {
+  "key": "notifications.task.assigned.message",
+  "category": "notifications",
+  "en": "You were given \"{title}\" (due {dueOn}).",
+  "it": "Ti è stata assegnata \"{title}\" (scadenza {dueOn})."
+ },
+ {
+  "key": "permissions.engagement.tasks.view.description",
+  "category": "permissions",
+  "en": "See the tasks given to you or created by you (Administrators: every task)",
+  "it": "Vedere le attività assegnate o create da sé (Amministratori: tutte)"
+ },
+ {
+  "key": "permissions.engagement.tasks.manage.description",
+  "category": "permissions",
+  "en": "Create, change, complete and delete tasks",
+  "it": "Creare, modificare, completare ed eliminare attività"
+ },
+ {
+  "key": "permissions.engagement.activities.view.description",
+  "category": "permissions",
+  "en": "See the timeline of the clients",
+  "it": "Vedere la cronologia dei clienti"
+ },
+ {
+  "key": "permissions.engagement.activities.manage.description",
+  "category": "permissions",
+  "en": "Write notes, calls, meetings and e-mails on the clients",
+  "it": "Scrivere note, telefonate, incontri ed e-mail sui clienti"
+ },
+ {
+  "key": "validation.tasks.title",
+  "category": "validation",
+  "en": "Enter a title (at most 200 characters).",
+  "it": "Inserisci un titolo (al massimo 200 caratteri)."
+ },
+ {
+  "key": "validation.tasks.notes",
+  "category": "validation",
+  "en": "At most 2000 characters.",
+  "it": "Al massimo 2000 caratteri."
+ },
+ {
+  "key": "validation.tasks.case",
+  "category": "validation",
+  "en": "Choose a case of the client.",
+  "it": "Scegli una pratica del cliente."
+ },
+ {
+  "key": "validation.tasks.assignee",
+  "category": "validation",
+  "en": "Choose an active Administrator or Employee.",
+  "it": "Scegli un amministratore o operatore attivo."
+ },
+ {
+  "key": "validation.tasks.client",
+  "category": "validation",
+  "en": "The client does not exist.",
+  "it": "Il cliente non esiste."
+ },
+ {
+  "key": "validation.tasks.scope",
+  "category": "validation",
+  "en": "Unknown list.",
+  "it": "Elenco sconosciuto."
+ },
+ {
+  "key": "validation.tasks.status",
+  "category": "validation",
+  "en": "Unknown status.",
+  "it": "Stato sconosciuto."
+ },
+ {
+  "key": "validation.tasks.due",
+  "category": "validation",
+  "en": "Unknown filter.",
+  "it": "Filtro sconosciuto."
+ },
+ {
+  "key": "validation.tasks.sort",
+  "category": "validation",
+  "en": "Unknown sort.",
+  "it": "Ordinamento sconosciuto."
+ },
+ {
+  "key": "validation.activities.text",
+  "category": "validation",
+  "en": "Write what happened (at most 2000 characters).",
+  "it": "Scrivi cosa è successo (al massimo 2000 caratteri)."
+ },
+ {
+  "key": "validation.activities.kind",
+  "category": "validation",
+  "en": "Choose the type.",
+  "it": "Scegli il tipo."
+ },
+ {
+  "key": "validation.activities.occurredAt",
+  "category": "validation",
+  "en": "It cannot be in the future.",
+  "it": "Non può essere nel futuro."
+ },
+ {
+  "key": "validation.checklist.tooMany",
+  "category": "validation",
+  "en": "At most 100 documents.",
+  "it": "Al massimo 100 documenti."
+ },
+ {
+  "key": "validation.checklist.name",
+  "category": "validation",
+  "en": "Enter the document (at most 200 characters).",
+  "it": "Inserisci il documento (al massimo 200 caratteri)."
+ },
+ {
+  "key": "validation.checklist.duplicate",
+  "category": "validation",
+  "en": "Already in the checklist.",
+  "it": "Già nella checklist."
+ },
+ {
+  "key": "validation.checklist.folder",
+  "category": "validation",
+  "en": "Choose a folder of the service.",
+  "it": "Scegli una cartella del servizio."
+ },
+ {
+  "key": "errors.AUX-17013",
+  "category": "errors",
+  "en": "The task is not valid.",
+  "it": "L'attività non è valida."
+ },
+ {
+  "key": "errors.AUX-17014",
+  "category": "errors",
+  "en": "The task does not exist.",
+  "it": "L'attività non esiste."
+ },
+ {
+  "key": "errors.AUX-17017",
+  "category": "errors",
+  "en": "The timeline entry is not valid.",
+  "it": "La voce non è valida."
+ },
+ {
+  "key": "errors.AUX-17018",
+  "category": "errors",
+  "en": "The timeline entry does not exist.",
+  "it": "La voce non esiste."
+ },
+ {
+  "key": "errors.AUX-14039",
+  "category": "errors",
+  "en": "The checklist is not valid.",
+  "it": "La checklist non è valida."
+ },
+ {
+  "key": "errors.AUX-14041",
+  "category": "errors",
+  "en": "The document is not in the checklist of the case.",
+  "it": "Il documento non è nella checklist della pratica."
+ }
+]

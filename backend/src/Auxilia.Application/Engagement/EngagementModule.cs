@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Auxilia.Application.Engagement;
 
-/// <summary>Requests, notifications, activities, tasks (F15, F16); event codes 17000 (requests) and 18000 (notifications).</summary>
+/// <summary>Requests, notifications, activities, tasks (F15, F16, B-26); event codes 17000 (requests, tasks, activities) and 18000 (notifications).</summary>
 public sealed class EngagementModule : IModuleDescriptor
 {
     public const string ModuleCode = "engagement";
@@ -26,6 +26,7 @@ public sealed class EngagementModule : IModuleDescriptor
     public IReadOnlyList<NavigationEntry> Navigation { get; } =
     [
         new("requests", "/requests", "message-square", 70, [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client], EngagementPermissions.ViewRequests),
+        new("tasks", "/tasks", "list-checks", 75, [TenantRole.Administrator, TenantRole.Employee], EngagementPermissions.ViewTasks),
     ];
 
     public IReadOnlyList<CustomFieldEntityDefinition> CustomFieldEntities { get; } = [new("request")];
@@ -56,5 +57,11 @@ public sealed class EngagementModule : IModuleDescriptor
         services.TryAddScoped<Public.INotificationSender, NotificationSender>();
         services.TryAddScoped<INotificationManager, NotificationManager>();
         services.TryAddScoped<INotificationQueryService, NotificationQueryService>();
+        services.TryAddScoped<TaskAccessPolicy>();
+        services.TryAddScoped<ITaskManager, TaskManager>();
+        services.TryAddScoped<ITaskQueryService, TaskQueryService>();
+        services.TryAddScoped<IActivityManager, ActivityManager>();
+        services.TryAddScoped<ITimelineQueryService, TimelineQueryService>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<Abstractions.Timeline.ITimelineContributor, EngagementTimeline>());
     }
 }

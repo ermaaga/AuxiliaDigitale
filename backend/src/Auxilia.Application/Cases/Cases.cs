@@ -53,6 +53,9 @@ public interface ICaseManager
     /// template <c>case-expiry-reminder</c> in the client's language.
     /// </summary>
     Task<Result> SendExpiryReminderAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>Ticks (or unticks) an item of the service checklist on a case not completed yet (B-26).</summary>
+    Task<Result> SetChecklistItemAsync(Guid id, Guid itemId, bool done, CancellationToken cancellationToken);
 }
 
 public interface ICaseQueryService
@@ -174,6 +177,7 @@ internal sealed class CaseManager(
     ICurrentUser currentUser,
     IUserAccounts accounts,
     IMessageDispatcher messages,
+    IChecklistDataFactory checklists,
     TimeProvider clock) : ICaseManager
 {
     public const string CustomFieldEntity = "case";
@@ -368,6 +372,34 @@ internal sealed class CaseManager(
             return queued.IsFailure ? Result.Failure(queued.Error!) : Result.Success();
         }, cancellationToken);
 
+    public Task<Result> SetChecklistItemAsync(Guid id, Guid itemId, bool done, CancellationToken cancellationToken) =>
+        ChangeAsync(Operations.Cases.MarkCaseChecklist, id, CasesPermissions.ManageCases, recomputeClient: false, async (@case, now) =>
+        {
+            if (@case.Status == CaseStatus.Completed)
+            {
+                return Errors.Cases.CaseIsCompleted();
+            }
+
+            await using var store = await checklists.OpenAsync(cancellationToken);
+            if (!(await store.ItemsAsync(@case.ServiceId, cancellationToken)).Any(item => item.Id == itemId))
+            {
+                return Errors.Cases.CaseChecklistItemNotFound();
+            }
+
+            var mark = await store.FindMarkAsync(@case.Id, itemId, cancellationToken);
+            if (done && mark is null)
+            {
+                store.Add(new CaseChecklistMark(@case.Id, itemId, currentUser.UserId, now));
+            }
+            else if (!done && mark is not null)
+            {
+                store.Remove(mark);
+            }
+
+            await store.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        }, cancellationToken);
+
     private Task<Result> ChangeAsync(
         OperationDescriptor operation, Guid id, string permission, bool recomputeClient, Func<Case, DateTimeOffset, Task<Result>> change, CancellationToken cancellationToken) =>
         operations.RunAsync(operation, new { CaseId = id }, async _ =>
@@ -411,7 +443,8 @@ internal sealed class CaseManager(
         await clients.UpdateStatusAsync(clientId, await store.HasOpenCasesAsync(clientId, Today, cancellationToken), cancellationToken);
 }
 
-internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy policy, IPermissionAccess permissions, TimeProvider clock) : ICaseQueryService
+internal sealed class CaseQueryService(
+    ICaseDataFactory data, CaseAccessPolicy policy, IPermissionAccess permissions, IChecklistDataFactory checklists, TimeProvider clock) : ICaseQueryService
 {
     public const int MaxPageSize = 100;
     public const int MaxFilterLength = 200;
@@ -513,8 +546,15 @@ internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy p
         var names = await store.NamesAsync(@case, cancellationToken);
         var history = @case.History;
         var payments = @case.Payments;
+        IReadOnlyList<CaseChecklistRow> checklist;
+        await using (var items = await checklists.OpenAsync(cancellationToken))
+        {
+            checklist = await items.OfCaseAsync(@case.Id, @case.ServiceId, cancellationToken);
+        }
+
         var users = await store.UserNamesAsync(
-            history.Select(change => change.ChangedByUserId).Concat(payments.Select(payment => payment.RecordedByUserId)).OfType<Guid>().Distinct().ToArray(),
+            history.Select(change => change.ChangedByUserId).Concat(payments.Select(payment => payment.RecordedByUserId))
+                .Concat(checklist.Select(item => item.CheckedByUserId)).OfType<Guid>().Distinct().ToArray(),
             cancellationToken);
         CaseUserResponse? User(Guid? userId) => userId is { } known ? new CaseUserResponse(known, users.GetValueOrDefault(known, string.Empty)) : null;
 
@@ -541,7 +581,8 @@ internal sealed class CaseQueryService(ICaseDataFactory data, CaseAccessPolicy p
             history.Select(change => new CaseStatusChangeResponse(change.FromStatus?.ToString(), change.ToStatus.ToString(), change.ChangedAt, User(change.ChangedByUserId), change.Note)).ToArray(),
             payments.Select(payment => new CasePaymentResponse(payment.Id, payment.Amount, payment.PaidOn, payment.Note, payment.RecordedAt, User(payment.RecordedByUserId))).ToArray(),
             canManage,
-            canDelete);
+            canDelete,
+            checklist.Select(item => new CaseChecklistItemResponse(item.ItemId, item.Name, item.FolderId, item.Required, item.CheckedAt, User(item.CheckedByUserId))).ToArray());
     }
 
     /// <summary>Legacy client badge: inactive, expired (expiry date passed) or active.</summary>

@@ -89,6 +89,24 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        cases.MapPut("/{id:guid}/checklist/{itemId:guid}", CheckItemAsync)
+            .RequirePermission(CasesPermissions.ManageCases)
+            .WithName("CheckCaseChecklistItem")
+            .WithSummary("Ticks an item of the document checklist on a case not completed (B-26)")
+            .Produces<CaseResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        cases.MapDelete("/{id:guid}/checklist/{itemId:guid}", UncheckItemAsync)
+            .RequirePermission(CasesPermissions.ManageCases)
+            .WithName("UncheckCaseChecklistItem")
+            .WithSummary("Unticks an item of the document checklist on a case not completed")
+            .Produces<CaseResponse>()
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
         cases.MapPost("/{id:guid}/expiry-reminder", SendExpiryReminderAsync)
             .RequirePermission(CasesPermissions.ManageCases)
             .WithName("SendCaseExpiryReminder")
@@ -154,6 +172,12 @@ internal sealed class CaseEndpoints : IModuleEndpoints
 
     private static async Task<IResult> DeleteAsync(Guid id, ICaseManager manager, CancellationToken cancellationToken) =>
         (await manager.DeleteAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
+
+    private static async Task<IResult> CheckItemAsync(Guid id, Guid itemId, ICaseManager manager, ICaseQueryService cases, CancellationToken cancellationToken) =>
+        await DetailAfterAsync(await manager.SetChecklistItemAsync(id, itemId, true, cancellationToken), id, cases, cancellationToken);
+
+    private static async Task<IResult> UncheckItemAsync(Guid id, Guid itemId, ICaseManager manager, ICaseQueryService cases, CancellationToken cancellationToken) =>
+        await DetailAfterAsync(await manager.SetChecklistItemAsync(id, itemId, false, cancellationToken), id, cases, cancellationToken);
 
     private static async Task<IResult> SendExpiryReminderAsync(Guid id, ICaseManager manager, CancellationToken cancellationToken) =>
         (await manager.SendExpiryReminderAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);

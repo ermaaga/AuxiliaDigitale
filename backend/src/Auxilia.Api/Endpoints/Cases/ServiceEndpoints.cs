@@ -89,6 +89,23 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict);
 
+        var checklist = services.MapGroup("/{id:guid}/checklist").WithTags("Services");
+
+        checklist.MapGet("/", ChecklistAsync)
+            .RequirePermission(CasesPermissions.ViewServices)
+            .WithName("GetServiceChecklist")
+            .WithSummary("The document checklist of a service in order (B-26)")
+            .Produces<IReadOnlyList<ServiceChecklistItemResponse>>()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        checklist.MapPut("/", SaveChecklistAsync)
+            .RequirePermission(CasesPermissions.ManageServices)
+            .WithName("SaveServiceChecklist")
+            .WithSummary("Replaces the document checklist of a service; items kept by id keep the ticks of the cases")
+            .Produces<IReadOnlyList<ServiceChecklistItemResponse>>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         var folders = services.MapGroup("/{id:guid}/folders").WithTags("Services");
 
         folders.MapGet("/", FoldersAsync)
@@ -193,6 +210,16 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
 
     private static async Task<IResult> DeleteAsync(Guid id, IServiceCatalogManager manager, CancellationToken cancellationToken) =>
         (await manager.DeleteServiceAsync(id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
+
+    private static async Task<IResult> ChecklistAsync(Guid id, IServiceChecklistQueryService checklist, CancellationToken cancellationToken) =>
+        (await checklist.ListAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> SaveChecklistAsync(
+        Guid id, SaveServiceChecklistRequest request, IServiceChecklistManager manager, IServiceChecklistQueryService checklist, CancellationToken cancellationToken)
+    {
+        var saved = await manager.SaveAsync(id, request, cancellationToken);
+        return saved.IsFailure ? saved.Error!.ToProblem() : (await checklist.ListAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);
+    }
 
     private static async Task<IResult> FoldersAsync(Guid id, IServiceFolderQueryService folders, CancellationToken cancellationToken) =>
         (await folders.ListAsync(id, cancellationToken)).ToHttpResult(TypedResults.Ok);

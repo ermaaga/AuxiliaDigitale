@@ -20,6 +20,7 @@ import { useNotify } from "@/lib/notify";
 import { AppointmentsView, SCHEDULING_PERMISSIONS } from "@/features/appointments";
 import { CASES_PERMISSIONS, CasesTable } from "@/features/cases";
 import { DocumentsPanel, DOCUMENTS_PERMISSIONS } from "@/features/documents";
+import { ClientTimeline, TASKS_PERMISSIONS, TasksTable } from "@/features/tasks";
 import { useCan } from "@/lib/permissions";
 
 import { clientName, deleteClient, useClient, useClientMutation } from "../api";
@@ -39,6 +40,7 @@ const TABS = [
   "cases",
   "appointments",
   "documents",
+  "tasks",
   "access",
 ] as const;
 
@@ -57,6 +59,8 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
   const canSeeDocuments = useCan(DOCUMENTS_PERMISSIONS.view);
   const canSeeCases = useCan(CASES_PERMISSIONS.view);
   const canSeeAppointments = useCan(SCHEDULING_PERMISSIONS.view);
+  const canSeeTasks = useCan(TASKS_PERMISSIONS.view);
+  const canSeeTimeline = useCan(TASKS_PERMISSIONS.viewActivities);
   const [tab, setTab] = useQueryState(
     "tab",
     parseAsStringLiteral(TABS).withDefault("overview").withOptions({ history: "replace" }),
@@ -173,10 +177,14 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
           {canSeeDocuments ? (
             <TabsTrigger value="documents">{t("app.documents.title")}</TabsTrigger>
           ) : null}
+          {canSeeTasks ? <TabsTrigger value="tasks">{t("nav.tasks")}</TabsTrigger> : null}
           <TabsTrigger value="access">{t("app.clients.tabs.access")}</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4">
-          <ClientOverview tenant={tenant} client={client} />
+          <div className="flex flex-col gap-4">
+            <ClientOverview tenant={tenant} client={client} />
+            {canSeeTimeline ? <ClientTimeline tenant={tenant} clientId={client.id} /> : null}
+          </div>
         </TabsContent>
         <TabsContent value="data" className="mt-4">
           <ClientDataForm tenant={tenant} client={client} />
@@ -200,6 +208,11 @@ export function ClientDetail({ tenant, id }: { tenant: string; id: string }) {
         {canSeeDocuments ? (
           <TabsContent value="documents" className="mt-4">
             <DocumentsPanel tenant={tenant} label={t("app.documents.title")} clientId={client.id} />
+          </TabsContent>
+        ) : null}
+        {canSeeTasks ? (
+          <TabsContent value="tasks" className="mt-4">
+            <TasksTable tenant={tenant} context={{ clientId: client.id, clientName: name }} />
           </TabsContent>
         ) : null}
         <TabsContent value="access" className="mt-4">

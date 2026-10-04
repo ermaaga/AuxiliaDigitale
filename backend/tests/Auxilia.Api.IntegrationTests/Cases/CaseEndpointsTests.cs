@@ -7,6 +7,7 @@ using Auxilia.Api.IntegrationTests.Identity;
 using Auxilia.Contracts.Cases;
 using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Directory;
+using Auxilia.Contracts.Engagement;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
@@ -80,6 +81,52 @@ public sealed class CaseEndpointsTests(CaseEndpointsTests.Factory factory) : ICl
             EventCodes.Cases.CaseHasNoEndDate);
         await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Post, $"/api/v1/cases/{Guid.CreateVersion7()}/expiry-reminder", admin), HttpStatusCode.NotFound,
             EventCodes.Cases.CaseNotFound);
+    }
+
+    [Fact]
+    public async Task Checklist_TasksAndTimeline_FollowTheCase()
+    {
+        var (adminId, adminName) = await factory.AddUserAsync([TenantRole.Administrator], Password);
+        var admin = await factory.SignInAsync(adminName, Password, Ct);
+        var (clientId, _) = await Factory.AddClientAsync();
+        var serviceId = await ServiceAsync(admin, null, 120m);
+
+        using var saved = await SendAsync(HttpMethod.Put, $"/api/v1/services/{serviceId}/checklist", admin,
+            new SaveServiceChecklistRequest([new(null, "Documento d'identità", null, true), new(null, "CU", null, false)]));
+        saved.StatusCode.ShouldBe(HttpStatusCode.OK, await saved.Content.ReadAsStringAsync(Ct));
+        var items = (await saved.Content.ReadFromJsonAsync<ServiceChecklistItemResponse[]>(Ct))!;
+        await ShouldHaveCodeAsync(
+            await SendAsync(HttpMethod.Put, $"/api/v1/services/{serviceId}/checklist", admin, new SaveServiceChecklistRequest([new(null, "CU", null, true), new(null, "cu", null, true)])),
+            HttpStatusCode.BadRequest, EventCodes.Cases.ServiceChecklistInvalid);
+
+        var opened = await OpenAsync(admin, new OpenCaseRequest(clientId, serviceId, null, null, null, null, null));
+        opened.Checklist.Select(item => (item.Name, item.Required, item.CheckedAt is null)).ShouldBe([("Documento d'identità", true, true), ("CU", false, true)]);
+        using var ticked = await SendAsync(HttpMethod.Put, $"/api/v1/cases/{opened.Id}/checklist/{items[0].Id}", admin);
+        ticked.StatusCode.ShouldBe(HttpStatusCode.OK, await ticked.Content.ReadAsStringAsync(Ct));
+        (await ticked.Content.ReadFromJsonAsync<CaseResponse>(Ct))!.Checklist[0].CheckedBy!.UserId.ShouldBe(adminId);
+        await ShouldHaveCodeAsync(await SendAsync(HttpMethod.Put, $"/api/v1/cases/{opened.Id}/checklist/{Guid.CreateVersion7()}", admin),
+            HttpStatusCode.NotFound, EventCodes.Cases.CaseChecklistItemNotFound);
+
+        using var task = await SendAsync(HttpMethod.Post, "/api/v1/tasks", admin,
+            new SaveTaskRequest("Ask for the CU", null, new DateOnly(2020, 1, 1), adminId, clientId, opened.Id));
+        task.StatusCode.ShouldBe(HttpStatusCode.Created, await task.Content.ReadAsStringAsync(Ct));
+        var created = (await task.Content.ReadFromJsonAsync<TaskResponse>(Ct))!;
+        (created.IsOverdue, created.Case!.Number, created.Client!.Id).ShouldBe((true, opened.Number, clientId));
+        using var due = await SendAsync(HttpMethod.Get, $"/api/v1/tasks?filter[due]=today&filter[clientId]={clientId}", admin);
+        (await due.Content.ReadFromJsonAsync<PagedResponse<TaskResponse>>(Ct))!.Items.Select(item => item.Id).ShouldBe([created.Id]);
+        using var done = await SendAsync(HttpMethod.Post, $"/api/v1/tasks/{created.Id}/complete", admin);
+        (await done.Content.ReadFromJsonAsync<TaskResponse>(Ct))!.Status.ShouldBe("Done");
+
+        (await SendAsync(HttpMethod.Post, $"/api/v1/clients/{clientId}/activities", admin, new AddActivityRequest("Call", "Asked for the CU", null)))
+            .StatusCode.ShouldBe(HttpStatusCode.Created);
+        using var timeline = await SendAsync(HttpMethod.Get, $"/api/v1/clients/{clientId}/timeline", admin);
+        timeline.StatusCode.ShouldBe(HttpStatusCode.OK, await timeline.Content.ReadAsStringAsync(Ct));
+        var entries = (await timeline.Content.ReadFromJsonAsync<TimelineEntryResponse[]>(Ct))!;
+        entries.Select(entry => entry.Kind).ShouldBe(["activity", "task.completed", "task.created", "case.status"]);
+        entries[^1].TitleKey.ShouldBe("app.timeline.case.opened");
+
+        var employee = await SignInAsync(TenantRole.Employee);
+        (await SendAsync(HttpMethod.Get, $"/api/v1/tasks/{created.Id}", employee)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     [Fact]

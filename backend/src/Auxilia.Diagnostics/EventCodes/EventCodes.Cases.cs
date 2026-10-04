@@ -115,5 +115,17 @@ public static partial class EventCodes
 
         /// <summary>The expiry job ran for the tenant (F11, D-15): expired cases deactivated, clients told.</summary>
         public const int CasesExpiryRun = 14037;
+
+        /// <summary>The document checklist of a service was saved (B-26).</summary>
+        public const int ServiceChecklistSaved = 14038;
+
+        /// <summary>A checklist item is not valid (400, field errors <c>items[i].name</c>…).</summary>
+        public const int ServiceChecklistInvalid = 14039;
+
+        /// <summary>A checklist item was ticked or unticked on a case.</summary>
+        public const int CaseChecklistMarked = 14040;
+
+        /// <summary>The item is not in the checklist of the case's service (404).</summary>
+        public const int CaseChecklistItemNotFound = 14041;
     }
 }

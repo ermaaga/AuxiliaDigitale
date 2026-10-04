@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [~] in progress (domain, API, lists and pages B-08/B-09/B-14 done; expiry reminder B-25, checklist B-26) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [x] done (B-08/B-09/B-14, expiry reminder B-25, document checklist B-26) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).

@@ -41,5 +41,9 @@ public static partial class Operations
         public static readonly OperationDescriptor SendCaseExpiryReminder = new("Cases.SendCaseExpiryReminder", EventCodes.Cases.CaseExpiryReminderSent);
 
         public static readonly OperationDescriptor RunCasesExpiry = new("Cases.RunCasesExpiry", EventCodes.Cases.CasesExpiryRun);
+
+        public static readonly OperationDescriptor SaveServiceChecklist = new("Cases.SaveServiceChecklist", EventCodes.Cases.ServiceChecklistSaved);
+
+        public static readonly OperationDescriptor MarkCaseChecklist = new("Cases.MarkCaseChecklist", EventCodes.Cases.CaseChecklistMarked);
     }
 }

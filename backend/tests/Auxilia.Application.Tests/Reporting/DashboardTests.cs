@@ -10,6 +10,7 @@ using Auxilia.Application.Reporting;
 using Auxilia.Application.Scheduling;
 using Auxilia.Application.Tests.Cases;
 using Auxilia.Application.Tests.Directory;
+using Auxilia.Application.Tests.Engagement;
 using Auxilia.Application.Tests.Identity;
 using Auxilia.Application.Tests.Scheduling;
 using Auxilia.Contracts.Common;
@@ -182,9 +183,14 @@ public sealed class DashboardTests
     {
         var requests = Substitute.For<IRequestQueryService>();
         requests.ListAsync(Arg.Any<RequestListQuery>(), Arg.Any<CancellationToken>()).Returns(Paged<RequestListItemResponse>(7));
-        var engagement = new EngagementDashboard(requests, permissions, caller);
+        var tasks = new InMemoryTasks();
+        var engagement = new EngagementDashboard(requests, tasks, permissions, caller);
 
-        (await engagement.ContributeAsync(Context(), Ct)).Cards.ShouldHaveSingleItem().Value.ShouldBe(7);
+        var contribution = await engagement.ContributeAsync(Context(), Ct);
+        contribution.Cards.Select(card => (card.Key, card.Value)).ShouldBe([("pendingRequests", 7L), ("openTasks", 0L), ("overdueTasks", 0L)]);
+        contribution.Lists.ShouldHaveSingleItem().Key.ShouldBe("todayTasks");
+        tasks.LastFilter!.ShouldSatisfyAllConditions(
+            filter => filter.Status.ShouldBe(Domain.Engagement.TaskItemStatus.Open), filter => filter.DueBy.ShouldBe(Context().Today));
         await requests.Received().ListAsync(Arg.Is<RequestListQuery>(query => query.Box == "received" && query.Status == "Pending"), Arg.Any<CancellationToken>());
 
         CallAs(TenantRole.Client);
