@@ -35,8 +35,10 @@ export async function expectAccessible(page: Page, name: string): Promise<void> 
   );
   // The metadata (title) is streamed after a client navigation: wait for it instead of reporting a race.
   await expect(page).toHaveTitle(/\S/);
+  // The only frames are the sandboxed previews of e-mail HTML written by staff (no scripts: axe cannot enter them).
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .options({ iframes: false })
     .analyze();
   const blocking = results.violations
     .filter((violation) => violation.impact === "serious" || violation.impact === "critical")
