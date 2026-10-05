@@ -23,7 +23,7 @@ test("an Administrator prepares a campaign", async ({ page }) => {
     await page.getByRole("link", { name: t("app.marketing.segments.new") }).click();
     await page.getByLabel(t("Name")).fill(`Attivi ${suffix}`);
     await page.getByRole("combobox", { name: t("app.marketing.segments.value") }).click();
-    await page.getByRole("option", { name: t("Active") }).click();
+    await page.getByRole("option", { name: t("Active"), exact: true }).click();
     await expect(page.getByText(/\d+ clienti/).first()).toBeVisible();
     await page.getByRole("button", { name: t("app.marketing.segments.addGroup") }).click();
     await expect(
