@@ -62,7 +62,14 @@ test("an Administrator prepares a campaign", async ({ page }) => {
     await page.getByRole("button", { name: t("Save") }).click();
     await expect(page).toHaveURL(/\/marketing\/templates\/[0-9a-f-]{36}$/);
     await expect(page.getByText("Ciao Mario")).toBeVisible();
+    // axe runs before the preview opens: the sandboxed frame (no scripts) cannot host it.
     await expectAccessible(page, "template editor");
+    await page.getByRole("button", { name: t("app.marketing.templates.showPreview") }).click();
+    await expect(
+      page
+        .frameLocator(`iframe[title="${t("app.marketing.templates.preview")}"]`)
+        .getByText(/Ciao Mario/),
+    ).toBeVisible();
   });
 
   await test.step("the wizard saves a campaign draft", async () => {

@@ -50,6 +50,7 @@ import {
   type Suppression,
 } from "../api";
 import { MARKETING_PERMISSIONS } from "../permissions";
+import { EmailPreview } from "./email-preview";
 
 /** Placeholders a template can use (`CampaignModel` in the API). */
 export const PLACEHOLDERS = ["firstName", "lastName", "fullName", "tenantName"] as const;
@@ -341,19 +342,7 @@ function TemplateForm({
             {preview.error ? (
               <ApiErrorAlert error={preview.error} />
             ) : preview.data ? (
-              <>
-                <p className="text-sm">
-                  <span className="text-muted-foreground">{t("Subject")}: </span>
-                  <span className="font-medium">{preview.data.subject}</span>
-                </p>
-                {/* Rendered HTML of staff: sandboxed without scripts, never in the page itself. */}
-                <iframe
-                  title={t("app.marketing.templates.preview")}
-                  sandbox=""
-                  srcDoc={preview.data.body}
-                  className="h-80 w-full rounded-md border bg-white"
-                />
-              </>
+              <EmailPreview subject={preview.data.subject} body={preview.data.body} />
             ) : id ? (
               <Skeleton className="h-80 w-full" />
             ) : null}

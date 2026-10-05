@@ -862,5 +862,17 @@
   "category": "app",
   "en": "Campaign cancelled",
   "it": "Campagna annullata"
+ },
+ {
+  "key": "app.marketing.templates.showPreview",
+  "category": "app",
+  "en": "Show the preview",
+  "it": "Mostra l'anteprima"
+ },
+ {
+  "key": "app.marketing.templates.hidePreview",
+  "category": "app",
+  "en": "Hide the preview",
+  "it": "Nascondi l'anteprima"
  }
 ]

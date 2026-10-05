@@ -54,6 +54,7 @@ import {
   type CampaignRecipient,
 } from "../api";
 import { MARKETING_PERMISSIONS } from "../permissions";
+import { EmailPreview } from "./email-preview";
 
 export function campaignVariant(
   status: string,
@@ -290,18 +291,7 @@ export function CampaignWizard({ tenant }: { tenant: string }) {
                 </Select>
               </div>
               {preview.data ? (
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">{t("Subject")}: </span>
-                    <span className="font-medium">{preview.data.subject}</span>
-                  </p>
-                  <iframe
-                    title={t("app.marketing.templates.preview")}
-                    sandbox=""
-                    srcDoc={preview.data.body}
-                    className="h-64 w-full rounded-md border bg-white"
-                  />
-                </div>
+                <EmailPreview subject={preview.data.subject} body={preview.data.body} />
               ) : null}
             </>
           ) : (
