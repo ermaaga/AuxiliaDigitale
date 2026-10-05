@@ -93,7 +93,9 @@ test("an Administrator prepares a campaign", async ({ page }) => {
     await page.getByRole("button", { name: t("app.marketing.campaigns.next") }).click();
     await page.getByRole("button", { name: t("app.marketing.campaigns.createDraft") }).click();
     await expect(page).toHaveURL(/\/marketing\/campaigns\/[0-9a-f-]{36}$/);
-    await expect(page.getByText(t("app.marketing.campaigns.status.Draft"))).toBeVisible();
+    await expect(
+      page.getByText(t("app.marketing.campaigns.status.Draft"), { exact: true }),
+    ).toBeVisible();
     await expect(
       page.getByRole("button", { name: t("app.marketing.campaigns.send") }),
     ).toBeVisible();
