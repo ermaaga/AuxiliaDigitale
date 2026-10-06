@@ -135,7 +135,8 @@ app.MapHub<NotificationsHub>(RealtimeRegistration.HubPath, options => options.Cl
 var api = app.MapApiV1();
 foreach (var endpoints in app.Services.GetServices<IApiEndpoints>())
 {
-    endpoints.Map(api);
+    // Inside its own group: an unknown filter (F28) is reported after authentication and the tenant filters.
+    endpoints.Map(api.MapGroup(string.Empty).RejectUnknownFilters());
 }
 
 api.MapModules(app.Services);

@@ -1,4 +1,5 @@
 using Auxilia.Api.Endpoints;
+using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Tenancy;
 using Auxilia.Application.Abstractions.Modules;
 
@@ -44,6 +45,7 @@ public static class ModuleEndpointExtensions
             var group = api.MapGroup(string.Empty)
                 .RequireTenant()
                 .AddEndpointFilter(new ModuleEndpointFilter(endpoints.ModuleCode))
+                .RejectUnknownFilters()
                 .WithMetadata(new ModuleMetadata(endpoints.ModuleCode));
             endpoints.Map(group);
         }

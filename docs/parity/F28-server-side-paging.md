@@ -9,5 +9,5 @@ Status: [ ] not started · Tasks: P1-05, P3-07
 ## Acceptance criteria
 - [ ] Standard query contract `page, pageSize (max 200), sort=-field, filter[field]=, search=` → `{items, page, pageSize, totalCount}`; cursor paging for mobile feeds.
 - [ ] Every legacy list keeps its filter keys, sort keys and default order (listed in each Fxx).
-- [ ] Unknown filter/sort keys → `400` validation error (not silently ignored).
+- [x] Unknown filter/sort keys → `400` validation error (not silently ignored). *(H-04b: `filter[…]` keys the endpoint does not declare → `400 AUX-10020` with `validation.paging.filter`, `Api/Infrastructure/ListFilterKeys.cs` on every endpoint; unknown sort fields already refused by each QueryService; exports forward the list query and are exempt; test `ListQueryContractTests`)*
 - [ ] All list queries are `AsNoTracking` + projection; no in-memory filtering.
