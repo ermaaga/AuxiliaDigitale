@@ -1,0 +1,134 @@
+[
+ {
+  "key": "common.table.views.title",
+  "category": "common",
+  "en": "Views",
+  "it": "Viste"
+ },
+ {
+  "key": "common.table.views.none",
+  "category": "common",
+  "en": "No saved views yet.",
+  "it": "Nessuna vista salvata."
+ },
+ {
+  "key": "common.table.views.saveNew",
+  "category": "common",
+  "en": "Save current view…",
+  "it": "Salva la vista attuale…"
+ },
+ {
+  "key": "common.table.views.saveText",
+  "category": "common",
+  "en": "Columns, filters and sort of the list are saved under this name, only for you.",
+  "it": "Colonne, filtri e ordinamento dell'elenco vengono salvati con questo nome, solo per te."
+ },
+ {
+  "key": "common.table.views.saveOver",
+  "category": "common",
+  "en": "Update “{name}” with the current view",
+  "it": "Aggiorna «{name}» con la vista attuale"
+ },
+ {
+  "key": "common.table.views.setDefault",
+  "category": "common",
+  "en": "Open the list with this view",
+  "it": "Apri l'elenco con questa vista"
+ },
+ {
+  "key": "common.table.views.unsetDefault",
+  "category": "common",
+  "en": "No longer open the list with this view",
+  "it": "Non aprire più l'elenco con questa vista"
+ },
+ {
+  "key": "common.table.views.delete",
+  "category": "common",
+  "en": "Delete “{name}”",
+  "it": "Elimina «{name}»"
+ },
+ {
+  "key": "common.table.views.deleteTitle",
+  "category": "common",
+  "en": "Delete the view “{name}”?",
+  "it": "Eliminare la vista «{name}»?"
+ },
+ {
+  "key": "common.table.views.deleteText",
+  "category": "common",
+  "en": "The list stays as it is; only the saved view is removed.",
+  "it": "L'elenco resta com'è; viene tolta solo la vista salvata."
+ },
+ {
+  "key": "common.table.views.default",
+  "category": "common",
+  "en": "Default view",
+  "it": "Vista predefinita"
+ },
+ {
+  "key": "common.table.views.name",
+  "category": "common",
+  "en": "Name",
+  "it": "Nome"
+ },
+ {
+  "key": "common.table.views.useAsDefault",
+  "category": "common",
+  "en": "Open the list with this view",
+  "it": "Apri l'elenco con questa vista"
+ },
+ {
+  "key": "common.table.views.saved",
+  "category": "common",
+  "en": "View saved.",
+  "it": "Vista salvata."
+ },
+ {
+  "key": "common.table.views.deleted",
+  "category": "common",
+  "en": "View deleted.",
+  "it": "Vista eliminata."
+ },
+ {
+  "key": "validation.gridViews.name",
+  "category": "validation",
+  "en": "Enter a name of at most 60 characters.",
+  "it": "Inserisci un nome di al massimo 60 caratteri."
+ },
+ {
+  "key": "validation.gridViews.nameTaken",
+  "category": "validation",
+  "en": "You already have a view with this name.",
+  "it": "Hai già una vista con questo nome."
+ },
+ {
+  "key": "validation.gridViews.tooMany",
+  "category": "validation",
+  "en": "You can keep at most 20 views for this list: delete one first.",
+  "it": "Puoi tenere al massimo 20 viste per questo elenco: eliminane prima una."
+ },
+ {
+  "key": "validation.gridViews.columns",
+  "category": "validation",
+  "en": "The columns of the view are not valid.",
+  "it": "Le colonne della vista non sono valide."
+ },
+ {
+  "key": "validation.gridViews.filters",
+  "category": "validation",
+  "en": "The filters of the view are not valid.",
+  "it": "I filtri della vista non sono validi."
+ },
+ {
+  "key": "errors.AUX-20025",
+  "category": "errors",
+  "en": "The view is not valid: check the fields.",
+  "it": "La vista non è valida: controlla i campi."
+ },
+ {
+  "key": "errors.AUX-20026",
+  "category": "errors",
+  "en": "This view no longer exists.",
+  "it": "Questa vista non esiste più."
+ }
+]

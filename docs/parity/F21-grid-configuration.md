@@ -13,7 +13,7 @@ Status: [~] in progress · Tasks: S-04, P3-07
 ## Acceptance criteria
 - [x] `grid_layouts` per grid key and role: columns (label key, field, filterable, sortable, visible, order); editor in `/platform/tenants/{slug}/grids` (System console).
 - [x] Every legacy grid key exists with the legacy default columns (seeded from current `PageConfiguration` rows for the migrated tenant). *(E-05 `AccessStep`: the `ConfigurationGrid` of a page becomes the role layout of the matching grid)*
-- [ ] Users can save personal views (columns, filters, sort) and pick a default.
+- [x] Users can save personal views (columns, filters, sort) and pick a default. *(H-04d: `configuration.user_grid_views`, `/api/v1/me/grids/{key}/views`; "Views" menu of `DataTable` on the 7 lists with a grid; the default opens an untouched list; tests `GridViewTests`, `GridViewEndpointsTests`, E2E `tenant-services.spec.ts`)*
 - [x] Filters/sorts only on fields the API supports (validated server-side). *(Sortable/filterable come from the grid declaration in code, never from the layout; each QueryService keeps its whitelist.)*
 
 ## Status notes

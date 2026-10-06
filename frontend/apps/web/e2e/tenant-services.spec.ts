@@ -154,6 +154,34 @@ test("an Administrator manages a service and its folder template", async ({ page
     await page.setViewportSize({ width: 1280, height: 800 });
   });
 
+  await test.step("a personal view of the list opens it filtered (F21)", async () => {
+    const viewName = `Solo ${service}`;
+    await page.getByRole("button", { name: t("common.table.views.title") }).click();
+    await page.getByRole("menuitem", { name: t("common.table.views.saveNew") }).click();
+    const dialog = page.getByRole("dialog", { name: t("common.table.views.saveNew") });
+    await dialog.getByLabel(t("common.table.views.name")).fill(viewName);
+    await dialog.getByLabel(t("common.table.views.useAsDefault")).check();
+    await expectAccessible(page, "save view");
+    await dialog.getByRole("button", { name: t("Save") }).click();
+    await expect(toast(page, t("common.table.views.saved"))).toBeVisible();
+
+    // The list opened untouched gets the default view: its filter and its name on the menu.
+    await page.goto(`/${E2E.tenant}/services`);
+    await expect(page.locator("#services-name")).toHaveValue(service);
+    const menu = page.getByRole("button", { name: viewName });
+    await expect(menu).toBeVisible();
+
+    await menu.click();
+    await page
+      .getByRole("menuitem", { name: t("common.table.views.delete", { name: viewName }) })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("Delete") })
+      .click();
+    await expect(toast(page, t("common.table.views.deleted"))).toBeVisible();
+  });
+
   await test.step("the service is deleted", async () => {
     await page.getByRole("link", { name: service }).click();
     await page.getByRole("button", { name: t("Delete") }).click();

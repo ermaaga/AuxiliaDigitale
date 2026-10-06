@@ -17,6 +17,7 @@ import {
 } from "@auxilia/ui/components/dialog";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
@@ -193,6 +194,7 @@ export function ServicesTable({ tenant, label }: { tenant: string; label: string
         </div>
       ) : null}
       <DataTable
+        views={gridViews(tenant, SERVICES_GRID, table)}
         key={grid.layout ? "layout" : "default"}
         label={label}
         exportMenu={(columns) => (

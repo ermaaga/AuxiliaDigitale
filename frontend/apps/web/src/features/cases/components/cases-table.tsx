@@ -8,6 +8,7 @@ import { Label } from "@auxilia/ui/components/label";
 import { Switch } from "@auxilia/ui/components/switch";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
@@ -199,6 +200,7 @@ export function CasesTable({
         {canOpen ? <NewCaseDialog tenant={tenant} clientId={clientId} /> : null}
       </div>
       <DataTable
+        views={gridViews(tenant, CASES_GRID, table)}
         key={grid.layout ? "layout" : "default"}
         label={label}
         exportMenu={(columns) => (
