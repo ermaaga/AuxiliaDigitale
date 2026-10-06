@@ -133,4 +133,43 @@ public sealed class CaseTests
         Case.CountsAsOpen(isActive, status, expiresOn is null ? null : DateOnly.Parse(expiresOn, System.Globalization.CultureInfo.InvariantCulture), new DateOnly(2026, 10, 3))
             .ShouldBe(open);
     }
+
+    [Fact]
+    public void ImportLegacy_KeepsTheLegacyStateWithOneHistoryRowAndThePayment()
+    {
+        var state = new LegacyCaseState(CaseStatus.Completed, IsRejected: true, IsActive: false, new DateOnly(2025, 3, 1), Now.AddMonths(-7), 120.50m, new DateOnly(2025, 1, 10));
+
+        var imported = Case.ImportLegacy(Guid.CreateVersion7(), Opening(), state, Now).Value;
+
+        (imported.Status, imported.IsRejected, imported.IsActive, imported.ExpiresOn, imported.CompletedAt).ShouldBe((CaseStatus.Completed, true, false, (DateOnly?)new DateOnly(2025, 3, 1), (DateTimeOffset?)Now.AddMonths(-7)));
+        imported.History.Select(change => (change.FromStatus, change.ToStatus, change.ChangedByUserId)).ShouldBe([((CaseStatus?)null, CaseStatus.Completed, (Guid?)null)]);
+        imported.Payments.Select(payment => (payment.Amount, payment.PaidOn, payment.Note)).ShouldBe([(120.50m, new DateOnly(2025, 1, 10), Case.LegacyPaymentNote)]);
+    }
+
+    [Fact]
+    public void ImportLegacy_WithoutAmount_HasNoPayment_AndInvalidValuesAreRefused()
+    {
+        var state = new LegacyCaseState(CaseStatus.Inserted, false, true, null, null, 0m, new DateOnly(2025, 1, 10));
+
+        Case.ImportLegacy(Guid.CreateVersion7(), Opening(), state, Now).Value.Payments.ShouldBeEmpty();
+        Case.ImportLegacy(Guid.CreateVersion7(), Opening(), state with { AmountPaid = 1.234m }, Now).Error!.Code.ShouldBe(EventCodes.Cases.CaseInvalid);
+        Case.ImportLegacy(Guid.CreateVersion7(), Opening(), state with { Status = (CaseStatus)9 }, Now).Error!.Code.ShouldBe(EventCodes.Cases.CaseInvalid);
+        Case.ImportLegacy(Guid.CreateVersion7(), Opening(startedOn: new DateOnly(1800, 1, 1)), state, Now).IsFailure.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ApplyLegacyState_LaterRun_FollowsTheLegacyStatusAndAmount()
+    {
+        var state = new LegacyCaseState(CaseStatus.InProgress, false, true, null, null, 50m, new DateOnly(2025, 1, 10));
+        var imported = Case.ImportLegacy(Guid.CreateVersion7(), Opening(), state, Now).Value;
+
+        imported.ApplyLegacyState(state, Now.AddDays(1)).ShouldBeFalse();
+        imported.ApplyLegacyState(state with { Status = CaseStatus.Sent, AmountPaid = 80m }, Now.AddDays(1)).ShouldBeTrue();
+
+        imported.Status.ShouldBe(CaseStatus.Sent);
+        imported.History.Select(change => change.ToStatus).ShouldBe([CaseStatus.InProgress, CaseStatus.Sent]);
+        imported.Payments.Select(payment => payment.Amount).ShouldBe([80m]);
+        imported.ApplyLegacyState(state with { Status = CaseStatus.Sent, AmountPaid = 0m }, Now.AddDays(2)).ShouldBeTrue();
+        imported.Payments.ShouldBeEmpty();
+    }
 }

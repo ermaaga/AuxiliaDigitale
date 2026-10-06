@@ -22,4 +22,4 @@ Status: [~] in progress (template B-10, documents in folders + ZIP B-12, case us
 - [x] Case documents tab: tree navigation filters documents; upload into selected folder; move document between folders (or to none); folder column with full path. *(B-14, ZIP of the case and of each folder with confirmation)*
 - [x] ZIP download of the whole case or any folder subtree, same path and duplicate-name rules, streamed server-side, respects F10 visibility. *(built in a temporary file, then streamed)*
 - [x] Template changes do not delete documents (documents of removed folders become "no folder").
-- [ ] Legacy folder templates and document-folder links migrated.
+- [ ] Legacy folder templates and document-folder links migrated. *(templates: E-03 `ServiceCatalogStep`; document links with E-04)*
