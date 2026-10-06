@@ -1,20 +1,12 @@
-using Auxilia.Application.Abstractions.Authorization;
-using Auxilia.Application.Abstractions.Identity;
-using Auxilia.Application.Abstractions.Images;
 using Auxilia.Domain.Cases;
 using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
 using Auxilia.MigrationRunner.LegacyImport;
-using Auxilia.MigrationRunner.LegacyImport.Steps;
-using Auxilia.Persistence.Tenant;
-using Auxilia.Persistence.Tenant.Interceptors;
 using Auxilia.Persistence.Tenant.Operations;
 
 using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
-
-using NSubstitute;
 
 using Case = Auxilia.Domain.Cases.Case;
 
@@ -24,8 +16,6 @@ namespace Auxilia.LegacyImport.Tests;
 [Collection(LegacyDatabaseGroup.Name)]
 public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
 {
-    private static readonly TimeZoneInfo Rome = TimeZoneInfo.FindSystemTimeZoneById("Europe/Rome");
-
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Fact]
@@ -36,7 +26,7 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
         await using var source = (await LegacySource.OpenAsync(connection, Ct)).Value;
         await using var tenant = await fixture.CreateTenantAsync("tenant_cases");
 
-        var report = await ImportAsync(source, tenant);
+        var report = await ImportHarness.ImportAsync(source, tenant);
 
         Result(report, "MembershipTypes").ShouldBe((2, 0, 0));
         Result(report, "Memberships").ShouldBe((2, 0, 0));
@@ -48,7 +38,7 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
         report.Issues.ShouldContain(issue => issue.Table == "Subscriptions" && issue.LegacyId == 3 && issue.Reason == "client not migrated or not a client");
         report.Issues.ShouldContain(issue => issue.Table == "Subscriptions" && issue.LegacyId == 4 && issue.Reason == "unknown status 7");
 
-        await using (var db = Context(tenant))
+        await using (var db = ImportHarness.Context(tenant))
         {
             var ids = await db.Set<LegacyIdMapping>().ToDictionaryAsync(row => (row.Entity, row.LegacyId), row => row.NewId, Ct);
             var (serviceId, clientUserId) = (ids[("Memberships", 1)], ids[("Users", 3)]);
@@ -77,11 +67,11 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
             (await db.Set<ClientProfile>().SingleAsync(profile => profile.Id == client.PersonId, Ct)).Status.ShouldBe(ClientStatus.Active);
         }
 
-        var again = await ImportAsync(source, tenant);
+        var again = await ImportHarness.ImportAsync(source, tenant);
 
         Result(again, "Subscriptions").ShouldBe((0, 0, 2));
         Result(again, "Memberships").ShouldBe((0, 2, 0));
-        await using (var db = Context(tenant))
+        await using (var db = ImportHarness.Context(tenant))
         {
             (await db.Set<Case>().CountAsync(Ct)).ShouldBe(2);
             (await db.Set<ServiceFolder>().CountAsync(Ct)).ShouldBe(2);
@@ -93,21 +83,5 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
     {
         var result = report.Tables[table];
         return (result.Created, result.Updated, result.Skipped);
-    }
-
-    private static async Task<LegacyImportReport> ImportAsync(LegacySource source, NpgsqlDataSource tenant)
-    {
-        var hasher = Substitute.For<IPasswordHasher>();
-        hasher.Verify(Arg.Any<string>(), Arg.Any<PasswordFormat>(), Arg.Any<string>()).Returns(PasswordVerification.Failed);
-        var importer = new LegacyImporter(hasher, Substitute.For<IImageProcessor>());
-        await using var db = Context(tenant);
-        return await importer.RunAsync(source, db, TimeProvider.System, Rome, "it", dryRun: false, Ct);
-    }
-
-    private static TenantDbContext Context(NpgsqlDataSource tenant)
-    {
-        var system = Substitute.For<ICurrentUser>();
-        system.ActorType.Returns(ActorType.System);
-        return new TenantDbContext(TenantDbContextOptions.Create(tenant, new TenantAuditInterceptor(system, TimeProvider.System)));
     }
 }

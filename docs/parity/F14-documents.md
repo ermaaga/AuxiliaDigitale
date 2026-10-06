@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [~] in progress (storage B-11, API B-12 and pages B-13 done; case documents tab B-14, legacy areas E-04) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
+Status: [~] in progress (storage B-11, API B-12 and pages B-13 done; case documents tab B-14, legacy areas E-04 done) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.
@@ -58,4 +58,4 @@ dialog (`documents.areas.manage`). Lists refresh every 3 s while a document is `
 - [x] Lists with the filters/sorts above, per client and global, access rules F10.
 - [x] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm). *(PDF preview in a new tab)*
 - [x] Async processing path via Worker notifies the **uploader** (`DocumentProcessed`) and refreshes lists. *(event; list refresh in B-13)*
-- [ ] Areas become a managed lookup seeded from legacy distinct values. *(lookup and API B-12; seed from the legacy values with the import E-04)*
+- [x] Areas become a managed lookup seeded from legacy distinct values. *(lookup and API B-12; legacy values: E-04 `DocumentsStep`)*

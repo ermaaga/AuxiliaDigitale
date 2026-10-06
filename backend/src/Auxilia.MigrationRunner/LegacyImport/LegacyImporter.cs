@@ -1,5 +1,6 @@
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Images;
+using Auxilia.Application.Documents.Public;
 using Auxilia.MigrationRunner.LegacyImport.Steps;
 using Auxilia.Persistence.Tenant;
 
@@ -14,16 +15,19 @@ internal sealed class LegacyImporter
 {
     private readonly IReadOnlyList<ILegacyImportStep> steps;
 
-    public LegacyImporter(IPasswordHasher hasher, IImageProcessor images)
+    public LegacyImporter(LegacyImportServices services)
     {
+        ArgumentNullException.ThrowIfNull(services);
+
         steps =
         [
             new SpecializationsStep(),
-            new UsersStep(hasher, images),
+            new UsersStep(services.Hasher, services.Images),
             new SpecializationMembersStep(),
             new AccountSecurityStep(),
             new ServiceCatalogStep(),
             new CasesStep(),
+            new DocumentsStep(services.Files, services.LegacyFiles),
         ];
     }
 
@@ -40,7 +44,7 @@ internal sealed class LegacyImporter
         await using var transaction = await tenant.Database.BeginTransactionAsync(cancellationToken);
         await using var legacy = source.CreateContext();
         var ids = await LegacyIdMap.LoadAsync(tenant, clock, cancellationToken);
-        var context = new LegacyImportContext(legacy, tenant, ids, report, clock, zone, defaultLanguage);
+        var context = new LegacyImportContext(legacy, tenant, ids, report, clock, zone, defaultLanguage, dryRun);
         foreach (var step in steps)
         {
             await step.RunAsync(context, cancellationToken);
@@ -59,3 +63,6 @@ internal sealed class LegacyImporter
         return report;
     }
 }
+
+/// <summary>What the steps need from the host: password verification, pictures, the tenant's file store, the legacy files.</summary>
+internal sealed record LegacyImportServices(IPasswordHasher Hasher, IImageProcessor Images, IFileStore Files, LegacyFiles LegacyFiles);

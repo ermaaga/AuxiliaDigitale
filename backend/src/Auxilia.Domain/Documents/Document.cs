@@ -116,6 +116,39 @@ public sealed class Document : AggregateRoot<Guid>, IAuditable
     }
 
     /// <summary>The errors of name, year and description (one per field).</summary>
+    /// <summary>
+    /// Legacy import (E-04): a document the legacy application stored, with its upload instant and uploader, the file
+    /// already copied and hashed. Only the file name and the folder rule apply (an old reference year is kept as it is);
+    /// the copy was checked by the file store, so the document is available at once.
+    /// </summary>
+    public static Result<Document> ImportLegacy(Guid id, DocumentUpload upload, Guid? uploadedByUserId, DateTimeOffset uploadedAt)
+    {
+        ArgumentNullException.ThrowIfNull(upload);
+
+        var errors = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        if (string.IsNullOrWhiteSpace(upload.FileName) || upload.FileName.Length > FileNameMaxLength || Path.GetExtension(upload.FileName).Length < 2)
+        {
+            errors["fileName"] = ["validation.documents.fileName"];
+        }
+
+        if (upload.Description?.Trim().Length > DescriptionMaxLength)
+        {
+            errors["description"] = ["validation.documents.description"];
+        }
+
+        if (upload.FolderId is not null && upload.CaseId is null)
+        {
+            errors["folderId"] = ["validation.documents.folder"];
+        }
+
+        if (errors.Count > 0)
+        {
+            return Errors.Documents.DocumentInvalid(errors);
+        }
+
+        return new Document(id, upload, uploadedByUserId, uploadedAt) { Status = DocumentStatus.Available };
+    }
+
     public static Dictionary<string, string[]> Check(string? fileName, int referenceYear, string? description, DateOnly today)
     {
         var errors = CheckMetadata(referenceYear, description, today);

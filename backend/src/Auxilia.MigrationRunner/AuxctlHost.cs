@@ -1,5 +1,6 @@
 using Auxilia.Application;
 using Auxilia.Infrastructure;
+using Auxilia.Infrastructure.Adapters.Storage.Local;
 using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Persistence.Catalog;
@@ -7,6 +8,7 @@ using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults.Logging;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Auxilia.MigrationRunner;
@@ -34,6 +36,9 @@ internal static class AuxctlHost
         builder.Services.AddApplication();
         builder.Services.AddTenantAdministration();
         builder.Services.AddInfrastructure();
+
+        // The legacy import copies documents to the tenant's storage: the local root must be the one Api and Worker use.
+        builder.Services.Configure<LocalStorageOptions>(builder.Configuration.GetSection(LocalStorageOptions.SectionName));
         builder.Services.AddCatalogPersistence(catalog);
         builder.Services.AddTenantPersistence();
         builder.Services.AddTenantDatabaseAdministration(builder.Configuration["Provisioning:AdminConnectionString"] ?? catalog);
