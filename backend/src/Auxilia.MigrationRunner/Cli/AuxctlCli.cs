@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Identity;
+using Auxilia.Application.Abstractions.Persistence;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Identity;
 using Auxilia.Application.Identity.Public;
@@ -9,6 +10,7 @@ using Auxilia.Contracts.Platform;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
+using Auxilia.MigrationRunner.LegacyImport;
 using Auxilia.SharedKernel.Results;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -56,6 +58,9 @@ internal sealed class AuxctlCli
                                (prints a one-use temporary password, to change at the next sign-in, and ends the
                                 sessions; --send-link e-mails a reset link instead)
           users verify-legacy-hash         (reads a legacy BCrypt hash, then the password, from standard input)
+          legacy inspect [--tenant <slug>]  (reads the legacy connection string from AUXILIA_LEGACY_CONNECTION; schema
+                                            variant, rows per table and what is migrated; --tenant adds the rows already
+                                            mapped in that tenant's ops.legacy_id_map)
           diagnostics registry [--output <file>]
         """;
 
@@ -63,14 +68,18 @@ internal sealed class AuxctlCli
     private readonly TextWriter output;
     private readonly TextWriter error;
     private readonly TextReader input;
+    private readonly Func<string, string?> environment;
 
     /// <param name="input">Secrets are read from here (standard input), never from the command line.</param>
-    public AuxctlCli(Func<IServiceProvider> services, TextWriter output, TextWriter error, TextReader? input = null)
+    /// <param name="environment">Environment variables (connection strings of other databases); default the process.</param>
+    public AuxctlCli(
+        Func<IServiceProvider> services, TextWriter output, TextWriter error, TextReader? input = null, Func<string, string?>? environment = null)
     {
         this.services = services;
         this.output = output;
         this.error = error;
         this.input = input ?? TextReader.Null;
+        this.environment = environment ?? Environment.GetEnvironmentVariable;
     }
 
     public async Task<int> RunAsync(IReadOnlyList<string> args, CancellationToken cancellationToken)
@@ -98,6 +107,7 @@ internal sealed class AuxctlCli
                 _ when command.Is("users", "verify-legacy-hash") => await InScopeAsync(VerifyLegacyHashAsync),
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
+                _ when command.Is("legacy", "inspect") => await InspectLegacyAsync(command, cancellationToken),
                 _ => await UsageAsync(),
             };
         }
@@ -444,6 +454,44 @@ internal sealed class AuxctlCli
         }
 
         return failed == 0 ? Success : Failure;
+    }
+
+    private async Task<int> InspectLegacyAsync(CommandLine command, CancellationToken cancellationToken)
+    {
+        if (environment(LegacySource.ConnectionVariable) is not { Length: > 0 } connection)
+        {
+            await error.WriteLineAsync($"legacy commands read the legacy connection string from {LegacySource.ConnectionVariable}");
+            return UsageError;
+        }
+
+        var opened = await LegacySource.OpenAsync(connection, cancellationToken);
+        if (opened.IsFailure)
+        {
+            return await ReportAsync(Result.Failure(opened.Error!), string.Empty);
+        }
+
+        await using var source = opened.Value;
+        var inventory = await LegacyInventory.ReadAsync(source, cancellationToken);
+
+        IReadOnlyDictionary<string, int>? mapped = null;
+        if (command.Option("tenant") is { } slug)
+        {
+            var found = await InTenantAsync(slug, async scope =>
+            {
+                await using var db = await scope.GetRequiredService<ITenantDbContextFactory>().CreateAsync(cancellationToken);
+                mapped = await LegacyIdMap.CountsAsync(db, cancellationToken);
+                return Success;
+            }, cancellationToken);
+            if (found != Success)
+            {
+                return found;
+            }
+        }
+
+        var (logger, totalRows, tables) = (Logger(), inventory.TotalRows, inventory.Tables.Count);
+        Log.Runner.LegacyInspected(logger, inventory.LastMigration, inventory.SecurityUpdate, totalRows, tables);
+        await output.WriteAsync(LegacyReport.Render(inventory, mapped));
+        return Success;
     }
 
     private async Task<int> ReportAsync<TValue>(Result<TValue> result, Func<TValue, string> describe)

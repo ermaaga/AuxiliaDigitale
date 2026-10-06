@@ -13,5 +13,10 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Runner.DataMigrationFailed, EventName = "Runner.DataMigrationFailed",
             Level = LogLevel.Error, Message = "Data-migration {Key} failed")]
         public static partial void DataMigrationFailed(ILogger logger, Exception exception, string key);
+
+        [LoggerMessage(EventId = EventCodes.Runner.LegacyInspected, EventName = "Runner.LegacyInspected",
+            Level = LogLevel.Information,
+            Message = "Legacy database inspected: last migration {LastMigration}, Security_Update {SecurityUpdate}, {Rows} rows in {Tables} tables")]
+        public static partial void LegacyInspected(ILogger logger, string? lastMigration, bool securityUpdate, long rows, int tables);
     }
 }

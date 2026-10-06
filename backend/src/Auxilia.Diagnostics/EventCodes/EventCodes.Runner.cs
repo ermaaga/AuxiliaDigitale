@@ -19,5 +19,14 @@ public static partial class EventCodes
 
         /// <summary>A tenant migration failed; the tenant is marked MigrationFailed.</summary>
         public const int TenantMigrationFailed = 28005;
+
+        /// <summary>The legacy database cannot be reached with the configured connection.</summary>
+        public const int LegacySourceUnavailable = 28006;
+
+        /// <summary>The legacy database lacks tables or columns of the supported baseline (D-30): the import does not run.</summary>
+        public const int LegacySchemaUnsupported = 28007;
+
+        /// <summary>The legacy database was inspected (schema variant, rows per table).</summary>
+        public const int LegacyInspected = 28008;
     }
 }

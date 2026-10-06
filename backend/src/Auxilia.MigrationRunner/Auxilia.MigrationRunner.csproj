@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Auxilia.Persistence.Tests" />
+    <InternalsVisibleTo Include="Auxilia.LegacyImport.Tests" />
   </ItemGroup>
 
 </Project>
