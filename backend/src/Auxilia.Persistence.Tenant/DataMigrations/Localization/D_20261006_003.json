@@ -1,0 +1,212 @@
+[
+ {
+  "key": "app.platform.nav.jobs",
+  "category": "platform",
+  "en": "Jobs",
+  "it": "Job"
+ },
+ {
+  "key": "app.platform.jobs.title",
+  "category": "platform",
+  "en": "Recurring jobs",
+  "it": "Job ricorrenti"
+ },
+ {
+  "key": "app.platform.jobs.description",
+  "category": "platform",
+  "en": "Periodic tasks of the tenant: they never run on a schedule, start them here when needed.",
+  "it": "Attività periodiche del tenant: non partono mai da sole, avviale da qui quando serve."
+ },
+ {
+  "key": "app.platform.jobs.listTitle",
+  "category": "platform",
+  "en": "Jobs",
+  "it": "Job"
+ },
+ {
+  "key": "app.platform.jobs.listDescription",
+  "category": "platform",
+  "en": "What each job does, how often to run it and its last run.",
+  "it": "Cosa fa ogni job, ogni quanto eseguirlo e la sua ultima esecuzione."
+ },
+ {
+  "key": "app.platform.jobs.jobColumn",
+  "category": "platform",
+  "en": "Job",
+  "it": "Job"
+ },
+ {
+  "key": "app.platform.jobs.frequency",
+  "category": "platform",
+  "en": "Suggested frequency",
+  "it": "Frequenza consigliata"
+ },
+ {
+  "key": "app.platform.jobs.lastRun",
+  "category": "platform",
+  "en": "Last run",
+  "it": "Ultima esecuzione"
+ },
+ {
+  "key": "app.platform.jobs.never",
+  "category": "platform",
+  "en": "Never run",
+  "it": "Mai eseguito"
+ },
+ {
+  "key": "app.platform.jobs.actions",
+  "category": "platform",
+  "en": "Actions",
+  "it": "Azioni"
+ },
+ {
+  "key": "app.platform.jobs.run",
+  "category": "platform",
+  "en": "Run now",
+  "it": "Esegui ora"
+ },
+ {
+  "key": "app.platform.jobs.runNamed",
+  "category": "platform",
+  "en": "Run {name} now",
+  "it": "Esegui ora {name}"
+ },
+ {
+  "key": "app.platform.jobs.runTitle",
+  "category": "platform",
+  "en": "Run {name}?",
+  "it": "Eseguire {name}?"
+ },
+ {
+  "key": "app.platform.jobs.runText",
+  "category": "platform",
+  "en": "The job runs in the background for this tenant; this page shows its progress and result.",
+  "it": "Il job viene eseguito in background per questo tenant; questa pagina ne mostra l'avanzamento e l'esito."
+ },
+ {
+  "key": "app.platform.jobs.requested",
+  "category": "platform",
+  "en": "Run requested: the job starts in a few seconds.",
+  "it": "Esecuzione richiesta: il job parte tra pochi secondi."
+ },
+ {
+  "key": "app.platform.jobs.runsTitle",
+  "category": "platform",
+  "en": "Latest runs",
+  "it": "Ultime esecuzioni"
+ },
+ {
+  "key": "app.platform.jobs.runsDescription",
+  "category": "platform",
+  "en": "Every run of the jobs of this tenant, newest first.",
+  "it": "Tutte le esecuzioni dei job di questo tenant, dalla più recente."
+ },
+ {
+  "key": "app.platform.jobs.noRuns",
+  "category": "platform",
+  "en": "No job has run yet.",
+  "it": "Nessun job è ancora stato eseguito."
+ },
+ {
+  "key": "app.platform.jobs.startedAt",
+  "category": "platform",
+  "en": "Started",
+  "it": "Avvio"
+ },
+ {
+  "key": "app.platform.jobs.finishedAt",
+  "category": "platform",
+  "en": "Finished",
+  "it": "Fine"
+ },
+ {
+  "key": "app.platform.jobs.actor",
+  "category": "platform",
+  "en": "Started by",
+  "it": "Avviato da"
+ },
+ {
+  "key": "app.platform.jobs.summary",
+  "category": "platform",
+  "en": "Result",
+  "it": "Esito"
+ },
+ {
+  "key": "app.platform.jobs.actors.platform",
+  "category": "platform",
+  "en": "Console ({name})",
+  "it": "Console ({name})"
+ },
+ {
+  "key": "app.platform.jobs.actors.system",
+  "category": "platform",
+  "en": "auxctl",
+  "it": "auxctl"
+ },
+ {
+  "key": "app.platform.jobs.actors.user",
+  "category": "platform",
+  "en": "Tenant user",
+  "it": "Utente del tenant"
+ },
+ {
+  "key": "app.platform.jobs.actors.unknown",
+  "category": "platform",
+  "en": "platform user",
+  "it": "utente della piattaforma"
+ },
+ {
+  "key": "app.platform.jobs.status.Running",
+  "category": "platform",
+  "en": "Running",
+  "it": "In esecuzione"
+ },
+ {
+  "key": "app.platform.jobs.status.Succeeded",
+  "category": "platform",
+  "en": "Succeeded",
+  "it": "Riuscito"
+ },
+ {
+  "key": "app.platform.jobs.status.Failed",
+  "category": "platform",
+  "en": "Failed",
+  "it": "Non riuscito"
+ },
+ {
+  "key": "app.platform.jobs.catalog.casesExpiry.name",
+  "category": "platform",
+  "en": "Case expiry",
+  "it": "Scadenza delle pratiche"
+ },
+ {
+  "key": "app.platform.jobs.catalog.casesExpiry.description",
+  "category": "platform",
+  "en": "Deactivates the expired cases and tells the clients of the cases expiring soon.",
+  "it": "Disattiva le pratiche scadute e avvisa i clienti delle pratiche in scadenza."
+ },
+ {
+  "key": "app.platform.jobs.catalog.casesExpiry.frequency",
+  "category": "platform",
+  "en": "Daily",
+  "it": "Ogni giorno"
+ },
+ {
+  "key": "app.platform.jobs.catalog.busOutbox.name",
+  "category": "platform",
+  "en": "Pending messages",
+  "it": "Messaggi in attesa"
+ },
+ {
+  "key": "app.platform.jobs.catalog.busOutbox.description",
+  "category": "platform",
+  "en": "Sends the messages left waiting in the outbox, e.g. after a message bus outage.",
+  "it": "Invia i messaggi rimasti in attesa, per esempio dopo un'interruzione del bus dei messaggi."
+ },
+ {
+  "key": "app.platform.jobs.catalog.busOutbox.frequency",
+  "category": "platform",
+  "en": "After a message bus outage",
+  "it": "Dopo un'interruzione del bus dei messaggi"
+ }
+]

@@ -45,6 +45,8 @@ public static class DependencyInjection
         services.TryAddScoped<IOperationTransactionFactory, NoOperationTransactionFactory>();
         services.TryAddScoped<IOperationRunner, OperationRunner>();
         services.TryAddScoped<IJobRunner, JobRunner>();
+        services.TryAddScoped<IJobQueryService, JobQueryService>();
+        services.TryAddScoped<IJobManager, JobManager>();
 
         // Message bus (skill auxilia-messaging-rebus): outbox, incoming processing; transport in Infrastructure.
         services.TryAddScoped<CorrelationContext>();

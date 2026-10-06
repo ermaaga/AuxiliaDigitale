@@ -26,7 +26,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
 | 24000–24999 | Cache | Cache / Redis | 4 | 24005 |
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 22 | 25023 |
-| 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
+| 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 5 | 26006 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
 | 29000–29999 | Security | Security events | 30 | 29031 |
@@ -429,6 +429,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-26002 | Jobs.JobNotFound | – | NotFound | – | – |
 | AUX-26003 | Jobs.JobRunFailed | – | Failure | – | – |
 | AUX-26004 | Jobs.JobAlreadyRunning | – | Conflict | – | – |
+| AUX-26005 | Jobs.JobRunRequested | – | – | Jobs.RequestRun (success) | – |
 | AUX-27001 | Audit.ExportGenerated | – | – | Audit.ExportList (success) | – |
 | AUX-27002 | Audit.ExportQueued | – | – | Audit.QueueExport (success) | – |
 | AUX-27003 | Audit.ExportCompleted | – | – | Audit.GenerateExport (success) | – |

@@ -705,6 +705,26 @@ test("console journey of a System user", async ({ page }) => {
     await expectAccessible(page, "import details");
   });
 
+  await test.step("jobs: the registered jobs with their last run, and a run queued for the Worker", async () => {
+    await page.goto(`/platform/tenants/${E2E.tenant}/jobs`);
+    await expect(
+      page.getByRole("heading", { name: t("app.platform.jobs.title"), level: 1 }),
+    ).toBeVisible();
+    const expiry = t("app.platform.jobs.catalog.casesExpiry.name");
+    await expect(page.getByRole("cell", { name: new RegExp(expiry) }).first()).toBeVisible();
+    await expectAccessible(page, "jobs");
+
+    // The suite runs no Worker: the request is queued, which is what the page promises.
+    await page
+      .getByRole("button", { name: t("app.platform.jobs.runNamed", { name: expiry }) })
+      .click();
+    await page
+      .getByRole("alertdialog")
+      .getByRole("button", { name: t("app.platform.jobs.run") })
+      .click();
+    await expect(page.getByText(t("app.platform.jobs.requested"))).toBeVisible();
+  });
+
   await test.step("an unknown tenant is not found inside the console", async () => {
     await page.goto("/platform/tenants/no-such-tenant");
     await expect(page.getByRole("heading", { name: t("app.shell.notFound.title") })).toBeVisible();

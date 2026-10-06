@@ -70,6 +70,7 @@ builder.Services.AddSingleton<IApiEndpoints, MeEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, UserImageEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, PlatformEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, TenantLogEndpoints>();
+builder.Services.AddSingleton<IApiEndpoints, JobEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, LocalizationEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, AdministratorEndpoints>();
 builder.Services.AddSingleton<IApiEndpoints, ConfigurationEndpoints>();

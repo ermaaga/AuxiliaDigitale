@@ -30,4 +30,4 @@ Replaces the legacy tenant role `SystemConfigurator` and adds multi-tenant admin
 - [ ] Settings and branding (F23), sending accounts and rules (N03), grid layouts and custom fields (F20, F21), labels/translations (F24), role permissions and specializations (F12, F22), imports (F19), logs viewer (F25).
 
 **Jobs (D-15)**
-- [ ] Page listing the registered recurring jobs of the tenant with last run (who, when, result) and a "run now" action (e.g. `cases.expiry`); no automatic schedule.
+- [x] Page listing the registered recurring jobs of the tenant with last run (who, when, result) and a "run now" action (e.g. `cases.expiry`); no automatic schedule. *(H-04a: `/api/v1/jobs`, `/jobs/runs`, `POST /jobs/{code}/run` → Worker; console page `/platform/tenants/{slug}/jobs`; tests `JobConsoleTests`, `JobEndpointsTests`, E2E `console-login.spec.ts`)*

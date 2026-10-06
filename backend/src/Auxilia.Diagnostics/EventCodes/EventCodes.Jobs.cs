@@ -16,5 +16,8 @@ public static partial class EventCodes
 
         /// <summary>The job is already running for this tenant (lock held): the run is skipped (409).</summary>
         public const int JobAlreadyRunning = 26004;
+
+        /// <summary>A run of a recurring job was queued for the Worker from the console (202).</summary>
+        public const int JobRunRequested = 26005;
     }
 }
