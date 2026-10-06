@@ -37,6 +37,15 @@ public sealed class LegacyDatabaseFixture : IAsyncLifetime
 
     public async ValueTask DisposeAsync() => await container.DisposeAsync();
 
+    /// <summary>A new tenant database migrated from zero.</summary>
+    public async Task<NpgsqlDataSource> CreateTenantAsync(string name)
+    {
+        var tenant = NpgsqlDataSource.Create(await CreateDatabaseAsync(name));
+        await using var db = new TenantDbContext(TenantDbContextOptions.Create(tenant));
+        await db.Database.MigrateAsync();
+        return tenant;
+    }
+
     public string ConnectionString(string database) =>
         new NpgsqlConnectionStringBuilder(container.GetConnectionString()) { Database = database }.ConnectionString;
 

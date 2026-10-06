@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Identity;
+using Auxilia.Application.Abstractions.Images;
 using Auxilia.Application.Abstractions.Persistence;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Identity;
@@ -11,6 +12,7 @@ using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
 using Auxilia.Domain.Platform;
 using Auxilia.MigrationRunner.LegacyImport;
+using Auxilia.Persistence.Tenant;
 using Auxilia.SharedKernel.Results;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -61,6 +63,8 @@ internal sealed class AuxctlCli
           legacy inspect [--tenant <slug>]  (reads the legacy connection string from AUXILIA_LEGACY_CONNECTION; schema
                                             variant, rows per table and what is migrated; --tenant adds the rows already
                                             mapped in that tenant's ops.legacy_id_map)
+          legacy import --tenant <slug> [--dry-run]  (same connection; imports into the tenant in one transaction, rolled
+                                            back with --dry-run; repeatable: rows already imported are updated)
           diagnostics registry [--output <file>]
         """;
 
@@ -108,6 +112,7 @@ internal sealed class AuxctlCli
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
                 _ when command.Is("legacy", "inspect") => await InspectLegacyAsync(command, cancellationToken),
+                _ when command.Is("legacy", "import") => await ImportLegacyAsync(command, cancellationToken),
                 _ => await UsageAsync(),
             };
         }
@@ -458,19 +463,13 @@ internal sealed class AuxctlCli
 
     private async Task<int> InspectLegacyAsync(CommandLine command, CancellationToken cancellationToken)
     {
-        if (environment(LegacySource.ConnectionVariable) is not { Length: > 0 } connection)
+        var (exitCode, opened) = await OpenLegacyAsync(cancellationToken);
+        if (opened is null)
         {
-            await error.WriteLineAsync($"legacy commands read the legacy connection string from {LegacySource.ConnectionVariable}");
-            return UsageError;
+            return exitCode;
         }
 
-        var opened = await LegacySource.OpenAsync(connection, cancellationToken);
-        if (opened.IsFailure)
-        {
-            return await ReportAsync(Result.Failure(opened.Error!), string.Empty);
-        }
-
-        await using var source = opened.Value;
+        await using var source = opened;
         var inventory = await LegacyInventory.ReadAsync(source, cancellationToken);
 
         IReadOnlyDictionary<string, int>? mapped = null;
@@ -492,6 +491,51 @@ internal sealed class AuxctlCli
         Log.Runner.LegacyInspected(logger, inventory.LastMigration, inventory.SecurityUpdate, totalRows, tables);
         await output.WriteAsync(LegacyReport.Render(inventory, mapped));
         return Success;
+    }
+
+    private async Task<int> ImportLegacyAsync(CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("tenant") is not { } slug)
+        {
+            return await UsageAsync();
+        }
+
+        var (exitCode, opened) = await OpenLegacyAsync(cancellationToken);
+        if (opened is null)
+        {
+            return exitCode;
+        }
+
+        await using var source = opened;
+        var dryRun = command.Flag("dry-run");
+        return await InTenantAsync(slug, async scope =>
+        {
+            var tenant = scope.GetRequiredService<ITenantContext>().Tenant;
+            var zone = TimeZoneInfo.TryFindSystemTimeZoneById(tenant.TimeZone, out var found) ? found : TimeZoneInfo.Utc;
+            var importer = new LegacyImporter(scope.GetRequiredService<IPasswordHasher>(), scope.GetRequiredService<IImageProcessor>());
+            await using var db = (TenantDbContext)await scope.GetRequiredService<ITenantDbContextFactory>().CreateAsync(cancellationToken);
+            var report = await importer.RunAsync(
+                source, db, scope.GetRequiredService<TimeProvider>(), zone, tenant.DefaultLanguage, dryRun, cancellationToken);
+
+            var (logger, created, updated) = (Logger(), report.Tables.Values.Sum(table => table.Created), report.Tables.Values.Sum(table => table.Updated));
+            var (skipped, warnings) = (report.Tables.Values.Sum(table => table.Skipped), report.Issues.Count(issue => issue.Kind == LegacyIssueKind.Warning));
+            Log.Runner.LegacyImported(logger, dryRun, created, updated, skipped, warnings);
+            await output.WriteAsync(report.Render(dryRun));
+            return Success;
+        }, cancellationToken);
+    }
+
+    /// <summary>The legacy database from <see cref="LegacySource.ConnectionVariable"/>, or the exit code why not.</summary>
+    private async Task<(int ExitCode, LegacySource? Source)> OpenLegacyAsync(CancellationToken cancellationToken)
+    {
+        if (environment(LegacySource.ConnectionVariable) is not { Length: > 0 } connection)
+        {
+            await error.WriteLineAsync($"legacy commands read the legacy connection string from {LegacySource.ConnectionVariable}");
+            return (UsageError, null);
+        }
+
+        var opened = await LegacySource.OpenAsync(connection, cancellationToken);
+        return opened.IsSuccess ? (Success, opened.Value) : (await ReportAsync(Result.Failure(opened.Error!), string.Empty), null);
     }
 
     private async Task<int> ReportAsync<TValue>(Result<TValue> result, Func<TValue, string> describe)

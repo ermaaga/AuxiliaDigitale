@@ -12,7 +12,7 @@
 | Comando | Task | Cosa fa |
 |---|---|---|
 | `auxctl legacy inspect [--tenant <slug>]` | E-01 | Legge il database legacy: variante dello schema (con o senza `Security_Update`, tabella `ImportJobs`), ultima migrazione EF applicata, righe per tabella con destino e task, utenti esclusi (solo SystemConfigurator) e senza ruolo, tabelle sconosciute. Con `--tenant` aggiunge le righe già mappate in `ops.legacy_id_map` del tenant. Non scrive nulla. |
-| `auxctl legacy import --tenant <slug> [--dry-run] [--since <istante>]` | E-02…E-06 | Import per moduli nell'ordine del §4, poi riconciliazione (§7). |
+| `auxctl legacy import --tenant <slug> [--dry-run]` | E-02…E-05 | Import per moduli nell'ordine del §4 in **una** transazione del tenant (annullata con `--dry-run`, stesso report). Ripetibile: le righe già importate si aggiornano. Report per tabella (creati, aggiornati, esclusi, scartati) e avvisi per riga raggruppati per motivo, con gli id legacy. Riconciliazione (§7) e `--since` con E-06. |
 
 - La stringa di connessione del legacy si legge dalla variabile d'ambiente **`AUXILIA_LEGACY_CONNECTION`**, mai dalla riga di comando e mai stampata (come `AUXILIA_TENANT_CONNECTION`). Conviene un utente PostgreSQL con sola lettura; in ogni caso la sessione è aperta con `default_transaction_read_only=on`, quindi ogni scrittura sul legacy fallisce.
 - Prima di leggere, lo schema viene confrontato con il modello di lettura: tabelle della baseline o colonne mancanti → `AUX-28007` e nessuna lettura; server non raggiungibile → `AUX-28006`; ispezione riuscita → log `AUX-28008` (solo conteggi, nessun dato personale).
@@ -23,7 +23,7 @@
 - **Id**: ogni riga legacy migrata riceve un Guid v7 registrato in `ops.legacy_id_map (entity, legacy_id, new_id, imported_at)`, con `entity` = nome della tabella legacy (`Users`, `Subscriptions`, …). Una riga già mappata conserva il suo Guid: un import ripetuto o con `--since` aggiorna gli stessi record invece di duplicarli. Ogni chiave esterna legacy si risolve **solo** attraverso la mappa (`LegacyIdMap`); un riferimento non risolvibile è un errore di riga nel report, non un record orfano. La mappa e le righe a cui appartiene si salvano nella stessa transazione.
 - **Scrittura**: l'import scrive con il modello di persistenza del tenant (`TenantDbContext`) e i costruttori del dominio, non con i Manager: niente notifiche, e-mail, outbox o push durante la migrazione. Le regole del dominio (codice fiscale, stati, transizioni) restano valide: una riga che le viola finisce nel report con il motivo (ADR 0016).
 - **Date e ore**: le colonne legacy sono `timestamp with time zone` (UTC). Gli istanti restano istanti. Le colonne che nel legacy sono **date di calendario** salvate come istante (`Users.DateOfBirth`, `RegistrationRequests.DateOfBirth`, `Subscriptions.StartDate/EndDate`) si convertono in data locale del fuso del tenant (`Europe/Rome` di default): la data di nascita inserita a mezzanotte locale risulta salvata il giorno prima alle 22:00/23:00 UTC. `DateOfBirth = -infinity` (default della colonna aggiunta in seguito) → nessuna data di nascita.
-- **Audit**: `created_at`/`created_by` dei record migrati vengono dai campi legacy quando esistono (`CreatedAt`, `UploadedAt`, `RequestDate`), altrimenti dall'istante dell'import; l'attore è `System` (`auxctl`).
+- **Audit**: le colonne di audit (`created_at`/`created_by`…) dei record migrati hanno l'istante dell'import e l'attore `System` (`auxctl`); le date storiche del legacy restano nei campi di dominio (`assigned_at` delle assegnazioni e dei membri, `password_changed_at`, `recorded_at` dei consensi, `attempted_at` degli accessi, date delle pratiche e dei documenti).
 - **Segreti**: nessun segreto legacy viene copiato in chiaro. Gli hash BCrypt si copiano così come sono (`password_format = LegacyBcrypt`, rehash al primo accesso, ADR/P2-02); la password SMTP viene cifrata con Data Protection; token di reset e sessioni non si migrano.
 - **Password note del legacy**: il legacy creava account con password fisse (`DataSeeder`: `admin`, `password`; approvazione delle registrazioni: `password`; impostazione `DefaultPassword`). Gli utenti il cui hash verifica una di queste password ricevono `must_change_password = true` e nessun accesso con quella password resta possibile senza cambiarla (E-02; elenco nel report, senza le password).
 - **Testi personalizzati e JSON**: `CustomFields` (jsonb) passa invariato in `custom_fields` dopo la validazione contro le definizioni importate da `EntityConfigurations` (F20); chiavi sconosciute → avviso nel report.
@@ -79,10 +79,10 @@
 
 | Legacy | Nuovo |
 |---|---|
-| `FullName` / `Surname` | `people.first_name` / `last_name` (il legacy usa `FullName` come nome) |
-| `Email`, `Phone`, `FiscalCode` | `people.email`, `phone`, `fiscal_code` (regole del dominio: codice fiscale non valido o duplicato → riga nel report) |
+| `FullName` / `Surname` | `people.first_name` / `last_name` (il legacy usa `FullName` come nome; `Surname` vuoto → l'ultima parola di `FullName`, o `FullName` ripetuto se è una sola parola) |
+| `Email`, `Phone`, `FiscalCode` | `people.email`, `phone`, `fiscal_code` (regole del dominio; un valore non valido, o un codice fiscale già usato da un'altra persona, si lascia vuoto con un avviso: la persona si migra comunque) |
 | `DateOfBirth` | `people.birth_date` (data locale, §2) |
-| `Username` | `users.user_name` (unico, Q52: duplicati → suffisso numerico e riga nel report) |
+| `Username` | `users.user_name` (spazi → punti; unico senza distinzione di maiuscole, Q52: duplicato → `.{id legacy}` aggiunto, con avviso) |
 | `PasswordHash` | `users.password_hash`, `password_format = LegacyBcrypt` |
 | `PasswordChangedAt` (`Security_Update`) | `users.password_changed_at`; senza la colonna → `CreatedAt` |
 | `IsActive` | `users.is_active` (accesso); lo stato del cliente (D-05) si ricalcola dalle pratiche (§5.2) |

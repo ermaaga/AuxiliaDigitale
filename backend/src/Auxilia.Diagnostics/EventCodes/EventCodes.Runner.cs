@@ -28,5 +28,8 @@ public static partial class EventCodes
 
         /// <summary>The legacy database was inspected (schema variant, rows per table).</summary>
         public const int LegacyInspected = 28008;
+
+        /// <summary>A legacy import run ended (committed, or rolled back as a dry run), with its counts.</summary>
+        public const int LegacyImported = 28009;
     }
 }

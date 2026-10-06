@@ -37,6 +37,43 @@ public sealed class UserTests
         User.Create(Guid.CreateVersion7(), Guid.CreateVersion7(), "mario", null, "it", [], isActive: true).Error!.Code.ShouldBe(EventCodes.Identity.UserValueInvalid);
 
     [Fact]
+    public void ImportLegacyPassword_KeepsTheLegacyHashItsDateAndHistory()
+    {
+        var user = New("mario", null);
+        var stamp = user.SecurityStamp;
+        var changed = Now.AddYears(-1);
+
+        user.ImportLegacyPassword("$2a$11$legacy", changed, mustChange: true);
+
+        (user.PasswordHash, user.PasswordFormat, user.PasswordChangedAt, user.MustChangePassword).ShouldBe(("$2a$11$legacy", PasswordFormat.LegacyBcrypt, (DateTimeOffset?)changed, true));
+        user.SecurityStamp.ShouldNotBe(stamp);
+        user.PasswordHistory.Select(entry => (entry.PasswordHash, entry.Format, entry.CreatedAt)).ShouldBe([("$2a$11$legacy", PasswordFormat.LegacyBcrypt, changed)]);
+
+        // A second import of the same hash changes nothing but the flags; older hashes join the history once.
+        stamp = user.SecurityStamp;
+        user.ImportLegacyPassword("$2a$11$legacy", changed, mustChange: false);
+        user.SecurityStamp.ShouldBe(stamp);
+        user.MustChangePassword.ShouldBeFalse();
+        user.ImportLegacyPasswordHistory("$2a$11$older", changed.AddMonths(-6)).ShouldBeTrue();
+        user.ImportLegacyPasswordHistory("$2a$11$older", changed.AddMonths(-6)).ShouldBeFalse();
+        user.PasswordHistory.Select(entry => entry.PasswordHash).ShouldBe(["$2a$11$legacy", "$2a$11$older"]);
+    }
+
+    [Fact]
+    public void ImportLegacyPasswordHistory_KeepsTheNewestEntries()
+    {
+        var user = New("mario", null);
+
+        for (var index = 0; index < User.MaxPasswordHistory + 2; index++)
+        {
+            user.ImportLegacyPasswordHistory($"hash-{index}", Now.AddDays(index));
+        }
+
+        user.PasswordHistory.Count.ShouldBe(User.MaxPasswordHistory);
+        user.PasswordHistory[^1].PasswordHash.ShouldBe("hash-2");
+    }
+
+    [Fact]
     public void FailedSignIns_LockProgressivelyAndSuccessResets()
     {
         var user = New();

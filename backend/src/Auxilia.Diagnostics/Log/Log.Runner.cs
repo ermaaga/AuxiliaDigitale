@@ -18,5 +18,10 @@ public static partial class Log
             Level = LogLevel.Information,
             Message = "Legacy database inspected: last migration {LastMigration}, Security_Update {SecurityUpdate}, {Rows} rows in {Tables} tables")]
         public static partial void LegacyInspected(ILogger logger, string? lastMigration, bool securityUpdate, long rows, int tables);
+
+        [LoggerMessage(EventId = EventCodes.Runner.LegacyImported, EventName = "Runner.LegacyImported",
+            Level = LogLevel.Information,
+            Message = "Legacy import ended (dry run {DryRun}): {Created} created, {Updated} updated, {Skipped} skipped, {Warnings} warnings")]
+        public static partial void LegacyImported(ILogger logger, bool dryRun, int created, int updated, int skipped, int warnings);
     }
 }
