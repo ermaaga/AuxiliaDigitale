@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using Auxilia.Api.Authorization;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.RateLimiting;
 using Auxilia.Api.Tenancy;
@@ -24,7 +25,7 @@ internal sealed class MeEndpoints : IApiEndpoints
 {
     public void Map(RouteGroupBuilder api)
     {
-        var me = api.MapGroup("/me").WithTags("Me").RequireTenant().RequireAuthorization();
+        var me = api.MapGroup("/me").WithTags("Me").RequireTenant().RequireTenantUser();
 
         me.MapGet(string.Empty, GetMeAsync)
             .WithName("GetMe")

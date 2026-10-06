@@ -110,8 +110,8 @@ public sealed class CustomizationEndpointsTests : IClassFixture<PlatformIdentity
         }
 
         var token = await PlatformTenantTokens.IssueAsync(factory, ApiDatabase.TenantA, Ct);
-        (await SendAsync(HttpMethod.Get, $"/api/v1/me/grids/{Grid}", token)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
-        (await SendAsync(HttpMethod.Get, "/api/v1/me/custom-fields/client", token)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await ErrorCodeAsync(await SendAsync(HttpMethod.Get, $"/api/v1/me/grids/{Grid}", token))).ShouldBe("AUX-12071");
+        (await ErrorCodeAsync(await SendAsync(HttpMethod.Get, "/api/v1/me/custom-fields/client", token))).ShouldBe("AUX-12071");
     }
 
     private async Task<HttpResponseMessage> AsUserAsync(HttpMethod method, string path, string roles)

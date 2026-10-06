@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
-| 12000–12999 | Identity | Identity / Auth | 70 | 12071 |
+| 12000–12999 | Identity | Identity / Auth | 71 | 12072 |
 | 13000–13999 | Directory | Directory (clients, employees) | 51 | 13052 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 41 | 14042 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
@@ -152,6 +152,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12068 | Identity.ProfileImageNotFound | – | NotFound | – | – |
 | AUX-12069 | Identity.SessionNotFound | – | NotFound | – | – |
 | AUX-12070 | Identity.SessionRevoked | – | – | Identity.RevokeSession (success) | – |
+| AUX-12071 | Identity.TenantUserRequired | – | Forbidden | – | – |
 | AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
 | AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
 | AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |

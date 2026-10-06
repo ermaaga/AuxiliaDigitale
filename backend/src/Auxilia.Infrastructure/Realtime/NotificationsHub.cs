@@ -34,6 +34,9 @@ public sealed class NotificationsHub : Hub
         {
             null => "NoTenant",
             { IsActive: false } => "TenantNotActive",
+
+            // D-21: a tenant-scoped platform token carries tenant, subject and session but is not a tenant user.
+            _ when user.FindFirstValue(TokenClaims.Scope) == TokenClaims.PlatformScope => "PlatformToken",
             _ when !Guid.TryParse(user.FindFirstValue(TokenClaims.Subject), out _) => "NoUser",
             _ when !Guid.TryParse(user.FindFirstValue(TokenClaims.Session), out _) => "NoSession",
             _ when !string.Equals(user.FindFirstValue(TokenClaims.Tenant), tenant.Slug, StringComparison.Ordinal) => "TenantMismatch",

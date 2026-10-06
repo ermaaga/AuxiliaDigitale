@@ -103,11 +103,14 @@ public sealed partial class PlatformIdentityTests : IClassFixture<PlatformIdenti
         var whoami = await technical.Content.ReadFromJsonAsync<JsonElement>(Ct);
         (whoami.GetProperty("actor").GetString(), whoami.GetProperty("tenant").GetString()).ShouldBe(("Platform", ApiDatabase.TenantA));
 
-        // D-21: business endpoints do not exist for platform tokens.
-        (await SendAsync(HttpMethod.Get, "/api/v1/me", tenantToken)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        // D-21: business endpoints do not exist for platform tokens, endpoints of the tenant user refuse them.
         (await SendAsync(HttpMethod.Get, "/api/v1/test-business/services", tenantToken)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
-        using var navigation = await SendAsync(HttpMethod.Get, "/api/v1/me/navigation", tenantToken);
-        (await navigation.Content.ReadFromJsonAsync<JsonElement[]>(Ct))!.ShouldBeEmpty();
+        foreach (var path in new[] { "/api/v1/me", "/api/v1/me/navigation" })
+        {
+            using var mine = await SendAsync(HttpMethod.Get, path, tenantToken);
+            mine.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+            (await mine.Content.ReadFromJsonAsync<JsonElement>(Ct)).GetProperty("errorCode").GetString().ShouldBe("AUX-12071");
+        }
 
         // Each token only where it belongs.
         await ShouldBeForbiddenAsync(await SendAsync(HttpMethod.Get, "/api/v1/platform/me", tenantToken));
@@ -261,8 +264,6 @@ public sealed partial class PlatformIdentityTests : IClassFixture<PlatformIdenti
 
     public sealed class Factory : ApiFactory, IAsyncLifetime
     {
-        private static readonly SemaphoreSlim ClientLock = new(1, 1);
-
         /// <summary>The daily log files of this host (S-07 reads them back through the Log page API).</summary>
         public string LogRoot { get; } = Path.Combine(Path.GetTempPath(), "auxilia-api-logs-" + Guid.NewGuid().ToString("N"));
 
@@ -292,29 +293,7 @@ public sealed partial class PlatformIdentityTests : IClassFixture<PlatformIdenti
 
         protected override IReadOnlyList<IModuleEndpoints> ModuleEndpoints { get; } = [new BusinessEndpoints()];
 
-        public async ValueTask InitializeAsync()
-        {
-            await ClientLock.WaitAsync();
-            try
-            {
-                var options = new DbContextOptionsBuilder<CatalogDbContext>();
-                CatalogPersistence.Configure(options, ApiDatabase.Instance.CatalogConnectionString);
-                await using var catalog = new CatalogDbContext(options.Options);
-                var client = await catalog.ClientApplications.SingleOrDefaultAsync(item => item.ClientId == ConsoleClient);
-                if (client is null)
-                {
-                    client = ClientApplication.Create(Guid.CreateVersion7(), ConsoleClient, "Test console", ClientApplicationType.PlatformConsole).Value;
-                    catalog.ClientApplications.Add(client);
-                }
-
-                client.SetSecretHash(Services.GetRequiredService<IPasswordHasher>().Hash(ConsoleSecret));
-                await catalog.SaveChangesAsync();
-            }
-            finally
-            {
-                ClientLock.Release();
-            }
-        }
+        public ValueTask InitializeAsync() => new(PlatformTenantTokens.EnsureConsoleClientAsync(Services));
 
         /// <returns>The activation token (what <c>auxctl platform users add</c> prints).</returns>
         public async Task<string> AddPlatformUserAsync(string email)

@@ -86,7 +86,7 @@ internal sealed class CustomizationEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
-        var mine = api.MapGroup("/me").WithTags("Me").RequireTenant().RequireAuthorization();
+        var mine = api.MapGroup("/me").WithTags("Me").RequireTenant().RequireTenantUser();
 
         mine.MapGet("/grids/{key}", GetMyLayoutAsync)
             .WithName("GetMyGridLayout")

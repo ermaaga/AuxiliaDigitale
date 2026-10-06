@@ -214,5 +214,8 @@ public static partial class EventCodes
 
         /// <summary>An Administrator ended another user's session (F17): tokens denied, its connections sign out.</summary>
         public const int SessionRevoked = 12070;
+
+        /// <summary>The endpoint is for tenant users: a platform (System) token never reaches it, D-21 (403).</summary>
+        public const int TenantUserRequired = 12071;
     }
 }

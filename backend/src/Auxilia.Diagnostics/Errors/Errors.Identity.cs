@@ -72,6 +72,9 @@ public static partial class Errors
         public static Error PlatformAccessRequired() =>
             Error.Forbidden(EventCodes.Identity.PlatformAccessRequired, "The endpoint requires a platform (System) token of the right kind");
 
+        public static Error TenantUserRequired() =>
+            Error.Forbidden(EventCodes.Identity.TenantUserRequired, "The endpoint requires the token of a tenant user");
+
         public static Error TwoFactorCodeInvalid() =>
             Error.Validation(EventCodes.Identity.TwoFactorCodeInvalid, "The authenticator code is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["code"] = ["validation.auth.totpInvalid"] });
