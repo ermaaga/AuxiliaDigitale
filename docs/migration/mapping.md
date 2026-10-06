@@ -52,14 +52,14 @@
 | `ImportTypes` | `imports.import_types` | E-05 | Solo storico; `TargetEntity` §6; nome unico (doppione con ` (id legacy)`). |
 | `Imports` | `imports.import_jobs` | E-05 | Solo storico, senza righe né file (`ImportedData` scartato); stato §6 (sempre concluso); nome vuoto → nome del file. |
 | `ImportJobs` | `imports.import_jobs` | E-05 | Solo storico. Spesso **assente**: è nel modello EF legacy ma nessuna migrazione la crea (Q61); si legge quando c'è. |
-| `Languages` | `localization.languages` | E-05 | Lingue attive del legacy attivate nel tenant. |
+| `Languages` | `localization.languages` | E-05 | Lingue attive del legacy attivate nel tenant; lingue nuove create. |
 | `ResourceKeys` | `localization.resource_keys` | E-05 | Le chiavi legacy hanno gli stessi nomi del seed `D_20260930_003`. |
-| `ResourceTranslations` | `localization.resource_translations` | E-05 | Valore diverso dal seed → aggiornato con `is_customized = true`; chiavi solo legacy → nuove chiavi non di sistema. Chiavi delle schede allenamento escluse (D-09). |
-| `SystemConfigurations` | `configuration.settings` + `configuration.branding_assets` | E-05 | Tabella §5.5 (ARCHITECTURE §7.2). |
-| `EmailConfigurations` | `configuration.messaging_accounts` + `configuration.sender_rules` | E-05 | Account `Email`/`smtp` di default, password cifrata con Data Protection, regola di default; `IsActive` → `is_active`. |
-| `ModuleConfigurations` | `catalog.tenant_module_overrides` + `identity.role_permissions` | E-05 | `ModulePath` → codice del modulo; disabilitato per un ruolo → override del modulo per quel ruolo (F22). |
-| `PageConfigurations` | `identity.role_permissions` + `configuration.grid_layouts` | E-05 | Pagina disabilitata per ruolo → permessi tolti al ruolo; `ConfigurationGrid` → layout della griglia per ruolo (F21). |
-| `EntityConfigurations` | `configuration.custom_field_definitions` | E-05 | Definizioni CAF/PATRONATO incluse, con `dashboard_counter` (F20, F27, Q41). |
+| `ResourceTranslations` | `localization.resource_translations` (`is_customized`) | E-05 | Valore diverso da quello del tenant → impostato come personalizzato (`is_customized = true`); chiavi solo legacy → nuove chiavi non di sistema (categoria legacy in minuscolo, o `legacy`). Chiavi delle schede allenamento (`Workout`, `Exercise`) escluse (D-09). |
+| `SystemConfigurations` | `configuration.settings` + `configuration.branding_assets` | E-05 | §5.5. |
+| `EmailConfigurations` | `configuration.messaging_accounts` | E-05 | Account `Email`/`smtp` (`SmtpServer`, `SmtpPort`, sicurezza da `EnableSsl` + porta: 465 → SSL alla connessione, SSL → STARTTLS, altrimenti nessuna; `Username`, `FromEmail`, `FromName`), password cifrata con Data Protection (`IAccountSecretProtector`), `IsActive` → `is_active`; l'account attivo diventa il predefinito per l'e-mail se il tenant non ne ha uno. Nessuna regola di invio: l'account predefinito serve ogni scopo e ruolo (N03). |
+| `ModuleConfigurations` | `identity.role_permissions` | E-05 | §5.6 (come le pagine; nessun override nel Catalog). |
+| `PageConfigurations` | `identity.role_permissions` + `configuration.grid_layouts` | E-05 | §5.6. |
+| `EntityConfigurations` | `configuration.custom_field_definitions` | E-05 | Ogni `PropertyName` diventa un campo con la stessa chiave (i valori già copiati in `custom_fields` combaciano), etichetta = nome, tipo da `PropertyType` (§6), `VisibleOnGrid`; entità `User` → `client`, `Subscription` → `case`, `Appointment` → `appointment`, `UserDocument` → `document`, `Request` → `request`; booleani CAF/PATRONATO con `dashboard_counter` (F20, F27, Q41). Nome non valido come chiave → avviso. |
 | `WorkoutPlans` | non migrata | – | Schede allenamento rimosse (D-09); il conteggio è nel report di `inspect`. |
 | `UserSessions` | non migrata | – | Le sessioni terminano al cutover. |
 | `AppLogs` | non migrata | – | Archiviata con il backup del legacy (R-03). |
@@ -130,7 +130,29 @@ Il legacy salva titolo e testo; il nuovo modello salva solo `kind` + parametri. 
 
 ### 5.5 Impostazioni (`SystemConfigurations`)
 
-Corrispondenze in ARCHITECTURE §7.2: `RegistrationEnabled` → `registration.enabled`, `SendRegistrationConfirmationEmail` → `registration.sendConfirmationEmail`, `RegistrationLanguage` → `registration.defaultLanguage`, `AutoSubscriptionExpiry`/`SubscriptionExpiringDays` → `cases.expiry.enabled`/`expiringDays`, `AppName` → `branding.app_name`, tema e sfondo → branding, `SessionTimeout` → `auth.session.idleMinutes`, storage documenti → `documents.storage.*` (credenziali cifrate). Eliminati: `DefaultPassword` (D-06; usato solo per marcare gli account del §2), `ReCaptcha`, `UseLocalCache`, `UseQueueForDocuments`, `EnableSubscriptionExpiryService`, `InitDatabase`, `SaveLog`, `AuditLog`. Chiavi sconosciute → avviso nel report.
+Ogni valore passa dalla sua `SettingDefinition` (tipo e regola di validità); un valore non valido lascia il predefinito con un avviso, una chiave sconosciuta è riportata.
+
+| Legacy | Nuovo |
+|---|---|
+| `RegistrationEnabled`, `SendRegistrationConfirmationEmail` | `registration.enabled`, `registration.sendConfirmationEmail` |
+| `RegistrationLanguage` | `registration.defaultLanguage` |
+| `AutoSubscriptionExpiry`, `SubscriptionExpiringDays` | `cases.expiry.enabled`, `cases.expiry.expiringDays` (1…365) |
+| `UseAppName` (solo il testo `False` lo spegne, come l'header legacy) | `branding.useAppName` |
+| `ThemeType` `gradient` (+ `ThemePrimary`, `ThemeSecondary`) / altro (+ `ThemeSolid`) | `branding.theme.fill` `Gradient` (+ colore primario e di accento) / `Solid` (+ colore primario) |
+| `BackgroundType` `image` / `color` / `gradient` | `branding.background.kind` `Image` / `Solid` / `Gradient` |
+| `BackgroundColor` | `branding.background.color` |
+| `BackgroundGradient` (CSS `linear-gradient(…)`) | i primi due colori → `branding.background.startColor` / `endColor` |
+| `BackgroundImage` (base64) | `configuration.branding_assets` di tipo `Background` (JPEG, PNG o WebP ≤ 2 MB) |
+| `DefaultPassword` (usato solo per marcare gli account del §2), `ReCaptcha`, `UseLocalCache`, `UseQueueForDocuments`, `EnableSubscriptionExpiryService`, `InitDatabase`, `SaveLog`, `AuditLog`, `LogBlobStorage`, `SessionTimeout` | non migrati (ARCHITECTURE §7.2) |
+
+`AppName` e la cartella dei documenti erano in `appsettings` del legacy, non nel database: il nome dell'applicazione si imposta nella console (`branding.appName`) e lo storage con `documents.storage.*`.
+
+### 5.6 Moduli, pagine, griglie (F21, F22, Q40)
+
+- Il legacy nega una pagina a un ruolo con una riga `IsEnabled = false` (`ModuleConfigurations` per il modulo, `PageConfigurations` per la pagina). Per ogni riga disabilitata di un ruolo del tenant si tolgono a quel ruolo i permessi della pagina in `identity.role_permissions`. La sincronizzazione dei permessi a ogni migrazione non li restituisce, perché tocca solo i permessi nuovi. Le pagine abilitate o senza riga mantengono i permessi predefiniti dei moduli.
+- Pagine → permessi: `Dashboard` → `reporting.dashboard.view`; `Clients` → `directory.clients.*`; `Employees` → `directory.employees.*`; `Requests`/`UserRequests` → `engagement.requests.*`; `RegistrationRequests` → `directory.registrations.review`; `Subscriptions`/`Subscription` → `cases.cases.*`; `Memberships` → `cases.services.*`; `Appointments` → `scheduling.appointments.*`; `Documents` → `documents.files.*`; `Sessions` → `identity.sessions.*`. Senza equivalente (escluse): `Logs` (log della piattaforma, D-17), `WorkoutPlans` (D-09), `AllClients` (filtro "tutti i clienti" della lista). Ruolo SystemConfigurator: escluso (D-18). Altre pagine: avviso.
+- `ConfigurationGrid` di una pagina abilitata → layout del ruolo della griglia corrispondente (`Clients` → `directory.clients`, `Employees` → `directory.employees`, `Subscriptions` → `cases.cases`, `Memberships` → `cases.services`, `Appointments` → `scheduling.appointments`, `Requests` → `engagement.requests`). Le colonne legacy sono visibili nell'ordine legacy; quelle che il legacy poteva mostrare ma non mostrava sono nascoste; le colonne nuove (per esempio il numero della pratica) mantengono il loro valore predefinito; quelle non nascondibili restano visibili.
+- Se l'import gira su un tenant già in uso, permessi, griglie e impostazioni sono in cache: va svuotata la cache del tenant (runbook).
 
 ## 6. Valori
 
@@ -141,6 +163,7 @@ Corrispondenze in ARCHITECTURE §7.2: `RegistrationEnabled` → `registration.en
 | `Requests.Status` | `Pending`, `Responded` | `Pending`, `Responded` |
 | `Requests.Type` | `General`, `Information`, `Support` (select del form) | stesso nome (`RequestType`) |
 | `LoginAuditLogs.LoginType` | `Password`, `Otp` | `password`, `email-otp` |
+| `EntityConfigurations` `PropertyType` | `boolean`, `number`/`int`/`decimal`, `date`/`datetime`, altro | `Boolean`, `Number`, `Date`, `Text` |
 | `Imports.Status` / `ImportJobs.Status` | `Concluded`, `Completed`, `Failed`, altro (`Pending`, `Running`, `Processing`) | `Completed`, `Completed`, `Failed`, `Cancelled` (mai finito nel legacy) |
 | `ImportTypes.TargetEntity` | `Client`, `Employee`, `Subscription`, `Membership` | `Client`, `Employee`, `Case`, `Service` |
 | `Roles.Name` | `Administrator`, `Employee`, `Client`, `SystemConfigurator` | i primi tre; l'ultimo scartato |

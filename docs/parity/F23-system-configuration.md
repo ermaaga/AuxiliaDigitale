@@ -17,7 +17,7 @@ App-level config (appsettings): `AppName` ("Auxilia Digitale"), `DefaultPassword
 - [x] `/platform/tenants/{slug}/messaging`: N SMTP accounts (host/port/security/user/password encrypted and never returned in clear, from e-mail/name, active, default) + rules purpose × sender role (N03); "send test e-mail".
 - [x] `/platform/tenants/{slug}/branding`: app name vs logo (`UseAppName`), logo upload, theme primary/secondary or solid (design tokens), login background gradient/color/image with preview.
 - [x] Branding applied to the whole UI and to the public login/register pages (public branding endpoint). *(S-02: tenant layout, sign-in pages, app shell; register pages are API-only, D-14.)*
-- [ ] Legacy values imported (SMTP password re-encrypted).
+- [x] Legacy values imported (SMTP password re-encrypted). *(E-05 `SettingsStep` + `MessagingAccountStep`)*
 
 ## Status notes
 - P1-10: typed `SettingDefinition<T>` per module, levels user → tenant → platform → default, secrets encrypted, cached snapshot per tenant.

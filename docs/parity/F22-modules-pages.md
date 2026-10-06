@@ -41,7 +41,7 @@ Default grants (seed) — Administrator (A), Employee (E), Client (C):
 The legacy seed disabled some pages (Q40, e.g. Employee Requests): new tenants follow the acceptance criteria above; migrated tenants get their effective legacy grants from the import mapping (Fase 7).
 
 ## Acceptance criteria
-- [ ] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`).
+- [x] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`). *(E-05 `AccessStep`: legacy pages and modules disabled for a role take that page's permissions from the role; enabled or missing rows keep the defaults; mapping §5.6)*
 - [ ] `GET /me/navigation` returns only allowed entries (union of roles); sidebar and mobile use it.
 - [ ] Disabled module → endpoints 404 and hidden from navigation; missing permission → 403.
 - [ ] Only the platform System role enables/disables modules per tenant and per role (`/platform/tenants/{slug}/modules`, plans in `/platform/plans`) and edits role permissions (`/platform/tenants/{slug}/permissions`). — role permissions done (S-06); module overrides per role are on the tenant overview (S-01); plans page pending.

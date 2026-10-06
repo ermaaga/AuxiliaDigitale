@@ -16,4 +16,4 @@ Entity `Request`: SenderId, ReceiverId?, Type, Subject, Message, Status (`Pendin
 - [x] Thread: first message = original, replies appended; replying sets `Responded` and **always** notifies the other party; close request. *(API B-18; a follow-up of the sender sets `Pending` again)*
 - [x] Types Information, General, Support, Appointment.
 - [x] Admin can delete (soft) with confirmation. *(API B-18; confirmation B-21)*
-- [ ] Legacy data: `Message` → message #1, `Response` → message #2.
+- [x] Legacy data: `Message` → message #1, `Response` → message #2. *(E-05 (1/2) `RequestsStep`)*

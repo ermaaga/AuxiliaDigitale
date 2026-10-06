@@ -517,7 +517,8 @@ internal sealed class AuxctlCli
             var zone = TimeZoneInfo.TryFindSystemTimeZoneById(tenant.TimeZone, out var found) ? found : TimeZoneInfo.Utc;
             var importer = new LegacyImporter(new LegacyImportServices(
                 scope.GetRequiredService<IPasswordHasher>(), scope.GetRequiredService<IImageProcessor>(), scope.GetRequiredService<IFileStore>(),
-                new LegacyFiles(command.Option("files"))));
+                new LegacyFiles(command.Option("files")), scope.GetRequiredService<Application.Abstractions.Channels.IAccountSecretProtector>(),
+                scope.GetRequiredService<Application.Abstractions.Modules.IModuleRegistry>()));
             await using var db = (TenantDbContext)await scope.GetRequiredService<ITenantDbContextFactory>().CreateAsync(cancellationToken);
             var report = await importer.RunAsync(
                 source, db, scope.GetRequiredService<TimeProvider>(), zone, tenant.DefaultLanguage, dryRun, cancellationToken);

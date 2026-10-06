@@ -1,8 +1,11 @@
 using System.Security.Cryptography;
 
+using Auxilia.Application;
 using Auxilia.Application.Abstractions.Authorization;
+using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Images;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Documents.Public;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
@@ -10,6 +13,8 @@ using Auxilia.MigrationRunner.LegacyImport;
 using Auxilia.Persistence.Tenant;
 using Auxilia.Persistence.Tenant.Interceptors;
 using Auxilia.SharedKernel.Results;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Npgsql;
 
@@ -21,6 +26,15 @@ namespace Auxilia.LegacyImport.Tests;
 internal static class ImportHarness
 {
     public static readonly TimeZoneInfo Rome = TimeZoneInfo.FindSystemTimeZoneById("Europe/Rome");
+
+    /// <summary>The module registry as the hosts build it (grids and permissions of every module).</summary>
+    public static readonly Lazy<IModuleRegistry> Modules = new(() =>
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddApplication();
+        return services.BuildServiceProvider().GetRequiredService<IModuleRegistry>();
+    });
 
     public static TenantDbContext Context(NpgsqlDataSource tenant)
     {
@@ -38,10 +52,19 @@ internal static class ImportHarness
             hasher.Verify(Arg.Any<string>(), Arg.Any<PasswordFormat>(), Arg.Any<string>()).Returns(PasswordVerification.Failed);
         }
 
-        var importer = new LegacyImporter(new LegacyImportServices(hasher, Substitute.For<IImageProcessor>(), files ?? new MemoryFileStore(), new LegacyFiles(filesRoot)));
+        var importer = new LegacyImporter(new LegacyImportServices(
+            hasher, Substitute.For<IImageProcessor>(), files ?? new MemoryFileStore(), new LegacyFiles(filesRoot), new PlainSecrets(), Modules.Value));
         await using var db = Context(tenant);
         return await importer.RunAsync(source, db, TimeProvider.System, Rome, "it", dryRun, TestContext.Current.CancellationToken);
     }
+}
+
+/// <summary>Secrets marked instead of encrypted, so the tests can see what was protected.</summary>
+internal sealed class PlainSecrets : IAccountSecretProtector
+{
+    public string Protect(string secret) => $"protected:{secret}";
+
+    public string Unprotect(string protectedSecret) => protectedSecret["protected:".Length..];
 }
 
 /// <summary>A file store in memory: accepts files with an extension, as the tenant's store would after its checks.</summary>
