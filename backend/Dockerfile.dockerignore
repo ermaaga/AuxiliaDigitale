@@ -1,0 +1,8 @@
+# Build context of backend/Dockerfile is the repository root: only .editorconfig and backend/ are needed.
+*
+!.editorconfig
+!backend/
+backend/**/bin/
+backend/**/obj/
+backend/**/TestResults/
+backend/**/*.user

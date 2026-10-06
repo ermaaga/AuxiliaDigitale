@@ -7,7 +7,7 @@ on:
     paths:
       - deploy/**
       - backend/Dockerfile
-      - backend/.dockerignore
+      - backend/Dockerfile.dockerignore
       - frontend/Dockerfile
       - frontend/.dockerignore
       - .github/workflows/local-stack.yml

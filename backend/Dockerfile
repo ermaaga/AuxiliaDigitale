@@ -1,11 +1,14 @@
 # syntax=docker/dockerfile:1
 # Images of the backend hosts (ADR 0013): one build, three targets — api, worker, auxctl.
-#   docker build -f backend/Dockerfile --target api backend
+#   docker build -f backend/Dockerfile --target api .      (context: the repository root, for .editorconfig)
 # Used by deploy/compose.local.yml; production images and their hardening come with H-03.
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY . .
+# The analyzer settings of the repository (.editorconfig at the root) apply to the build, as in CI.
+COPY .editorconfig ./
+COPY backend/ backend/
+WORKDIR /src/backend
 # Locked restore (packages.lock.json) and NuGet audit, as in CI.
 RUN dotnet restore Auxilia.slnx --locked-mode
 RUN dotnet publish src/Auxilia.Api -c Release --no-restore -o /out/api \

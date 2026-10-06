@@ -73,8 +73,8 @@ services:
   bootstrap:
     <<: *backend
     build:
-      context: ../backend
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/Dockerfile
       target: auxctl
     image: auxilia-local/auxctl
     entrypoint: ["bash", "/scripts/bootstrap.sh"]
@@ -98,8 +98,8 @@ services:
   api:
     <<: *backend
     build:
-      context: ../backend
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/Dockerfile
       target: api
     image: auxilia-local/api
     ports:
@@ -111,8 +111,8 @@ services:
   worker:
     <<: *backend
     build:
-      context: ../backend
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: backend/Dockerfile
       target: worker
     image: auxilia-local/worker
     depends_on:
