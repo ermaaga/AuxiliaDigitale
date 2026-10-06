@@ -51,7 +51,7 @@ public sealed class ConfigurationImportTests(LegacyDatabaseFixture fixture)
 
         await using (var db = ImportHarness.Context(tenant))
         {
-            var keys = await db.Set<ResourceKey>().ToDictionaryAsync(key => key.Key, Ct);
+            var keys = await db.Set<ResourceKey>().Include(key => key.Translations).ToDictionaryAsync(key => key.Key, Ct);
             keys["Save"].Translation("it")!.Value.ShouldBe("Salva ora");
             keys["Save"].Translation("it")!.IsCustomized.ShouldBeTrue();
             keys["Save"].Translation("en")!.IsCustomized.ShouldBeFalse();
