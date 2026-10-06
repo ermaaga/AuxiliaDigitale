@@ -32,6 +32,9 @@ internal sealed class CaseConfiguration : IEntityTypeConfiguration<Case>
         builder.HasIndex(@case => @case.SpecializationId);
         builder.HasIndex(@case => new { @case.Status, @case.StartedOn });
 
+        // Default order of the lists (newest first) for every scope and status filter (H-02).
+        builder.HasIndex(@case => new { @case.StartedOn, @case.Number, @case.Id });
+
         builder.OwnsMany(@case => @case.History, history =>
         {
             history.ToTable("case_status_history", TenantSchemas.Cases);

@@ -7,7 +7,7 @@ import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useFormatter, useTranslations } from "next-intl";
 import { Badge } from "@auxilia/ui/components/badge";
 import { Button } from "@auxilia/ui/components/button";
-import { Tabs, TabsList, TabsTrigger } from "@auxilia/ui/components/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@auxilia/ui/components/tabs";
 
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { DataTable } from "@/components/data-table/data-table";
@@ -246,45 +246,47 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
     </>
   );
 
+  // The scope tabs control the table: it is the panel of the selected tab (aria-controls points at it).
   return (
-    <div className="flex flex-col gap-4">
+    <Tabs
+      value={scope}
+      onValueChange={(value) => void setScope(value as (typeof TASK_SCOPES)[number])}
+      className="gap-4"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Tabs
-          value={scope}
-          onValueChange={(value) => void setScope(value as (typeof TASK_SCOPES)[number])}
-        >
-          <TabsList aria-label={t("app.tasks.scope")}>
-            {TASK_SCOPES.map((item) => (
-              <TabsTrigger key={item} value={item}>
-                {t(`app.tasks.scopes.${item}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        <TabsList aria-label={t("app.tasks.scope")}>
+          {TASK_SCOPES.map((item) => (
+            <TabsTrigger key={item} value={item}>
+              {t(`app.tasks.scopes.${item}`)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
         {canManage ? (
           <Button type="button" onClick={() => setCreating(true)}>
             <PlusIcon aria-hidden /> {t("app.tasks.new")}
           </Button>
         ) : null}
       </div>
-      <DataTable
-        label={t("nav.tasks")}
-        columns={visible}
-        rows={query.data?.items}
-        getRowId={(task) => task.id}
-        totalCount={Number(query.data?.totalCount ?? 0)}
-        page={table.page}
-        pageSize={table.pageSize}
-        sort={table.sort}
-        onPageChange={table.setPage}
-        onPageSizeChange={table.setPageSize}
-        onSortChange={table.setSort}
-        isLoading={query.isPending}
-        error={query.error}
-        onRetry={() => void query.refetch()}
-        toolbar={toolbar}
-        filtered={table.hasFilters}
-      />
+      <TabsContent value={scope}>
+        <DataTable
+          label={t("nav.tasks")}
+          columns={visible}
+          rows={query.data?.items}
+          getRowId={(task) => task.id}
+          totalCount={Number(query.data?.totalCount ?? 0)}
+          page={table.page}
+          pageSize={table.pageSize}
+          sort={table.sort}
+          onPageChange={table.setPage}
+          onPageSizeChange={table.setPageSize}
+          onSortChange={table.setSort}
+          isLoading={query.isPending}
+          error={query.error}
+          onRetry={() => void query.refetch()}
+          toolbar={toolbar}
+          filtered={table.hasFilters}
+        />
+      </TabsContent>
       {creating ? (
         <TaskDialog tenant={tenant} context={context} open onOpenChange={setCreating} />
       ) : null}
@@ -302,6 +304,6 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
           }}
         />
       ) : null}
-    </div>
+    </Tabs>
   );
 }

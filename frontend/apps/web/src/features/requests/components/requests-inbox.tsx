@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";
-import { Tabs, TabsList, TabsTrigger } from "@auxilia/ui/components/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@auxilia/ui/components/tabs";
 
 import { DataTable } from "@/components/data-table/data-table";
 import { FilterSelect } from "@/components/data-table/filters";
@@ -148,47 +148,61 @@ export function RequestsInbox({ tenant, label }: { tenant: string; label: string
     </>
   );
 
+  const inbox = (
+    <DataTable
+      key={grid.layout ? "layout" : "default"}
+      label={label}
+      exportMenu={(columns) => (
+        <ExportMenu tenant={tenant} source="requests" params={exportParams} columns={columns} />
+      )}
+      columns={laid.columns}
+      initiallyHidden={grid.layout ? laid.hidden : []}
+      rows={query.data?.items}
+      getRowId={(row) => row.id}
+      totalCount={Number(query.data?.totalCount ?? 0)}
+      page={table.page}
+      pageSize={table.pageSize}
+      sort={table.sort}
+      onPageChange={table.setPage}
+      onPageSizeChange={table.setPageSize}
+      onSortChange={table.setSort}
+      isLoading={query.isPending || grid.isPending}
+      error={query.error}
+      onRetry={() => void query.refetch()}
+      toolbar={toolbar}
+      filtered={table.hasFilters}
+    />
+  );
+
+  const actions = canWrite ? <NewRequestDialog tenant={tenant} /> : null;
+
+  // With more than one box the tabs control the table: it is the panel of the selected tab (aria-controls points at it).
+  if (boxes.length > 1) {
+    return (
+      <Tabs
+        value={current}
+        onValueChange={(value) => void setBox(value as RequestBox)}
+        className="gap-4"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList aria-label={label}>
+            {boxes.map((item) => (
+              <TabsTrigger key={item} value={item}>
+                {t(`app.requests.box.${item}` as "app.requests.box.sent")}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {actions}
+        </div>
+        <TabsContent value={current}>{inbox}</TabsContent>
+      </Tabs>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {boxes.length > 1 ? (
-          <Tabs value={current} onValueChange={(value) => void setBox(value as RequestBox)}>
-            <TabsList aria-label={label}>
-              {boxes.map((item) => (
-                <TabsTrigger key={item} value={item}>
-                  {t(`app.requests.box.${item}` as "app.requests.box.sent")}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        ) : (
-          <span />
-        )}
-        {canWrite ? <NewRequestDialog tenant={tenant} /> : null}
-      </div>
-      <DataTable
-        key={grid.layout ? "layout" : "default"}
-        label={label}
-        exportMenu={(columns) => (
-          <ExportMenu tenant={tenant} source="requests" params={exportParams} columns={columns} />
-        )}
-        columns={laid.columns}
-        initiallyHidden={grid.layout ? laid.hidden : []}
-        rows={query.data?.items}
-        getRowId={(row) => row.id}
-        totalCount={Number(query.data?.totalCount ?? 0)}
-        page={table.page}
-        pageSize={table.pageSize}
-        sort={table.sort}
-        onPageChange={table.setPage}
-        onPageSizeChange={table.setPageSize}
-        onSortChange={table.setSort}
-        isLoading={query.isPending || grid.isPending}
-        error={query.error}
-        onRetry={() => void query.refetch()}
-        toolbar={toolbar}
-        filtered={table.hasFilters}
-      />
+      <div className="flex flex-wrap items-center justify-end gap-3">{actions}</div>
+      {inbox}
     </div>
   );
 }

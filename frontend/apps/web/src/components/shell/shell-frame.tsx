@@ -155,7 +155,12 @@ export function ShellFrame({
             <ThemeSwitcher onChange={onThemeChange} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={t("app.shell.accountMenu")}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  // The visible initials are part of the name, so speech users can say what they see (WCAG 2.5.3).
+                  aria-label={`${t("app.shell.accountMenu")} (${initials(user.name)})`}
+                >
                   <Avatar className="size-8">
                     {user.imageUrl ? <AvatarImage src={user.imageUrl} alt="" /> : null}
                     <AvatarFallback>{initials(user.name)}</AvatarFallback>

@@ -42,6 +42,9 @@ internal sealed class DocumentConfiguration : IEntityTypeConfiguration<Document>
         builder.HasIndex(document => document.FolderId);
         builder.HasIndex(document => document.AreaId);
         builder.HasIndex(document => document.UploadedByUserId);
+
+        // Default order of the lists (newest first): the page stops after its rows instead of sorting every visible document (H-02).
+        builder.HasIndex(document => new { document.UploadedAt, document.Id });
     }
 }
 

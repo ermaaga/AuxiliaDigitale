@@ -32,6 +32,9 @@ export const E2E = {
   /** Request, notification and session pages (B-21): an employee and a client in her charge, seeded by prepare.sh. */
   requestsEmployee: { userName: "chiara.lodi", fullName: "Chiara Lodi" },
   requestsClient: { userName: "paolo.greco", fullName: "Paolo Greco" },
+  /** Quality sweeps (H-02): an Administrator for accessibility.spec.ts and one for lighthouse.spec.ts. */
+  accessibilityUser: { userName: "elisa.moro", fullName: "Elisa Moro" },
+  lighthouseUser: { userName: "luca.fabbri", fullName: "Luca Fabbri" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

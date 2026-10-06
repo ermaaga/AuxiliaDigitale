@@ -12,7 +12,8 @@ export function contentSecurityPolicy(
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' blob: data:",
-    "font-src 'self'",
+    // FullCalendar embeds its icon font as a data: URL in its stylesheet.
+    "font-src 'self' data:",
     `connect-src ${connect}`,
     "object-src 'none'",
     "base-uri 'self'",
