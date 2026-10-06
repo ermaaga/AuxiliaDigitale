@@ -30,6 +30,7 @@ public sealed class DocumentsImportTests(LegacyDatabaseFixture fixture) : IDispo
         var store = new MemoryFileStore();
 
         var report = await ImportHarness.ImportAsync(source, tenant, files: store, filesRoot: files);
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         var result = report.Tables["UserDocuments"];
         (result.Created, result.Skipped).ShouldBe((2, 4));
@@ -61,6 +62,7 @@ public sealed class DocumentsImportTests(LegacyDatabaseFixture fixture) : IDispo
         }
 
         var again = await ImportHarness.ImportAsync(source, tenant, files: store, filesRoot: files);
+        again.Reconciled.ShouldBeTrue(again.Render(dryRun: false));
 
         again.Tables["UserDocuments"].Created.ShouldBe(0);
         store.Files.Count.ShouldBe(2);
@@ -72,6 +74,29 @@ public sealed class DocumentsImportTests(LegacyDatabaseFixture fixture) : IDispo
     }
 
     [Fact]
+    public async Task Reconciliation_FileChangedOnTheStorage_BlocksTheCutover()
+    {
+        WriteFiles();
+        await using var source = await LegacyAsync("legacy_documents_tampered");
+        await using var tenant = await fixture.CreateTenantAsync("tenant_documents_tampered");
+        var store = new MemoryFileStore();
+        (await ImportHarness.ImportAsync(source, tenant, files: store, filesRoot: files)).Reconciled.ShouldBeTrue();
+        var key = store.Files.Keys.First();
+        store.Files[key] = [1, 2, 3];
+
+        var again = await ImportHarness.ImportAsync(source, tenant, files: store, filesRoot: files);
+
+        again.Reconciled.ShouldBeFalse();
+        var check = again.Reconciliation.Single(item => !item.Matches);
+        (check.Name, check.Legacy, check.Tenant).ShouldBe(("documents readable with their SHA-256", "2", "1"));
+        again.Render(dryRun: false).ShouldContain("the cutover is blocked");
+
+        // A delta run that starts after the import does not read the files back.
+        var delta = await ImportHarness.ImportAsync(source, tenant, files: store, filesRoot: files, since: DateTimeOffset.UtcNow.AddMinutes(1));
+        delta.Reconciled.ShouldBeTrue(delta.Render(dryRun: false));
+    }
+
+    [Fact]
     public async Task Import_DryRun_ChecksTheFilesAndKeepsNone()
     {
         WriteFiles();
@@ -80,6 +105,7 @@ public sealed class DocumentsImportTests(LegacyDatabaseFixture fixture) : IDispo
         var store = new MemoryFileStore();
 
         var report = await ImportHarness.ImportAsync(source, tenant, dryRun: true, files: store, filesRoot: files);
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         report.Tables["UserDocuments"].Created.ShouldBe(2);
         store.Files.ShouldBeEmpty();
@@ -94,6 +120,7 @@ public sealed class DocumentsImportTests(LegacyDatabaseFixture fixture) : IDispo
         await using var tenant = await fixture.CreateTenantAsync("tenant_documents_nofiles");
 
         var report = await ImportHarness.ImportAsync(source, tenant);
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         (report.Tables["UserDocuments"].Created, report.Tables["UserDocuments"].Skipped).ShouldBe((0, 6));
         Reason(report, 1).ShouldBe("no files directory given (--files)");

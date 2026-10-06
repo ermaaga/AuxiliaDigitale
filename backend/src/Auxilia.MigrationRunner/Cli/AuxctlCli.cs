@@ -64,10 +64,12 @@ internal sealed class AuxctlCli
           legacy inspect [--tenant <slug>]  (reads the legacy connection string from AUXILIA_LEGACY_CONNECTION; schema
                                             variant, rows per table and what is migrated; --tenant adds the rows already
                                             mapped in that tenant's ops.legacy_id_map)
-          legacy import --tenant <slug> [--files <dir>] [--dry-run]
+          legacy import --tenant <slug> [--files <dir>] [--dry-run] [--since <ISO instant>]
                                            (same connection; imports into the tenant in one transaction, rolled back
                                             with --dry-run; repeatable: rows already imported are updated; --files is
-                                            the directory with the legacy document files)
+                                            the directory with the legacy document files; ends with the reconciliation,
+                                            exit code 2 when it finds differences; --since: files imported before the
+                                            instant are not read back again)
           diagnostics registry [--output <file>]
         """;
 
@@ -509,6 +511,18 @@ internal sealed class AuxctlCli
             return exitCode;
         }
 
+        DateTimeOffset? since = null;
+        if (command.Option("since") is { } sinceText)
+        {
+            if (!DateTimeOffset.TryParse(sinceText, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal, out var parsed))
+            {
+                await opened.DisposeAsync();
+                return await UsageAsync();
+            }
+
+            since = parsed;
+        }
+
         await using var source = opened;
         var dryRun = command.Flag("dry-run");
         return await InTenantAsync(slug, async scope =>
@@ -521,13 +535,21 @@ internal sealed class AuxctlCli
                 scope.GetRequiredService<Application.Abstractions.Modules.IModuleRegistry>()));
             await using var db = (TenantDbContext)await scope.GetRequiredService<ITenantDbContextFactory>().CreateAsync(cancellationToken);
             var report = await importer.RunAsync(
-                source, db, scope.GetRequiredService<TimeProvider>(), zone, tenant.DefaultLanguage, dryRun, cancellationToken);
+                source, db, scope.GetRequiredService<TimeProvider>(), zone, tenant.DefaultLanguage, dryRun, cancellationToken, since);
 
             var (logger, created, updated) = (Logger(), report.Tables.Values.Sum(table => table.Created), report.Tables.Values.Sum(table => table.Updated));
             var (skipped, warnings) = (report.Tables.Values.Sum(table => table.Skipped), report.Issues.Count(issue => issue.Kind == LegacyIssueKind.Warning));
             Log.Runner.LegacyImported(logger, dryRun, created, updated, skipped, warnings);
             await output.WriteAsync(report.Render(dryRun));
-            return Success;
+            if (report.Reconciled)
+            {
+                return Success;
+            }
+
+            var differences = report.Reconciliation.Where(check => !check.Matches).ToArray();
+            Log.Runner.LegacyReconciliationFailed(logger, differences.Length, string.Join("; ", differences.Select(check => check.Name)));
+            await error.WriteLineAsync($"error AUX-{EventCodes.Runner.LegacyReconciliationFailed}: the reconciliation found {differences.Length} difference(s)");
+            return Failure;
         }, cancellationToken);
     }
 

@@ -47,9 +47,12 @@ internal sealed class UsersStep : ILegacyImportStep
         var rows = await legacy.Users.OrderBy(user => user.Id).ToListAsync(cancellationToken);
         var defaultPassword = await legacy.SystemConfigurations.Where(setting => setting.Key == "DefaultPassword")
             .Select(setting => setting.Value).FirstOrDefaultAsync(cancellationToken);
-        var assigned = await AssignedPasswordUsersAsync(rows, defaultPassword, cancellationToken);
-
         var state = await TenantState.LoadAsync(context, cancellationToken);
+
+        // BCrypt is slow on purpose: only hashes not seen by an earlier run are checked (new users, changed passwords).
+        var unchanged = rows.Where(row => context.Ids.Find(Table, row.Id) is { } id && state.Users.TryGetValue(id, out var user) && user.PasswordHash == row.PasswordHash)
+            .Select(row => row.Id).ToHashSet();
+        var assigned = await AssignedPasswordUsersAsync(rows.Where(row => !unchanged.Contains(row.Id)).ToList(), defaultPassword, cancellationToken);
         var result = context.Report.For(Table);
         var accounts = new List<(LegacyUser Row, User User, IReadOnlyCollection<TenantRole> Roles, bool Created)>();
 
@@ -76,7 +79,7 @@ internal sealed class UsersStep : ILegacyImportStep
                 continue;
             }
 
-            var account = Account(context, state, row, roles, languages, assigned.Contains(row.Id));
+            var account = Account(context, state, row, roles, languages, assigned.Contains(row.Id), unchanged.Contains(row.Id));
             if (account is null)
             {
                 continue;
@@ -175,7 +178,7 @@ internal sealed class UsersStep : ILegacyImportStep
 
     private static (User User, bool Created)? Account(
         LegacyImportContext context, TenantState state, LegacyUser row, IReadOnlyCollection<TenantRole> roles, Dictionary<int, string> languages,
-        bool assignedPassword)
+        bool assignedPassword, bool hashUnchanged)
     {
         var (details, dropped) = Details(row, context.LocalDate(row.DateOfBirth), context.Today);
         if (Person.Validate(details, context.Today).Count > 0)
@@ -217,7 +220,7 @@ internal sealed class UsersStep : ILegacyImportStep
             // A user who already signed in to the new system has a new hash: it wins over the legacy one.
             if (existing.PasswordFormat == PasswordFormat.LegacyBcrypt)
             {
-                existing.ImportLegacyPassword(row.PasswordHash, changedAt, assignedPassword);
+                existing.ImportLegacyPassword(row.PasswordHash, changedAt, hashUnchanged ? existing.MustChangePassword : assignedPassword);
             }
 
             state.Track(person, existing);

@@ -7,9 +7,10 @@ internal sealed class LegacyImportContext
 {
     public LegacyImportContext(
         LegacyDbContext legacy, TenantDbContext tenant, LegacyIdMap ids, LegacyImportReport report, TimeProvider clock, TimeZoneInfo zone,
-        string defaultLanguage, bool dryRun = false)
+        string defaultLanguage, bool dryRun = false, DateTimeOffset? since = null)
     {
         DryRun = dryRun;
+        Since = since;
         Legacy = legacy;
         Tenant = tenant;
         Ids = ids;
@@ -35,6 +36,12 @@ internal sealed class LegacyImportContext
 
     /// <summary>Nothing is kept: the transaction is rolled back and files are not committed to the storage.</summary>
     public bool DryRun { get; }
+
+    /// <summary>
+    /// Delta run (<c>--since</c>, cutover): rows are still compared in full (the legacy has no modification time), but files
+    /// imported before this instant are not read back again by the reconciliation.
+    /// </summary>
+    public DateTimeOffset? Since { get; }
 
     public DateTimeOffset Now { get; }
 

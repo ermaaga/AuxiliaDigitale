@@ -44,7 +44,8 @@ internal static class ImportHarness
     }
 
     public static async Task<LegacyImportReport> ImportAsync(
-        LegacySource source, NpgsqlDataSource tenant, bool dryRun = false, IPasswordHasher? hasher = null, IFileStore? files = null, string? filesRoot = null)
+        LegacySource source, NpgsqlDataSource tenant, bool dryRun = false, IPasswordHasher? hasher = null, IFileStore? files = null, string? filesRoot = null,
+        DateTimeOffset? since = null)
     {
         if (hasher is null)
         {
@@ -55,7 +56,7 @@ internal static class ImportHarness
         var importer = new LegacyImporter(new LegacyImportServices(
             hasher, Substitute.For<IImageProcessor>(), files ?? new MemoryFileStore(), new LegacyFiles(filesRoot), new PlainSecrets(), Modules.Value));
         await using var db = Context(tenant);
-        return await importer.RunAsync(source, db, TimeProvider.System, Rome, "it", dryRun, TestContext.Current.CancellationToken);
+        return await importer.RunAsync(source, db, TimeProvider.System, Rome, "it", dryRun, TestContext.Current.CancellationToken, since);
     }
 }
 

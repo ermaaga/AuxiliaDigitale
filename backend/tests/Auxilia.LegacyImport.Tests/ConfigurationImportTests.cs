@@ -41,6 +41,7 @@ public sealed class ConfigurationImportTests(LegacyDatabaseFixture fixture)
         }
 
         var report = await ImportHarness.ImportAsync(source, tenant);
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         report.Issues.ShouldContain(issue => issue.Table == "SystemConfigurations" && issue.Reason == "unknown setting Mystery: left out");
         report.Issues.ShouldContain(issue => issue.Table == "SystemConfigurations" && issue.Reason == "value of AutoSubscriptionExpiry not valid: default kept");
@@ -88,7 +89,8 @@ public sealed class ConfigurationImportTests(LegacyDatabaseFixture fixture)
                 .ShouldBe([("client", "CAF", CustomFieldType.Boolean, true, true), ("client", "Note", CustomFieldType.Text, false, false)]);
         }
 
-        await ImportHarness.ImportAsync(source, tenant);
+        var again = await ImportHarness.ImportAsync(source, tenant);
+        again.Reconciled.ShouldBeTrue(again.Render(dryRun: false));
 
         await using (var db = ImportHarness.Context(tenant))
         {

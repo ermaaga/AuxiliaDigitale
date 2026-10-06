@@ -23,5 +23,9 @@ public static partial class Log
             Level = LogLevel.Information,
             Message = "Legacy import ended (dry run {DryRun}): {Created} created, {Updated} updated, {Skipped} skipped, {Warnings} warnings")]
         public static partial void LegacyImported(ILogger logger, bool dryRun, int created, int updated, int skipped, int warnings);
+
+        [LoggerMessage(EventId = EventCodes.Runner.LegacyReconciliationFailed, EventName = "Runner.LegacyReconciliationFailed",
+            Level = LogLevel.Warning, Message = "Legacy reconciliation found {Differences} differences: {Checks}")]
+        public static partial void LegacyReconciliationFailed(ILogger logger, int differences, string checks);
     }
 }
