@@ -36,6 +36,13 @@ internal sealed class DocumentData(ITenantDbContext db) : IDocumentData
             var profiles = db.Set<ClientProfile>();
             var users = db.Set<User>();
 
+            // Clients in a private specialization the employee is not in. Not correlated with the document, so PostgreSQL
+            // computes it once (H-02: correlated per document it cost seconds on 500k documents).
+            var hiddenClients = specializations
+                .Where(item => item.IsPrivate && !item.Members.Any(member => member.UserId == employee))
+                .SelectMany(item => item.Members)
+                .Join(users, member => member.UserId, user => user.Id, (_, user) => user.PersonId);
+
             // F10: a case document as its case (D-04); without a case, client assigned or no private specialization outside the employee's.
             documents = documents.Where(row =>
                 (row.document.CaseId != null && cases.Any(@case => @case.Id == row.document.CaseId
@@ -43,9 +50,7 @@ internal sealed class DocumentData(ITenantDbContext db) : IDocumentData
                         || specializations.Any(item => item.Id == @case.SpecializationId && (!item.IsPrivate || item.Members.Any(member => member.UserId == employee))))))
                 || (row.document.CaseId == null
                     && (profiles.Any(profile => profile.Id == row.document.ClientId && profile.EmployeeUserId == employee)
-                        || !specializations.Any(item => item.IsPrivate
-                            && item.Members.Any(member => users.Any(user => user.Id == member.UserId && user.PersonId == row.document.ClientId))
-                            && !item.Members.Any(member => member.UserId == employee)))));
+                        || !hiddenClients.Contains(row.document.ClientId))));
         }
         else if (!scope.Everything)
         {

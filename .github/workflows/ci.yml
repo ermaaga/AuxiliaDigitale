@@ -120,9 +120,22 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm --filter web build
-      - name: Install Chromium
+      # Browser only, cached per Playwright version: `--with-deps` spent ~7 minutes on apt (fonts and mesa from a slow
+      # mirror), while the runner image already has the system libraries of its preinstalled Google Chrome.
+      - name: Playwright version
+        id: playwright
         working-directory: frontend
-        run: pnpm --filter web exec playwright install --with-deps chromium
+        run: echo "version=$(pnpm --filter web exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - name: Cache the Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      - name: Install Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: frontend
+        run: pnpm --filter web exec playwright install chromium
       - name: Seed tenants, clients and users
         working-directory: frontend
         run: pnpm --filter web e2e:prepare

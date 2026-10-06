@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Auxilia.Persistence.Tenant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Auxilia.Persistence.Tenant.Migrations
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006130838_Documents_UploadedAtIndex")]
+    partial class Documents_UploadedAtIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,9 +156,6 @@ namespace Auxilia.Persistence.Tenant.Migrations
 
                     b.HasIndex("Status", "StartedOn")
                         .HasDatabaseName("ix_cases_status_started_on");
-
-                    b.HasIndex("StartedOn", "Number", "Id")
-                        .HasDatabaseName("ix_cases_started_on_number_id");
 
                     b.ToTable("cases", "cases", t =>
                         {

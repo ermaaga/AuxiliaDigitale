@@ -15,6 +15,9 @@ const webPort = new URL(BASE_URL).port || "80";
 
 export default defineConfig({
   testDir: "./e2e",
+  // Quality sweeps (H-02: Lighthouse budget and the light/dark axe sweep) take minutes: out of the default run and of
+  // CI, run on demand with `pnpm --filter web e2e:quality` (E2E_QUALITY=1).
+  testIgnore: process.env.E2E_QUALITY ? [] : ["**/lighthouse.spec.ts", "**/accessibility.spec.ts"],
   globalSetup: "./e2e/global-setup.ts",
   // Flows share the seeded users and sign-in rate limits: one worker, files in order, no retries hiding flakiness.
   workers: 1,
