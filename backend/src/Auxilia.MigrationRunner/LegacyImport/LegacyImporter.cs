@@ -1,5 +1,7 @@
+using Auxilia.Application.Abstractions.Channels;
 using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Images;
+using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Documents.Public;
 using Auxilia.MigrationRunner.LegacyImport.Steps;
 using Auxilia.Persistence.Tenant;
@@ -21,6 +23,10 @@ internal sealed class LegacyImporter
 
         steps =
         [
+            new LocalizationStep(),
+            new SettingsStep(),
+            new MessagingAccountStep(services.Secrets),
+            new CustomFieldsStep(),
             new SpecializationsStep(),
             new UsersStep(services.Hasher, services.Images),
             new SpecializationMembersStep(),
@@ -33,6 +39,7 @@ internal sealed class LegacyImporter
             new NotificationsStep(),
             new RegistrationsStep(),
             new ImportHistoryStep(),
+            new AccessStep(services.Modules),
         ];
     }
 
@@ -70,4 +77,5 @@ internal sealed class LegacyImporter
 }
 
 /// <summary>What the steps need from the host: password verification, pictures, the tenant's file store, the legacy files.</summary>
-internal sealed record LegacyImportServices(IPasswordHasher Hasher, IImageProcessor Images, IFileStore Files, LegacyFiles LegacyFiles);
+internal sealed record LegacyImportServices(
+    IPasswordHasher Hasher, IImageProcessor Images, IFileStore Files, LegacyFiles LegacyFiles, IAccountSecretProtector Secrets, IModuleRegistry Modules);
