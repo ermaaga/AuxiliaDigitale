@@ -22,14 +22,24 @@ export function createQueryClient(
     }
   };
 
-  return new QueryClient({
+  const client: QueryClient = new QueryClient({
     queryCache: new QueryCache({ onError }),
-    mutationCache: new MutationCache({ onError }),
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        onError(error);
+        // F29: somebody changed the resource since it was read; the page shows the latest data again while the
+        // error message ("modified by someone else") is on screen.
+        if (isApiError(error) && error.status === 412) {
+          void client.invalidateQueries();
+        }
+      },
+    }),
     defaultOptions: {
       queries: { staleTime: 30_000, retry: shouldRetry, refetchOnWindowFocus: false },
       mutations: { retry: false },
     },
   });
+  return client;
 }
 
 function dispatchUnauthenticated() {

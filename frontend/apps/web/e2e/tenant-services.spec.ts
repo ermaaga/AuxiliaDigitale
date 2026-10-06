@@ -111,6 +111,24 @@ test("an Administrator manages a service and its folder template", async ({ page
     await expectAccessible(page, "folder template");
   });
 
+  await test.step("a save over somebody else's change is refused, then the latest data is used (F29)", async () => {
+    await page.getByRole("tab", { name: t("app.services.tabs.data") }).click();
+    const other = await page.context().newPage();
+    await other.goto(page.url());
+    await other.getByLabel(`${t("DurationDays")} *`).fill("75");
+    await other.getByRole("button", { name: t("Save") }).click();
+    await expect(toast(other, t("app.services.saved"))).toBeVisible();
+    await other.close();
+
+    // This tab still holds the version read before the other save.
+    await page.getByLabel(`${t("DurationDays")} *`).fill("80");
+    await page.getByRole("button", { name: t("Save") }).click();
+    await expect(page.getByText(t("errors.AUX-10011"))).toBeVisible();
+    await expect(page.getByText("AUX-10011", { exact: true })).toBeVisible();
+    await expect(header(page)).toContainText("75");
+    await expectAccessible(page, "concurrent change");
+  });
+
   await test.step("the service is edited and deactivated", async () => {
     await page.getByRole("tab", { name: t("app.services.tabs.data") }).click();
     await page.getByLabel(`${t("DurationDays")} *`).fill("90");

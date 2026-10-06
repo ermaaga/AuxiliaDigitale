@@ -1,0 +1,20 @@
+[
+ {
+  "key": "errors.AUX-10010",
+  "category": "errors",
+  "en": "Someone else saved this at the same moment. The latest data is shown again: check it and try again.",
+  "it": "Qualcun altro ha salvato nello stesso momento. Vengono mostrati i dati aggiornati: controllali e riprova."
+ },
+ {
+  "key": "errors.AUX-10011",
+  "category": "errors",
+  "en": "Someone else changed this in the meantime. The latest version is shown again: check it and try again.",
+  "it": "Qualcun altro l'ha modificato nel frattempo. Viene mostrata la versione aggiornata: controllala e riprova."
+ },
+ {
+  "key": "errors.AUX-10025",
+  "category": "errors",
+  "en": "The page could not tell which version you saw. Reload the page and try again.",
+  "it": "Non è stato possibile capire quale versione stavi vedendo. Ricarica la pagina e riprova."
+ }
+]

@@ -37,6 +37,7 @@ internal sealed class TaskEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         tasks.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(EngagementPermissions.ViewTasks)
             .WithName("GetTask")
             .WithSummary("A task")
@@ -52,6 +53,7 @@ internal sealed class TaskEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         tasks.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(EngagementPermissions.ManageTasks)
             .WithName("UpdateTask")
             .WithSummary("Changes a task; a new assignee is notified")
@@ -74,6 +76,7 @@ internal sealed class TaskEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         tasks.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(EngagementPermissions.ManageTasks)
             .WithName("DeleteTask")
             .WithSummary("Deletes a task (soft delete)")

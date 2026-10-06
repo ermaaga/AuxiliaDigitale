@@ -32,6 +32,7 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         cases.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(CasesPermissions.ViewCases)
             .WithName("GetCase")
             .WithSummary("A case with client, service, timeline, payments and what the caller may do")
@@ -47,6 +48,7 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         cases.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(CasesPermissions.ManageCases)
             .WithName("UpdateCase")
             .WithSummary("Changes the due date and the custom fields of a case not completed")
@@ -117,6 +119,7 @@ internal sealed class CaseEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         cases.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(CasesPermissions.DeleteCases)
             .WithName("DeleteCase")
             .WithSummary("Deletes a case (soft delete) and recomputes the client status")

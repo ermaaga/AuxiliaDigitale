@@ -66,6 +66,7 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         services.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(CasesPermissions.ViewServices)
             .WithName("GetService")
             .WithSummary("A service with its category and specialization")
@@ -81,6 +82,7 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         services.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(CasesPermissions.ManageServices)
             .WithName("UpdateService")
             .WithSummary("Changes a service, including its active state, category and specialization")
@@ -149,6 +151,7 @@ internal sealed class ServiceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         services.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(CasesPermissions.ManageServices)
             .WithName("DeleteService")
             .WithSummary("Deletes a service (soft delete); a service in use is deactivated instead")

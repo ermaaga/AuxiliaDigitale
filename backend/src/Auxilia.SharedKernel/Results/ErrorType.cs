@@ -23,4 +23,7 @@ public enum ErrorType
 
     /// <summary>The caller's version of the resource (<c>If-Match</c>) is not the current one (412).</summary>
     PreconditionFailed,
+
+    /// <summary>The write needs the caller's version of the resource (<c>If-Match</c>) and has none (428).</summary>
+    PreconditionRequired,
 }

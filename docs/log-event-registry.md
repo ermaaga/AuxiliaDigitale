@@ -10,7 +10,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 
 | Range | Name | Owner | Codes | Next code |
 |---|---|---|---|---|
-| 10000–10999 | Host | Host / Startup / Middleware | 16 | 10025 |
+| 10000–10999 | Host | Host / Startup / Middleware | 17 | 10026 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
 | 12000–12999 | Identity | Identity / Auth | 71 | 12072 |
 | 13000–13999 | Directory | Directory (clients, employees) | 51 | 13052 |
@@ -51,6 +51,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-10022 | Host.AuthenticationRequired | – | – | – | – |
 | AUX-10023 | Host.AccessDenied | – | – | – | – |
 | AUX-10024 | Host.TooManyRequests | – | – | – | – |
+| AUX-10025 | Host.PreconditionRequired | – | PreconditionRequired | – | – |
 | AUX-11004 | Tenancy.CrossTenantAttempt | – | Forbidden | – | – |
 | AUX-11005 | Tenancy.TenantSlugInvalid | – | Validation | – | – |
 | AUX-11006 | Tenancy.TenantTransitionNotAllowed | – | Conflict | – | – |

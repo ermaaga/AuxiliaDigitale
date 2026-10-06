@@ -73,6 +73,7 @@ internal sealed class DocumentEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         documents.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(DocumentsPermissions.ViewDocuments)
             .WithName("GetDocument")
             .WithSummary("A document with its folder path and what the caller may do")
@@ -100,6 +101,7 @@ internal sealed class DocumentEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         documents.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(DocumentsPermissions.ManageDocuments)
             .WithName("UpdateDocument")
             .WithSummary("Changes name (extension kept), reference year, area, description and custom fields")
@@ -120,6 +122,7 @@ internal sealed class DocumentEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         documents.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(DocumentsPermissions.ManageDocuments)
             .WithName("DeleteDocument")
             .WithSummary("Deletes a document and its file")

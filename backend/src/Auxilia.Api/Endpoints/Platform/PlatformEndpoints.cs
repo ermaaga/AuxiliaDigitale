@@ -174,12 +174,14 @@ internal sealed class PlatformEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         tenants.MapGet("/{slug}", GetTenantAsync)
+            .WithETag()
             .WithName("GetPlatformTenant")
             .WithSummary("A tenant (archived included) with its plan and its latest provisioning and migration runs")
             .Produces<PlatformTenantDetailResponse>()
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         tenants.MapPut("/{slug}", UpdateTenantAsync)
+            .RequireIfMatch()
             .WithName("UpdatePlatformTenant")
             .WithSummary("Changes name and time zone of a tenant")
             .Produces<PlatformTenantDetailResponse>()
