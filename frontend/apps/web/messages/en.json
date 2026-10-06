@@ -2148,6 +2148,7 @@
   "validation.notEmpty": "This field is required",
   "validation.notNull": "This field is required",
   "validation.notifications.kind": "Each kind of notification once, among the known ones.",
+  "validation.paging.filter": "This filter is not available for the list.",
   "validation.paging.page": "The page number is not valid",
   "validation.paging.pageSize": "The page size is not valid",
   "validation.paging.range": "The start of the range must precede its end",

@@ -2148,6 +2148,7 @@
   "validation.notEmpty": "Questo campo è obbligatorio",
   "validation.notNull": "Questo campo è obbligatorio",
   "validation.notifications.kind": "Ogni tipo di notifica una sola volta, tra quelli previsti.",
+  "validation.paging.filter": "Questo filtro non è disponibile per l'elenco.",
   "validation.paging.page": "Il numero di pagina non è valido",
   "validation.paging.pageSize": "La dimensione della pagina non è valida",
   "validation.paging.range": "L'inizio dell'intervallo deve precedere la fine",
