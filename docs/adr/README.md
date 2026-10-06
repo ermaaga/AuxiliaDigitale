@@ -17,3 +17,4 @@
 | [0013](0013-local-orchestration-with-docker-compose-instead-of-aspire.md) | Local orchestration with Docker Compose instead of Aspire | Accepted | D-32, ADR 0011 |
 | [0014](0014-code-coverage-with-coverlet-mtp.md) | Code coverage with coverlet.MTP | Accepted | ADR 0011, P1-05 |
 | [0015](0015-temporary-exception-braces-advisory.md) | Temporary exception for GHSA-vfj7-8cjw-p6xm (braces), expires 2026-11-02 | Accepted | ADR 0011 |
+| [0016](0016-legacy-import-reads-a-checked-read-model-and-writes-through-persistence.md) | Legacy import: a checked read model, writes through persistence, ids in `ops.legacy_id_map` | Accepted | D-30, ADR 0004, E-01 |

@@ -5,4 +5,13 @@
     <ProjectReference Include="..\Auxilia.Tests.Common\Auxilia.Tests.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Testcontainers.PostgreSql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Legacy schemas generated from the legacy EF migrations at the baseline tags (D-30) -->
+    <EmbeddedResource Include="Fixtures\*.sql" LogicalName="%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

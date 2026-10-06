@@ -66,3 +66,4 @@ Nothing in the `Fix` column removes a capability; if in doubt, reproduce and fla
 | Q58 | Sessions | Session timeout 120 min (`SessionTimeout`), cookie 2 h. | Keep as tenant setting mapped to refresh-token sliding window. |
 | Q59 | Registration | Birth date range hard-coded `1900-01-01..2008-12-31` ("at least 16 years"). | Fix — computed "≥ 16 years" rule (setting). |
 | Q60 | Clients | Admin can toggle a client active only when it has an assigned employee (`UnableToEnableUser`); employee "Active" select in client detail changes `IsActive` directly. | Keep rule for enabling; status changes recorded in history. |
+| Q61 | Imports | `ImportJobs` is in the EF model (`DbSet<ImportJob>`, model snapshot) but no legacy migration creates the table: databases built by the migrations do not have it and `ImportJobService` fails there. | Import reads it only when present (`LegacyVariant.ImportJobs`, E-01); history only (E-05). |

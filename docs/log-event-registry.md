@@ -28,7 +28,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 25000–25999 | Messaging | Messaging (outbound channels, accounts, templates) | 22 | 25023 |
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 4 | 26005 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
-| 28000–28999 | Runner | MigrationRunner / Legacy import | 5 | 28006 |
+| 28000–28999 | Runner | MigrationRunner / Legacy import | 8 | 28009 |
 | 29000–29999 | Security | Security events | 30 | 29031 |
 
 ## Codes
@@ -441,6 +441,9 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-28003 | Runner.CatalogMigrated | – | – | Runner.MigrateCatalog (success) | – |
 | AUX-28004 | Runner.TenantMigrated | – | – | Runner.MigrateTenant (success) | – |
 | AUX-28005 | Runner.TenantMigrationFailed | – | Failure | – | – |
+| AUX-28006 | Runner.LegacySourceUnavailable | – | Failure | – | – |
+| AUX-28007 | Runner.LegacySchemaUnsupported | – | Failure | – | – |
+| AUX-28008 | Runner.LegacyInspected | Information | – | – | Legacy database inspected: last migration {LastMigration}, Security_Update {SecurityUpdate}, {Rows} rows in {Tables} tables |
 | AUX-29001 | Security.LoginFailed | Warning | – | – | Sign-in failed ({Reason}) for user {UserId} |
 | AUX-29002 | Security.AccountLockedOut | Warning | – | – | User {UserId} locked out until {LockoutEnd} after {FailedAttempts} failed sign-ins |
 | AUX-29003 | Security.LegacyPasswordUpgraded | Information | – | – | Legacy password of user {UserId} rehashed |
