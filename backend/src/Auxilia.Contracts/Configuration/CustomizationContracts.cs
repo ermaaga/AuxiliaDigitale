@@ -72,3 +72,23 @@ public sealed record SetGridLayoutRequest(IReadOnlyList<GridLayoutColumnRequest>
 
 /// <summary>The layout of a grid for the signed-in user (<c>GET /me/grids/{key}</c>).</summary>
 public sealed record MyGridLayoutResponse(string GridKey, string Role, bool IsCustomized, IReadOnlyList<GridLayoutColumnResponse> Columns);
+
+/// <summary>
+/// A personal view of a grid (F21): the columns hidden, the filter values (<c>filter[key]</c> of the list) and the sort
+/// (<c>?sort=</c>) saved under a name; the default view opens with the list.
+/// </summary>
+public sealed record GridViewResponse(
+    Guid Id,
+    string Name,
+    IReadOnlyList<string> HiddenColumns,
+    IReadOnlyDictionary<string, string> Filters,
+    string? Sort,
+    bool IsDefault);
+
+/// <summary>Saves a personal view; <c>isDefault</c> makes it the only default of the grid for the user.</summary>
+public sealed record SaveGridViewRequest(
+    string Name,
+    IReadOnlyList<string>? HiddenColumns,
+    IReadOnlyDictionary<string, string>? Filters,
+    string? Sort,
+    bool IsDefault);

@@ -36,5 +36,7 @@ public sealed class ConfigurationModule : IModuleDescriptor
         services.TryAddScoped<GridLayoutCache>();
         services.TryAddScoped<IGridLayoutManager, GridLayoutManager>();
         services.TryAddScoped<IGridQueryService, GridQueryService>();
+        services.TryAddScoped<IGridViewQueryService, GridViewQueryService>();
+        services.TryAddScoped<IGridViewManager, GridViewManager>();
     }
 }

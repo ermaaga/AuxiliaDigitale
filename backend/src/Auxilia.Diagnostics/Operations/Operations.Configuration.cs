@@ -18,6 +18,10 @@ public static partial class Operations
 
         public static readonly OperationDescriptor SetGridLayout = new("Configuration.SetGridLayout", EventCodes.Configuration.GridLayoutChanged);
 
+        public static readonly OperationDescriptor SaveGridView = new("Configuration.SaveGridView", EventCodes.Configuration.GridViewSaved);
+
+        public static readonly OperationDescriptor DeleteGridView = new("Configuration.DeleteGridView", EventCodes.Configuration.GridViewDeleted);
+
         public static readonly OperationDescriptor ResetGridLayout = new("Configuration.ResetGridLayout", EventCodes.Configuration.GridLayoutReset);
 
         public static readonly OperationDescriptor RemoveBrandingAsset = new("Configuration.RemoveBrandingAsset", EventCodes.Configuration.BrandingAssetRemoved);

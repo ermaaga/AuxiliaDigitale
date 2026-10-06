@@ -46,6 +46,12 @@ public static partial class Errors
             Error.Validation(EventCodes.Configuration.GridLayoutInvalid, "The grid layout is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["columns"] = [messageKey] });
 
+        public static Error GridViewInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Configuration.GridViewInvalid, "The view is not valid", errors);
+
+        public static Error GridViewNotFound() =>
+            Error.NotFound(EventCodes.Configuration.GridViewNotFound, "View not found");
+
         public static Error BrandingAssetNotFound() =>
             Error.NotFound(EventCodes.Configuration.BrandingAssetNotFound, "Branding image not found");
     }

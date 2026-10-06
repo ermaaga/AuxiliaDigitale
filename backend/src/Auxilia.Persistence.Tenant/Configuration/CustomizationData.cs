@@ -40,6 +40,19 @@ internal sealed class CustomizationData(ITenantDbContext db) : ICustomizationDat
 
     public void Remove(GridLayout layout) => db.Set<GridLayout>().Remove(layout);
 
+    public async Task<IReadOnlyList<GridView>> ViewsAsync(Guid userId, string gridKey, bool readOnly, CancellationToken cancellationToken)
+    {
+        var views = readOnly ? db.Set<GridView>().AsNoTracking() : db.Set<GridView>();
+        return await views
+            .Where(view => view.UserId == userId && view.GridKey == gridKey)
+            .OrderBy(view => view.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public void Add(GridView view) => db.Set<GridView>().Add(view);
+
+    public void Remove(GridView view) => db.Set<GridView>().Remove(view);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();

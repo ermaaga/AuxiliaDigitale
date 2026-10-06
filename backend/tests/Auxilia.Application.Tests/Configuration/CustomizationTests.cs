@@ -47,6 +47,17 @@ internal sealed class InMemoryCustomizationData : ICustomizationDataFactory, ICu
 
     public void Remove(GridLayout layout) => Layouts.Remove(layout);
 
+    public List<GridView> Views { get; } = [];
+
+    public Task<IReadOnlyList<GridView>> ViewsAsync(Guid userId, string gridKey, bool readOnly, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<GridView>>(Views
+            .Where(view => view.UserId == userId && view.GridKey == gridKey)
+            .OrderBy(view => view.Name, StringComparer.OrdinalIgnoreCase).ToList());
+
+    public void Add(GridView view) => Views.Add(view);
+
+    public void Remove(GridView view) => Views.Remove(view);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;

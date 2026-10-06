@@ -25,6 +25,13 @@ public interface ICustomizationData : IAsyncDisposable
 
     void Remove(GridLayout layout);
 
+    /// <summary>The personal views of a user on a grid, by name.</summary>
+    Task<IReadOnlyList<GridView>> ViewsAsync(Guid userId, string gridKey, bool readOnly, CancellationToken cancellationToken);
+
+    void Add(GridView view);
+
+    void Remove(GridView view);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
 
