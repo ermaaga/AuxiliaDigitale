@@ -109,6 +109,28 @@ public sealed class Request : AggregateRoot<Guid>, IAuditable, ISoftDeletable
     /// Appends a message: from the other party the request becomes Responded, from the sender (a follow-up) Pending
     /// again. A closed request takes no more messages.
     /// </summary>
+    /// <summary>
+    /// Legacy import (E-05): a request with its text as message #1, sent at <paramref name="sentAt"/>; the legacy
+    /// response is added with <see cref="ImportLegacyReply"/>. Subject and text must fit the limits (the caller trims them).
+    /// </summary>
+    public static Result<Request> ImportLegacy(Guid id, Guid senderUserId, Guid? recipientUserId, RequestType type, string subject, string body, DateTimeOffset sentAt) =>
+        Open(id, senderUserId, recipientUserId, type, subject, body, sentAt);
+
+    /// <summary>Legacy import (E-05): the legacy response as message #2 (once); the request becomes Responded.</summary>
+    /// <returns>Whether it was added.</returns>
+    public bool ImportLegacyReply(Guid authorUserId, string body, DateTimeOffset respondedAt)
+    {
+        if (messages.Count != 1 || !IsBody(body))
+        {
+            return false;
+        }
+
+        messages.Add(new RequestMessage(Guid.CreateVersion7(), Id, 2, authorUserId, body.Trim(), respondedAt));
+        Status = RequestStatus.Responded;
+        LastMessageAt = respondedAt;
+        return true;
+    }
+
     public Result Reply(Guid authorUserId, string body, DateTimeOffset now)
     {
         if (Status == RequestStatus.Closed)

@@ -117,6 +117,23 @@ public sealed class ImportJob : AggregateRoot<Guid>
 
     /// <summary>Starts (or, after a Worker restart, starts again) the validation.</summary>
     /// <returns>False when it is past validation (a redelivered message).</returns>
+    /// <summary>Legacy import (E-05): a finished legacy import, kept as history (no file, no rows).</summary>
+    public static ImportJob ImportLegacy(
+        Guid id, Guid importTypeId, string name, string fileName, ImportJobStatus status, (int Total, int Processed, int Success, int Failed) rows,
+        string? errorMessage, DateTimeOffset createdAt, DateTimeOffset? startedAt, DateTimeOffset? completedAt) =>
+        new(id, importTypeId, string.IsNullOrWhiteSpace(name) ? fileName : name, fileName, [], createdAt)
+        {
+            FileContent = null,
+            Status = status,
+            TotalRows = rows.Total,
+            ProcessedRows = rows.Processed,
+            SuccessRows = rows.Success,
+            FailedRows = rows.Failed,
+            ErrorMessage = errorMessage,
+            StartedAt = startedAt,
+            CompletedAt = completedAt,
+        };
+
     public bool StartValidation(int totalRows, DateTimeOffset now)
     {
         if (Status is not (ImportJobStatus.Pending or ImportJobStatus.Validating) || FileContent is null)

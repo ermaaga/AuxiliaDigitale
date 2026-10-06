@@ -59,4 +59,16 @@ public sealed class RequestTests
         request.Close(Employee, Now).Error!.Code.ShouldBe(EventCodes.Requests.RequestIsClosed);
         request.Reply(Sender, "again", Now).Error!.Code.ShouldBe(EventCodes.Requests.RequestIsClosed);
     }
+
+    [Fact]
+    public void ImportLegacy_KeepsTheSendInstant_AndTheLegacyReplyOnce()
+    {
+        var imported = Request.ImportLegacy(Guid.CreateVersion7(), Sender, null, RequestType.Support, "Oggetto", "Testo", Now.AddYears(-1)).Value;
+
+        imported.ImportLegacyReply(Employee, "Risposta", Now.AddYears(-1).AddDays(1)).ShouldBeTrue();
+        imported.ImportLegacyReply(Employee, "Di nuovo", Now).ShouldBeFalse();
+
+        (imported.SentAt, imported.Status, imported.LastMessageAt).ShouldBe((Now.AddYears(-1), RequestStatus.Responded, Now.AddYears(-1).AddDays(1)));
+        imported.Messages.Select(message => (message.Sequence, message.AuthorUserId, message.Body)).ShouldBe([(1, Sender, "Testo"), (2, Employee, "Risposta")]);
+    }
 }

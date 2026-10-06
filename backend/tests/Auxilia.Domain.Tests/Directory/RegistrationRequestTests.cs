@@ -99,4 +99,18 @@ public sealed class RegistrationRequestTests
 
         client.EffectiveCaptchaProvider.ShouldBe(effective);
     }
+
+    [Fact]
+    public void ImportLegacy_KeepsTheLegacyValuesAndOutcome()
+    {
+        var processor = Guid.CreateVersion7();
+        var client = Guid.CreateVersion7();
+        var details = new PersonDetails(" Mario ", "Verdi", " Mario@Example.TEST ", new DateOnly(1980, 5, 10), "3331234567", "vrdmra80e10h501z");
+
+        var imported = RegistrationRequest.ImportLegacy(Guid.CreateVersion7(), details, "it", Now.AddYears(-1), RegistrationStatus.Approved, processor, Now.AddMonths(-11), new string('n', 600), client);
+
+        (imported.FirstName, imported.Email, imported.FiscalCode, imported.ClientApplication, imported.PrivacyVersion).ShouldBe(("Mario", "mario@example.test", "VRDMRA80E10H501Z", "legacy", "legacy"));
+        (imported.Status, imported.ProcessedByUserId, imported.ClientId, imported.RequestedAt).ShouldBe((RegistrationStatus.Approved, (Guid?)processor, (Guid?)client, Now.AddYears(-1)));
+        imported.Notes!.Length.ShouldBe(RegistrationRequest.NotesMaxLength);
+    }
 }

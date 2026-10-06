@@ -149,6 +149,33 @@ public sealed class RegistrationRequest : AggregateRoot<Guid>, IAuditable
     }
 
     /// <summary>Trimmed, lower case; <c>null</c> when empty.</summary>
+    /// <summary>
+    /// Legacy import (E-05): a registration request as the legacy stored it (its values were checked by the legacy
+    /// form, Q54/Q59), with the outcome. Privacy consent is the one the legacy form required (version <c>legacy</c>).
+    /// </summary>
+    public static RegistrationRequest ImportLegacy(
+        Guid id, PersonDetails details, string language, DateTimeOffset requestedAt, RegistrationStatus status, Guid? processedByUserId,
+        DateTimeOffset? processedAt, string? notes, Guid? clientId)
+    {
+        ArgumentNullException.ThrowIfNull(details);
+
+        return new RegistrationRequest(id, "legacy", language, requestedAt)
+        {
+            FirstName = details.FirstName?.Trim() ?? string.Empty,
+            LastName = details.LastName?.Trim() ?? string.Empty,
+            Email = NormalizeEmail(details.Email) ?? string.Empty,
+            Phone = details.Phone?.Trim() ?? string.Empty,
+            BirthDate = details.BirthDate ?? DateOnly.MinValue,
+            FiscalCode = Person.NormalizeFiscalCode(details.FiscalCode) ?? string.Empty,
+            PrivacyVersion = "legacy",
+            Status = status,
+            ProcessedByUserId = processedByUserId,
+            ProcessedAt = processedAt,
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim()[..Math.Min(notes.Trim().Length, NotesMaxLength)],
+            ClientId = clientId,
+        };
+    }
+
     public static string? NormalizeEmail(string? email) =>
         string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLowerInvariant();
 

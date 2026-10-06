@@ -45,12 +45,12 @@
 | `MembershipFolderTemplates` | `cases.service_folders` | E-03 | Albero con `ParentId` → `parent_id`, `SortOrder` → `sort_order` (F33). |
 | `Subscriptions` | `cases.cases` + `case_payments` + `case_status_history` + `case_numbers` | E-03 | §5.2. |
 | `UserDocuments` | `documents.documents` + `documents.document_areas` + file | E-04 | §5.3. |
-| `Appointments` | `scheduling.appointments` + `appointment_status_history` | E-05 | `ScheduledDate` → `starts_at`, `ends_at = starts_at + DurationMinutes`, `ShowInGlobalCalendare` → `show_in_global_calendar`, `EmployeeId` → `employee_user_id`; stato §6. |
-| `Requests` | `engagement.requests` + `request_messages` | E-05 | `Message` → messaggio #1 (autore `SenderId`, `CreatedAt`); `Response` non vuota → messaggio #2 (autore il destinatario, o il primo Administrator se `ReceiverId` è null, `RespondedAt`); `ReceiverId = null` → ufficio; stato e tipo §6. |
-| `Notifications` | `engagement.notifications` | E-05 | §5.4. |
-| `RegistrationRequests` | `directory.registration_requests` | E-05 | `IsProcessed = false` → `Pending`; processata con un utente legacy con la stessa e-mail → `Approved` (`client_id` dalla mappa); altrimenti `Rejected`. `client_application = legacy`. |
-| `ImportTypes` | `imports.import_types` | E-05 | Solo storico. |
-| `Imports` | `imports.import_jobs` | E-05 | Solo storico, senza righe né file (`ImportedData` scartato); stato §6. |
+| `Appointments` | `scheduling.appointments` + `appointment_status_history` | E-05 | `ScheduledDate` → `starts_at`, `ends_at = starts_at + DurationMinutes` (durata ricondotta a 5…1440 minuti con avviso), `ShowInGlobalCalendare` → `show_in_global_calendar`, `EmployeeId` → `employee_user_id`, note tagliate a 1000 caratteri; anche gli appuntamenti passati; una riga di storico con lo stato legacy (§6, sconosciuto → scartato); `requested_by_client` = stato `Pending` (il legacy non lo registra); cliente non migrato → scartato. |
+| `Requests` | `engagement.requests` + `request_messages` | E-05 | `Message` → messaggio #1 (autore `SenderId`, `CreatedAt`); `Response` non vuota → messaggio #2 (autore il destinatario, o il primo Administrator migrato se `ReceiverId` è null, `RespondedAt`) e stato `Responded`; `ReceiverId = null` o destinatario non migrato → ufficio; tipo §6 (sconosciuto → `General` con avviso); oggetto e testo tagliati ai limiti; mittente non migrato → scartata. A un'esecuzione successiva una risposta arrivata nel frattempo diventa il messaggio #2. |
+| `Notifications` | `engagement.notifications` | E-05 | §5.4. Utente non migrato → esclusa (contata). |
+| `RegistrationRequests` | `directory.registration_requests` | E-05 | `IsProcessed = false` → `Pending`; processata con un utente legacy con la stessa e-mail (l'approvazione lo creava) migrato come cliente → `Approved` (`client_id` dalla mappa); altrimenti `Rejected`. `client_application` e versione privacy `legacy`, lingua predefinita del tenant, data di nascita nel fuso del tenant; una sola richiesta in attesa per e-mail (le altre scartate). A un'esecuzione successiva una richiesta processata nel frattempo viene approvata o rifiutata. |
+| `ImportTypes` | `imports.import_types` | E-05 | Solo storico; `TargetEntity` §6; nome unico (doppione con ` (id legacy)`). |
+| `Imports` | `imports.import_jobs` | E-05 | Solo storico, senza righe né file (`ImportedData` scartato); stato §6 (sempre concluso); nome vuoto → nome del file. |
 | `ImportJobs` | `imports.import_jobs` | E-05 | Solo storico. Spesso **assente**: è nel modello EF legacy ma nessuna migrazione la crea (Q61); si legge quando c'è. |
 | `Languages` | `localization.languages` | E-05 | Lingue attive del legacy attivate nel tenant. |
 | `ResourceKeys` | `localization.resource_keys` | E-05 | Le chiavi legacy hanno gli stessi nomi del seed `D_20260930_003`. |
@@ -126,7 +126,7 @@ Catalogo: nomi di categorie attive e di servizi unici (un doppione riceve ` ({id
 
 ### 5.4 Notifiche
 
-Il legacy salva titolo e testo; il nuovo modello salva solo `kind` + parametri. Proposta per E-05: solo le notifiche **non lette**, con kind `legacy.message` (testi EN + IT `{title}` / `{message}`) e collegamento dal `Type` (`Appointment` → appuntamento, `Request` → richiesta, `Subscription` → pratica, `RegistrationRequest` → registrazioni) risolto con la mappa; le lette si contano nel report. Da confermare all'avvio di E-05.
+Il legacy salva titolo e testo; il nuovo modello salva solo `kind` + parametri. Si migrano **tutte** (le lette con `read_at` = creazione, così lo storico resta) con kind `legacy.message` (`NotificationKinds.LegacyMessage`, testi EN + IT `{title}` / `{message}` dalla data-migration `D_20261006_002`; non è tra i tipi con preferenze perché nessuno la invia più). Il collegamento viene dal `Type` legacy con `RelatedEntityId` risolto nella mappa: `Appointment` → `/appointments?open={id}`, `Request` → `/requests?open={id}`, `Subscription`/`SubscriptionExpiring` → `/cases/{id}`; altri tipi o record non migrati → nessun collegamento.
 
 ### 5.5 Impostazioni (`SystemConfigurations`)
 
@@ -137,12 +137,12 @@ Corrispondenze in ARCHITECTURE §7.2: `RegistrationEnabled` → `registration.en
 | Legacy | Valori legacy | Nuovo |
 |---|---|---|
 | `Subscriptions.Status` | 0, 1, 2, 3 | `Inserted`, `InProgress`, `Sent`, `Completed` |
-| `Appointments.Status` | `Pending`, `Approved`, `Rejected`, `Completed`, `Cancelled` | stesso nome (`AppointmentStatus`) |
+| `Appointments.Status` | `Pending`, `Approved`, `Rejected`, `Completed` (o `Concluded`), `Cancelled` | stesso nome (`AppointmentStatus`) |
 | `Requests.Status` | `Pending`, `Responded` | `Pending`, `Responded` |
 | `Requests.Type` | `General`, `Information`, `Support` (select del form) | stesso nome (`RequestType`) |
 | `LoginAuditLogs.LoginType` | `Password`, `Otp` | `password`, `email-otp` |
-| `Imports.Status` | `Pending`, `Running`, `Concluded`, `Completed`, `Failed` | `Pending`, `Processing`, `Completed`, `Completed`, `Failed` |
-| `ImportJobs.Status` | `Processing`, `Completed`, `Failed` | stesso nome |
+| `Imports.Status` / `ImportJobs.Status` | `Concluded`, `Completed`, `Failed`, altro (`Pending`, `Running`, `Processing`) | `Completed`, `Completed`, `Failed`, `Cancelled` (mai finito nel legacy) |
+| `ImportTypes.TargetEntity` | `Client`, `Employee`, `Subscription`, `Membership` | `Client`, `Employee`, `Case`, `Service` |
 | `Roles.Name` | `Administrator`, `Employee`, `Client`, `SystemConfigurator` | i primi tre; l'ultimo scartato |
 | `RoleSpecializations.RoleId` | id del ruolo | `role` per nome (solo Client/Employee) |
 
@@ -162,4 +162,3 @@ Un valore non elencato è un errore di riga nel report (mai un default silenzios
 - **D-11**: slug e nome del tenant del cliente attuale (servono solo per eseguire, non per sviluppare: `--tenant`).
 - Variante del database di produzione: `auxctl legacy inspect` sul dump dirà se `Security_Update` è applicato e se `ImportJobs` esiste.
 - Storage dei documenti di produzione (provider e percorsi reali di `FilePath`), da verificare sul dump (E-04).
-- Notifiche legacy (§5.4), da confermare in E-05.

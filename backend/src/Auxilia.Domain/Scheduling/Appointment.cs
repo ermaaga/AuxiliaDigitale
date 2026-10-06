@@ -143,6 +143,48 @@ public sealed class Appointment : AggregateRoot<Guid>, IAuditable, ISoftDeletabl
     public Result Cancel(Guid? actorUserId, string? note, DateTimeOffset now) =>
         IsOpen(Status) ? Move(AppointmentStatus.Cancelled, actorUserId, note, now) : Errors.Scheduling.AppointmentClosed();
 
+    /// <summary>
+    /// Legacy import (E-05): an appointment as the legacy application left it, past ones included, with one history row
+    /// for its status at <paramref name="createdAt"/>.
+    /// </summary>
+    public static Result<Appointment> ImportLegacy(
+        Guid id, Guid clientId, Guid employeeUserId, AppointmentSlot slot, AppointmentStatus status, bool requestedByClient, DateTimeOffset createdAt)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(slot.CustomFields);
+
+        if (Check(slot, createdAt, checkFuture: false) is { Count: > 0 } errors)
+        {
+            return Errors.Scheduling.AppointmentInvalid(errors);
+        }
+
+        var imported = new Appointment(id, clientId, employeeUserId, slot, status, requestedByClient);
+        imported.history.Add(new AppointmentStatusChange(Guid.CreateVersion7(), id, 1, null, status, createdAt, null, null));
+        return imported;
+    }
+
+    /// <summary>Legacy import (E-05), a later run: the legacy time and status win; a different status adds a history row.</summary>
+    /// <returns>Whether something changed.</returns>
+    public bool ApplyLegacyState(AppointmentSlot slot, AppointmentStatus status, DateTimeOffset at)
+    {
+        ArgumentNullException.ThrowIfNull(slot);
+
+        var changed = StartsAt != slot.StartsAt || DurationMinutes != slot.DurationMinutes || Notes != Text(slot.Notes) || ShowInGlobalCalendar != slot.ShowInGlobalCalendar;
+        StartsAt = slot.StartsAt;
+        DurationMinutes = slot.DurationMinutes;
+        EndsAt = slot.StartsAt.AddMinutes(slot.DurationMinutes);
+        Notes = Text(slot.Notes);
+        ShowInGlobalCalendar = slot.ShowInGlobalCalendar;
+        if (Status != status)
+        {
+            history.Add(new AppointmentStatusChange(Guid.CreateVersion7(), Id, history.Count + 1, Status, status, at, null, null));
+            Status = status;
+            changed = true;
+        }
+
+        return changed;
+    }
+
     private static Result<Appointment> Create(
         Guid id, Guid clientId, Guid employeeUserId, AppointmentSlot slot, AppointmentStatus status, bool requestedByClient, Guid? actorUserId, DateTimeOffset now)
     {
