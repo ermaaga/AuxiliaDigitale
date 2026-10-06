@@ -166,6 +166,46 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         MustChangePassword = true;
     }
 
+    /// <summary>
+    /// Legacy import (E-02): the BCrypt hash the user had in the legacy application, set at <paramref name="changedAt"/>
+    /// and verified (then rehashed) at the first sign-in. <paramref name="mustChange"/> marks hashes of passwords the
+    /// legacy application assigned itself (seed, approval of a registration). A different hash invalidates older sessions.
+    /// </summary>
+    public void ImportLegacyPassword(string passwordHash, DateTimeOffset changedAt, bool mustChange)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+
+        if (PasswordHash != passwordHash)
+        {
+            SecurityStamp = NewStamp();
+        }
+
+        PasswordHash = passwordHash;
+        PasswordFormat = PasswordFormat.LegacyBcrypt;
+        PasswordChangedAt = changedAt;
+        MustChangePassword = mustChange;
+        ImportLegacyPasswordHistory(passwordHash, changedAt);
+    }
+
+    /// <summary>Legacy import (E-02, F35): a previous BCrypt hash of the user; returns whether it was not known yet.</summary>
+    public bool ImportLegacyPasswordHistory(string passwordHash, DateTimeOffset createdAt)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(passwordHash);
+
+        if (passwordHistory.Any(entry => entry.PasswordHash == passwordHash))
+        {
+            return false;
+        }
+
+        passwordHistory.Add(new PasswordHistoryEntry(Guid.CreateVersion7(), Id, passwordHash, PasswordFormat.LegacyBcrypt, createdAt));
+        foreach (var old in passwordHistory.OrderByDescending(entry => entry.CreatedAt).Skip(MaxPasswordHistory).ToArray())
+        {
+            passwordHistory.Remove(old);
+        }
+
+        return true;
+    }
+
     /// <summary>F35: with expiry enabled, a password older than <paramref name="maxAge"/> must be changed before signing in.</summary>
     public bool IsPasswordExpired(DateTimeOffset now, TimeSpan maxAge) =>
         PasswordHash is not null && (PasswordChangedAt is not { } changed || changed + maxAge <= now);

@@ -47,8 +47,19 @@ internal sealed class LegacyIdMap
             return (existing, false);
         }
 
-        var id = IdGenerator.New(timeProvider);
-        ids[(entity, legacyId)] = id;
+        var id = NewId();
+        Add(entity, legacyId, id);
+        return (id, true);
+    }
+
+    /// <summary>Records the Guid of a legacy row created now (after its record was built successfully).</summary>
+    public void Add(string entity, int legacyId, Guid id)
+    {
+        if (!ids.TryAdd((Known(entity), legacyId), id))
+        {
+            throw new InvalidOperationException($"{entity} {legacyId} is already mapped");
+        }
+
         db.Set<LegacyIdMapping>().Add(new LegacyIdMapping
         {
             Entity = entity,
@@ -56,8 +67,10 @@ internal sealed class LegacyIdMap
             NewId = id,
             ImportedAt = timeProvider.GetUtcNow(),
         });
-        return (id, true);
     }
+
+    /// <summary>A Guid v7 for a record about to be created (recorded with <see cref="Add"/> once it is valid).</summary>
+    public Guid NewId() => IdGenerator.New(timeProvider);
 
     /// <summary>Mapped rows per legacy table.</summary>
     public IReadOnlyDictionary<string, int> Counts() =>

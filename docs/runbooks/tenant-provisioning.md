@@ -28,6 +28,7 @@ auxctl jobs list
 auxctl jobs run <job-code> --tenant acme | --all          # manual run (D-15), recorded in ops.job_runs
 auxctl keys rotate                                       # new ES256 token signing key (see "Token signing keys")
 auxctl legacy inspect [--tenant acme]                    # legacy database (AUXILIA_LEGACY_CONNECTION): variant, rows per table (docs/migration/mapping.md)
+auxctl legacy import --tenant acme [--dry-run]           # import into the tenant, one transaction (rolled back with --dry-run), repeatable
 auxctl clients add --client-id web-bff --name "Tenant web" --type WebBff [--origin https://app.example.com] [--captcha none|altcha]
 auxctl clients list
 auxctl platform users add --email ops@example.com --name "Operations"   (prints a one-use activation token)

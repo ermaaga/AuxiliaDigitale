@@ -1,6 +1,6 @@
 # F35 — Account security: password policy, reset, expiry, history, OTP login, login audit
 
-Status: [~] done except export (B-22/B-24) and legacy data (E-02) · Tasks: P2-02, P2-08, B-27 · Decision D-30 · **Source: legacy branch `Security_Update` (`e314e9a`, 2026-06-23), not merged into `develop` but part of the parity baseline.**
+Status: [~] done except export (B-22/B-24) · Tasks: P2-02, P2-08, B-27 · Decision D-30 · **Source: legacy branch `Security_Update` (`e314e9a`, 2026-06-23), not merged into `develop` but part of the parity baseline.**
 
 ## Legacy behaviour (branch `Security_Update`)
 - **Settings** (seed `S_20260623_002`): `PasswordMinLength` 8, `PasswordRequireUppercase`/`Lowercase`/`Digit`/`SpecialChar` true, `PasswordHistoryCount` 3, `PasswordExpiryEnabled` false, `PasswordExpiryMonths` 6, `EnableOtpLogin` false. Edited in a new `PasswordSecurityConfigSection` of `/system/configurations`.
@@ -21,7 +21,7 @@ Status: [~] done except export (B-22/B-24) and legacy data (E-02) · Tasks: P2-0
 - [x] OTP by e-mail as a pluggable login method (`email-otp`, `IAuthenticationMethod`), enabled by tenant setting (default off): 6-digit code, 10-minute TTL, single use, attempt limit + rate limit; appears in `GET /auth/methods`.
 - [x] Every login attempt (password, OTP, future external methods) stored in `identity.login_attempts` (user, username, time, IP, user agent, method, success, failure reason) and logged `29xxx`.
 - [ ] Administrator page "Login audit" in the tenant app: filters username, method, result, date range; sort by username/date; export (F26). *(page and filters B-27; export B-22/B-24)*
-- [ ] Legacy data migrated: `LoginAuditLogs` → `login_attempts`, `PasswordHistories` → password history, `PasswordChangedAt`; unused reset tokens not migrated.
+- [x] Legacy data migrated: `LoginAuditLogs` → `login_attempts`, `PasswordHistories` → password history, `PasswordChangedAt`; unused reset tokens not migrated. *(E-02: `auxctl legacy import`, steps `UsersStep` + `AccountSecurityStep`, when the legacy database has the Security_Update schema)*
 
 ## Status notes
 - P2-08 (backend): settings `auth.password.minLength` (12), `auth.password.requireUppercase`/`requireLowercase`/`requireDigit`/`requireSpecial` (true), `auth.password.historyCount` (3, max 24), `auth.password.expiryEnabled` (false), `auth.password.expiryMonths` (6), `auth.otp.enabled` (false), `auth.otp.codeMinutes` (10). `IPasswordPolicy` validates every rule at once (`AUX-12005` with one localization key per broken rule: `validation.password.tooShort|uppercase|lowercase|digit|special`) and the history (`AUX-12042`, Identity and `LegacyBcrypt` hashes, table `identity.password_history`, last 24 kept) on activation, reset, admin-set password, expired change and self-service change. `GET /auth/password-policy` (anonymous) exposes the rules to the forms.
