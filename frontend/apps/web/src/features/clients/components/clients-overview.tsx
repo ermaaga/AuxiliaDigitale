@@ -12,6 +12,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { useTableState } from "@/components/data-table/use-table-state";
 import { UserAvatar } from "@/components/user-avatar";
 import { ExportMenu } from "@/features/exports";
+import { AddToList } from "@/features/marketing";
 import { tenantHref } from "@/lib/href";
 import { useHasRole } from "@/lib/permissions";
 
@@ -158,6 +159,7 @@ export function ClientsOverview({ tenant, title }: { tenant: string; title: stri
         {selected.size > 0 ? (
           <span className="flex flex-wrap items-center gap-2">
             <BulkTags tenant={tenant} clientIds={[...selected]} />
+            <AddToList tenant={tenant} clientIds={[...selected]} />
             <Button type="button" variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
               {t("app.clients.overview.clearSelection", { count: selected.size })}
             </Button>

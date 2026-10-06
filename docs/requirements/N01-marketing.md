@@ -1,6 +1,6 @@
 # N01 — Marketing campaigns (v1: e-mail)
 
-Status: [~] in progress (backend done: M-01, M-02, M-03; pages M-04; migrated consents E-05) · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
+Status: [~] done except the consents of migrated clients (E-05, D-23) · pages M-04 · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
 
 Not present in the legacy. Module `Marketing`, optional (plan/override per tenant and role), event codes 19000–19999.
 

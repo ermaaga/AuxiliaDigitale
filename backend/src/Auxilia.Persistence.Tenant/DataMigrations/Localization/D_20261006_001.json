@@ -1,0 +1,878 @@
+[
+ {
+  "key": "app.marketing.sections",
+  "category": "app",
+  "en": "Marketing sections",
+  "it": "Sezioni del marketing"
+ },
+ {
+  "key": "app.marketing.updatedAt",
+  "category": "app",
+  "en": "Last change",
+  "it": "Ultima modifica"
+ },
+ {
+  "key": "app.marketing.nav.campaigns",
+  "category": "app",
+  "en": "Campaigns",
+  "it": "Campagne"
+ },
+ {
+  "key": "app.marketing.nav.segments",
+  "category": "app",
+  "en": "Segments",
+  "it": "Segmenti"
+ },
+ {
+  "key": "app.marketing.nav.lists",
+  "category": "app",
+  "en": "Static lists",
+  "it": "Liste statiche"
+ },
+ {
+  "key": "app.marketing.nav.templates",
+  "category": "app",
+  "en": "Templates",
+  "it": "Template"
+ },
+ {
+  "key": "app.marketing.nav.suppressions",
+  "category": "app",
+  "en": "Exclusions",
+  "it": "Esclusioni"
+ },
+ {
+  "key": "app.marketing.segments.description",
+  "category": "app",
+  "en": "Dynamic groups of clients: they are counted again every time.",
+  "it": "Gruppi dinamici di clienti: vengono ricalcolati ogni volta."
+ },
+ {
+  "key": "app.marketing.segments.new",
+  "category": "app",
+  "en": "New segment",
+  "it": "Nuovo segmento"
+ },
+ {
+  "key": "app.marketing.segments.back",
+  "category": "app",
+  "en": "Back to the segments",
+  "it": "Torna ai segmenti"
+ },
+ {
+  "key": "app.marketing.segments.saved",
+  "category": "app",
+  "en": "Segment saved.",
+  "it": "Segmento salvato."
+ },
+ {
+  "key": "app.marketing.segments.deleted",
+  "category": "app",
+  "en": "Segment deleted.",
+  "it": "Segmento eliminato."
+ },
+ {
+  "key": "app.marketing.segments.deleteText",
+  "category": "app",
+  "en": "The segment {name} will be deleted.",
+  "it": "Il segmento {name} verrà eliminato."
+ },
+ {
+  "key": "app.marketing.segments.rule",
+  "category": "app",
+  "en": "Rule",
+  "it": "Regola"
+ },
+ {
+  "key": "app.marketing.segments.ruleHint",
+  "category": "app",
+  "en": "Which clients the segment selects: conditions and groups of conditions.",
+  "it": "Quali clienti seleziona il segmento: condizioni e gruppi di condizioni."
+ },
+ {
+  "key": "app.marketing.segments.match",
+  "category": "app",
+  "en": "Clients matching",
+  "it": "Clienti che soddisfano"
+ },
+ {
+  "key": "app.marketing.segments.matchAll",
+  "category": "app",
+  "en": "all the conditions",
+  "it": "tutte le condizioni"
+ },
+ {
+  "key": "app.marketing.segments.matchAny",
+  "category": "app",
+  "en": "at least one condition",
+  "it": "almeno una condizione"
+ },
+ {
+  "key": "app.marketing.segments.group",
+  "category": "app",
+  "en": "Group {number}",
+  "it": "Gruppo {number}"
+ },
+ {
+  "key": "app.marketing.segments.addGroup",
+  "category": "app",
+  "en": "Add a group",
+  "it": "Aggiungi un gruppo"
+ },
+ {
+  "key": "app.marketing.segments.removeGroup",
+  "category": "app",
+  "en": "Remove the group",
+  "it": "Rimuovi il gruppo"
+ },
+ {
+  "key": "app.marketing.segments.addCondition",
+  "category": "app",
+  "en": "Add a condition",
+  "it": "Aggiungi una condizione"
+ },
+ {
+  "key": "app.marketing.segments.removeCondition",
+  "category": "app",
+  "en": "Remove the condition",
+  "it": "Rimuovi la condizione"
+ },
+ {
+  "key": "app.marketing.segments.field",
+  "category": "app",
+  "en": "Field",
+  "it": "Campo"
+ },
+ {
+  "key": "app.marketing.segments.operator",
+  "category": "app",
+  "en": "Comparison",
+  "it": "Confronto"
+ },
+ {
+  "key": "app.marketing.segments.value",
+  "category": "app",
+  "en": "Value",
+  "it": "Valore"
+ },
+ {
+  "key": "app.marketing.segments.chooseValue",
+  "category": "app",
+  "en": "Choose",
+  "it": "Scegli"
+ },
+ {
+  "key": "app.marketing.segments.customField",
+  "category": "app",
+  "en": "Custom field",
+  "it": "Campo personalizzato"
+ },
+ {
+  "key": "app.marketing.segments.chooseField",
+  "category": "app",
+  "en": "Choose the field",
+  "it": "Scegli il campo"
+ },
+ {
+  "key": "app.marketing.segments.preview",
+  "category": "app",
+  "en": "Clients now",
+  "it": "Clienti ora"
+ },
+ {
+  "key": "app.marketing.segments.previewHint",
+  "category": "app",
+  "en": "Updated while you edit the rule; employees count the clients in their charge.",
+  "it": "Si aggiorna mentre modifichi la regola; gli operatori contano i clienti a loro assegnati."
+ },
+ {
+  "key": "app.marketing.segments.incomplete",
+  "category": "app",
+  "en": "Complete every condition to see the count.",
+  "it": "Completa ogni condizione per vedere il conteggio."
+ },
+ {
+  "key": "app.marketing.segments.count",
+  "category": "app",
+  "en": "{count} clients",
+  "it": "{count} clienti"
+ },
+ {
+  "key": "app.marketing.segments.fields.status",
+  "category": "app",
+  "en": "Client status",
+  "it": "Stato del cliente"
+ },
+ {
+  "key": "app.marketing.segments.fields.employee",
+  "category": "app",
+  "en": "Employee in charge",
+  "it": "Operatore di riferimento"
+ },
+ {
+  "key": "app.marketing.segments.fields.tag",
+  "category": "app",
+  "en": "Tag",
+  "it": "Tag"
+ },
+ {
+  "key": "app.marketing.segments.fields.specialization",
+  "category": "app",
+  "en": "Specialization",
+  "it": "Specializzazione"
+ },
+ {
+  "key": "app.marketing.segments.fields.service",
+  "category": "app",
+  "en": "Case of the service",
+  "it": "Pratica del servizio"
+ },
+ {
+  "key": "app.marketing.segments.fields.caseStatus",
+  "category": "app",
+  "en": "Case in status",
+  "it": "Pratica nello stato"
+ },
+ {
+  "key": "app.marketing.segments.fields.age",
+  "category": "app",
+  "en": "Age",
+  "it": "Età"
+ },
+ {
+  "key": "app.marketing.segments.fields.createdOn",
+  "category": "app",
+  "en": "Client since",
+  "it": "Cliente dal"
+ },
+ {
+  "key": "app.marketing.segments.fields.customField",
+  "category": "app",
+  "en": "Custom field",
+  "it": "Campo personalizzato"
+ },
+ {
+  "key": "app.marketing.segments.operators.is",
+  "category": "app",
+  "en": "is",
+  "it": "è"
+ },
+ {
+  "key": "app.marketing.segments.operators.isNot",
+  "category": "app",
+  "en": "is not",
+  "it": "non è"
+ },
+ {
+  "key": "app.marketing.segments.operators.none",
+  "category": "app",
+  "en": "is nobody",
+  "it": "nessuno"
+ },
+ {
+  "key": "app.marketing.segments.operators.has",
+  "category": "app",
+  "en": "has",
+  "it": "ha"
+ },
+ {
+  "key": "app.marketing.segments.operators.hasNot",
+  "category": "app",
+  "en": "has not",
+  "it": "non ha"
+ },
+ {
+  "key": "app.marketing.segments.operators.atLeast",
+  "category": "app",
+  "en": "at least",
+  "it": "almeno"
+ },
+ {
+  "key": "app.marketing.segments.operators.atMost",
+  "category": "app",
+  "en": "at most",
+  "it": "al massimo"
+ },
+ {
+  "key": "app.marketing.segments.operators.onOrAfter",
+  "category": "app",
+  "en": "on or after",
+  "it": "dal"
+ },
+ {
+  "key": "app.marketing.segments.operators.onOrBefore",
+  "category": "app",
+  "en": "on or before",
+  "it": "fino al"
+ },
+ {
+  "key": "app.marketing.lists.description",
+  "category": "app",
+  "en": "Clients chosen by hand, from the clients overview or by import.",
+  "it": "Clienti scelti a mano, dalla panoramica clienti o da import."
+ },
+ {
+  "key": "app.marketing.lists.new",
+  "category": "app",
+  "en": "New list",
+  "it": "Nuova lista"
+ },
+ {
+  "key": "app.marketing.lists.rename",
+  "category": "app",
+  "en": "Edit the list",
+  "it": "Modifica la lista"
+ },
+ {
+  "key": "app.marketing.lists.dialogDescription",
+  "category": "app",
+  "en": "A name and an optional description.",
+  "it": "Un nome e una descrizione facoltativa."
+ },
+ {
+  "key": "app.marketing.lists.saved",
+  "category": "app",
+  "en": "List saved.",
+  "it": "Lista salvata."
+ },
+ {
+  "key": "app.marketing.lists.deleted",
+  "category": "app",
+  "en": "List deleted.",
+  "it": "Lista eliminata."
+ },
+ {
+  "key": "app.marketing.lists.deleteText",
+  "category": "app",
+  "en": "The list {name} and its members will be deleted.",
+  "it": "La lista {name} e i suoi membri verranno eliminati."
+ },
+ {
+  "key": "app.marketing.lists.back",
+  "category": "app",
+  "en": "Back to the lists",
+  "it": "Torna alle liste"
+ },
+ {
+  "key": "app.marketing.lists.members",
+  "category": "app",
+  "en": "Members",
+  "it": "Membri"
+ },
+ {
+  "key": "app.marketing.lists.memberCount",
+  "category": "app",
+  "en": "{count} members",
+  "it": "{count} membri"
+ },
+ {
+  "key": "app.marketing.lists.addClient",
+  "category": "app",
+  "en": "Add a client",
+  "it": "Aggiungi un cliente"
+ },
+ {
+  "key": "app.marketing.lists.chooseClient",
+  "category": "app",
+  "en": "Search a client",
+  "it": "Cerca un cliente"
+ },
+ {
+  "key": "app.marketing.lists.addHint",
+  "category": "app",
+  "en": "To add many clients, select them in the clients overview.",
+  "it": "Per aggiungere molti clienti, selezionali nella panoramica clienti."
+ },
+ {
+  "key": "app.marketing.lists.added",
+  "category": "app",
+  "en": "{count} clients added.",
+  "it": "{count} clienti aggiunti."
+ },
+ {
+  "key": "app.marketing.lists.remove",
+  "category": "app",
+  "en": "Remove",
+  "it": "Togli"
+ },
+ {
+  "key": "app.marketing.lists.removeNamed",
+  "category": "app",
+  "en": "Remove {name} from the list",
+  "it": "Togli {name} dalla lista"
+ },
+ {
+  "key": "app.marketing.lists.removed",
+  "category": "app",
+  "en": "Client removed from the list.",
+  "it": "Cliente tolto dalla lista."
+ },
+ {
+  "key": "app.marketing.lists.addSelected",
+  "category": "app",
+  "en": "Add the selected clients to a list",
+  "it": "Aggiungi i clienti selezionati a una lista"
+ },
+ {
+  "key": "app.marketing.lists.chooseList",
+  "category": "app",
+  "en": "Choose a list",
+  "it": "Scegli una lista"
+ },
+ {
+  "key": "app.marketing.lists.addSelectedCount",
+  "category": "app",
+  "en": "Add {count} to the list",
+  "it": "Aggiungi {count} alla lista"
+ },
+ {
+  "key": "app.marketing.templates.description",
+  "category": "app",
+  "en": "The e-mails of the campaigns, with placeholders for the client's name.",
+  "it": "Le e-mail delle campagne, con segnaposto per il nome del cliente."
+ },
+ {
+  "key": "app.marketing.templates.new",
+  "category": "app",
+  "en": "New template",
+  "it": "Nuovo template"
+ },
+ {
+  "key": "app.marketing.templates.back",
+  "category": "app",
+  "en": "Back to the templates",
+  "it": "Torna ai template"
+ },
+ {
+  "key": "app.marketing.templates.campaigns",
+  "category": "app",
+  "en": "Campaigns",
+  "it": "Campagne"
+ },
+ {
+  "key": "app.marketing.templates.body",
+  "category": "app",
+  "en": "Body (HTML)",
+  "it": "Testo (HTML)"
+ },
+ {
+  "key": "app.marketing.templates.placeholders",
+  "category": "app",
+  "en": "Placeholders:",
+  "it": "Segnaposto:"
+ },
+ {
+  "key": "app.marketing.templates.preview",
+  "category": "app",
+  "en": "Preview",
+  "it": "Anteprima"
+ },
+ {
+  "key": "app.marketing.templates.previewHint",
+  "category": "app",
+  "en": "Rendered for a sample client (Mario Rossi).",
+  "it": "Mostrata per un cliente di esempio (Mario Rossi)."
+ },
+ {
+  "key": "app.marketing.templates.saveFirst",
+  "category": "app",
+  "en": "Save the template to see the preview and send a test.",
+  "it": "Salva il template per vedere l'anteprima e inviare una prova."
+ },
+ {
+  "key": "app.marketing.templates.saved",
+  "category": "app",
+  "en": "Template saved.",
+  "it": "Template salvato."
+ },
+ {
+  "key": "app.marketing.templates.deleted",
+  "category": "app",
+  "en": "Template deleted.",
+  "it": "Template eliminato."
+ },
+ {
+  "key": "app.marketing.templates.deleteText",
+  "category": "app",
+  "en": "The template {name} will be deleted.",
+  "it": "Il template {name} verrà eliminato."
+ },
+ {
+  "key": "app.marketing.templates.testEmail",
+  "category": "app",
+  "en": "Send a test to",
+  "it": "Invia una prova a"
+ },
+ {
+  "key": "app.marketing.templates.test",
+  "category": "app",
+  "en": "Send test",
+  "it": "Invia prova"
+ },
+ {
+  "key": "app.marketing.templates.testSent",
+  "category": "app",
+  "en": "Test e-mail queued.",
+  "it": "E-mail di prova in coda."
+ },
+ {
+  "key": "app.marketing.suppressions.description",
+  "category": "app",
+  "en": "Addresses marketing never writes to; service e-mails still go.",
+  "it": "Indirizzi a cui il marketing non scrive mai; le e-mail di servizio partono comunque."
+ },
+ {
+  "key": "app.marketing.suppressions.reason",
+  "category": "app",
+  "en": "Reason",
+  "it": "Motivo"
+ },
+ {
+  "key": "app.marketing.suppressions.since",
+  "category": "app",
+  "en": "Since",
+  "it": "Dal"
+ },
+ {
+  "key": "app.marketing.suppressions.add",
+  "category": "app",
+  "en": "Exclude",
+  "it": "Escludi"
+ },
+ {
+  "key": "app.marketing.suppressions.added",
+  "category": "app",
+  "en": "Address excluded.",
+  "it": "Indirizzo escluso."
+ },
+ {
+  "key": "app.marketing.suppressions.remove",
+  "category": "app",
+  "en": "Remove",
+  "it": "Rimuovi"
+ },
+ {
+  "key": "app.marketing.suppressions.removeNamed",
+  "category": "app",
+  "en": "Remove the exclusion of {email}",
+  "it": "Rimuovi l'esclusione di {email}"
+ },
+ {
+  "key": "app.marketing.suppressions.removed",
+  "category": "app",
+  "en": "Exclusion removed.",
+  "it": "Esclusione rimossa."
+ },
+ {
+  "key": "app.marketing.campaigns.description",
+  "category": "app",
+  "en": "E-mail campaigns: each one is sent once to the clients with the marketing consent.",
+  "it": "Campagne e-mail: ognuna viene inviata una sola volta ai clienti con il consenso marketing."
+ },
+ {
+  "key": "app.marketing.campaigns.new",
+  "category": "app",
+  "en": "New campaign",
+  "it": "Nuova campagna"
+ },
+ {
+  "key": "app.marketing.campaigns.back",
+  "category": "app",
+  "en": "Back to the campaigns",
+  "it": "Torna alle campagne"
+ },
+ {
+  "key": "app.marketing.campaigns.audience",
+  "category": "app",
+  "en": "Audience",
+  "it": "Destinatari"
+ },
+ {
+  "key": "app.marketing.campaigns.template",
+  "category": "app",
+  "en": "Template",
+  "it": "Template"
+ },
+ {
+  "key": "app.marketing.campaigns.results",
+  "category": "app",
+  "en": "Results",
+  "it": "Esiti"
+ },
+ {
+  "key": "app.marketing.campaigns.counters",
+  "category": "app",
+  "en": "{sent} sent · {excluded} excluded · {failed} failed",
+  "it": "{sent} inviate · {excluded} escluse · {failed} fallite"
+ },
+ {
+  "key": "app.marketing.campaigns.createdAt",
+  "category": "app",
+  "en": "Created",
+  "it": "Creata"
+ },
+ {
+  "key": "app.marketing.campaigns.steps",
+  "category": "app",
+  "en": "Steps",
+  "it": "Passi"
+ },
+ {
+  "key": "app.marketing.campaigns.step.audience",
+  "category": "app",
+  "en": "Name and audience",
+  "it": "Nome e destinatari"
+ },
+ {
+  "key": "app.marketing.campaigns.step.template",
+  "category": "app",
+  "en": "Template",
+  "it": "Template"
+ },
+ {
+  "key": "app.marketing.campaigns.step.summary",
+  "category": "app",
+  "en": "Summary",
+  "it": "Riepilogo"
+ },
+ {
+  "key": "app.marketing.campaigns.chooseAudience",
+  "category": "app",
+  "en": "Choose a segment or a list",
+  "it": "Scegli un segmento o una lista"
+ },
+ {
+  "key": "app.marketing.campaigns.segmentOption",
+  "category": "app",
+  "en": "Segment: {name}",
+  "it": "Segmento: {name}"
+ },
+ {
+  "key": "app.marketing.campaigns.listOption",
+  "category": "app",
+  "en": "List: {name} ({count})",
+  "it": "Lista: {name} ({count})"
+ },
+ {
+  "key": "app.marketing.campaigns.chooseTemplate",
+  "category": "app",
+  "en": "Choose a template",
+  "it": "Scegli un template"
+ },
+ {
+  "key": "app.marketing.campaigns.next",
+  "category": "app",
+  "en": "Next",
+  "it": "Avanti"
+ },
+ {
+  "key": "app.marketing.campaigns.createDraft",
+  "category": "app",
+  "en": "Save the draft",
+  "it": "Salva la bozza"
+ },
+ {
+  "key": "app.marketing.campaigns.created",
+  "category": "app",
+  "en": "Draft saved.",
+  "it": "Bozza salvata."
+ },
+ {
+  "key": "app.marketing.campaigns.summaryHint",
+  "category": "app",
+  "en": "The draft is saved; it is sent only with \"Send now\", once.",
+  "it": "La bozza viene salvata; parte solo con \"Invia ora\", una volta."
+ },
+ {
+  "key": "app.marketing.campaigns.draftHint",
+  "category": "app",
+  "en": "A draft: check it, then send it now. The clients without e-mail, without the marketing consent or excluded are left out.",
+  "it": "Una bozza: controllala, poi inviala. I clienti senza e-mail, senza consenso marketing o esclusi vengono saltati."
+ },
+ {
+  "key": "app.marketing.campaigns.send",
+  "category": "app",
+  "en": "Send now",
+  "it": "Invia ora"
+ },
+ {
+  "key": "app.marketing.campaigns.sendTitle",
+  "category": "app",
+  "en": "Send the campaign now?",
+  "it": "Inviare ora la campagna?"
+ },
+ {
+  "key": "app.marketing.campaigns.sendText",
+  "category": "app",
+  "en": "The audience has {count} clients now; those without the marketing consent are left out. It cannot be sent again.",
+  "it": "Il pubblico ha ora {count} clienti; quelli senza consenso marketing vengono saltati. Non si potrà inviare di nuovo."
+ },
+ {
+  "key": "app.marketing.campaigns.queued",
+  "category": "app",
+  "en": "Campaign queued: sending.",
+  "it": "Campagna in coda: invio in corso."
+ },
+ {
+  "key": "app.marketing.campaigns.cancel",
+  "category": "app",
+  "en": "Cancel",
+  "it": "Annulla"
+ },
+ {
+  "key": "app.marketing.campaigns.cancelText",
+  "category": "app",
+  "en": "The clients not reached yet will not receive the campaign.",
+  "it": "I clienti non ancora raggiunti non riceveranno la campagna."
+ },
+ {
+  "key": "app.marketing.campaigns.cancelled",
+  "category": "app",
+  "en": "Campaign cancelled.",
+  "it": "Campagna annullata."
+ },
+ {
+  "key": "app.marketing.campaigns.deleted",
+  "category": "app",
+  "en": "Campaign deleted.",
+  "it": "Campagna eliminata."
+ },
+ {
+  "key": "app.marketing.campaigns.deleteText",
+  "category": "app",
+  "en": "The campaign {name} and its results will be deleted.",
+  "it": "La campagna {name} e i suoi esiti verranno eliminati."
+ },
+ {
+  "key": "app.marketing.campaigns.progress",
+  "category": "app",
+  "en": "Progress of the sending",
+  "it": "Avanzamento dell'invio"
+ },
+ {
+  "key": "app.marketing.campaigns.recipients",
+  "category": "app",
+  "en": "Recipients",
+  "it": "Destinatari"
+ },
+ {
+  "key": "app.marketing.campaigns.processedAt",
+  "category": "app",
+  "en": "Handled",
+  "it": "Gestito"
+ },
+ {
+  "key": "app.marketing.campaigns.count.recipients",
+  "category": "app",
+  "en": "Recipients",
+  "it": "Destinatari"
+ },
+ {
+  "key": "app.marketing.campaigns.count.sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviate"
+ },
+ {
+  "key": "app.marketing.campaigns.count.excluded",
+  "category": "app",
+  "en": "Excluded",
+  "it": "Escluse"
+ },
+ {
+  "key": "app.marketing.campaigns.count.failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallite"
+ },
+ {
+  "key": "app.marketing.campaigns.status.Draft",
+  "category": "app",
+  "en": "Draft",
+  "it": "Bozza"
+ },
+ {
+  "key": "app.marketing.campaigns.status.Sending",
+  "category": "app",
+  "en": "Sending",
+  "it": "In invio"
+ },
+ {
+  "key": "app.marketing.campaigns.status.Sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviata"
+ },
+ {
+  "key": "app.marketing.campaigns.status.Cancelled",
+  "category": "app",
+  "en": "Cancelled",
+  "it": "Annullata"
+ },
+ {
+  "key": "app.marketing.campaigns.status.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallita"
+ },
+ {
+  "key": "app.marketing.campaigns.recipientStatus.Pending",
+  "category": "app",
+  "en": "Waiting",
+  "it": "In attesa"
+ },
+ {
+  "key": "app.marketing.campaigns.recipientStatus.Sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviata"
+ },
+ {
+  "key": "app.marketing.campaigns.recipientStatus.Failed",
+  "category": "app",
+  "en": "Failed",
+  "it": "Fallita"
+ },
+ {
+  "key": "app.marketing.campaigns.recipientStatus.Excluded",
+  "category": "app",
+  "en": "Excluded",
+  "it": "Esclusa"
+ },
+ {
+  "key": "app.marketing.campaigns.exclusion.NoConsent",
+  "category": "app",
+  "en": "No marketing consent",
+  "it": "Senza consenso marketing"
+ },
+ {
+  "key": "app.marketing.campaigns.exclusion.NoEmail",
+  "category": "app",
+  "en": "No e-mail",
+  "it": "Senza e-mail"
+ },
+ {
+  "key": "app.marketing.campaigns.exclusion.Suppressed",
+  "category": "app",
+  "en": "Excluded address",
+  "it": "Indirizzo escluso"
+ },
+ {
+  "key": "app.marketing.campaigns.exclusion.Cancelled",
+  "category": "app",
+  "en": "Campaign cancelled",
+  "it": "Campagna annullata"
+ },
+ {
+  "key": "app.marketing.templates.showPreview",
+  "category": "app",
+  "en": "Show the preview",
+  "it": "Mostra l'anteprima"
+ },
+ {
+  "key": "app.marketing.templates.hidePreview",
+  "category": "app",
+  "en": "Hide the preview",
+  "it": "Nascondi l'anteprima"
+ }
+]
