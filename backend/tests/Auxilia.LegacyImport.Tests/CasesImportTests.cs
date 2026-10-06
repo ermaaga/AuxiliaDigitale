@@ -40,11 +40,11 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
 
         Result(report, "MembershipTypes").ShouldBe((2, 0, 0));
         Result(report, "Memberships").ShouldBe((2, 0, 0));
-        Result(report, "MembershipFolderTemplates").ShouldBe((2, 0, 1));
+        Result(report, "MembershipFolderTemplates").ShouldBe((2, 0, 2));
         Result(report, "Subscriptions").ShouldBe((2, 0, 2));
         report.Issues.ShouldContain(issue => issue.Table == "MembershipTypes" && issue.LegacyId == 2 && issue.Reason.StartsWith("name already used", StringComparison.Ordinal));
         report.Issues.ShouldContain(issue => issue.Table == "Memberships" && issue.LegacyId == 2 && issue.Reason == "duration out of range: set to 1 days");
-        report.Issues.ShouldContain(issue => issue.Table == "MembershipFolderTemplates" && issue.LegacyId == 3 && issue.Reason == "parent folder not migrated");
+        report.Issues.ShouldContain(issue => issue.Table == "MembershipFolderTemplates" && issue.LegacyId == 3 && issue.Reason == "folder too deep or in a cycle of parents");
         report.Issues.ShouldContain(issue => issue.Table == "Subscriptions" && issue.LegacyId == 3 && issue.Reason == "client not migrated or not a client");
         report.Issues.ShouldContain(issue => issue.Table == "Subscriptions" && issue.LegacyId == 4 && issue.Reason == "unknown status 7");
 
