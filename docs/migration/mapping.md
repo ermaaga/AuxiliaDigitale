@@ -101,18 +101,20 @@ Utenti senza alcun ruolo: non migrati, elencati nel report (`inspect` ne dà il 
 
 | Legacy | Nuovo |
 |---|---|
-| `UserId` | `cases.client_id` (persona del cliente) |
+| `UserId` | `cases.client_id` (persona del cliente; utente non migrato o senza profilo cliente → pratica scartata) |
 | `MembershipId` | `service_id`; `price` = prezzo del servizio legacy (`Memberships.Price`), `currency = EUR` |
-| `RoleSpecializationId` | `specialization_id` (regole D-04 sulle pratiche private) |
-| `StartDate` / `EndDate` | `started_on` / `expires_on` (date locali, §2; `EndDate` impostata dal legacy al completamento, Q03) |
+| `RoleSpecializationId` | `specialization_id`, altrimenti quella del servizio (regole D-04 sulle pratiche private); solo specializzazioni Employee, le altre lasciate vuote con avviso |
+| `StartDate` / `EndDate` | `started_on` / `expires_on` (date locali, §2; `EndDate` impostata dal legacy al completamento, Q03); `completed_at` = `EndDate` (istante) per le concluse |
 | `Status` (int) | `status`: 0 `Inserted`, 1 `InProgress`, 2 `Sent`, 3 `Completed` |
 | `IsRejected`, `IsActive` | `is_rejected`, `is_active` |
-| `AmountPaid > 0` | un pagamento in `case_payments` (`amount`, `paid_on = StartDate`, nota "legacy") |
-| — | una riga in `case_status_history` con lo stato corrente (`from_status` null) |
-| — | `number` assegnato da `case_numbers` per anno di `StartDate`, in ordine di id legacy |
-| `CustomFields` | `custom_fields` |
+| `AmountPaid > 0` | un pagamento in `case_payments` (`amount` arrotondato a due decimali, `paid_on = StartDate`, nota `legacy`); a un'esecuzione successiva segue l'importo legacy |
+| — | una riga in `case_status_history` con lo stato corrente (`from_status` null); a un'esecuzione successiva uno stato diverso aggiunge una riga |
+| — | `number` `{anno}-{sequenza a 5 cifre}` da `case_numbers` per anno di `started_on`, in ordine di id legacy (stessa sequenza del sistema nuovo) |
+| `CustomFields` | `custom_fields` (solo oggetti JSON; altrimenti `{}` con avviso) |
 
-Dopo le pratiche si ricalcola lo stato di ogni cliente come nel legacy (`UpdateUserStatusBasedOnSubscriptionAsync`: attivo ⇔ almeno una pratica attiva senza fine o con fine futura).
+Stato fuori da 0…3 o data di inizio mancante → pratica scartata. Dopo le pratiche si ricalcola lo stato di ogni cliente con la regola del sistema nuovo (Q03, `Case.CountsAsOpen`: attivo ⇔ almeno una pratica attiva, non conclusa e senza scadenza o con scadenza futura; il legacy contava anche le concluse il giorno stesso).
+
+Catalogo: nomi di categorie attive e di servizi unici (un doppione riceve ` ({id legacy})` con avviso); durata fuori da 1…3650 giorni ricondotta all'intervallo con avviso; prezzo arrotondato a due decimali; specializzazione del servizio solo se Employee. Cartelle: genitori prima dei figli, profondità oltre 10 o genitore non migrato → scartata.
 
 ### 5.3 Documenti (`UserDocuments`)
 

@@ -25,6 +25,11 @@ public sealed record CaseOpening(
     DateOnly? DueOn,
     string CustomFields);
 
+/// <summary>How the legacy application left a case (legacy import E-03): applied as it is, without the workflow rules.</summary>
+/// <param name="AmountPaid">Legacy <c>AmountPaid</c>: one payment (note <see cref="Case.LegacyPaymentNote"/>) when greater than zero.</param>
+public sealed record LegacyCaseState(
+    CaseStatus Status, bool IsRejected, bool IsActive, DateOnly? ExpiresOn, DateTimeOffset? CompletedAt, decimal AmountPaid, DateOnly PaidOn);
+
 /// <summary>
 /// A case of a client for a service (<c>cases.cases</c>, legacy <c>Subscription</c>, F09). It moves Inserted → InProgress
 /// → Sent one step at a time (and back from InProgress or Sent); a sent case is completed with the amount received and
@@ -36,6 +41,9 @@ public sealed class Case : AggregateRoot<Guid>, IAuditable, ISoftDeletable
 {
     public const int NumberMaxLength = 20;
     public const int NoteMaxLength = 500;
+
+    /// <summary>Note of the payment that carries the legacy <c>AmountPaid</c> (E-03).</summary>
+    public const string LegacyPaymentNote = "legacy";
 
     /// <summary>Oldest start date accepted (typing errors such as 0198).</summary>
     public static readonly DateOnly MinDate = new(1900, 1, 1);
@@ -137,6 +145,76 @@ public sealed class Case : AggregateRoot<Guid>, IAuditable, ISoftDeletable
         var opened = new Case(id, opening);
         opened.history.Add(new CaseStatusChange(Guid.CreateVersion7(), id, 1, null, CaseStatus.Inserted, now, actorUserId, null));
         return opened;
+    }
+
+    /// <summary>
+    /// Legacy import (E-03): a case in the state the legacy application left it, with one history row for that state and
+    /// the legacy amount as one payment. Amounts must have at most two decimals.
+    /// </summary>
+    public static Result<Case> ImportLegacy(Guid id, CaseOpening opening, LegacyCaseState state, DateTimeOffset at)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        if (!Enum.IsDefined(state.Status))
+        {
+            return Errors.Cases.CaseInvalid("status", "validation.cases.status");
+        }
+
+        if (!IsAmount(state.AmountPaid, allowZero: true))
+        {
+            return Errors.Cases.CaseInvalid("amountPaid", "validation.cases.amount");
+        }
+
+        var opened = Open(id, opening, actorUserId: null, at);
+        if (opened.IsFailure)
+        {
+            return opened;
+        }
+
+        var imported = opened.Value;
+        imported.history.Clear();
+        imported.history.Add(new CaseStatusChange(Guid.CreateVersion7(), id, 1, null, state.Status, at, null, null));
+        imported.Status = state.Status;
+        imported.ApplyLegacyState(state, at);
+        return imported;
+    }
+
+    /// <summary>
+    /// Legacy import (E-03), a later run: the legacy state wins (the legacy application is still the system in use until
+    /// the cutover). A different status adds a history row; the legacy payment follows the legacy amount.
+    /// </summary>
+    /// <returns>Whether something changed.</returns>
+    public bool ApplyLegacyState(LegacyCaseState state, DateTimeOffset at)
+    {
+        ArgumentNullException.ThrowIfNull(state);
+
+        var changed = false;
+        if (Status != state.Status)
+        {
+            history.Add(new CaseStatusChange(Guid.CreateVersion7(), Id, history.Count + 1, Status, state.Status, at, null, null));
+            Status = state.Status;
+            changed = true;
+        }
+
+        changed |= IsRejected != state.IsRejected || IsActive != state.IsActive || ExpiresOn != state.ExpiresOn || CompletedAt != state.CompletedAt;
+        IsRejected = state.IsRejected;
+        IsActive = state.IsActive;
+        ExpiresOn = state.ExpiresOn;
+        CompletedAt = state.CompletedAt;
+
+        var legacy = payments.Where(payment => payment.Note == LegacyPaymentNote).ToArray();
+        if (legacy.Sum(payment => payment.Amount) != state.AmountPaid || (state.AmountPaid > 0 && legacy.Length != 1))
+        {
+            payments.RemoveAll(payment => payment.Note == LegacyPaymentNote);
+            if (state.AmountPaid > 0)
+            {
+                payments.Add(new CasePayment(Guid.CreateVersion7(), Id, state.AmountPaid, state.PaidOn, LegacyPaymentNote, at, null));
+            }
+
+            changed = true;
+        }
+
+        return changed;
     }
 
     /// <summary>A case still counting for the client's status (Q03): active, not completed and not expired.</summary>

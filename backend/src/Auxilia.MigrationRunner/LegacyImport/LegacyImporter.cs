@@ -22,6 +22,8 @@ internal sealed class LegacyImporter
             new UsersStep(hasher, images),
             new SpecializationMembersStep(),
             new AccountSecurityStep(),
+            new ServiceCatalogStep(),
+            new CasesStep(),
         ];
     }
 
