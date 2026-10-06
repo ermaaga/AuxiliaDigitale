@@ -21,6 +21,25 @@ internal sealed class JobRunStore : IJobRunStore
         this.timeProvider = timeProvider;
     }
 
+    public async Task<IReadOnlyList<JobRunRow>> RecentAsync(string? jobCode, int take, CancellationToken cancellationToken)
+    {
+        await using var db = await databases.CreateOutsideOperationAsync(cancellationToken);
+        var runs = db.Set<JobRun>().AsNoTracking();
+        if (jobCode is not null)
+        {
+            runs = runs.Where(run => run.JobCode == jobCode);
+        }
+
+        var rows = await runs
+            .OrderByDescending(run => run.StartedAt)
+            .ThenByDescending(run => run.Id)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+        return rows
+            .Select(run => new JobRunRow(run.Id, run.JobCode, run.Status.ToString(), run.StartedAt, run.FinishedAt, run.ActorType, run.ActorId, run.ErrorCode, run.Summary))
+            .ToList();
+    }
+
     public async Task<Guid> StartAsync(string jobCode, CancellationToken cancellationToken)
     {
         var run = new JobRun

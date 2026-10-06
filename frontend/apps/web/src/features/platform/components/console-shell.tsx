@@ -96,6 +96,12 @@ export function ConsoleShell({
             icon: "upload",
           },
           {
+            key: "tenant-jobs",
+            label: t("app.platform.nav.jobs"),
+            href: tenantConsoleHref(tenant.slug, "/jobs"),
+            icon: "timer",
+          },
+          {
             key: "tenant-logs",
             label: t("app.platform.nav.logs"),
             href: tenantConsoleHref(tenant.slug, "/logs"),
