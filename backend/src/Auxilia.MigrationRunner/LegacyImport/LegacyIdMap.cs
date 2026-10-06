@@ -17,12 +17,15 @@ internal sealed class LegacyIdMap
     private readonly ITenantDbContext db;
     private readonly TimeProvider timeProvider;
     private readonly Dictionary<(string Entity, int LegacyId), Guid> ids;
+    private readonly Dictionary<(string Entity, Guid Id), DateTimeOffset> importedAt;
 
-    private LegacyIdMap(ITenantDbContext db, TimeProvider timeProvider, Dictionary<(string Entity, int LegacyId), Guid> ids)
+    private LegacyIdMap(
+        ITenantDbContext db, TimeProvider timeProvider, Dictionary<(string Entity, int LegacyId), Guid> ids, Dictionary<(string Entity, Guid Id), DateTimeOffset> importedAt)
     {
         this.db = db;
         this.timeProvider = timeProvider;
         this.ids = ids;
+        this.importedAt = importedAt;
     }
 
     public static async Task<LegacyIdMap> LoadAsync(ITenantDbContext db, TimeProvider timeProvider, CancellationToken cancellationToken)
@@ -30,9 +33,11 @@ internal sealed class LegacyIdMap
         ArgumentNullException.ThrowIfNull(db);
 
         var rows = await db.Set<LegacyIdMapping>().AsNoTracking()
-            .Select(mapping => new { mapping.Entity, mapping.LegacyId, mapping.NewId })
+            .Select(mapping => new { mapping.Entity, mapping.LegacyId, mapping.NewId, mapping.ImportedAt })
             .ToListAsync(cancellationToken);
-        return new LegacyIdMap(db, timeProvider, rows.ToDictionary(row => (row.Entity, row.LegacyId), row => row.NewId));
+        return new LegacyIdMap(
+            db, timeProvider, rows.ToDictionary(row => (row.Entity, row.LegacyId), row => row.NewId),
+            rows.ToDictionary(row => (row.Entity, row.NewId), row => row.ImportedAt));
     }
 
     /// <summary>The Guid of an already mapped legacy row, or <c>null</c>.</summary>
@@ -60,17 +65,25 @@ internal sealed class LegacyIdMap
             throw new InvalidOperationException($"{entity} {legacyId} is already mapped");
         }
 
+        var now = timeProvider.GetUtcNow();
+        importedAt[(entity, id)] = now;
         db.Set<LegacyIdMapping>().Add(new LegacyIdMapping
         {
             Entity = entity,
             LegacyId = legacyId,
             NewId = id,
-            ImportedAt = timeProvider.GetUtcNow(),
+            ImportedAt = now,
         });
     }
 
     /// <summary>A Guid v7 for a record about to be created (recorded with <see cref="Add"/> once it is valid).</summary>
     public Guid NewId() => IdGenerator.New(timeProvider);
+
+    /// <summary>Whether <paramref name="id"/> is the Guid of a row of <paramref name="entity"/>.</summary>
+    public bool IsMapped(string entity, Guid id) => importedAt.ContainsKey((entity, id));
+
+    /// <summary>When the row with <paramref name="id"/> was first imported (<c>null</c> when it is not a row of <paramref name="entity"/>).</summary>
+    public DateTimeOffset? ImportedAt(string entity, Guid id) => importedAt.TryGetValue((entity, id), out var at) ? at : null;
 
     /// <summary>Mapped rows per legacy table.</summary>
     public IReadOnlyDictionary<string, int> Counts() =>

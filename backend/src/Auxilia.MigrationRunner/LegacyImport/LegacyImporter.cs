@@ -16,11 +16,13 @@ namespace Auxilia.MigrationRunner.LegacyImport;
 internal sealed class LegacyImporter
 {
     private readonly IReadOnlyList<ILegacyImportStep> steps;
+    private readonly LegacyReconciliation reconciliation;
 
     public LegacyImporter(LegacyImportServices services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        reconciliation = new LegacyReconciliation(services.Files);
         steps =
         [
             new LocalizationStep(),
@@ -47,7 +49,7 @@ internal sealed class LegacyImporter
 
     public async Task<LegacyImportReport> RunAsync(
         LegacySource source, TenantDbContext tenant, TimeProvider clock, TimeZoneInfo zone, string defaultLanguage, bool dryRun,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, DateTimeOffset? since = null)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(tenant);
@@ -56,12 +58,15 @@ internal sealed class LegacyImporter
         await using var transaction = await tenant.Database.BeginTransactionAsync(cancellationToken);
         await using var legacy = source.CreateContext();
         var ids = await LegacyIdMap.LoadAsync(tenant, clock, cancellationToken);
-        var context = new LegacyImportContext(legacy, tenant, ids, report, clock, zone, defaultLanguage, dryRun);
+        var context = new LegacyImportContext(legacy, tenant, ids, report, clock, zone, defaultLanguage, dryRun, since);
         foreach (var step in steps)
         {
             await step.RunAsync(context, cancellationToken);
             await tenant.SaveChangesAsync(cancellationToken);
         }
+
+        // Inside the transaction: a dry run is reconciled against what it would have written.
+        report.Reconciliation = await reconciliation.RunAsync(source, context, cancellationToken);
 
         if (dryRun)
         {

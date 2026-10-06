@@ -44,6 +44,11 @@ internal sealed class LegacyImportReport
 
     public IReadOnlyList<LegacyImportIssue> Issues => issues;
 
+    /// <summary>The comparison the run ended with (E-06); any difference blocks the cutover.</summary>
+    public IReadOnlyList<ReconciliationCheck> Reconciliation { get; set; } = [];
+
+    public bool Reconciled => Reconciliation.All(check => check.Matches);
+
     public LegacyTableResult For(string table)
     {
         if (!tables.TryGetValue(table, out var result))
@@ -81,6 +86,11 @@ internal sealed class LegacyImportReport
             var shown = string.Join(", ", ids.Take(IdsShown)) + (ids.Length > IdsShown ? ", …" : string.Empty);
             text.AppendLine(culture,
                 $"{(group.Key.Kind == LegacyIssueKind.Skipped ? "skipped" : "warning")} {group.Key.Table}: {group.Key.Reason} ({ids.Length}: legacy ids {shown})");
+        }
+
+        if (Reconciliation.Count > 0)
+        {
+            text.Append(LegacyReconciliation.Render(Reconciliation));
         }
 
         return text.ToString();

@@ -31,5 +31,8 @@ public static partial class EventCodes
 
         /// <summary>A legacy import run ended (committed, or rolled back as a dry run), with its counts.</summary>
         public const int LegacyImported = 28009;
+
+        /// <summary>The reconciliation of a legacy import found differences: the cutover is blocked until they are explained.</summary>
+        public const int LegacyReconciliationFailed = 28010;
     }
 }

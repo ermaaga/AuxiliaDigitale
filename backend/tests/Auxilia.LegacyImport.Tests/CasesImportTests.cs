@@ -27,6 +27,7 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
         await using var tenant = await fixture.CreateTenantAsync("tenant_cases");
 
         var report = await ImportHarness.ImportAsync(source, tenant);
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         Result(report, "MembershipTypes").ShouldBe((2, 0, 0));
         Result(report, "Memberships").ShouldBe((2, 0, 0));
@@ -68,6 +69,7 @@ public sealed class CasesImportTests(LegacyDatabaseFixture fixture)
         }
 
         var again = await ImportHarness.ImportAsync(source, tenant);
+        again.Reconciled.ShouldBeTrue(again.Render(dryRun: false));
 
         Result(again, "Subscriptions").ShouldBe((0, 0, 2));
         Result(again, "Memberships").ShouldBe((0, 2, 0));

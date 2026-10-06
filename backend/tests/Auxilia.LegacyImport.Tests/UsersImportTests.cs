@@ -26,6 +26,7 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         await using var tenant = await fixture.CreateTenantAsync("tenant_users");
 
         var report = await ImportHarness.ImportAsync(source, tenant, hasher: new BcryptHasher());
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         Result(report, "Users").ShouldBe((3, 0, 1, 1));
         Result(report, "RoleSpecializations").ShouldBe((1, 0, 0, 1));
@@ -77,6 +78,7 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
 
         // A second run updates the same records: no new rows, same ids.
         var again = await ImportHarness.ImportAsync(source, tenant, hasher: new BcryptHasher());
+        again.Reconciled.ShouldBeTrue(again.Render(dryRun: false));
 
         Result(again, "Users").ShouldBe((0, 3, 1, 1));
         Result(again, "RoleSpecializations").ShouldBe((0, 1, 0, 1));
@@ -99,6 +101,7 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         await using var tenant = await fixture.CreateTenantAsync("tenant_users_dry");
 
         var report = await ImportHarness.ImportAsync(source, tenant, dryRun: true, hasher: new BcryptHasher());
+        report.Reconciled.ShouldBeTrue(report.Render(dryRun: false));
 
         Result(report, "Users").Created.ShouldBe(3);
         report.Render(dryRun: true).ShouldContain("dry run");

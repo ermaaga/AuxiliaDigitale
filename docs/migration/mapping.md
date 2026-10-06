@@ -12,7 +12,7 @@
 | Comando | Task | Cosa fa |
 |---|---|---|
 | `auxctl legacy inspect [--tenant <slug>]` | E-01 | Legge il database legacy: variante dello schema (con o senza `Security_Update`, tabella `ImportJobs`), ultima migrazione EF applicata, righe per tabella con destino e task, utenti esclusi (solo SystemConfigurator) e senza ruolo, tabelle sconosciute. Con `--tenant` aggiunge le righe già mappate in `ops.legacy_id_map` del tenant. Non scrive nulla. |
-| `auxctl legacy import --tenant <slug> [--files <dir>] [--dry-run]` | E-02…E-05 | Import per moduli nell'ordine del §4 in **una** transazione del tenant (annullata con `--dry-run`, stesso report). Ripetibile: le righe già importate si aggiornano. Report per tabella (creati, aggiornati, esclusi, scartati) e avvisi per riga raggruppati per motivo, con gli id legacy. Riconciliazione (§7) e `--since` con E-06. |
+| `auxctl legacy import --tenant <slug> [--files <dir>] [--dry-run] [--since <istante>]` | E-02…E-06 | Import per moduli nell'ordine del §4 in **una** transazione del tenant (annullata con `--dry-run`, stesso report). Ripetibile: le righe già importate si aggiornano. Report per tabella (creati, aggiornati, esclusi, scartati) e avvisi per riga raggruppati per motivo, con gli id legacy. Termina sempre con la riconciliazione (§7): con differenze il codice d'uscita è 2 (`AUX-28010`) e il cutover è bloccato. |
 
 - La stringa di connessione del legacy si legge dalla variabile d'ambiente **`AUXILIA_LEGACY_CONNECTION`**, mai dalla riga di comando e mai stampata (come `AUXILIA_TENANT_CONNECTION`). Conviene un utente PostgreSQL con sola lettura; in ogni caso la sessione è aperta con `default_transaction_read_only=on`, quindi ogni scrittura sul legacy fallisce.
 - Prima di leggere, lo schema viene confrontato con il modello di lettura: tabelle della baseline o colonne mancanti → `AUX-28007` e nessuna lettura; server non raggiungibile → `AUX-28006`; ispezione riuscita → log `AUX-28008` (solo conteggi, nessun dato personale).
@@ -173,12 +173,23 @@ Un valore non elencato è un errore di riga nel report (mai un default silenzios
 
 ## 7. Riconciliazione (E-06, bloccante per il cutover)
 
-- Righe per tabella legacy vs record creati, al netto delle esclusioni dichiarate (§3) e degli scarti elencati nel report.
-- Utenti per ruolo; assegnazioni cliente → operatore; membri delle specializzazioni.
-- Pratiche per stato e rifiutate; somma di `AmountPaid` = somma di `case_payments.amount`.
-- Documenti: conteggio, file copiati con SHA-256 verificato rileggendo lo storage di destinazione.
-- Appuntamenti per stato, richieste e messaggi, registrazioni per stato.
-- Traduzioni personalizzate, impostazioni, account di invio, override di moduli e permessi.
+Ogni esecuzione termina con la riconciliazione (`LegacyReconciliation`), dentro la stessa transazione: anche un `--dry-run` è riconciliato con quello che avrebbe scritto. Il report elenca ogni controllo con `ok` o `DIFF`, il valore del legacy e quello del tenant; una differenza dà il codice d'uscita 2 e il log `AUX-28010`.
+
+| Controllo | Legacy | Tenant |
+|---|---|---|
+| Righe per tabella migrata riga per riga (`Users`, `RoleSpecializations`, `MembershipTypes`, `Memberships`, `MembershipFolderTemplates`, `Subscriptions`, `UserDocuments`, `Appointments`, `Requests`, `Notifications`, `RegistrationRequests`, `ImportTypes`, `Imports`, `ImportJobs`, `LoginAuditLogs`, `EmailConfigurations`) | righe della tabella | righe importate (`ops.legacy_id_map`) + escluse per decisione + scartate con un motivo |
+| Utenti per ruolo | ruoli degli utenti importati (senza SystemConfigurator) | ruoli di quegli account |
+| Clienti assegnati a un operatore importato | `AssignedEmployeeId` | operatore in carico |
+| Pratiche per stato, rifiutate | `Status`, `IsRejected` delle pratiche importate | stato ed esito |
+| Importo pagato | somma di `AmountPaid` (a due decimali) | somma dei pagamenti con nota `legacy` |
+| Appuntamenti per stato | stato legacy | stato |
+| Richieste con risposta | `Response` non vuota | messaggio #2 presente |
+| Registrazioni processate | `IsProcessed` | Approved + Rejected |
+| Documenti | documenti importati | file riletti dallo storage del tenant con la stessa dimensione e lo stesso SHA-256 (non in `--dry-run`, che non scrive file) |
+
+Le traduzioni, le impostazioni, i campi personalizzati, i permessi e le griglie non hanno un conteggio da confrontare: ogni valore scartato o lasciato al predefinito è un avviso del report, da leggere prima del cutover.
+
+**Delta al cutover (`--since <istante>`).** Il legacy non registra quando una riga cambia (solo alcune tabelle hanno una data di creazione), quindi le righe si confrontano sempre tutte: è questo che rende l'esecuzione ripetibile e la riconciliazione completa. `--since` limita il lavoro costoso: i file importati prima dell'istante non vengono riletti dalla riconciliazione. In ogni esecuzione, inoltre, la verifica BCrypt delle password assegnate dal legacy (§2) riguarda solo gli hash nuovi o cambiati. Procedura: un import completo prima della finestra di manutenzione, poi, con il legacy in sola lettura, un import con `--since` uguale all'istante del precedente, senza differenze.
 
 ## 8. Punti aperti
 
