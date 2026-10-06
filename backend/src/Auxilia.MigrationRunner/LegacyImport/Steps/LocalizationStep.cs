@@ -65,7 +65,7 @@ internal sealed class LocalizationStep : ILegacyImportStep
         }
 
         var codes = legacyLanguages.ToDictionary(language => language.Id, language => language.Code.Trim().ToLowerInvariant());
-        var keys = await db.Set<ResourceKey>().ToDictionaryAsync(key => key.Key, StringComparer.Ordinal, cancellationToken);
+        var keys = await db.Set<ResourceKey>().Include(key => key.Translations).ToDictionaryAsync(key => key.Key, StringComparer.Ordinal, cancellationToken);
         var legacyKeys = await context.Legacy.ResourceKeys.ToDictionaryAsync(key => key.Id, cancellationToken);
         var result = context.Report.For(TranslationsTable);
         var keyResult = context.Report.For(KeysTable);
