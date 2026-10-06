@@ -3,6 +3,8 @@ import { createApiClient, networkError, type ApiClient } from "@auxilia/api-clie
 import type { BffArea } from "@/lib/bff/config";
 import { CSRF_HEADER, CSRF_HEADER_VALUE } from "@/lib/bff/csrf";
 
+import { isVersionedWrite, resourceVersions, versionKey } from "./resource-versions";
+
 const API_PREFIX = "/api/v1/";
 
 /** BFF route of each area in the browser. */
@@ -36,6 +38,8 @@ export function createBffClient(area: BffArea, options: BffClientOptions = {}): 
     fetch: options.fetch,
     credentials: "same-origin",
   });
+  const scope = `${area}:${options.tenant ?? ""}`;
+  const send = options.fetch ?? ((input: Request) => fetch(input));
   client.use({
     async onRequest({ request }) {
       const url = new URL(request.url, "http://relative.invalid");
@@ -56,6 +60,17 @@ export function createBffClient(area: BffArea, options: BffClientOptions = {}): 
         headers.set("x-tenant", options.tenant);
       }
 
+      // F29: a write of a shared resource carries the version the caller read (read now if it never was).
+      if (isVersionedWrite(request.method, url.pathname) && !headers.has("if-match")) {
+        const key = versionKey(scope, url.pathname);
+        const etag =
+          resourceVersions.get(key) ??
+          (await readVersion(send, absolute.replace(/\?.*$/, ""), options.tenant, request.signal));
+        if (etag) {
+          headers.set("if-match", etag);
+        }
+      }
+
       // The body is buffered, never passed on as the original request's stream: browsers send a stream body as a
       // streaming upload, which needs HTTP/2 and fails over HTTP/1.1 (Chrome: ERR_ALPN_NEGOTIATION_FAILED).
       return new Request(absolute, {
@@ -66,9 +81,44 @@ export function createBffClient(area: BffArea, options: BffClientOptions = {}): 
         signal: request.signal,
       });
     },
+    onResponse({ request, response }) {
+      const apiPath =
+        API_PREFIX +
+        new URL(request.url, "http://relative.invalid").pathname.slice(BFF_PREFIX[area].length);
+      const key = versionKey(scope, apiPath);
+      const etag = response.headers.get("etag");
+      if (request.method === "GET" && response.ok && etag) {
+        resourceVersions.set(key, etag);
+      } else if (
+        isVersionedWrite(request.method, apiPath) &&
+        (response.ok || response.status === 412)
+      ) {
+        resourceVersions.forget(key);
+      }
+
+      return response;
+    },
     onError({ error }) {
       return networkError(error);
     },
   });
   return client;
+}
+
+/** The current ETag of a resource through the BFF; undefined when it cannot be read (the write then reports why). */
+async function readVersion(
+  send: (input: Request) => Promise<Response>,
+  url: string,
+  tenant: string | undefined,
+  signal: AbortSignal,
+): Promise<string | undefined> {
+  const headers = new Headers();
+  if (tenant) {
+    headers.set("x-tenant", tenant);
+  }
+
+  const response = await send(
+    new Request(url, { method: "GET", headers, credentials: "same-origin", signal }),
+  );
+  return response.ok ? (response.headers.get("etag") ?? undefined) : undefined;
 }

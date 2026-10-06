@@ -61,6 +61,7 @@ internal sealed class LocalizationEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         editor.MapGet("/keys/{id:guid}", GetKeyAsync)
+            .WithETag()
             .WithName("GetResourceKey")
             .WithSummary("A translation key with its translations")
             .Produces<ResourceKeyResponse>()
@@ -79,6 +80,7 @@ internal sealed class LocalizationEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         editor.MapPut("/keys/{id:guid}", UpdateKeyAsync)
+            .RequireIfMatch()
             .WithName("UpdateResourceKey")
             .WithSummary("Changes category and description of a translation key")
             .Produces(StatusCodes.Status204NoContent)
@@ -88,6 +90,7 @@ internal sealed class LocalizationEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         editor.MapDelete("/keys/{id:guid}", DeleteKeyAsync)
+            .RequireIfMatch()
             .WithName("DeleteResourceKey")
             .WithSummary("Deletes a translation key and its translations")
             .Produces(StatusCodes.Status204NoContent)

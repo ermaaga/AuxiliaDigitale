@@ -43,6 +43,7 @@ internal sealed class ClientEndpoints : IModuleEndpoints
             .Produces<IReadOnlyList<ClientSpecializationResponse>>();
 
         clients.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(DirectoryPermissions.ViewClients)
             .WithName("GetClient")
             .WithSummary("A client: personal data, account, employee in charge with history, specializations")
@@ -58,6 +59,7 @@ internal sealed class ClientEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         clients.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(DirectoryPermissions.ManageClients)
             .WithName("UpdateClient")
             .WithSummary("Changes personal data, user name and custom fields of a client")
@@ -67,6 +69,7 @@ internal sealed class ClientEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         clients.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(DirectoryPermissions.DeleteClients)
             .WithName("DeleteClient")
             .WithSummary("Deletes a client (soft delete): hidden from the lists, sign-in disabled")

@@ -55,6 +55,7 @@ internal sealed class TagEndpoints : IModuleEndpoints
             .ProducesValidationProblem();
 
         clients.MapGet("/{id:guid}/tags", ClientTagsAsync)
+            .WithETag()
             .RequirePermission(DirectoryPermissions.ViewClients)
             .WithName("GetClientTags")
             .WithSummary("The tags of a client")
@@ -62,6 +63,7 @@ internal sealed class TagEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         clients.MapPut("/{id:guid}/tags", SetClientTagsAsync)
+            .RequireIfMatch()
             .RequirePermission(DirectoryPermissions.ManageClients)
             .WithName("SetClientTags")
             .WithSummary("Replaces the tags of a client")

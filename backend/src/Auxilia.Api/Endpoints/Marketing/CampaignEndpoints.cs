@@ -32,6 +32,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesValidationProblem();
 
         templates.MapGet("/{id:guid}", GetTemplateAsync)
+            .WithETag()
             .RequirePermission(MarketingPermissions.ViewCampaigns)
             .WithName("GetEmailTemplate")
             .WithSummary("An e-mail template")
@@ -39,6 +40,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         templates.MapPut("/{id:guid}", UpdateTemplateAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageCampaigns)
             .WithName("UpdateEmailTemplate")
             .WithSummary("Changes an e-mail template")
@@ -47,6 +49,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         templates.MapDelete("/{id:guid}", DeleteTemplateAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageCampaigns)
             .WithName("DeleteEmailTemplate")
             .WithSummary("Deletes an e-mail template no campaign uses")
@@ -87,6 +90,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesValidationProblem();
 
         campaigns.MapGet("/{id:guid}", GetCampaignAsync)
+            .WithETag()
             .RequirePermission(MarketingPermissions.ViewCampaigns)
             .WithName("GetCampaign")
             .WithSummary("A campaign with its status and counters")
@@ -94,6 +98,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         campaigns.MapPut("/{id:guid}", UpdateCampaignAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageCampaigns)
             .WithName("UpdateCampaign")
             .WithSummary("Changes a draft campaign")
@@ -103,6 +108,7 @@ internal sealed class CampaignEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         campaigns.MapDelete("/{id:guid}", DeleteCampaignAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageCampaigns)
             .WithName("DeleteCampaign")
             .WithSummary("Deletes a campaign not sending")

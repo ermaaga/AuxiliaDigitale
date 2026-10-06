@@ -37,6 +37,7 @@ public static class ResultHttpExtensions
         ErrorType.NotFound => StatusCodes.Status404NotFound,
         ErrorType.Conflict => StatusCodes.Status409Conflict,
         ErrorType.PreconditionFailed => StatusCodes.Status412PreconditionFailed,
+        ErrorType.PreconditionRequired => StatusCodes.Status428PreconditionRequired,
         ErrorType.Failure => StatusCodes.Status500InternalServerError,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown error type"),
     };

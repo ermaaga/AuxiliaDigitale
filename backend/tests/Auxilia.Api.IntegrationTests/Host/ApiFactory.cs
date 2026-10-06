@@ -29,6 +29,9 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     protected virtual IApiEndpoints? Endpoints => null;
 
+    /// <summary>Whether writes of versioned resources need <c>If-Match</c> (production: always).</summary>
+    protected virtual bool RequireIfMatch => false;
+
     /// <summary>Module endpoints mapped through <c>MapModules</c> (tenant + module visibility filters).</summary>
     protected virtual IReadOnlyList<IModuleEndpoints> ModuleEndpoints => [];
 
@@ -45,6 +48,9 @@ public class ApiFactory : WebApplicationFactory<Program>
 
         // Suites share one client IP (none, in the test server): rate limits are tested on their own (RateLimitingTests).
         builder.UseSetting("RateLimiting:Enabled", "false");
+
+        // Suites written before F29 send no If-Match; ResourceVersioningTests turn the requirement back on.
+        builder.UseSetting("Concurrency:RequireIfMatch", RequireIfMatch ? "true" : "false");
 
         builder.ConfigureServices(services =>
         {

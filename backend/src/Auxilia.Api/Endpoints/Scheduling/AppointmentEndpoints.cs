@@ -55,6 +55,7 @@ internal sealed class AppointmentEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         appointments.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(SchedulingPermissions.ViewAppointments)
             .WithName("GetAppointment")
             .WithSummary("An appointment with its timeline, conflict warning (staff) and what the caller may do")
@@ -78,6 +79,7 @@ internal sealed class AppointmentEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         appointments.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(SchedulingPermissions.ManageAppointments)
             .WithName("UpdateAppointment")
             .WithSummary("Moves or edits a pending or approved appointment (a new start must be in the future)")
@@ -93,6 +95,7 @@ internal sealed class AppointmentEndpoints : IModuleEndpoints
         MapStatus(appointments, "cancel", "CancelAppointment", "Cancels a pending or approved appointment (staff or the client)", (manager, id, note, ct) => manager.CancelAsync(id, note, ct));
 
         appointments.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(SchedulingPermissions.ManageAppointments)
             .WithName("DeleteAppointment")
             .WithSummary("Staff delete an appointment (soft delete, history kept)")

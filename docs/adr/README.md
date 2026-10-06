@@ -19,3 +19,4 @@
 | [0015](0015-temporary-exception-braces-advisory.md) | Temporary exception for GHSA-vfj7-8cjw-p6xm (braces), expires 2026-11-02 | Accepted | ADR 0011 |
 | [0016](0016-legacy-import-reads-a-checked-read-model-and-writes-through-persistence.md) | Legacy import: a checked read model, writes through persistence, ids in `ops.legacy_id_map` | Accepted | D-30, ADR 0004, E-01 |
 | [0017](0017-lighthouse-budget-in-the-e2e-suite.md) | Lighthouse budget (≥ 90) in the E2E suite with `lighthouse` as a dev dependency | Accepted | H-02, ADR 0011 |
+| [0018](0018-optimistic-concurrency-with-representation-etags.md) | Optimistic concurrency: representation ETags, `If-Match` required on shared records (412/428) | Accepted | H-04c, F29 |

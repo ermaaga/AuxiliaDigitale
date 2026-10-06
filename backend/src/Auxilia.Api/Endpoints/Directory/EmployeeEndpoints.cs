@@ -45,6 +45,7 @@ internal sealed class EmployeeEndpoints : IModuleEndpoints
             .Produces<IReadOnlyList<EmployeeSpecializationResponse>>();
 
         employees.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(DirectoryPermissions.ViewEmployees)
             .WithName("GetEmployee")
             .WithSummary("An employee: personal data, account, default flag, administrator, specializations, workload")
@@ -60,6 +61,7 @@ internal sealed class EmployeeEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         employees.MapPut("/{id:guid}", UpdateAsync)
+            .RequireIfMatch()
             .RequirePermission(DirectoryPermissions.ManageEmployees)
             .WithName("UpdateEmployee")
             .WithSummary("Changes personal data and user name of an employee")
@@ -69,6 +71,7 @@ internal sealed class EmployeeEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         employees.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(DirectoryPermissions.ManageEmployees)
             .WithName("DeleteEmployee")
             .WithSummary("Deletes an employee (soft delete): sign-in disabled, clients handed to the default employee")

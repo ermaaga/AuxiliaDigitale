@@ -31,6 +31,7 @@ internal sealed class RequestEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status403Forbidden);
 
         requests.MapGet("/{id:guid}", GetAsync)
+            .WithETag()
             .RequirePermission(EngagementPermissions.ViewRequests)
             .WithName("GetRequest")
             .WithSummary("A request with its thread and what the caller may do")
@@ -63,6 +64,7 @@ internal sealed class RequestEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict);
 
         requests.MapDelete("/{id:guid}", DeleteAsync)
+            .RequireIfMatch()
             .RequirePermission(EngagementPermissions.DeleteRequests)
             .WithName("DeleteRequest")
             .WithSummary("Administrators delete a request (soft delete, thread kept)")

@@ -45,6 +45,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesValidationProblem();
 
         segments.MapGet("/{id:guid}", GetSegmentAsync)
+            .WithETag()
             .RequirePermission(MarketingPermissions.ViewAudiences)
             .WithName("GetSegment")
             .WithSummary("A segment with its rule and how many clients it selects now")
@@ -52,6 +53,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         segments.MapPut("/{id:guid}", UpdateSegmentAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageAudiences)
             .WithName("UpdateSegment")
             .WithSummary("Changes the name, description or rule of a segment")
@@ -60,6 +62,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         segments.MapDelete("/{id:guid}", DeleteSegmentAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageAudiences)
             .WithName("DeleteSegment")
             .WithSummary("Deletes a segment")
@@ -89,6 +92,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesValidationProblem();
 
         lists.MapGet("/{id:guid}", GetListAsync)
+            .WithETag()
             .RequirePermission(MarketingPermissions.ViewAudiences)
             .WithName("GetStaticList")
             .WithSummary("A static list")
@@ -96,6 +100,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         lists.MapPut("/{id:guid}", UpdateListAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageAudiences)
             .WithName("UpdateStaticList")
             .WithSummary("Renames a static list")
@@ -104,6 +109,7 @@ internal sealed class AudienceEndpoints : IModuleEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound);
 
         lists.MapDelete("/{id:guid}", DeleteListAsync)
+            .RequireIfMatch()
             .RequirePermission(MarketingPermissions.ManageAudiences)
             .WithName("DeleteStaticList")
             .WithSummary("Deletes a static list with its members")

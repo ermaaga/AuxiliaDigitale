@@ -18,6 +18,9 @@ public static partial class Errors
         public static Error PreconditionFailed() =>
             Error.PreconditionFailed(EventCodes.Host.PreconditionFailed, "The resource version does not match If-Match");
 
+        public static Error PreconditionRequired() =>
+            Error.PreconditionRequired(EventCodes.Host.PreconditionRequired, "The write needs the If-Match header of the resource");
+
         public static Error IdempotencyKeyReused() =>
             Error.Conflict(EventCodes.Host.IdempotencyKeyReused, "The idempotency key was already used with a different payload");
 

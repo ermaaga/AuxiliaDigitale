@@ -54,5 +54,8 @@ public static partial class EventCodes
 
         /// <summary>Too many requests for a rate-limit policy (429, with <c>Retry-After</c>).</summary>
         public const int TooManyRequests = 10024;
+
+        /// <summary>A write of a shared resource came without <c>If-Match</c> (428): read the resource first (F29).</summary>
+        public const int PreconditionRequired = 10025;
     }
 }
