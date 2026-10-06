@@ -28,6 +28,11 @@ internal sealed class LegacyImporter
             new ServiceCatalogStep(),
             new CasesStep(),
             new DocumentsStep(services.Files, services.LegacyFiles),
+            new AppointmentsStep(),
+            new RequestsStep(),
+            new NotificationsStep(),
+            new RegistrationsStep(),
+            new ImportHistoryStep(),
         ];
     }
 

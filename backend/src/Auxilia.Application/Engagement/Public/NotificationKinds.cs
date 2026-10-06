@@ -23,6 +23,12 @@ public static class NotificationKinds
     public const string CaseExpired = "case.expired";
     public const string TaskAssigned = "task.assigned";
 
+    /// <summary>
+    /// A notification migrated from the legacy application (E-05): its title and message are kept as parameters
+    /// (<c>{title}</c>, <c>{message}</c>). Not in <see cref="All"/>: nothing sends it, so it has no preference.
+    /// </summary>
+    public const string LegacyMessage = "legacy.message";
+
     public static IReadOnlyList<string> All { get; } =
     [
         AppointmentScheduled, AppointmentRequested, AppointmentUpdated, AppointmentApproved, AppointmentRejected,

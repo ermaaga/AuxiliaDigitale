@@ -1,0 +1,14 @@
+[
+ {
+  "key": "notifications.legacy.message.title",
+  "category": "notifications",
+  "en": "{title}",
+  "it": "{title}"
+ },
+ {
+  "key": "notifications.legacy.message.message",
+  "category": "notifications",
+  "en": "{message}",
+  "it": "{message}"
+ }
+]

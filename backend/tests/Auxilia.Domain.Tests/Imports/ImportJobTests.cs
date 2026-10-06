@@ -56,4 +56,13 @@ public sealed class ImportJobTests
         (valid.Status, valid.EntityId, invalid.Status).ShouldBe((ImportRowStatus.Imported, (Guid?)entity, ImportRowStatus.Failed));
         new ImportType(Guid.CreateVersion7(), " Clienti ", "Client", Now).Name.ShouldBe("Clienti");
     }
+
+    [Fact]
+    public void ImportLegacy_IsFinishedHistoryWithoutFile()
+    {
+        var job = ImportJob.ImportLegacy(Guid.CreateVersion7(), Guid.CreateVersion7(), " ", "clienti.xlsx", ImportJobStatus.Completed, (10, 10, 9, 1), "one row failed", Now.AddDays(-2), Now.AddDays(-2), Now.AddDays(-1));
+
+        (job.Name, job.FileContent, job.IsFinished, job.SuccessRows, job.FailedRows, job.CompletedAt).ShouldBe(("clienti.xlsx", (byte[]?)null, true, 9, 1, (DateTimeOffset?)Now.AddDays(-1)));
+        job.StartValidation(5, Now).ShouldBeFalse();
+    }
 }

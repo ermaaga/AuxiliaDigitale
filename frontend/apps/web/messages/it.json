@@ -1879,6 +1879,8 @@
   "notifications.case.expiring.title": "Pratica in scadenza",
   "notifications.export.ready.message": "{file} è pronto da scaricare per 24 ore.",
   "notifications.export.ready.title": "Esportazione pronta",
+  "notifications.legacy.message.message": "{message}",
+  "notifications.legacy.message.title": "{title}",
   "notifications.registration.requested.message": "{name} ha chiesto di registrarsi.",
   "notifications.registration.requested.title": "Nuova registrazione",
   "notifications.request.closed.message": "{name} ha chiuso \"{subject}\".",

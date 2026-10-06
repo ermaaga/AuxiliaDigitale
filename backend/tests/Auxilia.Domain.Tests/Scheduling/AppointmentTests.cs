@@ -106,4 +106,27 @@ public sealed class AppointmentTests
     {
         Enum.GetValues<AppointmentStatus>().Where(Appointment.IsOpen).ShouldBe([AppointmentStatus.Pending, AppointmentStatus.Approved]);
     }
+
+    [Fact]
+    public void ImportLegacy_AcceptsPastAppointments_WithOneHistoryRow()
+    {
+        var imported = Appointment.ImportLegacy(
+            Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), Slot(Now.AddYears(-1)), AppointmentStatus.Completed, requestedByClient: false, Now.AddYears(-1).AddDays(-3)).Value;
+
+        (imported.Status, imported.StartsAt, imported.EndsAt).ShouldBe((AppointmentStatus.Completed, Now.AddYears(-1), Now.AddYears(-1).AddMinutes(60)));
+        imported.History.Select(change => (change.FromStatus, change.ToStatus, change.ChangedByUserId)).ShouldBe([((AppointmentStatus?)null, AppointmentStatus.Completed, (Guid?)null)]);
+        Appointment.ImportLegacy(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), Slot(duration: 1), AppointmentStatus.Pending, true, Now).IsFailure.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ApplyLegacyState_FollowsTheLegacyTimeAndStatus()
+    {
+        var imported = Appointment.ImportLegacy(Guid.CreateVersion7(), Guid.CreateVersion7(), Guid.CreateVersion7(), Slot(Now.AddDays(2)), AppointmentStatus.Pending, true, Now).Value;
+
+        imported.ApplyLegacyState(Slot(Now.AddDays(2)), AppointmentStatus.Pending, Now).ShouldBeFalse();
+        imported.ApplyLegacyState(Slot(Now.AddDays(3), duration: 30), AppointmentStatus.Approved, Now).ShouldBeTrue();
+
+        (imported.StartsAt, imported.EndsAt, imported.Status).ShouldBe((Now.AddDays(3), Now.AddDays(3).AddMinutes(30), AppointmentStatus.Approved));
+        imported.History.Select(change => change.ToStatus).ShouldBe([AppointmentStatus.Pending, AppointmentStatus.Approved]);
+    }
 }

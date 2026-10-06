@@ -1879,6 +1879,8 @@
   "notifications.case.expiring.title": "Case expiring",
   "notifications.export.ready.message": "{file} is ready to download for 24 hours.",
   "notifications.export.ready.title": "Export ready",
+  "notifications.legacy.message.message": "{message}",
+  "notifications.legacy.message.title": "{title}",
   "notifications.registration.requested.message": "{name} asked to register.",
   "notifications.registration.requested.title": "New registration",
   "notifications.request.closed.message": "{name} closed \"{subject}\".",
