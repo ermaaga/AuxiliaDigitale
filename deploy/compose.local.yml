@@ -1,0 +1,157 @@
+# The whole application on this machine (ADR 0013), to try it in a browser: infrastructure, API, Worker, web app and
+# console, a mail catcher. Separate from compose.dev.yml (own project, volumes and host ports), so both can coexist.
+#
+#   docker compose -f deploy/compose.local.yml up -d --build      first run: a few minutes (images are built)
+#   docker compose -f deploy/compose.local.yml logs bootstrap      sign-in details of the first run
+#   docker compose -f deploy/compose.local.yml down                stop (data kept); add -v to start again from zero
+#
+# Web app and console http://localhost:3000 · API http://localhost:5080 (Scalar /scalar) · e-mails http://localhost:8025
+# · RabbitMQ http://localhost:15673 · Postgres localhost:5433. Development-only credentials (override with environment
+# variables); never reuse them outside a developer machine. Details: deploy/README.md.
+name: auxilia-local
+
+x-backend: &backend
+  environment: &backend-environment
+    ASPNETCORE_ENVIRONMENT: Development
+    DOTNET_ENVIRONMENT: Development
+    ConnectionStrings__Catalog: Host=postgres;Database=auxilia_catalog;Username=${AUXILIA_PG_USER:-auxilia};Password=${AUXILIA_PG_PASSWORD:-auxilia-dev}
+    ConnectionStrings__Redis: valkey:6379
+    ConnectionStrings__RabbitMq: amqp://${AUXILIA_RABBITMQ_USER:-auxilia}:${AUXILIA_RABBITMQ_PASSWORD:-auxilia-dev}@rabbitmq:5672
+    AuxiliaLogging__Storage: local-file
+  volumes:
+    - storage:/data/storage
+    - logs:/data/logs
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${AUXILIA_PG_USER:-auxilia}
+      POSTGRES_PASSWORD: ${AUXILIA_PG_PASSWORD:-auxilia-dev}
+      POSTGRES_DB: auxilia_catalog
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d auxilia_catalog"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${AUXILIA_RABBITMQ_USER:-auxilia}
+      RABBITMQ_DEFAULT_PASS: ${AUXILIA_RABBITMQ_PASSWORD:-auxilia-dev}
+    ports:
+      - "15673:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  # Catches every e-mail the application sends (invitations, resets, notifications, campaigns): web UI on :8025.
+  # Use it from the console: Messaging → new account, provider smtp, host mailpit, port 1025, security None.
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "8025:8025"
+
+  # One-shot: migrations, tenant `demo`, client applications, first sign-in details (deploy/local/bootstrap.sh).
+  bootstrap:
+    <<: *backend
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+      target: auxctl
+    image: auxilia-local/auxctl
+    entrypoint: ["bash", "/scripts/bootstrap.sh"]
+    environment:
+      <<: *backend-environment
+      AUXILIA_PUBLIC_ORIGIN: http://localhost:3000
+    volumes:
+      - storage:/data/storage
+      - logs:/data/logs
+      - shared:/shared
+      - ./local/bootstrap.sh:/scripts/bootstrap.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *backend
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+      target: api
+    image: auxilia-local/api
+    ports:
+      - "5080:8080"
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *backend
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+      target: worker
+    image: auxilia-local/worker
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: auxilia-local/web
+    environment:
+      AUXILIA_API_URL: http://api:8080
+      # The browser connects to the API hub directly (SignalR, F16/F17).
+      AUXILIA_API_PUBLIC_URL: http://localhost:5080
+      AUXILIA_PUBLIC_ORIGIN: http://localhost:3000
+    volumes:
+      - shared:/shared:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+
+  # auxctl on demand, e.g. `docker compose -f deploy/compose.local.yml run --rm auxctl tenant list` (profile tools:
+  # not started by `up`).
+  auxctl:
+    <<: *backend
+    image: auxilia-local/auxctl
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  rabbitmq-data:
+  storage:
+  logs:
+  shared:

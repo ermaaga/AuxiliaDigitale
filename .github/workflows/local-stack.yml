@@ -1,0 +1,65 @@
+name: Local stack
+
+# Builds the images of deploy/compose.local.yml, starts the whole application and checks it answers: bootstrap done,
+# API healthy, web pages served, a sign-in through the BFF reaching the API with the generated client secret.
+on:
+  pull_request:
+    paths:
+      - deploy/**
+      - backend/Dockerfile
+      - backend/.dockerignore
+      - frontend/Dockerfile
+      - frontend/.dockerignore
+      - .github/workflows/local-stack.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compose:
+    name: Local stack (compose)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build and start
+        run: docker compose -f deploy/compose.local.yml up -d --build
+
+      - name: Bootstrap succeeded
+        run: |
+          for _ in $(seq 1 60); do
+            state="$(docker compose -f deploy/compose.local.yml ps -a bootstrap --format '{{.State}} {{.ExitCode}}')"
+            [[ "$state" == exited* ]] && break
+            sleep 5
+          done
+          docker compose -f deploy/compose.local.yml logs bootstrap | grep -v -i "password\|token\|secret"
+          [[ "$(docker compose -f deploy/compose.local.yml ps -a bootstrap --format '{{.ExitCode}}')" == "0" ]]
+
+      - name: API and web answer
+        run: |
+          wait_for() { for _ in $(seq 1 60); do curl -fsS -o /dev/null "$1" && return 0; sleep 5; done; echo "no answer from $1"; return 1; }
+          wait_for http://localhost:5080/health/live
+          wait_for http://localhost:3000/platform/login
+          wait_for http://localhost:3000/demo/login
+          curl -fsS -o /dev/null http://localhost:8025/
+
+      - name: Sign-in through the BFF reaches the API
+        run: |
+          password="$(docker compose -f deploy/compose.local.yml run --rm --no-deps --entrypoint cat bootstrap /shared/credentials.txt | sed -n 's/^  password *\([^ ]*\).*/\1/p')"
+          echo "::add-mask::$password"
+          body="$(jq -n --arg password "$password" '{tenant: "demo", userName: "admin@demo.local", password: $password}')"
+          response="$(curl -sS -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -H 'X-Requested-With: auxilia' \
+            -H 'Origin: http://localhost:3000' -d "$body")"
+          echo "$response"
+          # The temporary password must be changed first (F35): the API checked the client and the password.
+          grep -q 'AUX-12043' <<< "$response"
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f deploy/compose.local.yml logs --tail 200 | grep -v -i "password\|secret"
+
+      - name: Stop
+        if: always()
+        run: docker compose -f deploy/compose.local.yml down -v
