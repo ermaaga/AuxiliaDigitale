@@ -77,4 +77,25 @@ public sealed class DocumentTests
         area.Update(" ", true).Error!.Code.ShouldBe(EventCodes.Documents.DocumentAreaInvalid);
         DocumentArea.Create(Guid.CreateVersion7(), new string('x', DocumentArea.NameMaxLength + 1)).IsFailure.ShouldBeTrue();
     }
+
+    [Fact]
+    public void ImportLegacy_KeepsTheUploadInstantAndAnOldYear_AndIsAvailable()
+    {
+        var uploaded = Now.AddYears(-12);
+        var uploader = Guid.CreateVersion7();
+
+        var document = Document.ImportLegacy(Guid.CreateVersion7(), Upload(year: 2012), uploader, uploaded).Value;
+
+        (document.UploadedAt, document.UploadedByUserId, document.ReferenceYear, document.Status).ShouldBe((uploaded, (Guid?)uploader, 2012, DocumentStatus.Available));
+    }
+
+    [Theory]
+    [InlineData("no-extension", false, "fileName")]
+    [InlineData("scan.pdf", true, "folderId")]
+    public void ImportLegacy_FileNameAndFolderRules_Apply(string fileName, bool folderWithoutCase, string field)
+    {
+        var result = Document.ImportLegacy(Guid.CreateVersion7(), Upload(fileName, folderId: folderWithoutCase ? Guid.CreateVersion7() : null), null, Now);
+
+        result.Error!.ValidationErrors!.Keys.ShouldBe([field]);
+    }
 }

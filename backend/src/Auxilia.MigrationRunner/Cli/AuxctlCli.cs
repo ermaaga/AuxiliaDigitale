@@ -2,6 +2,7 @@ using Auxilia.Application.Abstractions.Identity;
 using Auxilia.Application.Abstractions.Images;
 using Auxilia.Application.Abstractions.Persistence;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Application.Documents.Public;
 using Auxilia.Application.Identity;
 using Auxilia.Application.Identity.Public;
 using Auxilia.Application.Jobs;
@@ -63,8 +64,10 @@ internal sealed class AuxctlCli
           legacy inspect [--tenant <slug>]  (reads the legacy connection string from AUXILIA_LEGACY_CONNECTION; schema
                                             variant, rows per table and what is migrated; --tenant adds the rows already
                                             mapped in that tenant's ops.legacy_id_map)
-          legacy import --tenant <slug> [--dry-run]  (same connection; imports into the tenant in one transaction, rolled
-                                            back with --dry-run; repeatable: rows already imported are updated)
+          legacy import --tenant <slug> [--files <dir>] [--dry-run]
+                                           (same connection; imports into the tenant in one transaction, rolled back
+                                            with --dry-run; repeatable: rows already imported are updated; --files is
+                                            the directory with the legacy document files)
           diagnostics registry [--output <file>]
         """;
 
@@ -512,7 +515,9 @@ internal sealed class AuxctlCli
         {
             var tenant = scope.GetRequiredService<ITenantContext>().Tenant;
             var zone = TimeZoneInfo.TryFindSystemTimeZoneById(tenant.TimeZone, out var found) ? found : TimeZoneInfo.Utc;
-            var importer = new LegacyImporter(scope.GetRequiredService<IPasswordHasher>(), scope.GetRequiredService<IImageProcessor>());
+            var importer = new LegacyImporter(new LegacyImportServices(
+                scope.GetRequiredService<IPasswordHasher>(), scope.GetRequiredService<IImageProcessor>(), scope.GetRequiredService<IFileStore>(),
+                new LegacyFiles(command.Option("files"))));
             await using var db = (TenantDbContext)await scope.GetRequiredService<ITenantDbContextFactory>().CreateAsync(cancellationToken);
             var report = await importer.RunAsync(
                 source, db, scope.GetRequiredService<TimeProvider>(), zone, tenant.DefaultLanguage, dryRun, cancellationToken);

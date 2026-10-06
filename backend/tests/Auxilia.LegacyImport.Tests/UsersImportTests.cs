@@ -1,11 +1,7 @@
-using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Identity;
-using Auxilia.Application.Abstractions.Images;
 using Auxilia.Domain.Directory;
 using Auxilia.Domain.Identity;
 using Auxilia.MigrationRunner.LegacyImport;
-using Auxilia.Persistence.Tenant;
-using Auxilia.Persistence.Tenant.Interceptors;
 using Auxilia.Persistence.Tenant.Operations;
 using Auxilia.SharedKernel.Tenancy;
 
@@ -21,8 +17,6 @@ namespace Auxilia.LegacyImport.Tests;
 [Collection(LegacyDatabaseGroup.Name)]
 public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
 {
-    private static readonly TimeZoneInfo Rome = TimeZoneInfo.FindSystemTimeZoneById("Europe/Rome");
-
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
     [Fact]
@@ -31,7 +25,7 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         await using var source = await LegacyAsync("legacy_users");
         await using var tenant = await fixture.CreateTenantAsync("tenant_users");
 
-        var report = await ImportAsync(source, tenant, dryRun: false);
+        var report = await ImportHarness.ImportAsync(source, tenant, hasher: new BcryptHasher());
 
         Result(report, "Users").ShouldBe((3, 0, 1, 1));
         Result(report, "RoleSpecializations").ShouldBe((1, 0, 0, 1));
@@ -44,7 +38,7 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         report.Issues.ShouldContain(issue => issue.Table == "RoleSpecializations" && issue.Reason == "email not valid: left out");
         report.Render(dryRun: false).ShouldNotContain("Verdi");
 
-        await using (var db = Context(tenant))
+        await using (var db = ImportHarness.Context(tenant))
         {
             var ids = await db.Set<LegacyIdMapping>().ToDictionaryAsync(row => (row.Entity, row.LegacyId), row => row.NewId, Ct);
             var users = await db.Set<User>().ToDictionaryAsync(user => user.Id, Ct);
@@ -82,14 +76,14 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         }
 
         // A second run updates the same records: no new rows, same ids.
-        var again = await ImportAsync(source, tenant, dryRun: false);
+        var again = await ImportHarness.ImportAsync(source, tenant, hasher: new BcryptHasher());
 
         Result(again, "Users").ShouldBe((0, 3, 1, 1));
         Result(again, "RoleSpecializations").ShouldBe((0, 1, 0, 1));
         Result(again, "UserRoleSpecializations").Created.ShouldBe(0);
         Result(again, "PasswordHistories").Created.ShouldBe(0);
         Result(again, "LoginAuditLogs").Created.ShouldBe(0);
-        await using (var db = Context(tenant))
+        await using (var db = ImportHarness.Context(tenant))
         {
             (await db.Set<User>().CountAsync(Ct)).ShouldBe(3);
             (await db.Set<Person>().CountAsync(Ct)).ShouldBe(3);
@@ -104,11 +98,11 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         await using var source = await LegacyAsync("legacy_users_dry");
         await using var tenant = await fixture.CreateTenantAsync("tenant_users_dry");
 
-        var report = await ImportAsync(source, tenant, dryRun: true);
+        var report = await ImportHarness.ImportAsync(source, tenant, dryRun: true, hasher: new BcryptHasher());
 
         Result(report, "Users").Created.ShouldBe(3);
         report.Render(dryRun: true).ShouldContain("dry run");
-        await using var db = Context(tenant);
+        await using var db = ImportHarness.Context(tenant);
         (await db.Set<User>().CountAsync(Ct)).ShouldBe(0);
         (await db.Set<LegacyIdMapping>().CountAsync(Ct)).ShouldBe(0);
     }
@@ -134,21 +128,6 @@ public sealed class UsersImportTests(LegacyDatabaseFixture fixture)
         var opened = await LegacySource.OpenAsync(connection, Ct);
         opened.IsSuccess.ShouldBeTrue(opened.Error?.Description);
         return opened.Value;
-    }
-
-    private static async Task<LegacyImportReport> ImportAsync(LegacySource source, NpgsqlDataSource tenant, bool dryRun)
-    {
-        var images = Substitute.For<IImageProcessor>();
-        var importer = new LegacyImporter(new BcryptHasher(), images);
-        await using var db = Context(tenant);
-        return await importer.RunAsync(source, db, TimeProvider.System, Rome, "it", dryRun, Ct);
-    }
-
-    private static TenantDbContext Context(NpgsqlDataSource tenant)
-    {
-        var system = Substitute.For<ICurrentUser>();
-        system.ActorType.Returns(ActorType.System);
-        return new TenantDbContext(TenantDbContextOptions.Create(tenant, new TenantAuditInterceptor(system, TimeProvider.System)));
     }
 
     /// <summary>The legacy verification of the composite hasher, without the Identity part.</summary>

@@ -7,8 +7,9 @@ internal sealed class LegacyImportContext
 {
     public LegacyImportContext(
         LegacyDbContext legacy, TenantDbContext tenant, LegacyIdMap ids, LegacyImportReport report, TimeProvider clock, TimeZoneInfo zone,
-        string defaultLanguage)
+        string defaultLanguage, bool dryRun = false)
     {
+        DryRun = dryRun;
         Legacy = legacy;
         Tenant = tenant;
         Ids = ids;
@@ -31,6 +32,9 @@ internal sealed class LegacyImportContext
     public TimeZoneInfo Zone { get; }
 
     public string DefaultLanguage { get; }
+
+    /// <summary>Nothing is kept: the transaction is rolled back and files are not committed to the storage.</summary>
+    public bool DryRun { get; }
 
     public DateTimeOffset Now { get; }
 
