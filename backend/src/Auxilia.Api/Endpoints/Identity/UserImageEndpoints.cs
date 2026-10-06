@@ -1,3 +1,4 @@
+using Auxilia.Api.Authorization;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.Tenancy;
 using Auxilia.Application.Identity;
@@ -14,7 +15,7 @@ internal sealed class UserImageEndpoints : IApiEndpoints
 {
     public void Map(RouteGroupBuilder api)
     {
-        api.MapGroup("/users").WithTags("Me").RequireTenant().RequireAuthorization()
+        api.MapGroup("/users").WithTags("Me").RequireTenant().RequireTenantUser()
             .MapGet("/{id:guid}/image", GetImageAsync)
             .WithName("GetUserImage")
             .WithSummary("The picture of a user (own picture, or any user's for staff) with its hash as ETag")

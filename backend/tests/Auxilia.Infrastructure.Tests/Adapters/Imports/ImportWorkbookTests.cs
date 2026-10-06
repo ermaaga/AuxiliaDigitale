@@ -1,3 +1,5 @@
+using System.IO.Compression;
+
 using Auxilia.Application.Abstractions.Imports;
 using Auxilia.Infrastructure.Adapters.Imports;
 
@@ -64,5 +66,26 @@ public sealed class ImportWorkbookTests
 
         workbook.Read(output.ToArray(), Fields)!.MissingColumns.ShouldBe(["firstName", "birthDate"]);
         workbook.Read("a;b;c"u8.ToArray(), Fields).ShouldBeNull();
+    }
+
+    [Fact]
+    public void Read_RejectsPackagesThatInflateBeyondTheLimit()
+    {
+        // A zip bomb: one entry of highly compressible zeros whose declared size is above the limit.
+        using var output = new MemoryStream();
+        using (var archive = new ZipArchive(output, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using var entry = archive.CreateEntry("xl/worksheets/sheet1.xml", CompressionLevel.SmallestSize).Open();
+            var zeros = new byte[1024 * 1024];
+            for (var written = 0L; written <= XlsxImportWorkbook.MaxUncompressedBytes; written += zeros.Length)
+            {
+                entry.Write(zeros);
+            }
+        }
+
+        var content = output.ToArray();
+        content.Length.ShouldBeLessThan(1024 * 1024);
+        XlsxImportWorkbook.IsReasonablePackage(content).ShouldBeFalse();
+        workbook.Read(content, Fields).ShouldBeNull();
     }
 }

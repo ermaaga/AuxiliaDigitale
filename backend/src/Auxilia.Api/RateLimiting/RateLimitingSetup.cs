@@ -137,7 +137,7 @@ internal static class RateLimitingSetup
     private static string Tenant(HttpContext context) =>
         context.RequestServices.GetRequiredService<ITenantContext>().Current?.Slug ?? "-";
 
-    // The direct peer: behind a reverse proxy the forwarded headers middleware must set it (deployment, H-01).
+    // The caller set by the forwarded headers middleware: KnownProxies/KnownNetworks of the production proxy are set by H-03.
     private static string Ip(HttpContext context) => context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
     private static async ValueTask OnRejectedAsync(OnRejectedContext rejected, CancellationToken cancellationToken)

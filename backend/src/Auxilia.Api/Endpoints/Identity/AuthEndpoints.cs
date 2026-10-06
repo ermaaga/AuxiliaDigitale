@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using Auxilia.Api.Authorization;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.RateLimiting;
 using Auxilia.Api.Tenancy;
@@ -55,7 +56,7 @@ internal sealed class AuthEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
         auth.MapPost("/logout", LogoutAsync)
-            .RequireAuthorization()
+            .RequireTenantUser()
             .WithName("Logout")
             .WithSummary("Ends the session of the access token and revokes its tokens")
             .Produces(StatusCodes.Status204NoContent)

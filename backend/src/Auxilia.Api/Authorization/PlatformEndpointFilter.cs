@@ -32,15 +32,22 @@ internal sealed class PlatformEndpointFilter(bool tenantScoped) : IEndpointFilte
     }
 }
 
+/// <summary>Endpoint metadata: a platform endpoint, console (<c>TenantScoped = false</c>) or technical (documentation, tests).</summary>
+public sealed record PlatformAccessMetadata(bool TenantScoped);
+
 public static class PlatformEndpointExtensions
 {
     /// <summary>Console endpoints: a platform token without tenant.</summary>
     public static TBuilder RequirePlatformUser<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder =>
-        builder.RequireAuthorization().AddEndpointFilter<TBuilder>(new PlatformEndpointFilter(tenantScoped: false));
+        builder.RequireAuthorization()
+            .AddEndpointFilter<TBuilder>(new PlatformEndpointFilter(tenantScoped: false))
+            .WithMetadata(new PlatformAccessMetadata(TenantScoped: false));
 
     /// <summary>Technical endpoints of one tenant: a platform token scoped to that tenant (opened from the console).</summary>
     public static TBuilder RequirePlatformTenant<TBuilder>(this TBuilder builder)
         where TBuilder : IEndpointConventionBuilder =>
-        builder.RequireAuthorization().AddEndpointFilter<TBuilder>(new PlatformEndpointFilter(tenantScoped: true));
+        builder.RequireAuthorization()
+            .AddEndpointFilter<TBuilder>(new PlatformEndpointFilter(tenantScoped: true))
+            .WithMetadata(new PlatformAccessMetadata(TenantScoped: true));
 }

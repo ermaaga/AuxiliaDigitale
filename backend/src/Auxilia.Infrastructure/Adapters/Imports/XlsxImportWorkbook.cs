@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.IO.Compression;
 
 using Auxilia.Application.Abstractions.Imports;
 
@@ -12,10 +13,23 @@ internal sealed class XlsxImportWorkbook : IImportWorkbook
     /// <summary>Excel sheet names are at most 31 characters, without <c>[]:*?/\</c>.</summary>
     private const int SheetNameMaxLength = 31;
 
+    /// <summary>
+    /// Limits of the package before ClosedXML opens it (H-01, zip bomb): a 10 MB upload of 5000 rows needs far less.
+    /// .NET refuses an entry that inflates beyond its declared size, so the declared sizes are a real bound.
+    /// </summary>
+    internal const long MaxUncompressedBytes = 200L * 1024 * 1024;
+
+    internal const int MaxEntries = 1000;
+
     public ImportSheet? Read(byte[] content, IReadOnlyList<ImportField> fields)
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(fields);
+
+        if (!IsReasonablePackage(content))
+        {
+            return null;
+        }
 
         XLWorkbook workbook;
         try
@@ -68,6 +82,25 @@ internal sealed class XlsxImportWorkbook : IImportWorkbook
             }
 
             return new ImportSheet(rows, missing);
+        }
+    }
+
+    /// <summary>A ZIP package (signature <c>PK\x03\x04</c>) with a bounded number of entries and uncompressed size.</summary>
+    internal static bool IsReasonablePackage(byte[] content)
+    {
+        if (content.Length < 4 || content[0] != 0x50 || content[1] != 0x4B || content[2] != 0x03 || content[3] != 0x04)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var archive = new ZipArchive(new MemoryStream(content, writable: false), ZipArchiveMode.Read);
+            return archive.Entries.Count <= MaxEntries && archive.Entries.Sum(entry => entry.Length) <= MaxUncompressedBytes;
+        }
+        catch (InvalidDataException)
+        {
+            return false;
         }
     }
 
