@@ -28,6 +28,12 @@ allowlist. Two packages were considered:
 - The allowlist of the `auxilia-dependency-policy` skill (marketplace repository) must list `lighthouse` as a
   test-only dependency.
 
+## Amendment (2026-10-06)
+The CI E2E job was too slow: the Lighthouse spec and the light/dark axe sweep (`accessibility.spec.ts`) are excluded
+from the default run (`testIgnore` in `playwright.config.ts`) and run on demand with
+`pnpm --filter web e2e:quality` (`E2E_QUALITY=1`), e.g. before a release (H-04, R-01). The budget is the same; it is
+no longer enforced on every pull request.
+
 ## Consequences
-- About one minute more in the E2E job.
+- No extra time in the E2E job; the budget is checked when `e2e:quality` runs.
 - Lighthouse major versions change scores and audits: Dependabot updates are reviewed with the report attached.

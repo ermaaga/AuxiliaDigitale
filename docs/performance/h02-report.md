@@ -35,7 +35,7 @@ esecuzioni a cache calda; i casi lenti analizzati con `EXPLAIN ANALYZE`.
 
 ## 2. Web: Lighthouse
 
-`e2e/lighthouse.spec.ts` (ADR 0017) sulla build di produzione, preset desktop, sessione reale di un Administrator.
+`e2e/lighthouse.spec.ts` (ADR 0017) sulla build di produzione, preset desktop, sessione reale di un Administrator. Per non allungare la CI gira su richiesta, insieme allo sweep di accessibilità: `pnpm --filter web e2e:quality`.
 
 | Pagina | Performance | Accessibilità | Best practice |
 |---|---|---|---|
