@@ -86,6 +86,17 @@ public sealed class RefreshSession : AggregateRoot<Guid>
 
     public bool IsActiveAt(DateTimeOffset now) => EndedAt is null && now < IdleExpiresAt && now < AbsoluteExpiresAt;
 
+    /// <summary>"Stay signed in" (N04): refreshes slide the idle expiry by the remembered window, not the idle timeout.</summary>
+    public bool IsRemembered { get; private set; }
+
+    /// <summary>Marks the session as remembered and opens its idle window to <paramref name="window"/> (never beyond the absolute expiry).</summary>
+    public void Remember(DateTimeOffset now, TimeSpan window)
+    {
+        IsRemembered = true;
+        var idle = now + window;
+        IdleExpiresAt = idle < AbsoluteExpiresAt ? idle : AbsoluteExpiresAt;
+    }
+
     /// <summary>A refresh: slides the idle expiry (never beyond the absolute one).</summary>
     public void Touch(DateTimeOffset now, TimeSpan idleTimeout)
     {

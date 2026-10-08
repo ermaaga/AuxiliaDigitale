@@ -15,6 +15,7 @@ import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { postToBff } from "@/lib/api/browser";
 import { createBffClient } from "@/lib/api/client";
 import { applyProfilePreferences } from "@/features/profile";
+import { TWO_FACTOR_ERRORS, TwoFactorCodeInput, normalizeCode } from "@/features/two-factor";
 import { tenantHref } from "@/lib/href";
 
 import { PasswordInput } from "./password-input";
@@ -37,15 +38,20 @@ function readRemembered(tenant: string): string | null {
 /**
  * Sign-in (F01, F35): user name + password, or an e-mailed code when the tenant enables `email-otp`. The BFF keeps the
  * tokens; an expired password continues on the change page; the failure message never says which field was wrong.
+ * N04: when the user has an authenticator app the API asks for its code (second step, same form); a user whose role
+ * requires the app and has none continues on the setup page. "Stay signed in" keeps the session after the browser is
+ * closed, for the tenant's days (hidden when 0); the password itself is saved only by the browser's password manager.
  */
 export function LoginForm({
   tenant,
   methods,
   next,
+  rememberMeDays = 0,
 }: {
   tenant: string;
   methods: readonly string[];
   next: string;
+  rememberMeDays?: number;
 }) {
   const t = useTranslations();
   const router = useRouter();
@@ -62,6 +68,9 @@ export function LoginForm({
   const [code, setCode] = React.useState("");
   const [codeSent, setCodeSent] = React.useState(false);
   const [rememberChoice, setRemember] = React.useState<boolean>();
+  const [stayIn, setStayIn] = React.useState(false);
+  const [twoFactor, setTwoFactor] = React.useState(false);
+  const [totp, setTotp] = React.useState("");
   const [error, setError] = React.useState<unknown>();
   const [busy, setBusy] = React.useState(false);
 
@@ -109,17 +118,36 @@ export function LoginForm({
     setBusy(true);
     setError(undefined);
     try {
+      const secondFactor = {
+        twoFactorCode: twoFactor ? normalizeCode(totp) : undefined,
+        rememberMe: rememberMeDays > 0 && stayIn,
+      };
       await postToBff(
         "/api/auth/login",
         mode === "password"
-          ? { tenant, grantType: "password", userName, password }
-          : { tenant, grantType: "email_otp", userName, code },
+          ? { tenant, grantType: "password", userName, password, ...secondFactor }
+          : { tenant, grantType: "email_otp", userName, code, ...secondFactor },
       );
       persistRememberedUser();
       await applyProfilePreferences(setTheme);
       router.replace(next);
       router.refresh();
     } catch (failure) {
+      if (isApiError(failure) && failure.errorCode === TWO_FACTOR_ERRORS.required) {
+        // The first factor was right: the same form asks for the code of the app.
+        setTwoFactor(true);
+        setBusy(false);
+        return;
+      }
+
+      if (isApiError(failure) && failure.errorCode === TWO_FACTOR_ERRORS.setupRequired) {
+        persistRememberedUser();
+        router.push(
+          `${tenantHref(tenant, "/two-factor-setup")}?user=${encodeURIComponent(userName)}`,
+        );
+        return;
+      }
+
       if (isApiError(failure) && failure.errorCode === "AUX-12043") {
         // The credentials were right: the choice is kept even though the sign-in continues on the change page.
         persistRememberedUser();
@@ -137,7 +165,26 @@ export function LoginForm({
   return (
     <form className="flex flex-col gap-4" onSubmit={submit} noValidate={false}>
       {error ? <ApiErrorAlert error={error} /> : null}
-      <div className="flex flex-col gap-2">
+      {twoFactor ? (
+        <>
+          <TwoFactorCodeInput id="login-totp" value={totp} onChange={setTotp} autoFocus />
+          <Button type="submit" disabled={busy}>
+            {t("Login")}
+          </Button>
+          <Button
+            type="button"
+            variant="link"
+            onClick={() => {
+              setTwoFactor(false);
+              setTotp("");
+              setError(undefined);
+            }}
+          >
+            {t("app.twoFactor.back")}
+          </Button>
+        </>
+      ) : null}
+      <div className={twoFactor ? "hidden" : "flex flex-col gap-2"}>
         <Label htmlFor="login-user">{t("Username")}</Label>
         <Input
           id="login-user"
@@ -148,7 +195,7 @@ export function LoginForm({
           onChange={(event) => setUserName(event.target.value)}
         />
       </div>
-      {mode === "password" ? (
+      {twoFactor ? null : mode === "password" ? (
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <Label htmlFor="login-password">{t("Password")}</Label>
@@ -185,7 +232,7 @@ export function LoginForm({
           </p>
         </div>
       ) : null}
-      <div className="flex items-center gap-2">
+      <div className={twoFactor ? "hidden" : "flex items-center gap-2"}>
         <Checkbox
           id="login-remember"
           checked={remember}
@@ -193,10 +240,30 @@ export function LoginForm({
         />
         <Label htmlFor="login-remember">{t("RememberUsername")}</Label>
       </div>
-      <Button type="submit" disabled={busy}>
-        {mode === "otp" && !codeSent ? t("SendOtp") : t("Login")}
-      </Button>
-      {otpEnabled ? (
+      {rememberMeDays > 0 ? (
+        <div className={twoFactor ? "hidden" : "flex items-start gap-2"}>
+          <Checkbox
+            id="login-stay"
+            checked={stayIn}
+            aria-describedby="login-stay-hint"
+            onCheckedChange={(value) => setStayIn(value === true)}
+          />
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="login-stay">
+              {t("app.auth.staySignedIn", { days: rememberMeDays })}
+            </Label>
+            <p id="login-stay-hint" className="text-xs text-muted-foreground">
+              {t("app.auth.staySignedInHint")}
+            </p>
+          </div>
+        </div>
+      ) : null}
+      {twoFactor ? null : (
+        <Button type="submit" disabled={busy}>
+          {mode === "otp" && !codeSent ? t("SendOtp") : t("Login")}
+        </Button>
+      )}
+      {otpEnabled && !twoFactor ? (
         <Button
           type="button"
           variant="link"

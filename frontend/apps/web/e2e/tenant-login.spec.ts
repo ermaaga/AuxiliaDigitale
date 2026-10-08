@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { E2E, required } from "./support/env";
+import { postponeTwoFactor } from "./support/sign-in";
 import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
 
 /*
@@ -53,7 +54,9 @@ test("sign-in journey of a tenant Administrator", async ({ page }) => {
     await page.getByLabel(t("NewPassword"), { exact: true }).fill(newPassword);
     await page.getByLabel(t("ConfirmNewPassword")).fill(newPassword);
     await page.getByRole("button", { name: t("ChangePassword") }).click();
-    await expect(page).toHaveURL(`/${E2E.tenant}/dashboard`);
+    await expect(page.getByText(t("app.twoFactor.suggestTitle"))).toBeVisible();
+    await expectAccessible(page, "authenticator app suggestion");
+    await postponeTwoFactor(page);
   });
 
   await test.step("the shell shows the navigation of the roles", async () => {

@@ -38,6 +38,8 @@ public sealed partial class SecurityPerimeterTests(SecurityPerimeterTests.Factor
         ["POST /api/v1/auth/password/reset"] = "password reset link (single-use token, rate limit)",
         ["POST /api/v1/auth/password/change"] = "expired password (the current password is the credential, rate limit)",
         ["POST /api/v1/auth/otp"] = "e-mailed sign-in code (rate limit, same answer for unknown users)",
+        ["POST /api/v1/auth/two-factor/setup"] = "required authenticator setup before the first sign-in (password is the credential, rate limit)",
+        ["POST /api/v1/auth/two-factor/setup/confirm"] = "confirms the required authenticator setup and signs in (password + code, rate limit)",
         ["POST /api/v1/platform/auth/enrollment"] = "System user TOTP enrolment (activation token)",
         ["POST /api/v1/platform/auth/activate"] = "System user activation (activation token + TOTP)",
         ["POST /api/v1/platform/auth/token"] = "console sign-in (console client + password + TOTP)",

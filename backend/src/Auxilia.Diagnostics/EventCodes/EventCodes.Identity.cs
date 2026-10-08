@@ -217,5 +217,32 @@ public static partial class EventCodes
 
         /// <summary>The endpoint is for tenant users: a platform (System) token never reaches it, D-21 (403).</summary>
         public const int TenantUserRequired = 12071;
+
+        /// <summary>The password is right and the user has the authenticator app: its code is needed to sign in (401, N04).</summary>
+        public const int TwoFactorRequired = 12072;
+
+        /// <summary>The code of the authenticator app is wrong, expired or already used (401); it counts as a failed sign-in.</summary>
+        public const int TwoFactorCodeRejected = 12073;
+
+        /// <summary>The user's roles require the authenticator app and none is set: it must be enrolled first (403).</summary>
+        public const int TwoFactorSetupRequired = 12074;
+
+        /// <summary>A code was sent to confirm an enrolment that was never started (409).</summary>
+        public const int TwoFactorEnrollmentMissing = 12075;
+
+        /// <summary>The authenticator app of a user was enrolled and confirmed (N04).</summary>
+        public const int TwoFactorEnabled = 12076;
+
+        /// <summary>The authenticator app was removed by its user or reset by an Administrator or the platform.</summary>
+        public const int TwoFactorRemoved = 12077;
+
+        /// <summary>An enrolment of the authenticator app started (secret and QR code shown once).</summary>
+        public const int TwoFactorEnrollmentStarted = 12078;
+
+        /// <summary>The user's roles require the authenticator app: it cannot be disabled (409).</summary>
+        public const int TwoFactorRequiredByRole = 12079;
+
+        /// <summary>The user already has the authenticator app: disable or reset it before a new enrolment (409).</summary>
+        public const int TwoFactorAlreadyEnabled = 12080;
     }
 }

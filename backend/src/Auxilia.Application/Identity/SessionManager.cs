@@ -3,6 +3,7 @@ using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
+using Auxilia.Application.Configuration.Public;
 using Auxilia.Contracts.Realtime;
 using Auxilia.Diagnostics;
 using Auxilia.Domain.Identity;
@@ -30,6 +31,15 @@ public interface ISessionManager
     Task<Result<TokenPair>> ChangeExpiredPasswordAsync(ExpiredPasswordChange request, CancellationToken cancellationToken);
 
     /// <summary>
+    /// The user's roles require the authenticator app and none is set (<c>AUX-12074</c>, N04): with user name and password
+    /// as the credential a new secret is generated (QR code). Refused when the app is not required or already set.
+    /// </summary>
+    Task<Result<TotpEnrollment>> BeginRequiredSetupAsync(TwoFactorSetup request, CancellationToken cancellationToken);
+
+    /// <summary>Confirms the enrolment started by <see cref="BeginRequiredSetupAsync"/> with a code of the app, then signs in.</summary>
+    Task<Result<TokenPair>> ConfirmRequiredSetupAsync(TwoFactorSetupConfirmation request, CancellationToken cancellationToken);
+
+    /// <summary>
     /// The user changes their own password: the current one is required, the policy and history apply; the calling
     /// session stays signed in, every other session of the user ends (F35).
     /// </summary>
@@ -55,13 +65,24 @@ public interface ISessionManager
 
 public sealed record ClientCredentials(string ClientId, string? ClientSecret);
 
-public sealed record PasswordSignIn(ClientCredentials Client, string UserName, string Password, string? IpAddress, string? UserAgent);
+/// <param name="TwoFactorCode">The code of the authenticator app, required when the user has it (N04).</param>
+/// <param name="RememberMe">"Stay signed in": the session stays open up to <c>auth.session.rememberMeDays</c> (N04).</param>
+public sealed record PasswordSignIn(
+    ClientCredentials Client, string UserName, string Password, string? IpAddress, string? UserAgent, string? TwoFactorCode = null, bool RememberMe = false);
 
 public sealed record RefreshTokens(ClientCredentials Client, string RefreshToken, string? IpAddress, string? UserAgent);
 
-public sealed record OtpSignIn(ClientCredentials Client, string UserName, string Code, string? IpAddress, string? UserAgent);
+public sealed record OtpSignIn(
+    ClientCredentials Client, string UserName, string Code, string? IpAddress, string? UserAgent, string? TwoFactorCode = null, bool RememberMe = false);
 
-public sealed record ExpiredPasswordChange(ClientCredentials Client, string UserName, string CurrentPassword, string NewPassword, string? IpAddress, string? UserAgent);
+public sealed record ExpiredPasswordChange(
+    ClientCredentials Client, string UserName, string CurrentPassword, string NewPassword, string? IpAddress, string? UserAgent,
+    string? TwoFactorCode = null, bool RememberMe = false);
+
+public sealed record TwoFactorSetup(ClientCredentials Client, string UserName, string Password, string? IpAddress, string? UserAgent);
+
+public sealed record TwoFactorSetupConfirmation(
+    ClientCredentials Client, string UserName, string Password, string Code, bool RememberMe, string? IpAddress, string? UserAgent);
 
 /// <summary>Sign-in methods (<c>login_attempts.method</c>, <c>GET /auth/methods</c>).</summary>
 public static class LoginMethods
@@ -70,7 +91,11 @@ public static class LoginMethods
     public const string EmailOtp = "email-otp";
 }
 
-public sealed record TokenPair(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, Guid SessionId);
+/// <param name="RememberedUntil">
+/// "Stay signed in" (N04): the session stays open until then without activity, so the web app keeps its cookie as long;
+/// null for an ordinary session (the cookie ends with the browser).
+/// </param>
+public sealed record TokenPair(string AccessToken, DateTimeOffset AccessTokenExpiresAt, string RefreshToken, Guid SessionId, DateTimeOffset? RememberedUntil = null);
 
 internal sealed partial class SessionManager : ISessionManager
 {
@@ -85,6 +110,9 @@ internal sealed partial class SessionManager : ISessionManager
     private readonly IRealtimeNotifier realtime;
     private readonly IPasswordPolicy passwordPolicy;
     private readonly IPasswordHasher hasher;
+    private readonly ITotpService totp;
+    private readonly IUserTwoFactorSecretProtector secretProtector;
+    private readonly ITenantAppName appName;
     private readonly TimeProvider timeProvider;
     private readonly ILogger<SessionManager> logger;
     private readonly List<(Guid SessionId, SessionEndReason Reason)> endedSessions = [];
@@ -101,6 +129,9 @@ internal sealed partial class SessionManager : ISessionManager
         IRealtimeNotifier realtime,
         IPasswordPolicy passwordPolicy,
         IPasswordHasher hasher,
+        ITotpService totp,
+        IUserTwoFactorSecretProtector secretProtector,
+        ITenantAppName appName,
         TimeProvider timeProvider,
         ILogger<SessionManager> logger)
     {
@@ -115,6 +146,9 @@ internal sealed partial class SessionManager : ISessionManager
         this.realtime = realtime;
         this.passwordPolicy = passwordPolicy;
         this.hasher = hasher;
+        this.totp = totp;
+        this.secretProtector = secretProtector;
+        this.appName = appName;
         this.timeProvider = timeProvider;
         this.logger = logger;
     }
@@ -154,16 +188,22 @@ internal sealed partial class SessionManager : ISessionManager
                 return await FailAsync(store, attempt, user.Id, "PasswordExpired", Errors.Identity.PasswordExpired(), cancellationToken);
             }
 
-            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, now, cancellationToken));
+            if (await CheckSecondFactorAsync(store, user, request.TwoFactorCode, attempt, now, cancellationToken) is { } refused)
+            {
+                return refused;
+            }
+
+            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, request.RememberMe, now, cancellationToken));
         }, cancellationToken);
     }
 
     /// <summary>
     /// Opens a session for an authenticated user (single session applied), records the successful attempt, issues the
-    /// token pair and saves.
+    /// token pair and saves. "Stay signed in" widens the idle window to <c>auth.session.rememberMeDays</c> (0 = off).
     /// </summary>
     private async Task<TokenPair> OpenSessionAsync(
-        ISessionData store, IOperationScope scope, User user, ClientCredentials client, AttemptInfo attempt, DateTimeOffset now, CancellationToken cancellationToken)
+        ISessionData store, IOperationScope scope, User user, ClientCredentials client, AttemptInfo attempt, bool rememberMe, DateTimeOffset now,
+        CancellationToken cancellationToken)
     {
         if (await settings.GetAsync(IdentitySettings.SingleSession, cancellationToken))
         {
@@ -176,6 +216,11 @@ internal sealed partial class SessionManager : ISessionManager
         var idle = TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken));
         var absolute = TimeSpan.FromDays(await settings.GetAsync(IdentitySettings.SessionAbsoluteDays, cancellationToken));
         var session = new RefreshSession(Guid.CreateVersion7(), user.Id, client.ClientId, user.SecurityStamp, now, now + idle, now + absolute, attempt.IpAddress, attempt.UserAgent);
+        if (rememberMe && await RememberWindowAsync(cancellationToken) is { } window)
+        {
+            session.Remember(now, window);
+        }
+
         store.Add(session);
         scope.SetEntity("Session", session.Id);
         store.Add(attempt.ToEntity(user.Id, now, succeeded: true, failureReason: null));
@@ -244,7 +289,15 @@ internal sealed partial class SessionManager : ISessionManager
             }
 
             token.Consume(now);
-            session.Touch(now, TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken)));
+            if (session.IsRemembered && await RememberWindowAsync(cancellationToken) is { } window)
+            {
+                session.Remember(now, window);
+            }
+            else
+            {
+                session.Touch(now, TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.SessionIdleMinutes, cancellationToken)));
+            }
+
             var pair = await IssueAsync(store, session, user.Id, user.Roles, now, cancellationToken);
             await SaveAsync(store, cancellationToken);
             return Result.Success(pair);
@@ -334,6 +387,6 @@ internal sealed partial class SessionManager : ISessionManager
 
         var lifetime = TimeSpan.FromMinutes(await settings.GetAsync(IdentitySettings.AccessTokenMinutes, cancellationToken));
         var access = await tokens.IssueAsync(new AccessTokenRequest(userId, tenantContext.Tenant.Slug, session.Id, session.ClientId, roles, lifetime), cancellationToken);
-        return new TokenPair(access.Token, access.ExpiresAt, refresh, session.Id);
+        return new TokenPair(access.Token, access.ExpiresAt, refresh, session.Id, session.IsRemembered ? session.IdleExpiresAt : null);
     }
 }

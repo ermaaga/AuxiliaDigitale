@@ -38,7 +38,8 @@ function isAllowedPath(area: BffArea, path: string): boolean {
       !path.startsWith("platform/") &&
       path !== "auth/token" &&
       path !== "auth/logout" &&
-      path !== "auth/password/change"
+      path !== "auth/password/change" &&
+      !path.startsWith("auth/two-factor/setup")
     );
   }
 
@@ -81,10 +82,16 @@ function setSessionCookie(
   session: BffSession,
   context: BffContext,
 ): Response {
-  const options = sessionCookieOptions(remainingSeconds(context.config, session, context.now));
+  // Without "stay signed in" the cookie ends with the browser (no Max-Age); the stored session still expires (N04).
+  const options = sessionCookieOptions(
+    session.rememberedUntil === undefined
+      ? undefined
+      : remainingSeconds(context.config, session, context.now),
+  );
+  const maxAge = options.maxAge === undefined ? "" : ` Max-Age=${options.maxAge};`;
   response.headers.append(
     "set-cookie",
-    `${SESSION_COOKIE[area]}=${session.id}; Path=${options.path}; Max-Age=${options.maxAge}; HttpOnly; Secure; SameSite=Lax`,
+    `${SESSION_COOKIE[area]}=${session.id}; Path=${options.path};${maxAge} HttpOnly; Secure; SameSite=Lax`,
   );
   return response;
 }
@@ -124,7 +131,14 @@ export async function login(
       path: area === "tenant" ? "auth/token" : "platform/auth/token",
       body:
         area === "tenant"
-          ? { grantType, userName: input.userName, password: input.password, code: input.code }
+          ? {
+              grantType,
+              userName: input.userName,
+              password: input.password,
+              code: input.code,
+              twoFactorCode: input.twoFactorCode,
+              rememberMe: input.rememberMe === true,
+            }
           : { grantType, email: input.email, password: input.password, code: input.code },
     };
   });
@@ -144,6 +158,67 @@ export async function changeExpiredPassword(
       userName: input.userName,
       currentPassword: input.currentPassword,
       newPassword: input.newPassword,
+      twoFactorCode: input.twoFactorCode,
+      rememberMe: input.rememberMe === true,
+    },
+  }));
+}
+
+/**
+ * Required enrolment of the authenticator app (N04, sign-in answered `AUX-12074`): user name and password start it
+ * (`POST /api/auth/two-factor/setup`, the answer is the secret and its `otpauth://` URI), then a code of the app
+ * confirms it and signs in (`POST /api/auth/two-factor/confirm`). Both need the client secret, so never the proxy.
+ */
+export async function beginTwoFactorSetup(
+  request: Request,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  if (csrfRefusal(request, context.config.publicOrigin)) {
+    return Problems.csrf();
+  }
+
+  let input: Record<string, unknown>;
+  try {
+    input = (await request.json()) as Record<string, unknown>;
+  } catch {
+    return Problems.badRequest();
+  }
+
+  if (!isTenantSlug(input.tenant)) {
+    return Problems.badRequest();
+  }
+
+  const tenant = input.tenant;
+  return safeCall(async () =>
+    toBrowserResponse(
+      await callApi(
+        context.config,
+        "tenant",
+        {
+          method: "POST",
+          path: "auth/two-factor/setup",
+          tenant,
+          withClientSecret: true,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ userName: input.userName, password: input.password }),
+        },
+        request,
+      ),
+    ),
+  );
+}
+
+export async function confirmTwoFactorSetup(
+  request: Request,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  return issueSession(request, "tenant", context, (input) => ({
+    path: "auth/two-factor/setup/confirm",
+    body: {
+      userName: input.userName,
+      password: input.password,
+      code: input.code,
+      rememberMe: input.rememberMe === true,
     },
   }));
 }

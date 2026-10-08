@@ -35,6 +35,13 @@ export const E2E = {
   /** Quality sweeps (H-02): an Administrator for accessibility.spec.ts and one for lighthouse.spec.ts. */
   accessibilityUser: { userName: "elisa.moro", fullName: "Elisa Moro" },
   lighthouseUser: { userName: "luca.fabbri", fullName: "Luca Fabbri" },
+  /** Authenticator app and "stay signed in" (N04): an Employee whose app the spec enrols and resets. */
+  twoFactorUser: {
+    id: "0199aaaa-0000-7000-8000-000000000132",
+    userName: "marta.ricci",
+    fullName: "Marta Ricci",
+  },
+  twoFactorAdministrator: { userName: "fabio.serra", fullName: "Fabio Serra" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

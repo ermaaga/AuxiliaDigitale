@@ -3,8 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readBffConfig } from "./config";
 import { csrfRefusal } from "./csrf";
 import {
+  beginTwoFactorSetup,
   brandingImage,
   changeExpiredPassword,
+  confirmTwoFactorSetup,
   login,
   logout,
   proxy,
@@ -177,9 +179,7 @@ describe("login and session", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ tenant: "acme" });
     const cookie = response.headers.get("set-cookie")!;
-    expect(cookie).toMatch(
-      /^__Host-aux_sid=[\w-]{43}; Path=\/; Max-Age=43200; HttpOnly; Secure; SameSite=Lax$/,
-    );
+    expect(cookie).toMatch(/^__Host-aux_sid=[\w-]{43}; Path=\/; HttpOnly; Secure; SameSite=Lax$/);
     expect(cookie).not.toContain("access-1");
 
     const [call] = calls;
@@ -195,6 +195,7 @@ describe("login and session", () => {
       grantType: "password",
       userName: "mario",
       password: "pw",
+      rememberMe: false,
     });
 
     const info = await sessionInfo(
@@ -203,6 +204,85 @@ describe("login and session", () => {
       context,
     );
     expect(await info.json()).toEqual({ authenticated: true, tenant: "acme" });
+  });
+
+  it("keeps a 'stay signed in' session as long as the API keeps it open (N04)", async () => {
+    replies.push(reply(200, { ...tokens("1"), sessionExpiresIn: 7 * 86_400 }));
+    const response = await login(
+      browser("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          tenant: "acme",
+          userName: "mario",
+          password: "pw",
+          twoFactorCode: "123456",
+          rememberMe: true,
+        }),
+      }),
+      "tenant",
+      context,
+    );
+
+    expect(response.headers.get("set-cookie")).toMatch(/; Path=\/; Max-Age=604800; HttpOnly;/);
+    expect(JSON.parse(calls[0]!.body!)).toMatchObject({
+      twoFactorCode: "123456",
+      rememberMe: true,
+    });
+    const id = response.headers.get("set-cookie")!.split(";")[0]!.split("=")[1]!;
+
+    // Past the BFF's 12 hours the remembered session is still there, and a refresh slides its window.
+    clock += 2 * 86_400_000;
+    replies.push(reply(200, { ...tokens("2"), sessionExpiresIn: 7 * 86_400 }));
+    const session = (await context.store.get(id))!;
+    expect(session.rememberedUntil).toBe(1_000_000 + 7 * 86_400_000);
+    const refreshed = await withFreshAccessToken(
+      context.config,
+      context.store,
+      session,
+      context.now,
+    );
+    expect(refreshed!.rememberedUntil).toBe(clock + 7 * 86_400_000);
+  });
+
+  it("starts and confirms the required authenticator setup with the client secret (N04)", async () => {
+    replies.push(reply(200, { secret: "ABCD", uri: "otpauth://totp/x" }));
+    const started = await beginTwoFactorSetup(
+      browser("/api/auth/two-factor/setup", {
+        method: "POST",
+        body: JSON.stringify({ tenant: "acme", userName: "mario", password: "pw" }),
+      }),
+      context,
+    );
+    expect(await started.json()).toEqual({ secret: "ABCD", uri: "otpauth://totp/x" });
+    expect(started.headers.get("set-cookie")).toBeNull();
+    expect(calls[0]!.url).toBe(`${API}/api/v1/auth/two-factor/setup`);
+    expect(calls[0]!.headers.get("x-client-secret")).toBe("web-secret");
+
+    replies.push(reply(200, tokens("3")));
+    const confirmed = await confirmTwoFactorSetup(
+      browser("/api/auth/two-factor/confirm", {
+        method: "POST",
+        body: JSON.stringify({ tenant: "acme", userName: "mario", password: "pw", code: "123456" }),
+      }),
+      context,
+    );
+    expect(confirmed.headers.get("set-cookie")).toMatch(/^__Host-aux_sid=/);
+    expect(calls[1]!.url).toBe(`${API}/api/v1/auth/two-factor/setup/confirm`);
+    expect(JSON.parse(calls[1]!.body!)).toEqual({
+      userName: "mario",
+      password: "pw",
+      code: "123456",
+      rememberMe: false,
+    });
+
+    // The proxy never forwards them: they need the client secret.
+    const proxied = await proxy(
+      browser("/api/bff/auth/two-factor/setup", { method: "POST", body: "{}" }),
+      "tenant",
+      ["auth", "two-factor", "setup"],
+      context,
+    );
+    expect(proxied.status).toBe(404);
   });
 
   it("passes API refusals through and refuses bad input, refresh grants and cross-site posts", async () => {
@@ -329,6 +409,7 @@ describe("expired password", () => {
       userName: "mario",
       currentPassword: "old",
       newPassword: "new one!",
+      rememberMe: false,
     });
   });
 

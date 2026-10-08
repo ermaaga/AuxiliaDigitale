@@ -44,7 +44,7 @@ public sealed class AccountSecurityTests : IAsyncDisposable
         var authenticator = new PasswordAuthenticator(runner, identity, hasher, settings, time, new RecordingLogger<PasswordAuthenticator>());
         manager = new SessionManager(
             runner, sessions, authenticator, new ClientApplicationValidator(clients, hasher, new RecordingLogger<ClientApplicationValidator>()), issuer, denyList,
-            settings, SessionSettings.Tenant(), realtime, policy, hasher, time, log);
+            settings, SessionSettings.Tenant(), realtime, policy, hasher, new FakeUserTotp(time), new PrefixUserProtector(), new FixedAppName(), time, log);
         links = new AccountLinkManager(
             runner, sessions, hasher, dispatcher, manager, settings, policy, SessionSettings.Tenant(), time, new RecordingLogger<AccountLinkManager>());
     }
@@ -275,7 +275,7 @@ public sealed class AccountSecurityTests : IAsyncDisposable
         var reader = Substitute.For<ILoginAttemptReader>();
         var attempt = new LoginAttempt(Guid.CreateVersion7(), null, "nobody", "password", time.GetUtcNow(), false, "InvalidCredentials", "10.0.0.1", "ua");
         reader.ListAsync(Arg.Any<LoginAttemptQuery>(), Arg.Any<CancellationToken>()).Returns((new[] { attempt }, 41L));
-        var audit = new LoginAuditQueryService([new PasswordAuthenticationMethod(), new EmailOtpAuthenticationMethod(settings)], reader);
+        var audit = new LoginAuditQueryService([new PasswordAuthenticationMethod(), new EmailOtpAuthenticationMethod(settings)], reader, settings);
 
         (await audit.GetMethodsAsync(Ct)).Methods.ShouldBe(["password"]);
         settings.Values["auth.otp.enabled"] = true;

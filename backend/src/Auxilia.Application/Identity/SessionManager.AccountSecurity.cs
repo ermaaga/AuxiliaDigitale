@@ -62,9 +62,15 @@ internal sealed partial class SessionManager
                 return await FailAsync(store, attempt, user.Id, "InvalidOtp", Errors.Identity.InvalidCredentials(), cancellationToken);
             }
 
+            // The app's code is checked before the e-mailed code is used: asked for it, the user sends both again.
+            if (await CheckSecondFactorAsync(store, user, request.TwoFactorCode, attempt, now, cancellationToken) is { } refused)
+            {
+                return refused;
+            }
+
             token.Use(now);
             user.RecordSuccessfulSignIn(now);
-            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, now, cancellationToken));
+            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, request.RememberMe, now, cancellationToken));
         }, cancellationToken);
     }
 
@@ -96,13 +102,24 @@ internal sealed partial class SessionManager
             }
 
             var now = timeProvider.GetUtcNow();
+            if (user.HasTwoFactor && await VerifyCodeAsync(store, user, request.TwoFactorCode, attempt, now, cancellationToken) is { } refused)
+            {
+                return refused;
+            }
+
             var changed = await SetNewPasswordAsync(store, user, request.NewPassword, keepSessionId: null, now, cancellationToken);
             if (changed.IsFailure)
             {
                 return Result.Failure<TokenPair>(changed.Error!);
             }
 
-            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, now, cancellationToken));
+            // The new password is kept (saved with the attempt); the user then enrols the app on the setup page.
+            if (!user.HasTwoFactor && await IsTwoFactorRequiredAsync(user, cancellationToken))
+            {
+                return await FailAsync(store, attempt, user.Id, "TwoFactorSetupRequired", Errors.Identity.TwoFactorSetupRequired(), cancellationToken);
+            }
+
+            return Result.Success(await OpenSessionAsync(store, scope, user, request.Client, attempt, request.RememberMe, now, cancellationToken));
         }, cancellationToken);
     }
 

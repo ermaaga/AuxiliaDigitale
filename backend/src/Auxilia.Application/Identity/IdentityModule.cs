@@ -63,7 +63,9 @@ public sealed class IdentityModule : IModuleDescriptor
         services.TryAddScoped<IPasswordAuthenticator, PasswordAuthenticator>();
         services.TryAddScoped<ClientApplicationValidator>();
         services.TryAddScoped<Public.IClientApplications, Public.ClientApplications>();
-        services.TryAddScoped<ISessionManager, SessionManager>();
+        services.TryAddScoped<SessionManager>();
+        services.TryAddScoped<ISessionManager>(provider => provider.GetRequiredService<SessionManager>());
+        services.TryAddScoped<ITwoFactorManager>(provider => provider.GetRequiredService<SessionManager>());
         services.TryAddScoped<IAccountLinkManager, AccountLinkManager>();
         services.TryAddScoped<ISigningKeyManager, SigningKeyManager>();
         services.TryAddScoped<IClientApplicationManager, ClientApplicationManager>();

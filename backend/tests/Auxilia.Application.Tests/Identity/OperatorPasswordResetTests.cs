@@ -37,7 +37,8 @@ public sealed class OperatorPasswordResetTests : IAsyncDisposable
         var authenticator = new PasswordAuthenticator(runner, identity, hasher, settings, time, new RecordingLogger<PasswordAuthenticator>());
         manager = new SessionManager(
             runner, sessions, authenticator, new ClientApplicationValidator(clients, hasher, new RecordingLogger<ClientApplicationValidator>()),
-            new FakeAccessTokenIssuer(time), new InMemoryDenyList(), settings, SessionSettings.Tenant(), new RecordingRealtimeNotifier(), policy, hasher, time,
+            new FakeAccessTokenIssuer(time), new InMemoryDenyList(), settings, SessionSettings.Tenant(), new RecordingRealtimeNotifier(), policy, hasher,
+            new FakeUserTotp(time), new PrefixUserProtector(), new FixedAppName(), time,
             new RecordingLogger<SessionManager>());
         links = new AccountLinkManager(runner, sessions, hasher, dispatcher, manager, settings, policy, SessionSettings.Tenant(), time, log);
     }

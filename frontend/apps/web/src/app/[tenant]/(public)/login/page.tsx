@@ -19,7 +19,14 @@ export default async function LoginPage({ params, searchParams }: PageProps<"/[t
   const t = await getTranslations();
   return (
     <PublicPage tenant={tenant} title={t("app.auth.login.title")}>
-      {(methods) => <LoginForm tenant={tenant} methods={methods} next={next} />}
+      {(methods, options) => (
+        <LoginForm
+          tenant={tenant}
+          methods={methods}
+          next={next}
+          rememberMeDays={options.rememberMeDays}
+        />
+      )}
     </PublicPage>
   );
 }

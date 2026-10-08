@@ -20,7 +20,11 @@ public interface IPasswordAuthenticator
     Task<Result<AuthenticatedUser>> AuthenticateAsync(string userName, string password, CancellationToken cancellationToken);
 }
 
-public sealed record AuthenticatedUser(Guid UserId, Guid PersonId, string UserName, string LanguageCode, IReadOnlyCollection<TenantRole> Roles, string SecurityStamp);
+/// <param name="HasTwoFactor">
+/// The user signs in with the authenticator app too (N04): the failed-attempt counter is not reset yet, the caller does it
+/// after the code is verified (otherwise every correct password would allow more guesses of the code).
+/// </param>
+public sealed record AuthenticatedUser(Guid UserId, Guid PersonId, string UserName, string LanguageCode, IReadOnlyCollection<TenantRole> Roles, string SecurityStamp, bool HasTwoFactor = false);
 
 internal sealed class PasswordAuthenticator : IPasswordAuthenticator
 {
@@ -104,9 +108,13 @@ internal sealed class PasswordAuthenticator : IPasswordAuthenticator
                 }
             }
 
-            user.RecordSuccessfulSignIn(now);
+            if (!user.HasTwoFactor)
+            {
+                user.RecordSuccessfulSignIn(now);
+            }
+
             await store.SaveChangesAsync(cancellationToken);
-            return Result.Success(new AuthenticatedUser(user.Id, user.PersonId, user.UserName, user.LanguageCode, user.Roles, user.SecurityStamp));
+            return Result.Success(new AuthenticatedUser(user.Id, user.PersonId, user.UserName, user.LanguageCode, user.Roles, user.SecurityStamp, user.HasTwoFactor));
         }, cancellationToken);
 
     private Error Fail(string reason, Guid? userId)

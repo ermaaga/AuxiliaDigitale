@@ -122,6 +122,27 @@ internal sealed class AuthEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        // Anonymous: a user whose roles require the authenticator app cannot sign in until it is set (N04).
+        auth.MapPost("/two-factor/setup", BeginTwoFactorSetupAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("BeginRequiredTwoFactorSetup")
+            .WithSummary("Starts the required enrolment of the authenticator app with user name and password (secret and QR code URI)")
+            .Produces<TwoFactorEnrollmentResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        auth.MapPost("/two-factor/setup/confirm", ConfirmTwoFactorSetupAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("ConfirmRequiredTwoFactorSetup")
+            .WithSummary("Confirms the required enrolment with a code of the app and signs in")
+            .Produces<TokenResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
     }
 
     private static async Task<IResult> IssueTokensAsync(
@@ -143,9 +164,11 @@ internal sealed class AuthEndpoints : IApiEndpoints
         var result = request.GrantType switch
         {
             PasswordGrant when !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Password) =>
-                await sessions.SignInAsync(new PasswordSignIn(client, request.UserName, request.Password, ipAddress, userAgent), cancellationToken),
+                await sessions.SignInAsync(
+                    new PasswordSignIn(client, request.UserName, request.Password, ipAddress, userAgent, request.TwoFactorCode, request.RememberMe), cancellationToken),
             EmailOtpGrant when !string.IsNullOrEmpty(request.UserName) && !string.IsNullOrEmpty(request.Code) =>
-                await sessions.SignInWithOtpAsync(new OtpSignIn(client, request.UserName, request.Code, ipAddress, userAgent), cancellationToken),
+                await sessions.SignInWithOtpAsync(
+                    new OtpSignIn(client, request.UserName, request.Code, ipAddress, userAgent, request.TwoFactorCode, request.RememberMe), cancellationToken),
             ExternalCodeGrant => Errors.Identity.LoginMethodDisabled(ExternalCodeGrant),
             RefreshTokenGrant when !string.IsNullOrEmpty(request.RefreshToken) =>
                 await sessions.RefreshAsync(new RefreshTokens(client, request.RefreshToken, ipAddress, userAgent), cancellationToken),
@@ -155,12 +178,7 @@ internal sealed class AuthEndpoints : IApiEndpoints
             }),
         };
 
-        return result.ToHttpResult(pair =>
-        {
-            context.Response.Headers.CacheControl = "no-store";
-            var expiresIn = (int)Math.Max(0, (pair.AccessTokenExpiresAt - DateTimeOffset.UtcNow).TotalSeconds);
-            return TypedResults.Ok(new TokenResponse(pair.AccessToken, "Bearer", expiresIn, pair.RefreshToken));
-        });
+        return result.ToHttpResult(pair => TokensOk(context, pair));
     }
 
     private static async Task<IResult> GetMethodsAsync(ILoginAuditQueryService audit, CancellationToken cancellationToken) =>
@@ -186,15 +204,65 @@ internal sealed class AuthEndpoints : IApiEndpoints
         var result = await sessions.ChangeExpiredPasswordAsync(
             new ExpiredPasswordChange(
                 client, request.UserName, request.CurrentPassword, request.NewPassword,
-                context.Connection.RemoteIpAddress?.ToString(), Truncate(context.Request.Headers.UserAgent.ToString(), RefreshSession.UserAgentMaxLength)),
+                context.Connection.RemoteIpAddress?.ToString(), Truncate(context.Request.Headers.UserAgent.ToString(), RefreshSession.UserAgentMaxLength),
+                request.TwoFactorCode, request.RememberMe),
             cancellationToken);
 
-        return result.ToHttpResult(pair =>
+        return result.ToHttpResult(pair => TokensOk(context, pair));
+    }
+
+    private static async Task<IResult> BeginTwoFactorSetupAsync(
+        TwoFactorSetupRequest request, HttpContext context, ISessionManager sessions, CancellationToken cancellationToken)
+    {
+        if (ClientOf(context) is not { } client)
+        {
+            return Errors.Identity.ClientInvalid().ToProblem();
+        }
+
+        var result = await sessions.BeginRequiredSetupAsync(
+            new TwoFactorSetup(client, request.UserName, request.Password, context.Connection.RemoteIpAddress?.ToString(), UserAgentOf(context)),
+            cancellationToken);
+        return result.ToHttpResult(enrollment =>
         {
             context.Response.Headers.CacheControl = "no-store";
-            var expiresIn = (int)Math.Max(0, (pair.AccessTokenExpiresAt - DateTimeOffset.UtcNow).TotalSeconds);
-            return TypedResults.Ok(new TokenResponse(pair.AccessToken, "Bearer", expiresIn, pair.RefreshToken));
+            return TypedResults.Ok(new TwoFactorEnrollmentResponse(enrollment.Secret, enrollment.Uri));
         });
+    }
+
+    private static async Task<IResult> ConfirmTwoFactorSetupAsync(
+        TwoFactorSetupConfirmRequest request, HttpContext context, ISessionManager sessions, CancellationToken cancellationToken)
+    {
+        if (ClientOf(context) is not { } client)
+        {
+            return Errors.Identity.ClientInvalid().ToProblem();
+        }
+
+        var result = await sessions.ConfirmRequiredSetupAsync(
+            new TwoFactorSetupConfirmation(
+                client, request.UserName, request.Password, request.Code, request.RememberMe, context.Connection.RemoteIpAddress?.ToString(), UserAgentOf(context)),
+            cancellationToken);
+        return result.ToHttpResult(pair => TokensOk(context, pair));
+    }
+
+    private static ClientCredentials? ClientOf(HttpContext context)
+    {
+        var client = new ClientCredentials(
+            context.Request.Headers[ClientIdHeader].ToString(),
+            context.Request.Headers[ClientSecretHeader].FirstOrDefault());
+        return string.IsNullOrWhiteSpace(client.ClientId) ? null : client;
+    }
+
+    private static string? UserAgentOf(HttpContext context) =>
+        Truncate(context.Request.Headers.UserAgent.ToString(), RefreshSession.UserAgentMaxLength);
+
+    /// <summary>The token pair, never cached; <c>sessionExpiresIn</c> only for a "stay signed in" session (N04).</summary>
+    private static Ok<TokenResponse> TokensOk(HttpContext context, TokenPair pair)
+    {
+        context.Response.Headers.CacheControl = "no-store";
+        var now = DateTimeOffset.UtcNow;
+        var expiresIn = (int)Math.Max(0, (pair.AccessTokenExpiresAt - now).TotalSeconds);
+        int? sessionExpiresIn = pair.RememberedUntil is { } until ? (int)Math.Max(0, (until - now).TotalSeconds) : null;
+        return TypedResults.Ok(new TokenResponse(pair.AccessToken, "Bearer", expiresIn, pair.RefreshToken, sessionExpiresIn));
     }
 
     private static async Task<IResult> LogoutAsync(

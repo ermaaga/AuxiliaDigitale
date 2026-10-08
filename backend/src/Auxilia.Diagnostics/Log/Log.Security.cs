@@ -91,6 +91,14 @@ public static partial class Log
             Level = LogLevel.Information, Message = "Platform user {PlatformUserId} opened tenant {TenantSlug}")]
         public static partial void PlatformTenantAccess(ILogger logger, Guid platformUserId, string tenantSlug);
 
+        [LoggerMessage(EventId = EventCodes.Security.TwoFactorChanged, EventName = "Security.TwoFactorChanged",
+            Level = LogLevel.Warning, Message = "Authenticator app of user {UserId} {Change} by {ActorType} {ActorId}")]
+        public static partial void TwoFactorChanged(ILogger logger, Guid userId, string change, string actorType, Guid? actorId);
+
+        [LoggerMessage(EventId = EventCodes.Security.TwoFactorCodeFailed, EventName = "Security.TwoFactorCodeFailed",
+            Level = LogLevel.Warning, Message = "Sign-in of user {UserId} failed on the authenticator code ({Reason})")]
+        public static partial void TwoFactorCodeFailed(ILogger logger, Guid userId, string reason);
+
         [LoggerMessage(EventId = EventCodes.Security.PlatformCredentialsChanged, EventName = "Security.PlatformCredentialsChanged",
             Level = LogLevel.Information, Message = "Credentials of platform user {PlatformUserId} {Change}")]
         public static partial void PlatformCredentialsChanged(ILogger logger, Guid platformUserId, string change);

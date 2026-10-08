@@ -195,4 +195,29 @@ public sealed class UserTests
         user.ChangeAccount("mario.rossi", "no-at").IsFailure.ShouldBeTrue();
         user.UserName.ShouldBe("mario.rossi");
     }
+
+    [Fact]
+    public void TwoFactor_EnrolConfirmReplayAndReset()
+    {
+        var user = New();
+        var stamp = user.SecurityStamp;
+        user.ConfirmTwoFactor(10, Now).Error!.Code.ShouldBe(EventCodes.Identity.TwoFactorEnrollmentMissing);
+
+        user.BeginTwoFactorEnrollment("protected");
+        user.HasTwoFactor.ShouldBeFalse();
+        user.ConfirmTwoFactor(10, Now).IsSuccess.ShouldBeTrue();
+
+        (user.HasTwoFactor, user.TwoFactorSecret, user.PendingTwoFactorSecret, user.LastTotpStep, user.TwoFactorEnabledAt)
+            .ShouldBe((true, "protected", null, 10L, Now));
+        user.TryUseTotpStep(10).ShouldBeFalse();
+        user.TryUseTotpStep(9).ShouldBeFalse();
+        user.TryUseTotpStep(11).ShouldBeTrue();
+
+        user.RemoveTwoFactor(endSessions: false);
+        (user.HasTwoFactor, user.LastTotpStep, user.SecurityStamp).ShouldBe((false, null, stamp));
+        user.BeginTwoFactorEnrollment("again");
+        user.ConfirmTwoFactor(12, Now);
+        user.RemoveTwoFactor(endSessions: true);
+        user.SecurityStamp.ShouldNotBe(stamp);
+    }
 }

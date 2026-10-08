@@ -10,6 +10,9 @@ import { loadBranding } from "@/features/branding/server";
 import { tenantLanguages } from "@/i18n/bundles";
 import { publicApi } from "@/lib/api/server";
 
+/** Sign-in options of the tenant (`GET /auth/methods`): days of "stay signed in", 0 = the box is hidden (N04). */
+export type SignInOptions = { rememberMeDays: number };
+
 /**
  * Frame of every public page of a tenant: 404 when the tenant does not exist, the tenant status message when it is
  * suspended or unavailable, the tenant branding (F23), language and theme switches in the corner.
@@ -23,10 +26,11 @@ export async function PublicPage({
   tenant: string;
   title: string;
   description?: string;
-  children: (methods: readonly string[]) => React.ReactNode;
+  children: (methods: readonly string[], options: SignInOptions) => React.ReactNode;
 }) {
   const t = await getTranslations();
   let methods: readonly string[] = ["password"];
+  let options: SignInOptions = { rememberMeDays: 0 };
   let problem: string | undefined;
   let response: Response | undefined;
   try {
@@ -40,7 +44,9 @@ export async function PublicPage({
   }
 
   if (response?.ok) {
-    methods = ((await response.json()) as { methods: string[] }).methods;
+    const body = (await response.json()) as { methods: string[]; rememberMeDays?: number };
+    methods = body.methods;
+    options = { rememberMeDays: body.rememberMeDays ?? 0 };
   } else if (response) {
     const code = ((await response.json().catch(() => ({}))) as { errorCode?: string }).errorCode;
     problem = code && t.has(`errors.${code}`) ? t(`errors.${code}`) : t("errors.generic");
@@ -72,7 +78,7 @@ export async function PublicPage({
           {problem}
         </p>
       ) : (
-        children(methods)
+        children(methods, options)
       )}
     </AuthCard>
   );
