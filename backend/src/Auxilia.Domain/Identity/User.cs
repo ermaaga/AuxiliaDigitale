@@ -99,6 +99,19 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
 
     public DateTimeOffset? LastLoginAt { get; private set; }
 
+    /// <summary>The confirmed TOTP secret (protected with Data Protection), or null without the authenticator app (N04).</summary>
+    public string? TwoFactorSecret { get; private set; }
+
+    /// <summary>A secret being enrolled, confirmed by <see cref="ConfirmTwoFactor"/>.</summary>
+    public string? PendingTwoFactorSecret { get; private set; }
+
+    /// <summary>The last TOTP step accepted: a code of that step or an earlier one is refused (replay).</summary>
+    public long? LastTotpStep { get; private set; }
+
+    public DateTimeOffset? TwoFactorEnabledAt { get; private set; }
+
+    public bool HasTwoFactor => TwoFactorSecret is not null;
+
     public IReadOnlyCollection<TenantRole> Roles => roles.Select(role => role.Role).Order().ToArray();
 
     /// <summary>Hashes of the passwords set so far, newest first (the current one included), at most <see cref="MaxPasswordHistory"/> (F35).</summary>
@@ -329,6 +342,56 @@ public sealed class User : AggregateRoot<Guid>, IAuditable
         LockoutCount = 0;
         LockoutEnd = null;
         LastLoginAt = now;
+    }
+
+    /// <summary>Starts (or restarts) the enrolment of the authenticator app with a new protected secret.</summary>
+    public void BeginTwoFactorEnrollment(string protectedSecret)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(protectedSecret);
+        PendingTwoFactorSecret = protectedSecret;
+    }
+
+    /// <summary>The pending secret becomes the active one, after a code of the app was verified at <paramref name="totpStep"/>.</summary>
+    public Result ConfirmTwoFactor(long totpStep, DateTimeOffset now)
+    {
+        if (PendingTwoFactorSecret is null)
+        {
+            return Errors.Identity.TwoFactorEnrollmentMissing();
+        }
+
+        TwoFactorSecret = PendingTwoFactorSecret;
+        PendingTwoFactorSecret = null;
+        LastTotpStep = totpStep;
+        TwoFactorEnabledAt = now;
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Removes the authenticator app: by the user (disable) or by an Administrator / the platform (reset, lost phone). A
+    /// reset also ends the user's sessions (new security stamp).
+    /// </summary>
+    public void RemoveTwoFactor(bool endSessions)
+    {
+        TwoFactorSecret = null;
+        PendingTwoFactorSecret = null;
+        LastTotpStep = null;
+        TwoFactorEnabledAt = null;
+        if (endSessions)
+        {
+            SecurityStamp = NewStamp();
+        }
+    }
+
+    /// <summary>Records the TOTP step of an accepted code; false when that step (or a later one) was already used.</summary>
+    public bool TryUseTotpStep(long step)
+    {
+        if (LastTotpStep is { } last && step <= last)
+        {
+            return false;
+        }
+
+        LastTotpStep = step;
+        return true;
     }
 
     private static string NewStamp() => Guid.NewGuid().ToString("N");

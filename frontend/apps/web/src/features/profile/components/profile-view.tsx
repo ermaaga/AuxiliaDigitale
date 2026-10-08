@@ -11,17 +11,22 @@ import { ProfileDataForm } from "./profile-data-form";
 import { ProfilePassword } from "./profile-password";
 import { ProfilePicture } from "./profile-picture";
 import { ProfilePreferences } from "./profile-preferences";
+import { TwoFactorCard } from "@/features/two-factor";
 
 /**
- * "My profile" (F04, legacy `/profile`, every signed-in user): picture, personal data, language and theme, password.
+ * "My profile" (F04, legacy `/profile`, every signed-in user): picture, personal data, language and theme, password,
+ * authenticator app (N04).
  * The own sessions get their page with B-21.
  */
 export function ProfileView({
   tenant,
   languages,
+  suggestTwoFactor = false,
 }: {
   tenant: string;
   languages: readonly LanguageOption[];
+  /** First visit after the temporary password was changed: the authenticator app is offered first (N04). */
+  suggestTwoFactor?: boolean;
 }) {
   const t = useTranslations();
   const query = useProfile(tenant);
@@ -42,10 +47,12 @@ export function ProfileView({
 
   return (
     <div className="flex flex-col gap-4">
+      {suggestTwoFactor ? <TwoFactorCard tenant={tenant} suggest /> : null}
       <ProfilePicture tenant={tenant} profile={profile} />
       <ProfileDataForm key={profile.userId} tenant={tenant} profile={profile} />
       <ProfilePreferences tenant={tenant} profile={profile} languages={languages} />
       <ProfilePassword tenant={tenant} />
+      {suggestTwoFactor ? null : <TwoFactorCard tenant={tenant} />}
     </div>
   );
 }

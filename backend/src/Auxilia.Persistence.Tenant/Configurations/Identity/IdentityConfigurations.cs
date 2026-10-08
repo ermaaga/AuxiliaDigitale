@@ -41,6 +41,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.PasswordFormat).HasConversion<string>().HasMaxLength(20);
         builder.Property(user => user.SecurityStamp).HasMaxLength(User.SecurityStampLength);
 
+        // N04: protected TOTP secrets (Data Protection payloads), never the plain Base32 value.
+        builder.Property(user => user.TwoFactorSecret).HasMaxLength(1000);
+        builder.Property(user => user.PendingTwoFactorSecret).HasMaxLength(1000);
+
         // One account per person; the person lives in the Directory module (reference by id, FK across schemas).
         builder.HasOne<Person>().WithOne().HasForeignKey<User>(user => user.PersonId).OnDelete(DeleteBehavior.Restrict);
 

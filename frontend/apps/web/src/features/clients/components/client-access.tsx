@@ -17,6 +17,7 @@ import { Switch } from "@auxilia/ui/components/switch";
 
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { useNotify } from "@/lib/notify";
+import { UserTwoFactorReset } from "@/features/two-factor";
 import { useCan } from "@/lib/permissions";
 
 import {
@@ -166,6 +167,7 @@ export function ClientAccess({ tenant, client }: { tenant: string; client: Clien
               </>
             ) : null}
           </div>
+          <UserTwoFactorReset userId={account.userId} />
         </CardContent>
       </Card>
       {temporary ? (

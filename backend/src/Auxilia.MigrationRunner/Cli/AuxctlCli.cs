@@ -58,6 +58,7 @@ internal sealed class AuxctlCli
           platform users (enable | disable) --email <email>
           platform users list
           users reset-password --tenant <slug> --user <user name | e-mail> [--send-link]
+          users reset-mfa --tenant <slug> --user <user name>
                                (prints a one-use temporary password, to change at the next sign-in, and ends the
                                 sessions; --send-link e-mails a reset link instead)
           users verify-legacy-hash         (reads a legacy BCrypt hash, then the password, from standard input)
@@ -113,6 +114,7 @@ internal sealed class AuxctlCli
                 _ when command.Is("platform", "users") && command.Word(2) is "add" or "reset" or "enable" or "disable" or "list" =>
                     await InScopeAsync(scope => PlatformUsersAsync(scope, command, cancellationToken)),
                 _ when command.Is("users", "reset-password") => await ResetUserPasswordAsync(command, cancellationToken),
+                _ when command.Is("users", "reset-mfa") => await ResetUserTwoFactorAsync(command, cancellationToken),
                 _ when command.Is("users", "verify-legacy-hash") => await InScopeAsync(VerifyLegacyHashAsync),
                 _ when command.Is("jobs", "list") => await InScopeAsync(ListJobsAsync),
                 _ when command.Is("jobs", "run") => await RunJobAsync(command, cancellationToken),
@@ -388,6 +390,21 @@ internal sealed class AuxctlCli
             return await ReportAsync(result, reset => reset.TemporaryPassword is { } password
                 ? $"{slug}/{reset.UserName}: temporary password (shown only now, to change at the next sign-in; sessions ended): {password}"
                 : $"{slug}/{reset.UserName}: reset link e-mailed");
+        }, cancellationToken);
+    }
+
+    /// <summary>Removes the authenticator app of a user (lost phone, N04); the user's sessions end.</summary>
+    private async Task<int> ResetUserTwoFactorAsync(CommandLine command, CancellationToken cancellationToken)
+    {
+        if (command.Option("tenant") is not { } slug || command.Option("user") is not { } user)
+        {
+            return await UsageAsync();
+        }
+
+        return await InTenantAsync(slug, async scope =>
+        {
+            var result = await scope.GetRequiredService<ITwoFactorManager>().ResetByOperatorAsync(user, cancellationToken);
+            return await ReportAsync(result, userName => $"{slug}/{userName}: authenticator app removed (sessions ended; enrolled again from the profile or at the next sign-in when required)");
         }, cancellationToken);
     }
 

@@ -50,6 +50,42 @@ internal sealed class MeEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
+        me.MapGet("/two-factor", GetTwoFactorAsync)
+            .WithName("GetMyTwoFactor")
+            .WithSummary("Whether the own authenticator app is set and whether the user's roles require it (N04)")
+            .Produces<TwoFactorStatusResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        me.MapPost("/two-factor/enrollment", BeginTwoFactorEnrollmentAsync)
+            .WithName("BeginMyTwoFactorEnrollment")
+            .WithSummary("A new secret of the authenticator app (setup key and QR code URI, shown once) to confirm with a code")
+            .Produces<TwoFactorEnrollmentResponse>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict);
+
+        me.MapPost("/two-factor/confirm", ConfirmTwoFactorAsync)
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("ConfirmMyTwoFactor")
+            .WithSummary("Confirms the enrolment with a code of the app: from the next sign-in the code is asked")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        me.MapPost("/two-factor/disable", DisableTwoFactorAsync)
+            .RequireRateLimiting(RateLimitingSetup.SignInPolicy)
+            .WithName("DisableMyTwoFactor")
+            .WithSummary("Removes the own authenticator app (current password required; refused when the roles require it)")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
         me.MapGet("/profile", GetProfileAsync)
             .WithName("GetMyProfile")
             .WithSummary("The own profile: name, e-mail, phone, read-only user name, language, theme and picture version")
@@ -182,6 +218,39 @@ internal sealed class MeEndpoints : IApiEndpoints
         return (await sessions.ChangePasswordAsync(userId, SessionOf(principal), request.CurrentPassword, request.NewPassword, cancellationToken))
             .ToHttpResult(TypedResults.NoContent);
     }
+
+    private static async Task<IResult> GetTwoFactorAsync(ICurrentUser currentUser, ITwoFactorManager twoFactor, CancellationToken cancellationToken) =>
+        currentUser.UserId is not { } userId
+            ? Errors.Identity.UserNotFound().ToProblem()
+            : (await twoFactor.StatusAsync(userId, cancellationToken))
+                .ToHttpResult(status => TypedResults.Ok(new TwoFactorStatusResponse(status.Enabled, status.Required, status.EnabledAt)));
+
+    private static async Task<IResult> BeginTwoFactorEnrollmentAsync(
+        ICurrentUser currentUser, ITwoFactorManager twoFactor, HttpContext context, CancellationToken cancellationToken)
+    {
+        if (currentUser.UserId is not { } userId)
+        {
+            return Errors.Identity.UserNotFound().ToProblem();
+        }
+
+        return (await twoFactor.BeginEnrollmentAsync(userId, cancellationToken)).ToHttpResult(enrollment =>
+        {
+            context.Response.Headers.CacheControl = "no-store";
+            return TypedResults.Ok(new TwoFactorEnrollmentResponse(enrollment.Secret, enrollment.Uri));
+        });
+    }
+
+    private static async Task<IResult> ConfirmTwoFactorAsync(
+        ConfirmTwoFactorRequest request, ICurrentUser currentUser, ITwoFactorManager twoFactor, CancellationToken cancellationToken) =>
+        currentUser.UserId is not { } userId
+            ? Errors.Identity.UserNotFound().ToProblem()
+            : (await twoFactor.ConfirmEnrollmentAsync(userId, request.Code, cancellationToken)).ToHttpResult(TypedResults.NoContent);
+
+    private static async Task<IResult> DisableTwoFactorAsync(
+        DisableTwoFactorRequest request, ICurrentUser currentUser, ITwoFactorManager twoFactor, CancellationToken cancellationToken) =>
+        currentUser.UserId is not { } userId
+            ? Errors.Identity.UserNotFound().ToProblem()
+            : (await twoFactor.DisableAsync(userId, request.Password, cancellationToken)).ToHttpResult(TypedResults.NoContent);
 
     private static async Task<IResult> GetMeAsync(ICurrentUserQueryService users, CancellationToken cancellationToken) =>
         (await users.GetAsync(cancellationToken)).ToHttpResult(TypedResults.Ok);

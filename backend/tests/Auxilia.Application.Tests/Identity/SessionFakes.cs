@@ -200,3 +200,30 @@ internal sealed class ConfigurableSettings : Auxilia.Application.Abstractions.Se
     public Task<string?> GetSecretAsync(Auxilia.Application.Abstractions.Settings.SecretSettingDefinition definition, CancellationToken cancellationToken) =>
         Task.FromResult<string?>(null);
 }
+
+/// <summary>TOTP of the users (N04): <see cref="Valid"/> matches the current 30-second step of the clock, any other code none.</summary>
+internal sealed class FakeUserTotp(TimeProvider time) : Auxilia.Application.Abstractions.Identity.ITotpService
+{
+    public const string Valid = "123456";
+
+    private int secrets;
+
+    public string NewSecret() => $"SECRET{++secrets}";
+
+    public string EnrollmentUri(string secret, string accountName, string issuer) => $"otpauth://totp/{issuer}:{accountName}?secret={secret}";
+
+    public long? Verify(string secret, string code, DateTimeOffset now) =>
+        code == Valid && secret.StartsWith("SECRET", StringComparison.Ordinal) ? time.GetUtcNow().ToUnixTimeSeconds() / 30 : null;
+}
+
+internal sealed class PrefixUserProtector : Auxilia.Application.Abstractions.Identity.IUserTwoFactorSecretProtector
+{
+    public string Protect(string secret) => "protected:" + secret;
+
+    public string Unprotect(string protectedSecret) => protectedSecret["protected:".Length..];
+}
+
+internal sealed class FixedAppName : Auxilia.Application.Configuration.Public.ITenantAppName
+{
+    public Task<string> GetAsync(CancellationToken cancellationToken) => Task.FromResult("Studio Acme");
+}

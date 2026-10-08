@@ -152,6 +152,17 @@ public interface ITwoFactorSecretProtector
     string Unprotect(string protectedSecret);
 }
 
+/// <summary>
+/// Protects the TOTP secrets of the users of the current tenant (N04): Data Protection with a purpose per tenant, so a
+/// secret copied to another tenant's database cannot be read there.
+/// </summary>
+public interface IUserTwoFactorSecretProtector
+{
+    string Protect(string secret);
+
+    string Unprotect(string protectedSecret);
+}
+
 /// <summary>Time-based one-time passwords (RFC 6238: HMAC-SHA1, 6 digits, 30-second steps).</summary>
 public interface ITotpService
 {

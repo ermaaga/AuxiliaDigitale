@@ -53,6 +53,14 @@ internal sealed class IdentityModuleEndpoints : IModuleEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status404NotFound);
+
+        identity.MapDelete("/users/{userId:guid}/two-factor", ResetTwoFactorAsync)
+            .RequirePermission(IdentityPermissions.ManageUsers)
+            .WithName("ResetUserTwoFactor")
+            .WithSummary("Removes the authenticator app of a user (lost phone, N04): the user's sessions end, the app is enrolled again")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status404NotFound);
     }
 
     private static async Task<IResult> ListSessionsAsync(
@@ -71,6 +79,9 @@ internal sealed class IdentityModuleEndpoints : IModuleEndpoints
 
     private static async Task<IResult> SessionSummaryAsync(IActiveSessionQueryService sessions, CancellationToken cancellationToken) =>
         TypedResults.Ok(await sessions.SummaryAsync(cancellationToken));
+
+    private static async Task<IResult> ResetTwoFactorAsync(Guid userId, ITwoFactorManager twoFactor, ICurrentUser currentUser, CancellationToken cancellationToken) =>
+        (await twoFactor.ResetAsync(userId, currentUser.UserId, cancellationToken)).ToHttpResult(TypedResults.NoContent);
 
     private static async Task<IResult> RevokeSessionAsync(Guid id, ISessionManager sessions, ICurrentUser currentUser, CancellationToken cancellationToken) =>
         (await sessions.RevokeAsync(id, currentUser.UserId, cancellationToken)).ToHttpResult(TypedResults.NoContent);

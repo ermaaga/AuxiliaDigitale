@@ -1,4 +1,5 @@
 using Auxilia.Application.Abstractions.Settings;
+using Auxilia.SharedKernel.Tenancy;
 
 namespace Auxilia.Application.Identity;
 
@@ -64,6 +65,37 @@ public static class IdentitySettings
     public static readonly SettingDefinition<int> SessionAbsoluteDays = new(
         "auth.session.absoluteDays", Module, 14, isValid: days => days is >= 1 and <= 90);
 
+    /// <summary>
+    /// "Stay signed in" (N04): days a remembered session stays open without activity, never beyond
+    /// <see cref="SessionAbsoluteDays"/>; 0 hides the box.
+    /// </summary>
+    public static readonly SettingDefinition<int> RememberMeDays = new(
+        "auth.session.rememberMeDays", Module, 14, isValid: days => days is >= 0 and <= 90);
+
+    /// <summary>
+    /// Roles that must use the authenticator app (N04), comma separated (<c>Administrator,Employee</c>); empty: the app
+    /// is optional for everyone.
+    /// </summary>
+    public static readonly SettingDefinition<string> MfaRequiredRoles = new(
+        "auth.mfa.requiredRoles", Module, string.Empty, isValid: value => ParseRoles(value) is not null);
+
+    /// <summary>The roles of <see cref="MfaRequiredRoles"/>; null when a name is not a tenant role.</summary>
+    public static IReadOnlySet<TenantRole>? ParseRoles(string? value)
+    {
+        var roles = new HashSet<TenantRole>();
+        foreach (var name in (value ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!TenantRoles.TryParse(name, out var role))
+            {
+                return null;
+            }
+
+            roles.Add(role);
+        }
+
+        return roles;
+    }
+
     /// <summary>Validity of account activation links (D-06).</summary>
     public static readonly SettingDefinition<int> ActivationLinkHours = new(
         "auth.activation.linkHours", Module, 72, isValid: hours => hours is >= 1 and <= 720);
@@ -83,5 +115,6 @@ public static class IdentitySettings
         AccessTokenMinutes, SessionAbsoluteDays, ActivationLinkHours, PasswordResetLinkMinutes, AppBaseUrl,
         PasswordRequireUppercase, PasswordRequireLowercase, PasswordRequireDigit, PasswordRequireSpecial,
         PasswordHistoryCount, PasswordExpiryEnabled, PasswordExpiryMonths, OtpLoginEnabled, OtpCodeMinutes,
+        RememberMeDays, MfaRequiredRoles,
     ];
 }

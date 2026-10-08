@@ -8,7 +8,11 @@ import { Input } from "@auxilia/ui/components/input";
 import { Label } from "@auxilia/ui/components/label";
 import { useTheme } from "@auxilia/ui/components/theme-provider";
 
+import { isApiError, unwrap } from "@auxilia/api-client";
+
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
+import { createBffClient } from "@/lib/api/client";
+import { TWO_FACTOR_ERRORS, TwoFactorCodeInput, normalizeCode } from "@/features/two-factor";
 import { postToBff } from "@/lib/api/browser";
 import { applyProfilePreferences } from "@/features/profile";
 import { tenantHref } from "@/lib/href";
@@ -17,7 +21,11 @@ import { FieldErrors, fieldErrorKeys } from "./field-errors";
 import { PasswordInput } from "./password-input";
 import { PasswordPolicy } from "./password-policy";
 
-/** Expired password (F35, `AUX-12043` at sign-in): current and new password; on success the user is signed in. */
+/**
+ * Expired or temporary password (F35, `AUX-12043` at sign-in): current and new password; on success the user is signed
+ * in. N04: a user with the authenticator app types its code too; a user without one is then offered the setup on the
+ * profile ("Later" goes on), and a user whose role requires it continues on the setup page with the new password.
+ */
 export function ExpiredPasswordForm({
   tenant,
   userName: initialUser,
@@ -35,6 +43,8 @@ export function ExpiredPasswordForm({
   const [mismatch, setMismatch] = React.useState(false);
   const [error, setError] = React.useState<unknown>();
   const [busy, setBusy] = React.useState(false);
+  const [twoFactor, setTwoFactor] = React.useState(false);
+  const [totp, setTotp] = React.useState("");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,11 +62,26 @@ export function ExpiredPasswordForm({
         userName,
         currentPassword: current,
         newPassword: password,
+        twoFactorCode: twoFactor ? normalizeCode(totp) : undefined,
       });
       await applyProfilePreferences(setTheme);
-      router.replace(tenantHref(tenant));
+      router.replace(await nextAfterChange(tenant));
       router.refresh();
     } catch (failure) {
+      if (isApiError(failure) && failure.errorCode === TWO_FACTOR_ERRORS.required) {
+        setTwoFactor(true);
+        setBusy(false);
+        return;
+      }
+
+      if (isApiError(failure) && failure.errorCode === TWO_FACTOR_ERRORS.setupRequired) {
+        // The new password was saved: the setup page asks for it with the user name.
+        router.push(
+          `${tenantHref(tenant, "/two-factor-setup")}?user=${encodeURIComponent(userName)}`,
+        );
+        return;
+      }
+
       setError(failure);
       setBusy(false);
     }
@@ -117,9 +142,24 @@ export function ExpiredPasswordForm({
           </p>
         ) : null}
       </div>
+      {twoFactor ? (
+        <TwoFactorCodeInput id="expired-totp" value={totp} onChange={setTotp} autoFocus />
+      ) : null}
       <Button type="submit" disabled={busy}>
         {t("ChangePassword")}
       </Button>
     </form>
   );
+}
+
+/** Home, or the profile offering the authenticator app when the user has none yet (N04). */
+async function nextAfterChange(tenant: string): Promise<string> {
+  try {
+    const status = unwrap(await createBffClient("tenant").GET("/api/v1/me/two-factor"));
+    return status.enabled
+      ? tenantHref(tenant)
+      : `${tenantHref(tenant, "/profile")}?twoFactor=suggest`;
+  } catch {
+    return tenantHref(tenant);
+  }
 }

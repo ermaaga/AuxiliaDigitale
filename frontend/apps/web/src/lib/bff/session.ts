@@ -20,6 +20,11 @@ export type BffSession = {
   accessTokenExpiresAt: number;
   refreshToken: string;
   createdAt: number;
+  /**
+   * "Stay signed in" (N04): epoch milliseconds until the API keeps the session open without activity; the cookie and the
+   * stored session last as long. Absent for an ordinary session (browser-session cookie, `sessionMaxAgeSeconds`).
+   */
+  rememberedUntil?: number;
   /** Console only: tenant-scoped platform tokens (10 minutes) by tenant slug. */
   tenantTokens?: Record<string, IssuedToken>;
 };
@@ -30,6 +35,8 @@ export type TokenResponse = {
   tokenType: string;
   expiresIn: number;
   refreshToken: string;
+  /** Seconds, only for a "stay signed in" session (N04). */
+  sessionExpiresIn?: number | null;
 };
 
 export function newSessionId(): string {
@@ -50,11 +57,12 @@ export function sessionFromTokens(
     accessTokenExpiresAt: now + tokens.expiresIn * 1000,
     refreshToken: tokens.refreshToken,
     createdAt: now,
+    ...(tokens.sessionExpiresIn ? { rememberedUntil: now + tokens.sessionExpiresIn * 1000 } : {}),
   };
 }
 
 /** `__Host-` cookies: Secure, Path=/, no Domain; HttpOnly and SameSite=Lax (CSRF defence with the custom header). */
-export function sessionCookieOptions(maxAgeSeconds: number) {
+export function sessionCookieOptions(maxAgeSeconds: number | undefined) {
   return {
     httpOnly: true,
     secure: true,

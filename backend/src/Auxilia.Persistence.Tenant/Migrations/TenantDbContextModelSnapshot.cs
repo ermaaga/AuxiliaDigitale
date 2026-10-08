@@ -2094,6 +2094,10 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("ip_address");
 
+                    b.Property<bool>("IsRemembered")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_remembered");
+
                     b.Property<DateTimeOffset>("LastUsedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_used_at");
@@ -2214,6 +2218,10 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_login_at");
 
+                    b.Property<long?>("LastTotpStep")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_totp_step");
+
                     b.Property<int>("LockoutCount")
                         .HasColumnType("integer")
                         .HasColumnName("lockout_count");
@@ -2241,6 +2249,11 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("password_hash");
 
+                    b.Property<string>("PendingTwoFactorSecret")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("pending_two_factor_secret");
+
                     b.Property<Guid>("PersonId")
                         .HasColumnType("uuid")
                         .HasColumnName("person_id");
@@ -2258,6 +2271,15 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasColumnType("character varying(10)")
                         .HasDefaultValue("System")
                         .HasColumnName("theme");
+
+                    b.Property<DateTimeOffset?>("TwoFactorEnabledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("two_factor_enabled_at");
+
+                    b.Property<string>("TwoFactorSecret")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("two_factor_secret");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

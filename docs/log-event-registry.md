@@ -12,7 +12,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 |---|---|---|---|---|
 | 10000–10999 | Host | Host / Startup / Middleware | 17 | 10026 |
 | 11000–11999 | Tenancy | Tenancy / Catalog | 31 | 11035 |
-| 12000–12999 | Identity | Identity / Auth | 71 | 12072 |
+| 12000–12999 | Identity | Identity / Auth | 80 | 12081 |
 | 13000–13999 | Directory | Directory (clients, employees) | 51 | 13052 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 41 | 14042 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
@@ -29,7 +29,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 5 | 26006 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
-| 29000–29999 | Security | Security events | 30 | 29031 |
+| 29000–29999 | Security | Security events | 32 | 29033 |
 
 ## Codes
 
@@ -154,6 +154,15 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-12069 | Identity.SessionNotFound | – | NotFound | – | – |
 | AUX-12070 | Identity.SessionRevoked | – | – | Identity.RevokeSession (success) | – |
 | AUX-12071 | Identity.TenantUserRequired | – | Forbidden | – | – |
+| AUX-12072 | Identity.TwoFactorRequired | – | Unauthorized | – | – |
+| AUX-12073 | Identity.TwoFactorCodeRejected | – | Unauthorized | – | – |
+| AUX-12074 | Identity.TwoFactorSetupRequired | – | Forbidden | – | – |
+| AUX-12075 | Identity.TwoFactorEnrollmentMissing | – | Conflict | – | – |
+| AUX-12076 | Identity.TwoFactorEnabled | – | – | Identity.EnableTwoFactor (success) | – |
+| AUX-12077 | Identity.TwoFactorRemoved | – | – | Identity.RemoveTwoFactor (success) | – |
+| AUX-12078 | Identity.TwoFactorEnrollmentStarted | – | – | Identity.BeginTwoFactorEnrollment (success) | – |
+| AUX-12079 | Identity.TwoFactorRequiredByRole | – | Conflict | – | – |
+| AUX-12080 | Identity.TwoFactorAlreadyEnabled | – | Conflict | – | – |
 | AUX-13001 | Directory.SpecializationCreated | – | – | Directory.CreateSpecialization (success) | – |
 | AUX-13002 | Directory.SpecializationUpdated | – | – | Directory.UpdateSpecialization (success) | – |
 | AUX-13003 | Directory.SpecializationDeactivated | – | – | Directory.DeactivateSpecialization (success) | – |
@@ -483,3 +492,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29028 | Security.UploadRejected | Warning | – | – | Upload of a {Extension} file rejected: {Reason} |
 | AUX-29029 | Security.StorageKeyRejected | Warning | – | – | Storage key outside tenant {TenantSlug} refused |
 | AUX-29030 | Security.SessionRevokedByAdministrator | Warning | – | – | Session {SessionId} of user {UserId} revoked by {ActorUserId} |
+| AUX-29031 | Security.TwoFactorChanged | Warning | – | – | Authenticator app of user {UserId} {Change} by {ActorType} {ActorId} |
+| AUX-29032 | Security.TwoFactorCodeFailed | Warning | – | – | Sign-in of user {UserId} failed on the authenticator code ({Reason}) |

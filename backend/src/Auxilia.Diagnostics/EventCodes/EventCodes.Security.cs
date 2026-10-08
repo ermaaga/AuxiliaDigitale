@@ -94,5 +94,11 @@ public static partial class EventCodes
 
         /// <summary>An Administrator revoked a user's session (F17, forced logout).</summary>
         public const int SessionRevokedByAdministrator = 29030;
+
+        /// <summary>The authenticator app of a user was enabled, disabled or reset (N04), with who did it.</summary>
+        public const int TwoFactorChanged = 29031;
+
+        /// <summary>A sign-in failed on the code of the authenticator app (wrong, expired or replayed).</summary>
+        public const int TwoFactorCodeFailed = 29032;
     }
 }

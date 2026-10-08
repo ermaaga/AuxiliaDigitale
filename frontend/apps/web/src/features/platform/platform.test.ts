@@ -12,7 +12,7 @@ import {
   tenantConsoleHref,
 } from "@/lib/href";
 
-import { groupSecret } from "./components/activation-form";
+import { groupSecret } from "@/components/totp-enrollment";
 import { statusLabel } from "./tenant-status";
 import { filterTenants } from "./components/tenants-table";
 import { activationSchema, activationTokenSchema } from "./schemas/activation";

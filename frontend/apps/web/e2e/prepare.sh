@@ -135,6 +135,23 @@ values ('0199aaaa-0000-7000-8000-000000000112', '0199aaaa-0000-7000-8000-0000000
         'luca.fabbri@example.test', 'it', true, 'Identity', '00000000000000000000000000000121', 0, 0, now());
 insert into identity.user_roles(user_id, role)
 values ('0199aaaa-0000-7000-8000-000000000112', 'Administrator'), ('0199aaaa-0000-7000-8000-000000000122', 'Administrator');
+
+-- Authenticator app and "stay signed in" (N04): an Employee whose app tenant-two-factor.spec.ts enrols…
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000131', 'Marta', 'Ricci', 'marta.ricci@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000132', '0199aaaa-0000-7000-8000-000000000131', 'marta.ricci',
+        'marta.ricci@example.test', 'it', true, 'Identity', '00000000000000000000000000000131', 0, 0, now());
+insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000132', 'Employee');
+-- …and the Administrator who resets that app from the employee page.
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000141', 'Fabio', 'Serra', 'fabio.serra@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000142', '0199aaaa-0000-7000-8000-000000000141', 'fabio.serra',
+        'fabio.serra@example.test', 'it', true, 'Identity', '00000000000000000000000000000141', 0, 0, now());
+insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000142', 'Administrator');
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then

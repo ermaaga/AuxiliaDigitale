@@ -59,10 +59,10 @@ public sealed class DependencyInjectionTests
         registry.All.Select(definition => definition.Key).ShouldBe(
         [
             "auth.accessToken.minutes", "auth.activation.linkHours", "auth.appBaseUrl", "auth.lockout.maxFailedAttempts",
-            "auth.lockout.minutes", "auth.otp.codeMinutes", "auth.otp.enabled", "auth.password.expiryEnabled",
+            "auth.lockout.minutes", "auth.mfa.requiredRoles", "auth.otp.codeMinutes", "auth.otp.enabled", "auth.password.expiryEnabled",
             "auth.password.expiryMonths", "auth.password.historyCount", "auth.password.minLength", "auth.password.requireDigit",
             "auth.password.requireLowercase", "auth.password.requireSpecial", "auth.password.requireUppercase", "auth.passwordReset.linkMinutes",
-            "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.singleSession", "branding.appName", "branding.background.color",
+            "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.session.rememberMeDays", "auth.singleSession", "branding.appName", "branding.background.color",
             "branding.background.endColor", "branding.background.kind", "branding.background.startColor", "branding.theme.accentColor",
             "branding.theme.fill", "branding.theme.primaryColor", "branding.useAppName", "cases.expiry.enabled",
             "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.azure.connectionString", "documents.storage.azure.container", "documents.storage.ftp.host", "documents.storage.ftp.password", "documents.storage.ftp.path", "documents.storage.ftp.port", "documents.storage.ftp.tls", "documents.storage.ftp.user", "documents.storage.provider", "registration.defaultLanguage",

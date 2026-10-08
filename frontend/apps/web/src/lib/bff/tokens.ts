@@ -68,19 +68,19 @@ async function refresh(
     accessToken: tokens.accessToken,
     accessTokenExpiresAt: now() + tokens.expiresIn * 1000,
     refreshToken: tokens.refreshToken,
+    // A remembered session slides with the API's idle window.
+    ...(tokens.sessionExpiresIn ? { rememberedUntil: now() + tokens.sessionExpiresIn * 1000 } : {}),
   };
   await store.set(refreshed, remainingSeconds(config, refreshed, now));
   return refreshed;
 }
 
-/** Seconds left of the absolute session lifetime. */
+/** Seconds left of the session: the "stay signed in" window when remembered, otherwise the BFF's absolute lifetime. */
 export function remainingSeconds(
   config: BffConfig,
   session: BffSession,
   now: () => number = Date.now,
 ): number {
-  return Math.max(
-    1,
-    Math.floor((session.createdAt + config.sessionMaxAgeSeconds * 1000 - now()) / 1000),
-  );
+  const end = session.rememberedUntil ?? session.createdAt + config.sessionMaxAgeSeconds * 1000;
+  return Math.max(1, Math.floor((end - now()) / 1000));
 }

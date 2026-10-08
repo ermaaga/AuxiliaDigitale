@@ -68,4 +68,16 @@ public sealed class SessionTests
         key.IsPublishedAt(Now.AddHours(3)).ShouldBeFalse();
         Should.Throw<ArgumentOutOfRangeException>(() => new SigningKey(new string('k', 33), "{}", "protected", Now));
     }
+
+    [Fact]
+    public void Remember_WidensTheIdleWindow_UpToTheAbsoluteLimit()
+    {
+        var session = new RefreshSession(Guid.CreateVersion7(), Guid.CreateVersion7(), "web", "stamp", Now, Now.AddHours(2), Now.AddDays(14), null, null);
+
+        session.Remember(Now, TimeSpan.FromDays(7));
+        (session.IsRemembered, session.IdleExpiresAt).ShouldBe((true, Now.AddDays(7)));
+
+        session.Remember(Now.AddDays(10), TimeSpan.FromDays(7));
+        session.IdleExpiresAt.ShouldBe(Now.AddDays(14));
+    }
 }

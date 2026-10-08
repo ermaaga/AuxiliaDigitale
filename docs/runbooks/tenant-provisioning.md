@@ -37,6 +37,7 @@ auxctl platform users reset --email ops@example.com     (lost password or authen
 auxctl platform users enable|disable --email ops@example.com
 auxctl platform users list
 auxctl users reset-password --tenant acme --user mario.rossi [--send-link]   (temporary password, or reset link)
+auxctl users reset-mfa --tenant acme --user mario.rossi                      (removes the authenticator app, N04)
 auxctl users verify-legacy-hash     (hash and password from standard input)
 auxctl diagnostics registry --output docs/log-event-registry.md
 ```
@@ -129,6 +130,13 @@ asks for a new password (403 `AUX-12043` → `POST /api/v1/auth/password/change`
 the normal reset e-mail instead (the tenant needs an e-mail account, N03). When several users share the e-mail, use the
 user name. Each reset is logged as security event `AUX-29023`. Support only: `auxctl users verify-legacy-hash` checks a
 password against a legacy BCrypt hash, e.g. `printf '%s\n%s\n' "$HASH" "$PASSWORD" | auxctl users verify-legacy-hash`.
+
+## Tenant users: authenticator app reset (N04)
+A user who lost the phone with the authenticator app asks an Administrator of the tenant (user page → "Reset
+authenticator app", `DELETE /api/v1/identity/users/{id}/two-factor`) or the platform staff:
+`auxctl users reset-mfa --tenant <slug> --user <user name>`. The app is removed and every session of the user ends
+(security event `AUX-29031`); the user enrols it again from the profile, or at the next sign-in when the tenant setting
+`auth.mfa.requiredRoles` lists one of the user's roles.
 
 ## Rate limits (API)
 Section `RateLimiting` of the API configuration (defaults in code, per node, in memory):

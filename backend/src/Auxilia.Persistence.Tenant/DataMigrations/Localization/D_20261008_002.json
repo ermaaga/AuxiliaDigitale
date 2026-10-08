@@ -1,0 +1,230 @@
+[
+ {
+  "key": "app.auth.staySignedIn",
+  "category": "app",
+  "en": "Stay signed in ({days} days)",
+  "it": "Resta connesso ({days} giorni)"
+ },
+ {
+  "key": "app.auth.staySignedInHint",
+  "category": "app",
+  "en": "Only on a device that is yours: the session stays open after the browser is closed.",
+  "it": "Solo su un dispositivo personale: la sessione resta aperta anche chiudendo il browser."
+ },
+ {
+  "key": "app.twoFactor.title",
+  "category": "app",
+  "en": "Authenticator app",
+  "it": "App di autenticazione"
+ },
+ {
+  "key": "app.twoFactor.description",
+  "category": "app",
+  "en": "At sign-in, after the password, the app's 6-digit code is asked: who knows your password cannot enter without your phone.",
+  "it": "All'accesso, dopo la password, viene chiesto il codice a 6 cifre dell'app: chi conosce la tua password non può entrare senza il tuo telefono."
+ },
+ {
+  "key": "app.twoFactor.suggestTitle",
+  "category": "app",
+  "en": "Protect your account",
+  "it": "Proteggi il tuo account"
+ },
+ {
+  "key": "app.twoFactor.suggestText",
+  "category": "app",
+  "en": "Your password is set. Add the authenticator app now (it takes a minute) or later from your profile.",
+  "it": "La password è impostata. Configura ora l'app di autenticazione (serve un minuto) oppure più tardi dal tuo profilo."
+ },
+ {
+  "key": "app.twoFactor.active",
+  "category": "app",
+  "en": "Active",
+  "it": "Attiva"
+ },
+ {
+  "key": "app.twoFactor.activeSince",
+  "category": "app",
+  "en": "since {date}",
+  "it": "dal {date}"
+ },
+ {
+  "key": "app.twoFactor.inactive",
+  "category": "app",
+  "en": "Not set",
+  "it": "Non configurata"
+ },
+ {
+  "key": "app.twoFactor.requiredByRole",
+  "category": "app",
+  "en": "Required for your role: it cannot be turned off.",
+  "it": "Obbligatoria per il tuo ruolo: non può essere disattivata."
+ },
+ {
+  "key": "app.twoFactor.setUp",
+  "category": "app",
+  "en": "Set up the app",
+  "it": "Configura l'app"
+ },
+ {
+  "key": "app.twoFactor.activate",
+  "category": "app",
+  "en": "Activate",
+  "it": "Attiva"
+ },
+ {
+  "key": "app.twoFactor.later",
+  "category": "app",
+  "en": "Later",
+  "it": "Più tardi"
+ },
+ {
+  "key": "app.twoFactor.disable",
+  "category": "app",
+  "en": "Turn off",
+  "it": "Disattiva"
+ },
+ {
+  "key": "app.twoFactor.disableText",
+  "category": "app",
+  "en": "Type your password to turn off the authenticator app.",
+  "it": "Inserisci la password per disattivare l'app di autenticazione."
+ },
+ {
+  "key": "app.twoFactor.enabledToast",
+  "category": "app",
+  "en": "Authenticator app active: the code is asked from the next sign-in.",
+  "it": "App di autenticazione attiva: il codice verrà chiesto dal prossimo accesso."
+ },
+ {
+  "key": "app.twoFactor.disabledToast",
+  "category": "app",
+  "en": "Authenticator app turned off.",
+  "it": "App di autenticazione disattivata."
+ },
+ {
+  "key": "app.twoFactor.codeLabel",
+  "category": "app",
+  "en": "Code of the authenticator app",
+  "it": "Codice dell'app di autenticazione"
+ },
+ {
+  "key": "app.twoFactor.codeHint",
+  "category": "app",
+  "en": "Open the app and type the 6-digit code shown for this account.",
+  "it": "Apri l'app e inserisci il codice a 6 cifre mostrato per questo account."
+ },
+ {
+  "key": "app.twoFactor.back",
+  "category": "app",
+  "en": "Back",
+  "it": "Indietro"
+ },
+ {
+  "key": "app.twoFactor.reset",
+  "category": "app",
+  "en": "Reset authenticator app",
+  "it": "Reimposta app di autenticazione"
+ },
+ {
+  "key": "app.twoFactor.resetTitle",
+  "category": "app",
+  "en": "Reset the authenticator app?",
+  "it": "Reimpostare l'app di autenticazione?"
+ },
+ {
+  "key": "app.twoFactor.resetText",
+  "category": "app",
+  "en": "The app is removed and every session of the user ends. The user will set it up again (at the next sign-in when the role requires it).",
+  "it": "L'app viene rimossa e tutte le sessioni dell'utente vengono chiuse. L'utente la configurerà di nuovo (al prossimo accesso se il ruolo la richiede)."
+ },
+ {
+  "key": "app.twoFactor.resetHint",
+  "category": "app",
+  "en": "Lost phone? Reset the authenticator app of this user.",
+  "it": "Telefono perso? Reimposta l'app di autenticazione di questo utente."
+ },
+ {
+  "key": "app.twoFactor.resetDone",
+  "category": "app",
+  "en": "Authenticator app reset: the user's sessions were closed.",
+  "it": "App di autenticazione reimpostata: le sessioni dell'utente sono state chiuse."
+ },
+ {
+  "key": "app.twoFactor.setupTitle",
+  "category": "app",
+  "en": "Set up the authenticator app",
+  "it": "Configura l'app di autenticazione"
+ },
+ {
+  "key": "app.twoFactor.setupDescription",
+  "category": "app",
+  "en": "Your role requires the code of an authenticator app at every sign-in. Confirm user name and password to start.",
+  "it": "Il tuo ruolo richiede il codice di un'app di autenticazione a ogni accesso. Conferma nome utente e password per iniziare."
+ },
+ {
+  "key": "app.twoFactor.continue",
+  "category": "app",
+  "en": "Continue",
+  "it": "Continua"
+ },
+ {
+  "key": "app.twoFactor.activateAndSignIn",
+  "category": "app",
+  "en": "Activate and sign in",
+  "it": "Attiva e accedi"
+ },
+ {
+  "key": "app.twoFactor.backToLogin",
+  "category": "app",
+  "en": "Back to sign-in",
+  "it": "Torna all'accesso"
+ },
+ {
+  "key": "errors.AUX-12072",
+  "category": "errors",
+  "en": "Type the code of your authenticator app.",
+  "it": "Inserisci il codice della tua app di autenticazione."
+ },
+ {
+  "key": "errors.AUX-12073",
+  "category": "errors",
+  "en": "The code is not valid or was already used: wait for the next one and try again.",
+  "it": "Il codice non è valido o è già stato usato: attendi il successivo e riprova."
+ },
+ {
+  "key": "errors.AUX-12074",
+  "category": "errors",
+  "en": "Your role requires the authenticator app: set it up to continue.",
+  "it": "Il tuo ruolo richiede l'app di autenticazione: configurala per continuare."
+ },
+ {
+  "key": "errors.AUX-12075",
+  "category": "errors",
+  "en": "No setup of the authenticator app is in progress: start again.",
+  "it": "Nessuna configurazione dell'app di autenticazione in corso: ricomincia."
+ },
+ {
+  "key": "errors.AUX-12079",
+  "category": "errors",
+  "en": "Your role requires the authenticator app: it cannot be turned off.",
+  "it": "Il tuo ruolo richiede l'app di autenticazione: non può essere disattivata."
+ },
+ {
+  "key": "errors.AUX-12080",
+  "category": "errors",
+  "en": "The authenticator app is already set up.",
+  "it": "L'app di autenticazione è già configurata."
+ },
+ {
+  "key": "settings.auth.session.rememberMeDays.description",
+  "category": "settings",
+  "en": "\"Stay signed in\" on the sign-in page: days the session stays open without activity (0 = the box is hidden; never beyond the absolute limit)",
+  "it": "\"Resta connesso\" nella pagina di accesso: giorni in cui la sessione resta aperta senza attività (0 = casella nascosta; mai oltre il limite assoluto)"
+ },
+ {
+  "key": "settings.auth.mfa.requiredRoles.description",
+  "category": "settings",
+  "en": "Roles that must use the authenticator app, comma separated (Administrator, Employee, Client; empty = optional for everyone)",
+  "it": "Ruoli che devono usare l'app di autenticazione, separati da virgola (Administrator, Employee, Client; vuoto = facoltativa per tutti)"
+ }
+]

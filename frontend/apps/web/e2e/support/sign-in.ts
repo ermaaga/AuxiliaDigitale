@@ -6,7 +6,7 @@ import { t } from "./ui";
 
 /**
  * Signs a seeded tenant user in with a temporary password set by auxctl, replacing it with a new one (returned), and
- * waits for the dashboard. Every spec owns its users, so the files run in any order and again on the same database.
+ * postpones the authenticator app, then waits for the dashboard. Every spec owns its users, so the files run in any order and again on the same database.
  */
 export async function signInWithNewPassword(page: Page, userName: string): Promise<string> {
   const temporary = auxctlSecret(
@@ -27,8 +27,17 @@ export async function signInWithNewPassword(page: Page, userName: string): Promi
   await page.getByLabel(t("NewPassword"), { exact: true }).fill(password);
   await page.getByLabel(t("ConfirmNewPassword")).fill(password);
   await page.getByRole("button", { name: t("ChangePassword") }).click();
-  await expect(page).toHaveURL(`/${E2E.tenant}/dashboard`);
+  await postponeTwoFactor(page);
   return password;
+}
+
+/**
+ * After a temporary password the profile offers the authenticator app (N04): "Later" goes on to the dashboard.
+ */
+export async function postponeTwoFactor(page: Page): Promise<void> {
+  await expect(page).toHaveURL(`/${E2E.tenant}/profile?twoFactor=suggest`);
+  await page.getByRole("link", { name: t("app.twoFactor.later") }).click();
+  await expect(page).toHaveURL(`/${E2E.tenant}/dashboard`);
 }
 
 /** A toast with the text (sonner), not the same words elsewhere on the page. */

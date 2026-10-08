@@ -89,5 +89,11 @@ public static partial class Operations
         public static readonly OperationDescriptor EndOwnSession = new("Identity.EndOwnSession", EventCodes.Identity.OwnSessionEnded);
 
         public static readonly OperationDescriptor RevokeSession = new("Identity.RevokeSession", EventCodes.Identity.SessionRevoked);
+
+        public static readonly OperationDescriptor BeginTwoFactorEnrollment = new("Identity.BeginTwoFactorEnrollment", EventCodes.Identity.TwoFactorEnrollmentStarted);
+
+        public static readonly OperationDescriptor EnableTwoFactor = new("Identity.EnableTwoFactor", EventCodes.Identity.TwoFactorEnabled);
+
+        public static readonly OperationDescriptor RemoveTwoFactor = new("Identity.RemoveTwoFactor", EventCodes.Identity.TwoFactorRemoved);
     }
 }

@@ -62,6 +62,10 @@ namespace Auxilia.Persistence.Catalog.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("ip_address");
 
+                    b.Property<bool>("IsRemembered")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_remembered");
+
                     b.Property<DateTimeOffset>("LastUsedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_used_at");

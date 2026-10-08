@@ -30,7 +30,8 @@ public interface ILoginAuditQueryService
     Task<Result<PagedResponse<LoginAttemptResponse>>> ListAttemptsAsync(LoginAttemptQuery query, CancellationToken cancellationToken);
 }
 
-internal sealed class LoginAuditQueryService(IEnumerable<IAuthenticationMethod> methods, ILoginAttemptReader attempts) : ILoginAuditQueryService
+internal sealed class LoginAuditQueryService(
+    IEnumerable<IAuthenticationMethod> methods, ILoginAttemptReader attempts, ISettingsProvider settings) : ILoginAuditQueryService
 {
     public const int MaxPageSize = 100;
 
@@ -47,7 +48,7 @@ internal sealed class LoginAuditQueryService(IEnumerable<IAuthenticationMethod> 
             }
         }
 
-        return new LoginMethodsResponse(enabled);
+        return new LoginMethodsResponse(enabled, await settings.GetAsync(IdentitySettings.RememberMeDays, cancellationToken));
     }
 
     public async Task<Result<PagedResponse<LoginAttemptResponse>>> ListAttemptsAsync(LoginAttemptQuery query, CancellationToken cancellationToken)

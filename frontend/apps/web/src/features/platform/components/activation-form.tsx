@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CheckIcon, CopyIcon, ExternalLinkIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { unwrap } from "@auxilia/api-client";
 import { Button } from "@auxilia/ui/components/button";
 import { Input } from "@auxilia/ui/components/input";
 
-import { QrCode } from "@/components/qr-code";
+import { TotpEnrollment } from "@/components/totp-enrollment";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { FormField, applyApiErrors, useZodForm } from "@/components/forms/form";
 import { PasswordInput } from "@/features/auth/components/password-input";
@@ -22,11 +21,6 @@ import {
 } from "../schemas/activation";
 
 type Enrollment = { activationToken: string; secret: string; uri: string };
-
-/** The setup key in groups of four, easier to type into an authenticator app. */
-export function groupSecret(secret: string): string {
-  return secret.replace(/(.{4})(?=.)/g, "$1 ");
-}
 
 /**
  * Activation of a System account (N02, D-22): the activation code from `auxctl` starts the enrolment (the API returns
@@ -109,7 +103,6 @@ function CompleteStep({ enrollment, onDone }: { enrollment: Enrollment; onDone: 
     defaultValues: { password: "", confirmPassword: "", code: "" },
   });
   const [error, setError] = React.useState<unknown>();
-  const [copied, setCopied] = React.useState(false);
 
   const submit = form.handleSubmit(async ({ password, code }) => {
     setError(undefined);
@@ -127,40 +120,10 @@ function CompleteStep({ enrollment, onDone }: { enrollment: Enrollment; onDone: 
     }
   });
 
-  async function copyKey() {
-    try {
-      await navigator.clipboard.writeText(enrollment.secret);
-      setCopied(true);
-    } catch {
-      // Clipboard not available: the key stays on screen to be typed.
-    }
-  }
-
   return (
     <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
       {error ? <ApiErrorAlert error={error} /> : null}
-      <p className="text-sm text-muted-foreground">{t("app.platform.activate.scanQr")}</p>
-      <div className="flex justify-center">
-        <QrCode value={enrollment.uri} label={t("app.platform.activate.qrLabel")} />
-      </div>
-      <div className="flex flex-col gap-2 rounded-md border bg-muted/40 p-3">
-        <p className="text-sm font-medium">{t("app.platform.activate.manual")}</p>
-        <p className="text-sm text-muted-foreground">{t("app.platform.activate.manualKey")}</p>
-        <code className="font-mono text-base break-all" data-testid="totp-secret">
-          {groupSecret(enrollment.secret)}
-        </code>
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={() => void copyKey()}>
-            {copied ? <CheckIcon aria-hidden /> : <CopyIcon aria-hidden />}
-            {copied ? t("app.platform.activate.copied") : t("app.platform.activate.copyKey")}
-          </Button>
-          <Button type="button" variant="outline" size="sm" asChild>
-            <a href={enrollment.uri}>
-              <ExternalLinkIcon aria-hidden /> {t("app.platform.activate.openApp")}
-            </a>
-          </Button>
-        </div>
-      </div>
+      <TotpEnrollment secret={enrollment.secret} uri={enrollment.uri} />
       <FormField
         control={form.control}
         name="password"

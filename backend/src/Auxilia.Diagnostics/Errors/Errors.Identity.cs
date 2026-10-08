@@ -28,6 +28,24 @@ public static partial class Errors
             Error.Validation(EventCodes.Identity.PasswordReused, $"The password was used among the last {historyCount}",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["password"] = ["validation.password.reused"] });
 
+        public static Error TwoFactorRequired() =>
+            Error.Unauthorized(EventCodes.Identity.TwoFactorRequired, "The code of the authenticator app is required");
+
+        public static Error TwoFactorCodeRejected() =>
+            Error.Unauthorized(EventCodes.Identity.TwoFactorCodeRejected, "The code of the authenticator app is not valid");
+
+        public static Error TwoFactorSetupRequired() =>
+            Error.Forbidden(EventCodes.Identity.TwoFactorSetupRequired, "The authenticator app must be set up before signing in");
+
+        public static Error TwoFactorEnrollmentMissing() =>
+            Error.Conflict(EventCodes.Identity.TwoFactorEnrollmentMissing, "No enrolment of the authenticator app is in progress");
+
+        public static Error TwoFactorRequiredByRole() =>
+            Error.Conflict(EventCodes.Identity.TwoFactorRequiredByRole, "The roles of the user require the authenticator app");
+
+        public static Error TwoFactorAlreadyEnabled() =>
+            Error.Conflict(EventCodes.Identity.TwoFactorAlreadyEnabled, "The authenticator app is already set up");
+
         public static Error PasswordExpired() =>
             Error.Forbidden(EventCodes.Identity.PasswordExpired, "The password expired and must be changed");
 
