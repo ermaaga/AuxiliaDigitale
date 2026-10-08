@@ -1,7 +1,9 @@
 import { cache } from "react";
+import { redirect } from "next/navigation";
 import type { components } from "@auxilia/api-client";
 
 import { currentSession, serverApi } from "@/lib/api/server";
+import { platformHref } from "@/lib/href";
 
 export type PlatformUser = components["schemas"]["PlatformMeResponse"];
 export type PlatformTenant = components["schemas"]["PlatformTenantResponse"];
@@ -45,6 +47,11 @@ export const loadConsoleTenant = cache(
     const response = await serverApi("platform", `platform/tenants/${encodeURIComponent(slug)}`);
     if (response.status === 404) {
       return undefined;
+    }
+
+    // The session ended while the page rendered (the layout redirects too): sign in again, not an error.
+    if (response.status === 401) {
+      redirect(platformHref("/login"));
     }
 
     if (!response.ok) {

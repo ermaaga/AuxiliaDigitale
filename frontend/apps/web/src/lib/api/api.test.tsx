@@ -173,7 +173,7 @@ describe("error message and alert", () => {
     });
     const render = (node: React.ReactNode) =>
       renderToStaticMarkup(
-        <NextIntlClientProvider locale="it" messages={messages}>
+        <NextIntlClientProvider locale="it" messages={messages} timeZone="Europe/Rome">
           {node}
         </NextIntlClientProvider>,
       );

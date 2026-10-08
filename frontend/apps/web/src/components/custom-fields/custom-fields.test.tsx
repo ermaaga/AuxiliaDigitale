@@ -62,6 +62,7 @@ describe("custom fields editor", () => {
   it("renders an input per type, required marks and the API errors", () => {
     const html = renderToStaticMarkup(
       <NextIntlClientProvider
+        timeZone="Europe/Rome"
         locale="it"
         messages={{ validation: { customFields: { required: "Obbligatorio" } } }}
       >

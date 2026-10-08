@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@auxilia/ui/components/button";
@@ -12,6 +13,11 @@ import { platformHref } from "@/lib/href";
 export default async function TenantsPage() {
   const t = await getTranslations();
   const response = await serverApi("platform", "platform/tenants?includeArchived=true");
+  // The session ended while the page rendered (the layout redirects too): sign in again, not an error.
+  if (response.status === 401) {
+    redirect(platformHref("/login"));
+  }
+
   if (!response.ok) {
     throw new Error(`The API answered ${response.status} for the tenant list.`);
   }
