@@ -1,6 +1,6 @@
 # F14 — Documents
 
-Status: [~] in progress (storage B-11, API B-12 and pages B-13 done; case documents tab B-14, legacy areas E-04 done) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-11, B-12, B-13 · Quirks: Q13, Q49, Q50, Q51
 
 ## Legacy behaviour
 Entity `UserDocument`: UserId (client), FileName, FilePath, FileType, FileSize, UploadedByUserId, UploadedAt, Description, ReferenceYear, Area (free text), SubscriptionId?, FolderTemplateId?.

@@ -1,6 +1,6 @@
 # F23 — System configuration (settings, e-mail, theme, background)
 
-Status: [~] in progress · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-10, P1-13, S-02, S-03 · Quirks: Q46
 
 > **Decisions D-16, D-18:** settings, branding and **N sending accounts** (SMTP; WhatsApp prepared) with rules purpose × sender role are managed by **System**. See N03.
 

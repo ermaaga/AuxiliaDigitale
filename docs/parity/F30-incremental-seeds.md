@@ -1,6 +1,6 @@
 # F30 — Incremental seeds / data migrations
 
-Status: [ ] not started · Tasks: P1-08, P1-09 
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-08, P1-09 
 
 ## Legacy behaviour
 - `DataSeeder.SeedAsync` for empty DB (languages, roles, admin/system/demo users, memberships, demo subscriptions, e-mail config, `User` custom fields, module configs from `environmentconfig.json`, page configs) — runs when `InitDatabase=true`.
@@ -8,6 +8,6 @@ Status: [ ] not started · Tasks: P1-08, P1-09
 - Rule (`rules.md` §4): every change to reference/config data needs a script; schema changes need an EF migration.
 
 ## Acceptance criteria
-- [ ] `IDataMigration` (`D_YYYYMMDD_NNN`), idempotent, recorded in `ops.data_migrations_history`, run by `auxctl migrate tenants`; fresh tenants mark covered ones as applied.
-- [ ] Persistence tests run every data-migration twice.
-- [ ] Production seed contains only reference data; demo data only in Development (Q45).
+- [x] `IDataMigration` (`D_YYYYMMDD_NNN`), idempotent, recorded in `ops.data_migrations_history`, run by `auxctl migrate tenants`; fresh tenants mark covered ones as applied. *(H-04: `DataMigrationRunner`, `ops.data_migrations_history`, `auxctl migrate tenants`, `[IncludedInInitialSeed]`)*
+- [x] Persistence tests run every data-migration twice. *(H-04: `DataMigrationRunnerTests.ApplyPending_EveryMigrationTwiceLeavesTheSameState`)*
+- [x] Production seed contains only reference data; demo data only in Development (Q45). *(H-04: data-migrations seed only translations, templates, permissions and settings; demo data only from `deploy/local/bootstrap.sh` and `e2e/prepare.sh`)*

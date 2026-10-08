@@ -1,6 +1,6 @@
 # N03 — Outbound messaging: channels, N accounts, rules by purpose and role
 
-Status: [~] in progress · Tasks: P1-13, S-03, M-03 · Decisions: D-16, D-20
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-13, S-03, M-03 · Decisions: D-16, D-20
 
 Legacy had a single SMTP configuration (`EmailConfiguration`, password in clear). Module `Messaging`, event codes 25000–25999.
 
@@ -21,5 +21,5 @@ Legacy had a single SMTP configuration (`EmailConfiguration`, password in clear)
 
 **Sending**
 - [x] Every outbound message is recorded (`outbound_messages`: channel, account, purpose, recipient, template, related entity, status `Queued/Sent/Failed`, error code, timestamps) and delivered by the Worker through the queue with retries and error queue.
-- [ ] Templates per code and language (Liquid), EN + IT mandatory for system templates: account activation, password reset, registration received, expiry reminder, request reply notification, campaign messages.
+- [x] Templates per code and language (Liquid), EN + IT mandatory for system templates: account activation, password reset, registration received, expiry reminder, request reply notification, campaign messages. *(H-04: `MessageTemplates` (activation, reset, login code, registration received, expiry reminder, request reply, notification) seeded EN + IT; campaigns send pre-rendered content (M-03))*
 - [x] Adding a channel/provider = new adapter implementing `IMessageChannel`, no change in the calling modules.

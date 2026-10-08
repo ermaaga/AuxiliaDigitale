@@ -11,5 +11,5 @@ The product manages **clients, cases, appointments and marketing campaigns**; th
 - Gym wording elsewhere is renamed, not dropped: "Trainer" → "Operator" (appointments, F13), "Ask my personal trainer" → "Ask my operator" (requests, F15), "Approvato dal trainer" → processed by operator (F03).
 
 ## Acceptance criteria
-- [ ] No `training` schema, module, permission, route, navigation entry or translation key exists in the new platform.
-- [ ] Legacy import: `WorkoutPlans` rows are not migrated; the dry-run report lists their count so the user can confirm nothing of value is lost.
+- [x] No `training` schema, module, permission, route, navigation entry or translation key exists in the new platform. *(H-04: `TenantSchemas` (no `training`), no module/permission/route/navigation/translation)*
+- [x] Legacy import: `WorkoutPlans` rows are not migrated; the dry-run report lists their count so the user can confirm nothing of value is lost. *(H-04: `LegacyTables` (`WorkoutPlans` excluded, D-09); `auxctl legacy inspect` prints its row count with fate "excluded")*

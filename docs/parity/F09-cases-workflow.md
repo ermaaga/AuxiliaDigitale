@@ -1,6 +1,6 @@
 # F09 — Cases (Subscription) workflow
 
-Status: [x] done (B-08/B-09/B-14, expiry reminder B-25, document checklist B-26) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-08, B-09, B-14, B-26 · Quirks: Q02, Q03, Q04, Q10, Q24
 
 ## Legacy behaviour
 **Entity**: `Subscription` (UserId, MembershipId, StartDate, EndDate?, IsActive, AmountPaid, Status, IsRejected, RoleSpecializationId?, CustomFields, RowVersion).
@@ -51,9 +51,9 @@ Completed: summary), payments with balance due and new payment, timeline. Client
 - [x] Create case: default employee assignment, price snapshot, specialization default from service, case number `{year}-{seq}`; client becomes active.
 - [x] Case detail shows contextual content per status exactly as listed above. *(Sent: the documents stay reachable from the client's Documents tab)*
 - [x] Case list with filters/sorts listed above; employee toggles "show all" / "show completed" (defaults off/off).
-- [ ] Client sees own cases with Active/Expired/Inactive badge.
-- [ ] Soft delete with confirmation; employees cannot delete Completed cases (F10).
-- [ ] Manual action "Send expiry reminder" e-mail (F11, Q24).
+- [x] Client sees own cases with Active/Expired/Inactive badge. *(H-04: column "Validità" for clients in `CasesTable` (`CaseValidityBadge`, API `validity`))*
+- [x] Soft delete with confirmation; employees cannot delete Completed cases (F10). *(H-04: `CaseEndpointsTests.Delete_IsSoft_KeepsTheTimeline_AndEmployeesCannotDeleteCompletedCases`, confirmation in the case page)*
+- [x] Manual action "Send expiry reminder" e-mail (F11, Q24). *(H-04: B-25, `POST /cases/{id}/expiry-reminder` (`CaseEndpointsTests.ExpiryReminder_…`), button in the case page)*
 
 ## Improvements
 Status history/timeline, multiple payments, document checklist (B-26), wizard creation, actions per status.

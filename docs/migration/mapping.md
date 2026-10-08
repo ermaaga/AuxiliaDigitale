@@ -147,6 +147,31 @@ Ogni valore passa dalla sua `SettingDefinition` (tipo e regola di validità); un
 
 `AppName` e la cartella dei documenti erano in `appsettings` del legacy, non nel database: il nome dell'applicazione si imposta nella console (`branding.appName`) e lo storage con `documents.storage.*`.
 
+### 5.5b Opzioni di `appsettings` del legacy (F32)
+
+Le opzioni del file `Auxilia.Client.Web/appsettings.json` non si migrano come dati: ognuna diventa configurazione
+dell'applicazione (host, segreti dell'hosting) o impostazione del tenant (console, `/platform/tenants/{slug}/settings`).
+
+| Legacy | Nuovo |
+|---|---|
+| `AppName` | `branding.appName` (impostazione del tenant) |
+| `DefaultPassword` | eliminato: account con link di attivazione (D-06) o password temporanea monouso (`auxctl users reset-password`) |
+| `DetailedErrors` | solo in Development; gli errori mostrano codice `AUX-NNNNN` e traceId (F25) |
+| `AllowedHosts` | `AllowedHosts` dell'API e `Tenancy:BaseDomains` (tenant dal sottodominio) |
+| `ConnectionStrings:DefaultConnection` | `ConnectionStrings:Catalog` + connection string protetta per tenant nel Catalog (D-02) |
+| `InitDatabase` | `auxctl migrate catalog` / `migrate tenants` e data-migration incrementali (F30) |
+| `SessionTimeout` | `auth.session.idleMinutes`, `auth.session.absoluteDays`, `auth.session.rememberMeDays` (impostazioni del tenant) |
+| `ReCaptcha:SiteKey`, `ReCaptcha:SecretKey` | `client_applications.captcha_provider` + `Captcha:Altcha:Key` (B-06, D-14) |
+| `UseLocalCache`, `CacheConnection` | `ConnectionStrings:Redis` facoltativa (senza: cache solo in memoria) |
+| `Logging`, `Serilog`, `SaveLog`, `AuditLog:FilePath` | sezione `AuxiliaLogging` (console JSON + file giornalieri per tenant), livello di debug temporaneo per tenant (D-28); audit sempre in `audit.entity_changes` |
+| `LogBlobStorage:*` | `AuxiliaLogging:Storage` = `azure-blob` (H-03) |
+| `EnableSubscriptionExpiryService` | `cases.expiry.enabled` + job ricorrente `cases.expiry` (D-15) |
+| `DocumentStorage:Path` | `documents.storage.provider` = `local` + `Storage:Local:RootPath` |
+| `FtpStorage:*` | `documents.storage.ftp.*` (password come segreto protetto) |
+| `AzureStorage:*` | `documents.storage.azure.*` |
+| `UseQueueForDocuments` | sempre: controllo dei file nel Worker (`ProcessDocumentCommand`, coda `auxilia.documents`) |
+| `RabbitMQ:*` | `ConnectionStrings:RabbitMq`; `MaxMessageSizeMB` non serve (i file non viaggiano nei messaggi) |
+
 ### 5.6 Moduli, pagine, griglie (F21, F22, Q40)
 
 - Il legacy nega una pagina a un ruolo con una riga `IsEnabled = false` (`ModuleConfigurations` per il modulo, `PageConfigurations` per la pagina). Per ogni riga disabilitata di un ruolo del tenant si tolgono a quel ruolo i permessi della pagina in `identity.role_permissions`. La sincronizzazione dei permessi a ogni migrazione non li restituisce, perché tocca solo i permessi nuovi. Le pagine abilitate o senza riga mantengono i permessi predefiniti dei moduli.

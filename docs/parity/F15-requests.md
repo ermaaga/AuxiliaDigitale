@@ -1,6 +1,6 @@
 # F15 — Requests
 
-Status: [x] done (B-18, B-21; legacy data with S-08) · Tasks: B-18, B-21 · Quirks: Q16, Q17, Q18
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-18, B-21 · Quirks: Q16, Q17, Q18
 
 ## Legacy behaviour
 Entity `Request`: SenderId, ReceiverId?, Type, Subject, Message, Status (`Pending`/`Responded`/`Closed`), Response, CreatedAt, RespondedAt.

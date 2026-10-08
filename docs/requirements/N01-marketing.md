@@ -1,6 +1,6 @@
 # N01 — Marketing campaigns (v1: e-mail)
 
-Status: [~] done except the consents of migrated clients (E-05, D-23) · pages M-04 · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
+Status: [x] done (self-service unsubscribe deferred, D-24); verified in H-04 · pages M-04 · Tasks: B-01, M-01, M-02, M-03, M-04, E-05 · Decisions: D-15, D-16, D-20 · D-23 (legacy clients consent = true), D-24 (unsubscribe deferred)
 
 Not present in the legacy. Module `Marketing`, optional (plan/override per tenant and role), event codes 19000–19999.
 
@@ -34,5 +34,5 @@ Not present in the legacy. Module `Marketing`, optional (plan/override per tenan
 
 **Exclusions**
 - [x] Staff can revoke marketing consent and add an address to `suppressions`; suppressed addresses are never contacted by marketing (transactional e-mails still allowed).
-- [ ] Legacy clients are migrated with e-mail marketing consent = true, source `LegacyMigration` (D-23).
+- [x] Legacy clients are migrated with e-mail marketing consent = true, source `LegacyMigration` (D-23). *(H-04: E-02 `UsersStep`, `UsersImportTests`)*
 - [ ] *(Deferred, D-24)* self-service unsubscribe link/page.

@@ -612,6 +612,7 @@
   "app.cases.stepDone": "done",
   "app.cases.summary": "Summary",
   "app.cases.timeline": "Timeline",
+  "app.cases.validity": "Validity",
   "app.clients.accessHint": "Sign-in is independent from the client status. It can be enabled only when an employee is assigned.",
   "app.clients.activated": "Activated",
   "app.clients.activation": "Activation",

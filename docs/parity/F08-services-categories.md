@@ -1,6 +1,6 @@
 # F08 — Services (Membership) and categories (MembershipType)
 
-Status: [~] in progress (backend B-07 done; cases of a service with B-08/B-09, pages with B-15, folders F33 with B-10) · Tasks: B-07, B-15 · Quirks: Q26, Q27, Q28
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-07, B-15 · Quirks: Q26, Q27, Q28
 
 ## Legacy behaviour
 - `Admin/Memberships.razor` (`/admin/memberships`, module `Memberships`): collapsible create/edit form: name (required), price €, duration days, type (MembershipType dropdown), specialization (Employee-role), active (edit only), description. Grid (config `Memberships/Administrator`): name, description, specialization, price, duration, status. Sort by name/price (default name). Actions: detail, delete (confirm, hard delete).

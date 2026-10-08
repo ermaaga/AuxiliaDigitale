@@ -47,6 +47,7 @@ public static class TenantPersistence
             provider.GetService<TimeProvider>() ?? TimeProvider.System,
             provider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<DataMigrationRunner>>()));
         services.AddSingleton<TenantInitialSeed>();
+        services.AddSingleton<ITenantSchemaInfo, Administration.TenantSchemaInfo>();
         services.AddScoped<IJobRunStore, JobRunStore>();
         services.AddScoped<ITenantSettingStore, TenantSettingStore>();
         services.AddScoped<Application.Abstractions.Configuration.IBrandingAssetStore, BrandingAssetStore>();

@@ -1,6 +1,6 @@
 # F13 — Appointments
 
-Status: [x] done except the dashboard (B-23) · Tasks: B-16, B-17 · Quirks: Q19, Q20, Q21, Q22
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-16, B-17 · Quirks: Q19, Q20, Q21, Q22
 
 ## Legacy behaviour
 Entity `Appointment`: ClientId, EmployeeId, ScheduledDate, DurationMinutes (60), Status string, Notes, CreatedAt, `ShowInGlobalCalendare` (true).
@@ -23,6 +23,6 @@ Notification routing: `Appointment` → employee page if created by final user, 
 - [x] Client request (Pending) choosing an employee (assigned preselected); employee notified. *(API B-16: `GET /appointments/employees` marks the one in charge)*
 - [x] Edit (incl. drag & drop move), approve, reject, complete (confirm), cancel, delete — each notifies the other party; history kept. *(API B-16; UI B-17)*
 - [x] Statuses Pending, Approved, Rejected, Completed, Cancelled.
-- [ ] "Show in global calendar" flag honoured by the shared/global calendar and employee dashboard. *(API `calendar?global=true` B-16; dashboard B-23)*
+- [x] "Show in global calendar" flag honoured by the shared/global calendar and employee dashboard. *(API `calendar?global=true` B-16; dashboard B-23)* *(H-04: `calendar?global=true` (B-16) and `SchedulingDashboard` (global calendar on the employee dashboard))*
 - [x] Conflict warning when overlapping appointments for the same employee. *(API `conflicts` + `hasConflict` B-16; confirm before saving or moving, warning in the drawer B-17)*
 - [x] Client can cancel its own appointment with confirmation. *(API B-16; confirmation B-17)*

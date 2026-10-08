@@ -42,6 +42,10 @@ export const E2E = {
     fullName: "Marta Ricci",
   },
   twoFactorAdministrator: { userName: "fabio.serra", fullName: "Fabio Serra" },
+  /** Parity regression per role (H-04): one user per role, owned by parity-roles.spec.ts. */
+  parityAdministrator: { userName: "giorgio.costa", fullName: "Giorgio Costa" },
+  parityEmployee: { userName: "irene.villa", fullName: "Irene Villa" },
+  parityClient: { userName: "nicola.fontana", fullName: "Nicola Fontana" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

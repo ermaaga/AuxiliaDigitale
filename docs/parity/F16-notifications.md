@@ -1,6 +1,6 @@
 # F16 — Notifications
 
-Status: [~] done except the expiry producer (B-25) · Tasks: P2-05, B-19, B-21 · Quirks: Q12, Q13
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P2-05, B-19, B-21 · Quirks: Q12, Q13
 
 ## Legacy behaviour
 Entity `Notification`: UserId, Title, Message, Type (`Info`, `Request`, `RegistrationRequest`, `Appointment`, `Subscription`, `WorkoutPlan` (dropped, F18), …), IsRead, IsCreatedByFinalUser, CreatedAt, RelatedEntityId.
@@ -15,6 +15,6 @@ Entity `Notification`: UserId, Title, Message, Type (`Info`, `Request`, `Registr
 ## Acceptance criteria
 - [x] Notification center: badge with unread count, list paged, mark one/all as read, delete, deep link per type **and role**. *(API B-19; bell and page B-21)*
 - [x] Real-time delivery via SignalR `NotificationReceived` (no polling needed; fallback polling if disconnected). *(server push B-19; client B-21, polling 30 s only without hub)*
-- [ ] All legacy producers above emit notifications with typed entity links. *(B-19: registration, requests, appointments; expiry job B-25)*
+- [x] All legacy producers above emit notifications with typed entity links. *(B-19: registration, requests, appointments; expiry job B-25)* *(H-04: `NotificationKinds` (registration, requests, appointments, case expiring/expired, exports, tasks) with deep links)*
 - [x] Notification preferences per type (in-app/e-mail). *(API + e-mail B-19; page B-21)*
-- [ ] Toasts for operation feedback; blocking dialogs only for confirmations/errors.
+- [x] Toasts for operation feedback; blocking dialogs only for confirmations/errors. *(H-04: `useNotify()` (sonner) everywhere, `useConfirm()` only for destructive actions)*

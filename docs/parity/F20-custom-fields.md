@@ -1,6 +1,6 @@
 # F20 — Custom fields
 
-Status: [~] in progress · Tasks: S-04, P3-07 · Quirks: Q41
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: S-04, P3-07 · Quirks: Q41
 
 > **Decision D-18:** custom field definitions are managed by **System** (platform console).
 
@@ -15,8 +15,8 @@ Status: [~] in progress · Tasks: S-04, P3-07 · Quirks: Q41
 ## Acceptance criteria
 - [x] Definitions per entity (at least Person/Client, Case, Appointment, Request, Document) with types Text, Number, Date, Bool, Select, MultiSelect, required flag, group, badge color, visible on grid, dashboard counter flag.
 - [x] Server-side validation of `custom_fields` against definitions. *(S-04: `ICustomFieldValidator` ready; each business module calls it when it stores records, B-xx.)*
-- [ ] Dynamic form renderer in create/edit forms; values shown in detail.
-- [ ] Grid columns grouped with colored badges as legacy.
+- [x] Dynamic form renderer in create/edit forms; values shown in detail. *(H-04: `CustomFieldsEditor` in the client wizard and data form, values in the 360° overview (the legacy used custom fields on clients only; the other entities have the API, B-xx))*
+- [x] Grid columns grouped with colored badges as legacy. *(H-04: `customFieldColumns` + `CustomFieldCell` in the client lists (`custom-fields.test.tsx`))*
 - [x] Legacy CAF/PATRONATO definitions and values migrated unchanged. *(E-05 `CustomFieldsStep` (same keys, dashboard counters) + values copied by E-02/E-03)*
 
 ## Status notes

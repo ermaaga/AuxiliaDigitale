@@ -1,6 +1,6 @@
 # F05 — Client management
 
-Status: [~] in progress (backend B-01 and pages B-04 done; cases, status recomputation and the 360° tabs of later modules pending) · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-01, B-04, B-08 · Quirks: Q01, Q03, Q23, Q29, Q30, Q52, Q53, Q54, Q60
 
 ## Legacy behaviour
 **Lists**
@@ -30,6 +30,6 @@ Status: [~] in progress (backend B-01 and pages B-04 done; cases, status recompu
 - [x] Admin can set a new password for a client (or send activation/reset link). (B-01 API: temporary password or reset link; activation link)
 - [x] Employee can set the client's specialization(s). (B-01 API, many — Q30)
 - [x] Enabling a client without an assigned employee is refused with a coded error. (`AUX-13019`)
-- [ ] Client status recomputed on case create/delete/complete and by the expiry job, following Q03. *(create/delete/complete done in B-08; expiry job B-25)*
+- [x] Client status recomputed on case create/delete/complete and by the expiry job, following Q03. *(create/delete/complete done in B-08; expiry job B-25)* *(H-04: `CaseManagerTests`, `CaseExpiryJobTests` (`IClientDirectory.UpdateStatusAsync`))*
 - [x] Delete is a soft delete with confirmation; deleted clients disappear from lists. (B-01 API; confirmation B-04)
-- [ ] Creating a case from the client requires an assigned employee (admin) — or auto-assigns the default one.
+- [x] Creating a case from the client requires an assigned employee (admin) — or auto-assigns the default one. *(H-04: `CaseManagerTests.Open_SpecializationDefaultsToTheService_AndOnlyAdministratorsChooseTheEmployee` (default employee Q31))*

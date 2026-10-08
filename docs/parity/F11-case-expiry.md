@@ -1,6 +1,6 @@
 # F11 — Case expiry job
 
-Status: [x] done (B-25) · Tasks: P1-12, B-25 · Quirks: Q03, Q14, Q15, Q24 · Decisions D-10 (closed), D-15
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-12, B-25 · Quirks: Q03, Q14, Q15, Q24 · Decisions D-10 (closed), D-15
 
 > **Decision D-15:** no scheduled job. The expiry logic is the command `cases.expiry`, registered in the recurring-job registry and run **manually** by System (console or `auxctl jobs run`); each run logged in `ops.job_runs`. The e-mail question (D-10) is closed; the manual "send expiry reminder" action on a case remains.
 

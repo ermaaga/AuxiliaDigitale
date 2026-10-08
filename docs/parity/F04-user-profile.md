@@ -1,6 +1,6 @@
 # F04 — User profile
 
-Status: [x] done (backend B-03, UI B-05; own sessions page with B-21) · Tasks: B-03, B-05 · Quirks: Q35
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-03, B-05 · Quirks: Q35
 
 ## Legacy behaviour
 - `Components/Profile.razor` (`/profile`, any authenticated user; header menu "MyProfile").

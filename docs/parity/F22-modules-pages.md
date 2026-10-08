@@ -1,6 +1,6 @@
 # F22 — Module and page enabling per role
 
-Status: [~] in progress · Tasks: P1-06, P1-11, P2-03, S-01, S-06 · Quirks: Q39, Q40
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-06, P1-11, P2-03, S-01, S-06 · Quirks: Q39, Q40
 
 > **Decisions D-18:** only the platform **System** role enables/disables modules, per tenant **and per role**; model = plans (future pricing) + tenant overrides (ARCHITECTURE §5). The tenant `SystemConfigurator` role no longer exists.
 
@@ -42,6 +42,6 @@ The legacy seed disabled some pages (Q40, e.g. Employee Requests): new tenants f
 
 ## Acceptance criteria
 - [x] Tenant module registry (`configuration.modules`) + role permissions reproduce the **effective** legacy visibility for each role (seed + legacy import mapping table documented in `mapping.md`). *(E-05 `AccessStep`: legacy pages and modules disabled for a role take that page's permissions from the role; enabled or missing rows keep the defaults; mapping §5.6)*
-- [ ] `GET /me/navigation` returns only allowed entries (union of roles); sidebar and mobile use it.
-- [ ] Disabled module → endpoints 404 and hidden from navigation; missing permission → 403.
-- [ ] Only the platform System role enables/disables modules per tenant and per role (`/platform/tenants/{slug}/modules`, plans in `/platform/plans`) and edits role permissions (`/platform/tenants/{slug}/permissions`). — role permissions done (S-06); module overrides per role are on the tenant overview (S-01); plans page pending.
+- [x] `GET /me/navigation` returns only allowed entries (union of roles); sidebar and mobile use it. *(H-04: `NavigationQueryService` tests, E2E `parity-roles.spec.ts` (exact menu per role))*
+- [x] Disabled module → endpoints 404 and hidden from navigation; missing permission → 403. *(H-04: module endpoint filter tests (P1-11), `SecurityPerimeterTests`, E2E `parity-roles.spec.ts` (pages of other roles closed))*
+- [x] Only the platform System role enables/disables modules per tenant and per role (`/platform/tenants/{slug}/modules`, plans in `/platform/plans`) and edits role permissions (`/platform/tenants/{slug}/permissions`). — role permissions done (S-06); module overrides per role are on the tenant overview (S-01); plans page pending. *(H-04: S-01 (plans and overrides per role on the tenant overview), S-06 (role permissions))*

@@ -612,6 +612,7 @@
   "app.cases.stepDone": "completato",
   "app.cases.summary": "Riepilogo",
   "app.cases.timeline": "Cronologia",
+  "app.cases.validity": "Validità",
   "app.clients.accessHint": "L'accesso è indipendente dallo stato del cliente. Si può abilitare solo se un operatore è assegnato.",
   "app.clients.activated": "Attivato",
   "app.clients.activation": "Attivazione",
