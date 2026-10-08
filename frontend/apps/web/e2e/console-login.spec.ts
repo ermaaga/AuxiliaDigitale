@@ -47,6 +47,8 @@ test("console journey of a System user", async ({ page }) => {
 
     await page.getByLabel(t("app.platform.activate.token")).fill(required("E2E_ACTIVATION_TOKEN"));
     await page.getByRole("button", { name: t("app.platform.activate.start") }).click();
+    // The QR code of the otpauth URI, to scan with the authenticator app; the key stays for manual entry.
+    await expect(page.getByRole("img", { name: t("app.platform.activate.qrLabel") })).toBeVisible();
     secret = (await page.getByTestId("totp-secret").innerText()).replace(/\s/g, "");
     expect(secret).toMatch(/^[A-Z2-7]{16,}$/);
     await expect(

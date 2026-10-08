@@ -1,0 +1,26 @@
+[
+ {
+  "key": "app.platform.activate.scanQr",
+  "category": "app",
+  "en": "Scan the QR code with your authenticator app (Google Authenticator, Microsoft Authenticator, Authy…). From then on the app shows the code to type at every sign-in. The code and the key are shown only now.",
+  "it": "Inquadra il codice QR con la tua app di autenticazione (Google Authenticator, Microsoft Authenticator, Authy…). Da quel momento l'app mostra il codice da inserire a ogni accesso. QR e chiave vengono mostrati solo ora."
+ },
+ {
+  "key": "app.platform.activate.qrLabel",
+  "category": "app",
+  "en": "QR code to add the account to the authenticator app",
+  "it": "Codice QR per aggiungere l'account all'app di autenticazione"
+ },
+ {
+  "key": "app.platform.activate.manual",
+  "category": "app",
+  "en": "Can't scan it? Add the account by hand",
+  "it": "Non riesci a inquadrarlo? Aggiungi l'account a mano"
+ },
+ {
+  "key": "app.platform.activate.manualKey",
+  "category": "app",
+  "en": "Setup key to type in the app, or open the link on this device:",
+  "it": "Chiave di configurazione da digitare nell'app, oppure apri il link su questo dispositivo:"
+ }
+]
