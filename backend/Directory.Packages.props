@@ -28,7 +28,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="10.0.12" />
     <!-- Same version JwtBearer 10.0.12 brings (IdentityModel packages must match) -->
-    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.19.2" />
+    <PackageVersion Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
   </ItemGroup>
   <ItemGroup Label="Outbound channels and templates">
     <PackageVersion Include="Fluid.Core" Version="2.40.0" />
@@ -43,7 +43,7 @@
   <ItemGroup Label="Messaging">
     <PackageVersion Include="Rebus" Version="8.9.5" />
     <PackageVersion Include="Rebus.PostgreSql" Version="9.1.1" />
-    <PackageVersion Include="Rebus.RabbitMq" Version="10.1.1" />
+    <PackageVersion Include="Rebus.RabbitMq" Version="10.1.2" />
     <PackageVersion Include="Rebus.ServiceProvider" Version="10.7.2" />
   </ItemGroup>
   <ItemGroup Label="Persistence">
@@ -57,10 +57,10 @@
   <ItemGroup Label="API">
     <PackageVersion Include="Asp.Versioning.Http" Version="10.2.3" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.11" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.17.14" />
   </ItemGroup>
   <ItemGroup Label="Storage and resilience">
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.2" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
   </ItemGroup>
   <ItemGroup Label="Tests">
