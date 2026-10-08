@@ -1,6 +1,6 @@
 # F19 — Data import
 
-Status: [x] done (S-08) · Tasks: S-08 · Quirks: Q47, Q48
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: S-08 · Quirks: Q47, Q48
 
 > **Decision D-18:** imports are operated by the platform **System** role from the console.
 

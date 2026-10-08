@@ -219,6 +219,34 @@ public sealed class CaseManagerTests : IAsyncDisposable
         otherClientCase.ShouldNotBe(Guid.Empty);
     }
 
+    /// <summary>
+    /// F10 matrix: {no specialization, non-private held, non-private not held, private held, private not held} ×
+    /// {Administrator, Employee} → can see / can manage / can delete (Completed cases only by Administrators).
+    /// </summary>
+    [Theory]
+    [InlineData("none", false, true, true, true, true)]
+    [InlineData("held", false, true, true, true, true)]
+    [InlineData("notHeld", false, true, true, true, false)]
+    [InlineData("held", true, true, true, true, true)]
+    [InlineData("notHeld", true, true, true, false, false)]
+    public async Task Policy_FollowsTheF10Matrix(string specialization, bool isPrivate, bool adminSees, bool adminManages, bool employeeSees, bool employeeManages)
+    {
+        var specializationId = specialization switch { "none" => (Guid?)null, "held" => Public, _ => Private };
+        var resource = new CaseResource(Client, specializationId, isPrivate, CaseStatus.Inserted);
+        var completed = resource with { Status = CaseStatus.Completed };
+
+        CallAs(Admin, TenantRole.Administrator);
+        var admin = new CaseAccessPolicy(caller, data);
+        (await admin.CanSeeAsync(resource, Ct), await admin.CanManageAsync(resource, Ct)).ShouldBe((adminSees, adminManages));
+        (await admin.CanDeleteAsync(completed, Ct)).ShouldBeTrue();
+
+        CallAs(Employee, TenantRole.Employee);
+        var employee = new CaseAccessPolicy(caller, data);
+        (await employee.CanSeeAsync(resource, Ct), await employee.CanManageAsync(resource, Ct)).ShouldBe((employeeSees, employeeManages));
+        (await employee.CanDeleteAsync(resource, Ct)).ShouldBe(employeeManages);
+        (await employee.CanDeleteAsync(completed, Ct)).ShouldBeFalse();
+    }
+
     [Fact]
     public async Task UnknownCases_AreNotFound_AndUpdateKeepsTheCustomFields()
     {

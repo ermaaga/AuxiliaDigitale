@@ -1,6 +1,6 @@
 # F21 — Grid configuration
 
-Status: [~] in progress · Tasks: S-04, P3-07 
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: S-04, P3-07 
 
 > **Decision D-18:** grid layouts are managed by **System** (platform console).
 

@@ -21,3 +21,9 @@ public interface ITenantDatabaseAdmin
 }
 
 public sealed record TenantDatabaseVersion(string? SchemaVersion, string? DataVersion);
+
+/// <summary>The newest schema migration of the tenant databases this build carries (F32: readiness reports tenants behind it).</summary>
+public interface ITenantSchemaInfo
+{
+    string? LatestSchemaVersion { get; }
+}

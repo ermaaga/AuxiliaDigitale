@@ -1,6 +1,6 @@
 # N02 — Platform console, tenants, plans and modules (System role)
 
-Status: [ ] not started · Tasks: P1-06, P1-09, P1-11, P2-06, P3-03, P3-08, S-01…S-08 · Decisions: D-15, D-17, D-18 · D-21 (no business data), D-22 (2FA), D-25 (archive only)
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-06, P1-09, P1-11, P2-06, P3-03, P3-08, S-01…S-08 · Decisions: D-15, D-17, D-18 · D-21 (no business data), D-22 (2FA), D-25 (archive only)
 
 Replaces the legacy tenant role `SystemConfigurator` and adds multi-tenant administration.
 
@@ -11,9 +11,9 @@ Replaces the legacy tenant role `SystemConfigurator` and adds multi-tenant admin
 
 ## Acceptance criteria
 **System identity**
-- [ ] System users live in the Catalog, log in to `/platform` (separate session), mandatory TOTP 2FA (D-22), lockout, security events `29xxx`.
-- [ ] Selecting a tenant issues a short-lived platform token (`scope=platform`, `role=System`, `tenant`, `act`); tenant technical endpoints accept only it; every change is audited with the platform actor.
-- [ ] D-21: System cannot read or change business data (clients, cases, documents, appointments, requests, campaigns) — enforced by API tests.
+- [x] System users live in the Catalog, log in to `/platform` (separate session), mandatory TOTP 2FA (D-22), lockout, security events `29xxx`. *(H-04: P2-06, `PlatformIdentityTests`)*
+- [x] Selecting a tenant issues a short-lived platform token (`scope=platform`, `role=System`, `tenant`, `act`); tenant technical endpoints accept only it; every change is audited with the platform actor. *(H-04: `POST /platform/tenants/{slug}/token`, `RequirePlatformTenant()`, audit with the platform actor)*
+- [x] D-21: System cannot read or change business data (clients, cases, documents, appointments, requests, campaigns) — enforced by API tests. *(H-04: `SecurityPerimeterTests` (platform tokens refused by business endpoints))*
 
 **Tenants**
 - [x] List with status, plan, schema version; create (slug rules, name, language, time zone, first Administrator e-mail → activation link) with asynchronous provisioning and progress; edit; suspend/reactivate; archive (no physical deletion, D-25).
@@ -21,13 +21,13 @@ Replaces the legacy tenant role `SystemConfigurator` and adds multi-tenant admin
 
 **Plans and modules**
 - [x] Module catalog generated from module descriptors (Core / Optional).
-- [ ] Plans define which modules are included **for which roles**; default plan `standard` includes everything.
+- [x] Plans define which modules are included **for which roles**; default plan `standard` includes everything. *(H-04: P1-11, S-01 (plan `standard` with every module))*
 - [x] Per tenant: assigned plan (validity dates) + overrides (enable/disable a module, per role).
 - [x] Effective visibility = Core, or (override ?? plan) includes the module for the role — and role permissions; hidden module → endpoints `404`, absent from `/me/navigation`; change takes effect without restart (cache invalidation).
 - [x] Only System can change plans and overrides.
 
 **Technical configuration per tenant** (each in its own requirement file)
-- [ ] Settings and branding (F23), sending accounts and rules (N03), grid layouts and custom fields (F20, F21), labels/translations (F24), role permissions and specializations (F12, F22), imports (F19), logs viewer (F25).
+- [x] Settings and branding (F23), sending accounts and rules (N03), grid layouts and custom fields (F20, F21), labels/translations (F24), role permissions and specializations (F12, F22), imports (F19), logs viewer (F25). *(H-04: console pages S-02…S-08, H-04a (jobs))*
 
 **Jobs (D-15)**
 - [x] Page listing the registered recurring jobs of the tenant with last run (who, when, result) and a "run now" action (e.g. `cases.expiry`); no automatic schedule. *(H-04a: `/api/v1/jobs`, `/jobs/runs`, `POST /jobs/{code}/run` → Worker; console page `/platform/tenants/{slug}/jobs`; tests `JobConsoleTests`, `JobEndpointsTests`, E2E `console-login.spec.ts`)*

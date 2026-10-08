@@ -1,6 +1,6 @@
 # F01 — Login / logout
 
-Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Quirks: Q01, Q44, Q56, Q57, Q58
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Quirks: Q01, Q44, Q56, Q57, Q58
 
 > **Decisions:** D-05 (login access independent from client status), D-06 (activation link), D-08 (single session = tenant setting, default **off**; the "force logout of other sessions" criterion applies only when enabled). No `SystemConfigurator` redirect: System users log in to the platform console (D-18).
 
@@ -28,15 +28,15 @@ Status: [ ] not started · Tasks: P2-01, P2-02, P2-07, P3-03, P3-06, P3-09 · Qu
 4. A new login invalidates the user's other sessions when single-session is enabled (D-08).
 
 ## Acceptance criteria
-- [ ] Given a legacy user with a BCrypt hash, when it logs in with the right password, then login succeeds and the hash is upgraded to the Identity format.
-- [ ] Given username `MARIO.ROSSI`, when the stored username is `mario.rossi`, then login succeeds.
-- [ ] Given wrong credentials, then a generic error is shown (no user enumeration) and a failed-attempt counter increments; lockout after the configured threshold.
-- [ ] Given a user with roles Administrator + Employee, when it logs in, then it lands on the dashboard with administrator widgets.
+- [x] Given a legacy user with a BCrypt hash, when it logs in with the right password, then login succeeds and the hash is upgraded to the Identity format. *(H-04: `IdentityPersistenceTests` (legacy hash verified and upgraded), legacy import E-02)*
+- [x] Given username `MARIO.ROSSI`, when the stored username is `mario.rossi`, then login succeeds. *(H-04: `IdentityPersistenceTests` (upper-case user name))*
+- [x] Given wrong credentials, then a generic error is shown (no user enumeration) and a failed-attempt counter increments; lockout after the configured threshold. *(H-04: `AuthEndpointsTests` (`AUX-12002` for wrong and unknown), lockout in `SessionManagerTests`, E2E `tenant-login.spec.ts`)*
+- [x] Given a user with roles Administrator + Employee, when it logs in, then it lands on the dashboard with administrator widgets. *(H-04: E2E `tenant-login.spec.ts` (`mario.rossi`, Administrator + Employee, dashboard and Administrator menu))*
 - [x] Given "remember username" checked, when the user returns to the login page, then the username is prefilled; unchecked → cleared. *(P3-06, verified end-to-end.)*
-- [ ] Given single-session ON and a user logged in on browser A, when it logs in on browser B, then A receives `ForceLogout` and is sent to login.
+- [x] Given single-session ON and a user logged in on browser A, when it logs in on browser B, then A receives `ForceLogout` and is sent to login. *(H-04: `SessionManagerTests` (single session ends the other sessions with `ForceLogout`), E2E `tenant-requests.spec.ts` (a `ForceLogout` signs the tab out))*
 - [x] Given an authenticated user, when it opens `/{tenant}/login`, then it is redirected to the dashboard. *(P3-06.)*
 - [x] Given logout, then the refresh session is revoked, the BFF cookie is cleared and the access token `jti` is deny-listed. *(P2-02 API + P3-03 BFF + P3-06 menu.)*
-- [ ] Login page shows logo or app name according to `UseAppName` and the tenant background.
+- [x] Login page shows logo or app name according to `UseAppName` and the tenant background. *(H-04: `PublicPage` + `features/branding` (`brandIdentity`, `loginBackground`), S-02)*
 
 ## Improvements
 JWT ES256 + rotating refresh token, BFF httpOnly cookie, lockout, forgot/reset password by e-mail, rate limit per IP.

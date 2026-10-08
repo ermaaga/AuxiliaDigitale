@@ -99,6 +99,8 @@ public sealed class ApiDatabase : IAsyncLifetime
 
     public async ValueTask DisposeAsync() => await container.DisposeAsync();
 
+    private string? latestSchemaVersion;
+
     private async Task<Tenant> AddTenantAsync(
         CatalogDbContext catalog, ITenantConnectionProtector protector, string slug, string? database, Action<Tenant> lifecycle)
     {
@@ -117,6 +119,7 @@ public sealed class ApiDatabase : IAsyncLifetime
             await using var dataSource = NpgsqlDataSource.Create(connectionString);
             await using var tenantDb = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
             await tenantDb.Database.MigrateAsync();
+            latestSchemaVersion = (await tenantDb.Database.GetAppliedMigrationsAsync()).Last();
 
             // Default role permissions, as auxctl does after every tenant migration.
             await using var application = new ServiceCollection().AddLogging().AddApplication().BuildServiceProvider();
@@ -125,6 +128,8 @@ public sealed class ApiDatabase : IAsyncLifetime
             await synchronizer.ApplyAsync(tenantDb, CancellationToken.None);
         }
 
+        // The version auxctl records, so readiness sees every tenant up to date (F32).
+        tenant.SetVersions(latestSchemaVersion, null);
         lifecycle(tenant);
         catalog.Tenants.Add(tenant);
         return tenant;

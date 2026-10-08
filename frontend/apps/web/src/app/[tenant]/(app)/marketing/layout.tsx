@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { MarketingNav } from "@/features/marketing";
+import { requireNavigation } from "@/lib/api/navigation-guard";
 
 /** `/{tenant}/marketing/…` (N01, nav entry `marketing`): campaigns, segments, static lists, templates, suppressions. */
 export default async function MarketingLayout({
@@ -8,6 +9,7 @@ export default async function MarketingLayout({
   params,
 }: LayoutProps<"/[tenant]/marketing">) {
   const { tenant } = await params;
+  await requireNavigation("marketing");
   const t = await getTranslations();
   return (
     <div className="flex flex-col gap-4">

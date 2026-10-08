@@ -63,6 +63,8 @@ public sealed partial class PlatformIdentityTests
 
         var operations = await WaitForLogsAsync(console, slug, "code=11030&text=changelog", count: 2);
         operations.Items.ShouldAllBe(item => item.Operation == "Tenancy.ChangeLogLevel" && item.UserId != null);
+        // F25: every line names the client application and the host version.
+        operations.Items.ShouldAllBe(item => item.Properties.ContainsKey("ClientId") && item.Properties.ContainsKey("Version") && item.TraceId != null);
 
         var page = await WaitForLogsAsync(console, slug, "pageSize=1", count: 1);
         page.NextCursor.ShouldNotBeNull();

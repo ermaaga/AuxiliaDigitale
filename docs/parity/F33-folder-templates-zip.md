@@ -1,6 +1,6 @@
 # F33 — Service folder templates, case document folders, ZIP download
 
-Status: [~] in progress (template B-10, documents in folders + ZIP B-12, case usage B-14 done; template editor B-15) · Tasks: B-10, B-12, B-14, B-15 · **Not listed in the blueprint — added by the legacy analysis.**
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-10, B-12, B-14, B-15 · **Not listed in the blueprint — added by the legacy analysis.**
 
 ## Legacy behaviour
 - Entity `MembershipFolderTemplate` (MembershipId, Name, ParentId?, SortOrder, Children, Documents) — migration `20260602145759_AddMembershipFolderTemplate`; `UserDocument.FolderTemplateId` (FK SetNull).

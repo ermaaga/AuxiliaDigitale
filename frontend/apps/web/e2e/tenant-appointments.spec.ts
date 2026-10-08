@@ -17,6 +17,18 @@ const day = (offset: number) => {
   return value.toISOString().slice(0, 10);
 };
 
+/**
+ * The days of this run: a few days ahead plus the minute of the run, so a run on the same database never finds the
+ * appointments of a previous one at the same day and time.
+ */
+const runOffset = 3 + (Math.floor(Date.now() / 60_000) % 600);
+const scheduledDay = day(runOffset);
+const requestedDay = day(runOffset + 1);
+
+/** The text of the list button of an appointment (date as the Italian bundle formats it, and time). */
+const slot = (date: string, time: string) =>
+  `${new Intl.DateTimeFormat("it-IT", { dateStyle: "medium" }).format(new Date(`${date}T${time}`))} ${time}`;
+
 const drawer = (page: Page) => page.getByRole("dialog", { name: t("ManageAppointment") });
 
 const openAppointments = async (page: Page) => {
@@ -57,7 +69,7 @@ test("an employee and a client run an appointment from request to completion", a
     await dialog.getByRole("combobox", { name: `${t("Client")} *` }).click();
     await page.getByPlaceholder(t("common.combobox.search")).fill("Conti");
     await page.getByRole("option", { name: /Conti Giulia/ }).click();
-    await dialog.getByLabel(`${t("Date")} *`).fill(day(3));
+    await dialog.getByLabel(`${t("Date")} *`).fill(scheduledDay);
     await dialog.getByLabel(`${t("Time")} *`).fill("10:00");
     await dialog.getByLabel(`${t("DurationMinutes")} *`).fill("45");
     await dialog.getByLabel(t("Notes")).fill("Prima visita");
@@ -80,7 +92,7 @@ test("an employee and a client run an appointment from request to completion", a
     await expect(table).toContainText(employee.fullName);
     await expectAccessible(clientPage, "client appointments");
 
-    await table.getByRole("button").filter({ hasText: "10:00" }).click();
+    await table.getByRole("button", { name: slot(scheduledDay, "10:00") }).click();
     await expect(drawer(clientPage)).toContainText(t("Approved"));
     await expect(drawer(clientPage).getByRole("button", { name: t("Approve") })).toHaveCount(0);
     await drawer(clientPage)
@@ -99,7 +111,7 @@ test("an employee and a client run an appointment from request to completion", a
     await expect(
       dialog.getByRole("combobox", { name: `${t("app.appointments.operator")} *` }),
     ).toContainText(employee.fullName);
-    await dialog.getByLabel(`${t("Date")} *`).fill(day(4));
+    await dialog.getByLabel(`${t("Date")} *`).fill(requestedDay);
     await dialog.getByLabel(`${t("Time")} *`).fill("15:00");
     await expectAccessible(clientPage, "request appointment");
     await dialog.getByRole("button", { name: t("RequestAppointment") }).click();
@@ -112,7 +124,7 @@ test("an employee and a client run an appointment from request to completion", a
     await page.reload();
     await showList(page);
     const table = page.getByRole("table", { name: t("nav.appointments") });
-    await table.getByRole("button").filter({ hasText: "15:00" }).click();
+    await table.getByRole("button", { name: slot(requestedDay, "15:00") }).click();
     await expect(drawer(page)).toContainText(t("app.appointments.requestedByClient"));
     await drawer(page)
       .getByRole("button", { name: t("Approve"), exact: true })
@@ -137,9 +149,12 @@ test("an employee and a client run an appointment from request to completion", a
   await test.step("the client's 360° tab shows the appointments", async () => {
     await page.goto(`/${E2E.tenant}/clients/${client.id}?tab=appointments&view=list`);
     const table = page.getByRole("table", { name: t("nav.appointments") });
-    await expect(table.getByRole("row")).toHaveCount(3);
-    await expect(table).toContainText(t("Completed"));
-    await expect(table).toContainText(t("Cancelled"));
+    await expect(
+      table.getByRole("row").filter({ hasText: slot(scheduledDay, "10:00") }),
+    ).toContainText(t("Cancelled"));
+    await expect(
+      table.getByRole("row").filter({ hasText: slot(requestedDay, "15:00") }),
+    ).toContainText(t("Completed"));
     await expectAccessible(page, "client appointments tab");
   });
 });

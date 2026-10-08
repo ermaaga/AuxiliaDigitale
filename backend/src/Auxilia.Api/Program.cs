@@ -23,6 +23,7 @@ using Auxilia.Infrastructure.Caching;
 using Auxilia.Infrastructure.Logging;
 using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Realtime;
+using Auxilia.Infrastructure.Tenancy;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
 using Auxilia.ServiceDefaults;
@@ -48,6 +49,7 @@ var catalogConnectionString = builder.Configuration.GetConnectionString("Catalog
     ?? throw new InvalidOperationException("ConnectionStrings:Catalog is not configured.");
 builder.Services.AddCatalogPersistence(catalogConnectionString);
 builder.Services.AddTenantPersistence();
+builder.Services.AddTenantSchemaHealthCheck();
 
 // Redis/Valkey is the L2 of the reference-data cache; without it each node caches in memory only.
 if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
@@ -118,6 +120,7 @@ app.UseAuxiliaSecurityHeaders();
 
 // Authentication goes before tenant resolution, so the token claim is authoritative.
 app.UseAuthentication();
+app.UseClientAppLogScope();
 app.UseMiddleware<TenantResolutionMiddleware>();
 
 // After authentication and tenant resolution: partitions are per tenant and user.

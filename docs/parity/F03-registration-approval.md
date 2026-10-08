@@ -1,6 +1,6 @@
 # F03 — Registration approval
 
-Status: [x] done (API only, B-06; no pages by D-14/D-27, dashboard counts with B-23) · Tasks: B-06 · Quirks: Q06, Q07, Q54
+Status: [x] done (API only, B-06; no pages by D-14/D-27) · Tasks: B-06 · Quirks: Q06, Q07, Q54
 
 > **Decision D-14:** API only (list pending/processed, approve, reject) for Administrator and Employee; **no pages**. Activation e-mail per D-06.
 

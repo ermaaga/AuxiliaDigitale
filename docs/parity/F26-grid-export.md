@@ -1,6 +1,6 @@
 # F26 — Grid export
 
-Status: [x] done (B-22, B-24) · Tasks: P3-07, B-22, B-24 · Quirks: Q38
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P3-07, B-22, B-24 · Quirks: Q38
 
 ## Legacy behaviour
 - `DataGrid EnableExport`: buttons Excel (actually CSV, UTF-8, all values quoted) and PDF (A4 "{AppName} - {Title}", header row, footer date). Exports **current page only** (Q38). Enabled on Admin Subscriptions and Membership detail.

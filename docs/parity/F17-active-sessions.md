@@ -1,6 +1,6 @@
 # F17 — Active sessions and forced logout
 
-Status: [x] done (P2-02, P2-04, P2-05, B-20, B-21) · Tasks: P2-02, P2-04, B-20, B-21 · Quirks: Q36, Q56, Q58
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P2-02, P2-04, B-20, B-21 · Quirks: Q36, Q56, Q58
 
 > **Decision D-08:** single session per user is a tenant setting, default **off**.
 

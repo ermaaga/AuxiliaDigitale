@@ -47,9 +47,9 @@ test("a request goes from the client to her operator and back, then the operator
 
   await test.step("the operator is notified and replies from the notification", async () => {
     await signInWithNewPassword(employeePage, employee.userName);
-    const bell = employeePage.getByRole("button", {
-      name: t("app.notifications.unreadCount", { count: 1 }),
-    });
+    // At least this request is unread (earlier runs on the same database may have left others).
+    const unread = t("app.notifications.unreadCount", { count: 0 }).replace("0", "[1-9]\\d*");
+    const bell = employeePage.getByRole("button", { name: new RegExp(`^${unread}$`) });
     await expect(bell).toBeVisible();
     await bell.click();
     const panel = employeePage.getByRole("list", { name: t("Notifications") });
@@ -85,9 +85,16 @@ test("a request goes from the client to her operator and back, then the operator
     await page.goto(`/${E2E.tenant}/notifications`);
     await expect(page.getByRole("heading", { name: t("Notifications"), level: 1 })).toBeVisible();
     const title = t("notifications.request.replied.title");
-    await page.getByRole("switch", { name: `${title}: ${t("Email")}` }).click();
-    await expect(toast(page, t("app.notifications.preferencesSaved"))).toBeVisible();
-    await expect(page.getByRole("switch", { name: `${title}: ${t("Email")}` })).toBeChecked();
+    const email = page.getByRole("switch", { name: `${title}: ${t("Email")}` });
+    // A previous run on the same database left it on: off first, so the change below is always saved.
+    if (await email.isChecked()) {
+      await email.click();
+      await expect(email).not.toBeChecked();
+    }
+
+    await email.click();
+    await expect(toast(page, t("app.notifications.preferencesSaved")).first()).toBeVisible();
+    await expect(email).toBeChecked();
     await expectAccessible(page, "notifications page");
   });
 

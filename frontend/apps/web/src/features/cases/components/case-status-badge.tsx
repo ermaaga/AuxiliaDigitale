@@ -20,3 +20,17 @@ export function CaseStatusBadge({ status, rejected }: { status: string; rejected
     </Badge>
   );
 }
+
+/** The validity a client sees on their own cases (F09, legacy `/client/subscriptions`): Active, Expired or Inactive. */
+export function CaseValidityBadge({ validity }: { validity: string }) {
+  const t = useTranslations();
+  if (validity === "Active") {
+    return <Badge variant="secondary">{t("Active")}</Badge>;
+  }
+
+  return validity === "Expired" ? (
+    <Badge variant="destructive">{t("Expired")}</Badge>
+  ) : (
+    <Badge variant="outline">{t("Inactive")}</Badge>
+  );
+}

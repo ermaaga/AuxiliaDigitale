@@ -19,7 +19,7 @@ import { ExportMenu } from "@/features/exports";
 
 import { CASE_STATUSES, formatMoney, useCases, type CaseListItem } from "../api";
 import { CASES_PERMISSIONS } from "../permissions";
-import { CaseStatusBadge } from "./case-status-badge";
+import { CaseStatusBadge, CaseValidityBadge } from "./case-status-badge";
 import { NewCaseDialog } from "./new-case-dialog";
 
 /** The grid of the case lists (F21, `cases.cases`). */
@@ -47,6 +47,7 @@ export function CasesTable({
   const isEmployee = useHasRole("Employee");
   const isAdministrator = useHasRole("Administrator");
   const employeeOnly = isEmployee && !isAdministrator;
+  const clientOnly = useHasRole("Client") && !isEmployee && !isAdministrator;
   const canOpen = useCan(CASES_PERMISSIONS.manage);
   const [showAll, setShowAll] = useQueryState(
     "showAll",
@@ -129,13 +130,23 @@ export function CasesTable({
       cell: (row) => <CaseStatusBadge status={row.status} rejected={row.isRejected} />,
     },
     {
+      id: "validity",
+      header: t("app.cases.validity"),
+      cell: (row) => <CaseValidityBadge validity={row.validity} />,
+    },
+    {
       id: "specialization",
       header: t("Specialization"),
       cell: (row) => row.specialization?.name ?? "—",
     },
   ];
+  // The client sees the legacy badge Active / Expired / Inactive of their own cases (F09); staff see the workflow.
   const visible = columns.filter(
-    (column) => !(clientId && column.id === "client") && !(serviceId && column.id === "service"),
+    (column) =>
+      !(clientId && column.id === "client") &&
+      !(serviceId && column.id === "service") &&
+      (column.id !== "validity" || clientOnly) &&
+      !(clientOnly && column.id === "specialization"),
   );
   const laid = applyLayout(visible, grid.layout);
 

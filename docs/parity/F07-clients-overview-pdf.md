@@ -1,6 +1,6 @@
 # F07 — Clients overview + PDF
 
-Status: [x] done (B-22, B-24) · Tasks: B-22, B-24 
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-22, B-24 
 
 ## Legacy behaviour
 - `Admin/ClientsOverview.razor` (`/admin/clients-overview`, not in sidebar). Loads all clients; collapsible filters: name contains, status (all/active/inactive), assigned employee; "Clear filters". Table: photo, client name, e-mail, phone, assigned employee (or "Not assigned"), status.

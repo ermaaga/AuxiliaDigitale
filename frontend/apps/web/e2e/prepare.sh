@@ -152,6 +152,26 @@ insert into identity.users(id, person_id, user_name, email, language_code, is_ac
 values ('0199aaaa-0000-7000-8000-000000000142', '0199aaaa-0000-7000-8000-000000000141', 'fabio.serra',
         'fabio.serra@example.test', 'it', true, 'Identity', '00000000000000000000000000000141', 0, 0, now());
 insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000142', 'Administrator');
+
+-- Parity regression per role (H-04): an Administrator, an Employee and a client in her charge, used only by
+-- parity-roles.spec.ts (navigation and every page of each role).
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000151', 'Giorgio', 'Costa', 'giorgio.costa@example.test', now()),
+       ('0199aaaa-0000-7000-8000-000000000161', 'Irene', 'Villa', 'irene.villa@example.test', now()),
+       ('0199aaaa-0000-7000-8000-000000000171', 'Nicola', 'Fontana', 'nicola.fontana@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000152', '0199aaaa-0000-7000-8000-000000000151', 'giorgio.costa',
+        'giorgio.costa@example.test', 'it', true, 'Identity', '00000000000000000000000000000151', 0, 0, now()),
+       ('0199aaaa-0000-7000-8000-000000000162', '0199aaaa-0000-7000-8000-000000000161', 'irene.villa',
+        'irene.villa@example.test', 'it', true, 'Identity', '00000000000000000000000000000161', 0, 0, now()),
+       ('0199aaaa-0000-7000-8000-000000000172', '0199aaaa-0000-7000-8000-000000000171', 'nicola.fontana',
+        'nicola.fontana@example.test', 'it', true, 'Identity', '00000000000000000000000000000171', 0, 0, now());
+insert into identity.user_roles(user_id, role)
+values ('0199aaaa-0000-7000-8000-000000000152', 'Administrator'), ('0199aaaa-0000-7000-8000-000000000162', 'Employee'),
+       ('0199aaaa-0000-7000-8000-000000000172', 'Client');
+insert into directory.client_profiles(id, status, status_changed_at, employee_user_id, created_at)
+values ('0199aaaa-0000-7000-8000-000000000171', 'Inactive', now(), '0199aaaa-0000-7000-8000-000000000162', now());
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then

@@ -67,7 +67,8 @@ public sealed class AuxctlTests : IAsyncLifetime
         {
             var acme = await catalog.Tenants.SingleAsync(tenant => tenant.Slug == "acme", Ct);
             acme.Status.ShouldBe(TenantStatus.Active);
-            acme.SchemaVersion.ShouldNotBeNull();
+            // The version a migrated tenant records is the newest migration of the build (F32 readiness compares them).
+            acme.SchemaVersion.ShouldBe(new Auxilia.Persistence.Tenant.Administration.TenantSchemaInfo().LatestSchemaVersion);
             acme.ConnectionSecret.ShouldNotBeNull().ShouldNotContain("Password");
             (await catalog.TenantPlans.CountAsync(plan => plan.TenantId == acme.Id && plan.PlanId == Plan.StandardId, Ct)).ShouldBe(1);
             (await catalog.MigrationRuns.SingleAsync(run => run.TenantId == acme.Id, Ct)).Status.ShouldBe(MigrationRunStatus.Succeeded);

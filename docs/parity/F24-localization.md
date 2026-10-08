@@ -1,6 +1,6 @@
 # F24 — Localization
 
-Status: [~] backend (P3-01), web app bundles (P3-05) and console editor (S-05) done; go-live import pending · Tasks: P3-01, P3-05, S-05 
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P3-01, P3-05, S-05 
 
 > **Decision D-18:** labels/translations are edited by **System** (platform console).
 
@@ -14,4 +14,4 @@ Status: [~] backend (P3-01), web app bundles (P3-05) and console editor (S-05) d
 - [x] `GET /i18n/{lang}` with ETag; cache invalidated immediately on edit (no restart/reload needed). *(P3-01: `If-None-Match` → 304, `Cache-Control: no-cache`, tag `t:{slug}:localization` evicted after commit.)*
 - [x] Fallback chain: requested language → tenant default → English → key (and missing keys reported in the editor). *(P3-01: `missingLanguages` per key, `filter[missingLanguage]`, per-language missing counts; UI in S-05.)*
 - [x] `/platform/tenants/{slug}/localization` (System console): search, filter by category, show missing translations, inline edit, add/delete key, add language via data-migration. *(S-05: page over the P3-01 API — search by key or text, category and "missing in" filters in the URL, missing counts per language, one column per active language with in-place edit (Enter saves, Escape cancels), customised values marked, remove a translation (fallback), new key with first translations, category/description edit, delete with confirmation.)*
-- [ ] No hard-coded user-visible strings in new code (EN + IT mandatory).
+- [x] No hard-coded user-visible strings in new code (EN + IT mandatory). *(H-04: scan of the web app — only the development-only `/design-system` showcase; E2E finds every control by its translation key)*

@@ -1,6 +1,6 @@
 # F29 — Optimistic concurrency
 
-Status: [x] done (H-04c, ADR 0018) · Tasks: P1-04, P1-08 
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: P1-04, P1-08 
 
 ## Legacy behaviour
 - `BaseEntity.RowVersion` configured as row version on 3 entities (`AuxiliaDbContext`); `documentations/CONCURRENCY_EXAMPLE.md`. No UI handling of conflicts.

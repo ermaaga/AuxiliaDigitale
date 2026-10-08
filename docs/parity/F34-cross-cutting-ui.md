@@ -1,6 +1,6 @@
 # F34 — Cross-cutting UI behaviours
 
-Status: [ ] not started · Tasks: P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 · **Not listed in the blueprint — added by the legacy analysis.** · Quirks: Q35, Q39, Q41, Q44, Q56, Q57
+Status: [~] done except the UAT per role (user acceptance); verified in H-04 · Tasks: P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 · **Not listed in the blueprint — added by the legacy analysis.** · Quirks: Q35, Q39, Q41, Q44, Q56, Q57
 
 ## Legacy behaviour
 - Single active session per user (new login force-logs-out others) — F01/F17.
@@ -18,7 +18,7 @@ Status: [ ] not started · Tasks: P2-04, P3-02, P3-06, P3-07, B-03, B-21, B-23 �
 
 ## Acceptance criteria
 - [ ] Every behaviour above exists in the new UI (or its explicitly approved replacement) — checked in UAT per role.
-- [ ] Dates/numbers formatted per user language and tenant time zone.
-- [ ] Destructive actions always confirm; non-destructive actions give toast feedback.
-- [ ] Type-ahead combobox for every large lookup.
-- [ ] Theme preference persisted; branding applied on public pages too.
+- [x] Dates/numbers formatted per user language and tenant time zone. *(H-04: next-intl formatter with the user language; appointment dates in the tenant time zone (`TenantTime`))*
+- [x] Destructive actions always confirm; non-destructive actions give toast feedback. *(H-04: `useConfirm()` before every delete/reset/revoke, `useNotify()` toasts)*
+- [x] Type-ahead combobox for every large lookup. *(H-04: `Combobox` for clients, employees, services, tenants)*
+- [x] Theme preference persisted; branding applied on public pages too. *(H-04: theme saved in the profile and applied after sign-in; `PublicPage` applies the tenant branding)*

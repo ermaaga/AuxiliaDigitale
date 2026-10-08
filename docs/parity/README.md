@@ -5,43 +5,45 @@ Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and ta
 
 | F | Feature | Status |
 |---|---|---|
-| [F01](F01-login-logout.md) | Login / logout | ☐ |
+| [F01](F01-login-logout.md) | Login / logout | ☑ |
 | [F02](F02-public-registration.md) | Public registration | ☑ (API only) |
 | [F03](F03-registration-approval.md) | Registration approval | ☑ (API only) |
-| [F04](F04-user-profile.md) | User profile | ☐ |
-| [F05](F05-clients.md) | Client management | ☐ |
-| [F06](F06-employees.md) | Employee management | ☐ |
-| [F07](F07-clients-overview-pdf.md) | Clients overview + PDF | ☐ |
-| [F08](F08-services-categories.md) | Services and categories | ☐ |
-| [F09](F09-cases-workflow.md) | Cases workflow | ☐ |
-| [F10](F10-private-cases.md) | Private cases / visibility | ☐ |
-| [F11](F11-case-expiry.md) | Case expiry job | ☐ |
-| [F12](F12-specializations.md) | Specializations | ☐ |
-| [F13](F13-appointments.md) | Appointments | ☐ |
-| [F14](F14-documents.md) | Documents | ☐ |
-| [F15](F15-requests.md) | Requests | ☐ |
-| [F16](F16-notifications.md) | Notifications | ☐ |
-| [F17](F17-active-sessions.md) | Active sessions / forced logout | ☐ |
+| [F04](F04-user-profile.md) | User profile | ☑ |
+| [F05](F05-clients.md) | Client management | ☑ |
+| [F06](F06-employees.md) | Employee management | ☑ |
+| [F07](F07-clients-overview-pdf.md) | Clients overview + PDF | ☑ |
+| [F08](F08-services-categories.md) | Services and categories | ☑ |
+| [F09](F09-cases-workflow.md) | Cases workflow | ☑ |
+| [F10](F10-private-cases.md) | Private cases / visibility | ☑ |
+| [F11](F11-case-expiry.md) | Case expiry job | ☑ |
+| [F12](F12-specializations.md) | Specializations | ☑ |
+| [F13](F13-appointments.md) | Appointments | ☑ |
+| [F14](F14-documents.md) | Documents | ☑ |
+| [F15](F15-requests.md) | Requests | ☑ |
+| [F16](F16-notifications.md) | Notifications | ☑ |
+| [F17](F17-active-sessions.md) | Active sessions / forced logout | ☑ |
 | [F18](F18-workout-plans.md) | ~~Workout plans~~ — removed (D-09) | – |
-| [F19](F19-data-import.md) | Data import | ☐ |
-| [F20](F20-custom-fields.md) | Custom fields | ☐ |
-| [F21](F21-grid-configuration.md) | Grid configuration | ☐ |
-| [F22](F22-modules-pages.md) | Modules / pages per role | ☐ |
-| [F23](F23-system-configuration.md) | System configuration | ☐ |
-| [F24](F24-localization.md) | Localization | ☐ |
-| [F25](F25-application-logs.md) | Application logs | ☐ |
-| [F26](F26-grid-export.md) | Grid export | ☐ |
-| [F27](F27-dashboards.md) | Dashboards | ☐ |
-| [F28](F28-server-side-paging.md) | Server-side paging | ☐ |
-| [F29](F29-optimistic-concurrency.md) | Optimistic concurrency | ☐ |
-| [F30](F30-incremental-seeds.md) | Incremental seeds | ☐ |
-| [F31](F31-password-tool.md) | Password tool | ☐ |
-| [F32](F32-docker-aspire.md) | Docker / Aspire / config | ☐ |
-| [F33](F33-folder-templates-zip.md) | Folder templates + ZIP (new in inventory) | ☐ |
-| [F34](F34-cross-cutting-ui.md) | Cross-cutting UI behaviours (new in inventory) | ☐ |
-| [F35](F35-account-security.md) | Account security: password policy/history/expiry, reset, OTP, login audit (branch `Security_Update`, D-30) | ☐ |
+| [F19](F19-data-import.md) | Data import | ☑ |
+| [F20](F20-custom-fields.md) | Custom fields | ☑ |
+| [F21](F21-grid-configuration.md) | Grid configuration | ☑ |
+| [F22](F22-modules-pages.md) | Modules / pages per role | ☑ |
+| [F23](F23-system-configuration.md) | System configuration | ☑ |
+| [F24](F24-localization.md) | Localization | ☑ |
+| [F25](F25-application-logs.md) | Application logs | ◐ (H-03 retention) |
+| [F26](F26-grid-export.md) | Grid export | ☑ |
+| [F27](F27-dashboards.md) | Dashboards | ☑ |
+| [F28](F28-server-side-paging.md) | Server-side paging | ☑ |
+| [F29](F29-optimistic-concurrency.md) | Optimistic concurrency | ☑ |
+| [F30](F30-incremental-seeds.md) | Incremental seeds | ☑ |
+| [F31](F31-password-tool.md) | Password tool | ☑ |
+| [F32](F32-docker-aspire.md) | Docker / Aspire / config | ☑ |
+| [F33](F33-folder-templates-zip.md) | Folder templates + ZIP (new in inventory) | ☑ |
+| [F34](F34-cross-cutting-ui.md) | Cross-cutting UI behaviours (new in inventory) | ◐ (UAT per role) |
+| [F35](F35-account-security.md) | Account security: password policy/history/expiry, reset, OTP, login audit (branch `Security_Update`, D-30) | ☑ |
 
-New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing, N02 Platform console / tenants / plans, N03 Outbound messaging.
+New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing ☑, N02 Platform console / tenants / plans ☑, N03 Outbound messaging ☑, N04 Authenticator app and "stay signed in" ☑.
+
+Verification (H-04, 2026-10-09): every criterion is ticked with its evidence (test, page or decision); open only the retention by storage lifecycle policy (F25 → H-03), the UAT per role with the user (F34) and the deferred unsubscribe page (N01, D-24). E2E regression per role: `apps/web/e2e/parity-roles.spec.ts`.
 
 ## Legacy route → new route
 | Legacy | New |

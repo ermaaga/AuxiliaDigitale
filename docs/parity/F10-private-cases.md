@@ -1,6 +1,6 @@
 # F10 — Private cases and employee visibility rules
 
-Status: [~] in progress (cases B-08/B-09 and documents B-12 done; pages B-14, exports/dashboards B-22/B-23) · Tasks: B-09, B-12, B-14 · Quirks: Q09, Q10, Q11 · **Decision D-04: code semantics confirmed**
+Status: [x] done (verified in H-04, 2026-10-09) · Tasks: B-09, B-12, B-14 · Quirks: Q09, Q10, Q11 · **Decision D-04: code semantics confirmed**
 
 ## Legacy behaviour (code = source of truth)
 Let `S(e)` = specializations assigned to employee `e` (`UserRoleSpecializations`).
@@ -29,8 +29,8 @@ post-filtering). "Show all" off = `OnlyHeldOrUnspecialized`; with "show all" on 
 legacy list also showed private cases of specializations not held: D-04 confirms the code rule of visibility).
 
 ## Acceptance criteria (D-04: code semantics)
-- [ ] Rules implemented as a query-level policy (`VisibleTo(user)`), never as UI filtering; applied to lists, detail, documents, downloads, ZIP, search, exports, dashboards counts.
+- [x] Rules implemented as a query-level policy (`VisibleTo(user)`), never as UI filtering; applied to lists, detail, documents, downloads, ZIP, search, exports, dashboards counts. *(H-04: `CaseAccessPolicy.ScopeAsync` → `CaseScope` in SQL for lists, exports and dashboard; documents list/ZIP in SQL (`DocumentAccess`); `CaseEndpointsTests.Lists_ApplyF10InTheQuery_…`)*
 - [x] Non-visible case/document by id → `404` (Q10).
-- [ ] Test matrix (Application + Api integration): {no spec, non-private spec, private spec held, private spec not held} × {case, case document, client document with/without assignment} × {Admin, Employee}.
-- [ ] Employee can manage only per `CanManageSubscription`/`CanManageDocument`; forbidden actions return `403` with code.
+- [x] Test matrix (Application + Api integration): {no spec, non-private spec, private spec held, private spec not held} × {case, case document, client document with/without assignment} × {Admin, Employee}. *(H-04: `CaseManagerTests.Policy_FollowsTheF10Matrix` + `Visibility_FollowsD04_…`, `DocumentManagerTests.Employee_FollowsF10_…`, HTTP `PrivateCases_FollowD04_ForEmployees`, `Employees_DoNotSeePrivateCaseDocuments_…`)*
+- [x] Employee can manage only per `CanManageSubscription`/`CanManageDocument`; forbidden actions return `403` with code. *(H-04: not visible → 404 (`CaseNotFound`), not manageable → 403 `PermissionDenied` (`CaseAccessPolicy`, `DocumentAccess`; `CaseManagerTests.Delete_…`))*
 - [x] Employee can create cases only for allowed services.
