@@ -733,6 +733,10 @@ describe("content security policy", () => {
     expect(production).toContain("connect-src 'self' https://api.test wss://api.test");
     expect(production).toContain("frame-ancestors 'none'");
     expect(production).toContain("upgrade-insecure-requests");
+    // Plain http (local stack): Safari would upgrade the static assets to https and drop the styles.
+    expect(contentSecurityPolicy("abc", false, undefined, false)).not.toContain(
+      "upgrade-insecure-requests",
+    );
     expect(contentSecurityPolicy("abc", true)).toContain("'unsafe-eval'");
     expect(contentSecurityPolicy("abc", true)).toContain("connect-src 'self';");
   });
