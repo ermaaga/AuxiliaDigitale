@@ -8,6 +8,7 @@ import { unwrap } from "@auxilia/api-client";
 import { Button } from "@auxilia/ui/components/button";
 import { Input } from "@auxilia/ui/components/input";
 
+import { QrCode } from "@/components/qr-code";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { FormField, applyApiErrors, useZodForm } from "@/components/forms/form";
 import { PasswordInput } from "@/features/auth/components/password-input";
@@ -138,9 +139,13 @@ function CompleteStep({ enrollment, onDone }: { enrollment: Enrollment; onDone: 
   return (
     <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
       {error ? <ApiErrorAlert error={error} /> : null}
-      <p className="text-sm text-muted-foreground">{t("app.platform.activate.scan")}</p>
+      <p className="text-sm text-muted-foreground">{t("app.platform.activate.scanQr")}</p>
+      <div className="flex justify-center">
+        <QrCode value={enrollment.uri} label={t("app.platform.activate.qrLabel")} />
+      </div>
       <div className="flex flex-col gap-2 rounded-md border bg-muted/40 p-3">
-        <p className="text-sm font-medium">{t("app.platform.activate.setupKey")}</p>
+        <p className="text-sm font-medium">{t("app.platform.activate.manual")}</p>
+        <p className="text-sm text-muted-foreground">{t("app.platform.activate.manualKey")}</p>
         <code className="font-mono text-base break-all" data-testid="totp-secret">
           {groupSecret(enrollment.secret)}
         </code>
