@@ -4,6 +4,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect } from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
@@ -129,6 +130,7 @@ export function AppointmentsTable({
 
   return (
     <DataTable
+      views={gridViews(tenant, APPOINTMENTS_GRID, table)}
       key={grid.layout ? "layout" : "default"}
       label={label}
       exportMenu={(columns) => (

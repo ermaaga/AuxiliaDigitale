@@ -70,5 +70,17 @@ public static partial class EventCodes
 
         /// <summary>A grid layout names unknown columns, repeats one or hides a column that must stay visible (400).</summary>
         public const int GridLayoutInvalid = 20022;
+
+        /// <summary>A user saved or changed a personal view of a grid (F21).</summary>
+        public const int GridViewSaved = 20023;
+
+        /// <summary>A user deleted a personal view of a grid.</summary>
+        public const int GridViewDeleted = 20024;
+
+        /// <summary>The view is not valid: name, columns, filters or sort of the grid (400).</summary>
+        public const int GridViewInvalid = 20025;
+
+        /// <summary>No view of the caller with this id on this grid (404).</summary>
+        public const int GridViewNotFound = 20026;
     }
 }

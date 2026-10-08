@@ -49,6 +49,7 @@ import {
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 
+import { GridViewsMenu, type GridViewsBinding } from "./grid-views-menu";
 import { nextSort, pageCount, sortDirection, type DataTableColumn } from "./table-model";
 import { PAGE_SIZES } from "./use-table-state";
 
@@ -81,6 +82,8 @@ export type DataTableProps<TRow extends RowData> = {
   onRowClick?: (row: TRow) => void;
   /** A short list shown whole (e.g. the modules of a tenant): no page size and page buttons, the total stays. */
   hidePaging?: boolean;
+  /** Personal views of the list's grid (F21): the "Views" menu next to the column picker. */
+  views?: GridViewsBinding;
 };
 
 /**
@@ -118,6 +121,18 @@ export function DataTable<TRow extends RowData>(props: DataTableProps<TRow>) {
   });
 
   const visible = columns.filter((column) => visibility[column.id] !== false);
+  // A view hides its columns and shows every other one that can be hidden (unknown ids are ignored).
+  const applyHidden = React.useCallback(
+    (hidden: readonly string[]) =>
+      setVisibility(
+        Object.fromEntries(
+          columns
+            .filter((column) => column.hideable !== false)
+            .map((column) => [column.id, !hidden.includes(column.id)]),
+        ),
+      ),
+    [columns],
+  );
   const pages = pageCount(props.totalCount, props.pageSize);
   const showEmpty = !isLoading && !error && (rows?.length ?? 0) === 0;
 
@@ -127,6 +142,16 @@ export function DataTable<TRow extends RowData>(props: DataTableProps<TRow>) {
         <div className="flex flex-1 flex-wrap items-end gap-2">{props.toolbar}</div>
         <div className="flex items-center gap-2">
           {props.exportMenu ? props.exportMenu(visible.map((column) => column.id)) : null}
+          {props.views ? (
+            <GridViewsMenu
+              {...props.views}
+              sort={props.sort}
+              hiddenColumns={columns
+                .filter((column) => visibility[column.id] === false)
+                .map((column) => column.id)}
+              onHiddenColumns={applyHidden}
+            />
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline" size="sm">

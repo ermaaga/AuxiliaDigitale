@@ -50,5 +50,14 @@ export function useTableState<TFilter extends string>(filters: readonly TFilter[
       void setFilterState(Object.fromEntries(filters.map((name) => [name, null])));
       void setState({ page: 1 });
     },
+    /** No filter and no sort in the URL: the list as it opens (a default personal view may apply, F21). */
+    pristine: !state.sort && !filters.some((name) => Boolean(values[name])),
+    /** A saved view (F21): its filters (the list's own keys only) and sort, back to page 1. */
+    applyView: (view: { filters: Record<string, string>; sort: string | null | undefined }) => {
+      void setFilterState(
+        Object.fromEntries(filters.map((name) => [name, view.filters[name] || null])),
+      );
+      void setState({ sort: view.sort ?? null, page: 1 });
+    },
   };
 }

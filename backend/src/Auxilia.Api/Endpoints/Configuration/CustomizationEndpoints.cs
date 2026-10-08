@@ -95,6 +95,38 @@ internal sealed class CustomizationEndpoints : IApiEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status404NotFound);
 
+        var views = mine.MapGroup("/grids/{key}/views");
+
+        views.MapGet(string.Empty, ListMyViewsAsync)
+            .WithName("ListMyGridViews")
+            .WithSummary("The personal views of the signed-in user on a grid, by name (F21)")
+            .Produces<IReadOnlyList<GridViewResponse>>()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        views.MapPost(string.Empty, CreateMyViewAsync)
+            .WithName("CreateMyGridView")
+            .WithSummary("Saves the columns, filters and sort of a grid as a personal view (at most 20 per grid)")
+            .Produces<GridViewResponse>(StatusCodes.Status201Created)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        views.MapPut("/{id:guid}", UpdateMyViewAsync)
+            .WithName("UpdateMyGridView")
+            .WithSummary("Changes a personal view (name, columns, filters, sort, default)")
+            .Produces<GridViewResponse>()
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
+        views.MapDelete("/{id:guid}", DeleteMyViewAsync)
+            .WithName("DeleteMyGridView")
+            .WithSummary("Deletes a personal view")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status404NotFound);
+
         mine.MapGet("/custom-fields/{entityType}", GetMyCustomFieldsAsync)
             .WithName("GetMyCustomFields")
             .WithSummary("Custom field definitions of an entity, for forms, details and grids")
@@ -128,6 +160,19 @@ internal sealed class CustomizationEndpoints : IApiEndpoints
 
     private static async Task<IResult> ResetLayoutAsync(string key, string role, IGridLayoutManager layouts, CancellationToken cancellationToken) =>
         (await layouts.ResetAsync(key, role, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> ListMyViewsAsync(string key, IGridViewQueryService views, CancellationToken cancellationToken) =>
+        (await views.ListMineAsync(key, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> CreateMyViewAsync(string key, SaveGridViewRequest request, IGridViewManager views, CancellationToken cancellationToken) =>
+        (await views.CreateAsync(key, request, cancellationToken))
+            .ToHttpResult(view => TypedResults.Created($"/api/v1/me/grids/{key}/views/{view.Id}", view));
+
+    private static async Task<IResult> UpdateMyViewAsync(string key, Guid id, SaveGridViewRequest request, IGridViewManager views, CancellationToken cancellationToken) =>
+        (await views.UpdateAsync(key, id, request, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> DeleteMyViewAsync(string key, Guid id, IGridViewManager views, CancellationToken cancellationToken) =>
+        (await views.DeleteAsync(key, id, cancellationToken)).ToHttpResult(TypedResults.NoContent);
 
     private static async Task<IResult> GetMyLayoutAsync(string key, IGridQueryService query, CancellationToken cancellationToken) =>
         (await query.GetMineAsync(key, cancellationToken)).ToHttpResult(TypedResults.Ok);

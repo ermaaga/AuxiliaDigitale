@@ -15,6 +15,7 @@ import {
 
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
@@ -163,6 +164,7 @@ export function EmployeesTable({ tenant, title }: { tenant: string; title: strin
         </Button>
       ) : null}
       <DataTable
+        views={gridViews(tenant, EMPLOYEES_GRID, table)}
         // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
         key={grid.layout ? "layout" : "default"}
         label={title}

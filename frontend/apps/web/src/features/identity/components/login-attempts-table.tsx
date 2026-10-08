@@ -7,6 +7,7 @@ import { Button } from "@auxilia/ui/components/button";
 import { useFormatter, useTranslations } from "next-intl";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import {
   DateFilter,
   dayBoundary,
@@ -162,6 +163,7 @@ export function LoginAttemptsTable({ tenant, title }: { tenant: string; title: s
 
   return (
     <DataTable
+      views={gridViews(tenant, "identity.loginAttempts", table)}
       // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
       key={grid.layout ? "layout" : "default"}
       label={title}

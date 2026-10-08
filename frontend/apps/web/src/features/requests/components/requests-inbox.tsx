@@ -9,6 +9,7 @@ import { Button } from "@auxilia/ui/components/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@auxilia/ui/components/tabs";
 
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect } from "@/components/data-table/filters";
 import { applyLayout, type DataTableColumn } from "@/components/data-table/table-model";
 import { useGridLayout } from "@/components/data-table/use-grid-layout";
@@ -150,6 +151,7 @@ export function RequestsInbox({ tenant, label }: { tenant: string; label: string
 
   const inbox = (
     <DataTable
+      views={gridViews(tenant, REQUESTS_GRID, table)}
       key={grid.layout ? "layout" : "default"}
       label={label}
       exportMenu={(columns) => (

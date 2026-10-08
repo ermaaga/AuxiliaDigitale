@@ -9,6 +9,7 @@ import { Button } from "@auxilia/ui/components/button";
 
 import { CustomFieldCell } from "@/components/custom-fields/custom-field-value";
 import { DataTable } from "@/components/data-table/data-table";
+import { gridViews } from "@/components/data-table/grid-views-menu";
 import { FilterSelect, SearchFilter } from "@/components/data-table/filters";
 import {
   applyLayout,
@@ -212,6 +213,7 @@ export function ClientsTable({ tenant, title }: { tenant: string; title: string 
         ) : null}
       </div>
       <DataTable
+        views={gridViews(tenant, CLIENTS_GRID, table)}
         // Remounted once the layout arrives, so its hidden columns become the initial column visibility.
         key={grid.layout ? "layout" : "default"}
         label={title}

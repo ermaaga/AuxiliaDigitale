@@ -20,7 +20,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 17000–17999 | Requests | Engagement: requests, tasks, activities | 18 | 17019 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
 | 19000–19999 | Marketing | Marketing | 33 | 19034 |
-| 20000–20999 | Configuration | Configuration | 22 | 20023 |
+| 20000–20999 | Configuration | Configuration | 26 | 20027 |
 | 21000–21999 | Localization | Localization | 11 | 21012 |
 | 22000–22999 | Imports | Imports | 16 | 22017 |
 | 23000–23999 | Bus | Message bus (Rebus / RabbitMQ) | 8 | 23009 |
@@ -365,6 +365,10 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-20020 | Configuration.GridLayoutReset | – | – | Configuration.ResetGridLayout (success) | – |
 | AUX-20021 | Configuration.GridNotFound | – | NotFound | – | – |
 | AUX-20022 | Configuration.GridLayoutInvalid | – | Validation | – | – |
+| AUX-20023 | Configuration.GridViewSaved | – | – | Configuration.SaveGridView (success) | – |
+| AUX-20024 | Configuration.GridViewDeleted | – | – | Configuration.DeleteGridView (success) | – |
+| AUX-20025 | Configuration.GridViewInvalid | – | Validation | – | – |
+| AUX-20026 | Configuration.GridViewNotFound | – | NotFound | – | – |
 | AUX-21001 | Localization.ResourceKeyNotFound | – | NotFound | – | – |
 | AUX-21002 | Localization.ResourceKeyExists | – | Conflict | – | – |
 | AUX-21003 | Localization.LanguageNotFound | – | NotFound | – | – |
