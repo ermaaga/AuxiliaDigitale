@@ -15,6 +15,7 @@ export function proxy(request: NextRequest) {
     nonce,
     process.env.NODE_ENV === "development",
     process.env.AUXILIA_API_PUBLIC_URL,
+    isHttps(request),
   );
 
   const requestHeaders = new Headers(request.headers);
@@ -31,6 +32,12 @@ export function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("content-security-policy", csp);
   return response;
+}
+
+/** Whether the browser reached the page over HTTPS (directly or through a TLS-terminating proxy). */
+function isHttps(request: NextRequest): boolean {
+  const forwarded = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().toLowerCase();
+  return (forwarded ?? request.nextUrl.protocol.replace(":", "")) === "https";
 }
 
 export const config = {

@@ -1,8 +1,13 @@
-/** The CSP of pages; `apiPublicUrl` is allowed for browser connections to the API (SignalR). */
+/**
+ * The CSP of pages; `apiPublicUrl` is allowed for browser connections to the API (SignalR). `upgrade-insecure-requests`
+ * only when the page itself is served over HTTPS: on plain http (local stack, E2E) Safari would upgrade
+ * `http://localhost/_next/static/…` to https too (Chrome exempts localhost) and the page would load without styles.
+ */
 export function contentSecurityPolicy(
   nonce: string,
   development: boolean,
   apiPublicUrl?: string,
+  secure = true,
 ): string {
   // The hub is a WebSocket: Chrome does not let an http(s) source cover ws(s), so both are listed.
   const socket = apiPublicUrl?.replace(/^http/, "ws");
@@ -19,6 +24,6 @@ export function contentSecurityPolicy(
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    ...(development ? [] : ["upgrade-insecure-requests"]),
+    ...(!development && secure ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
