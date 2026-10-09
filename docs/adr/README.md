@@ -21,3 +21,4 @@
 | [0017](0017-lighthouse-budget-in-the-e2e-suite.md) | Lighthouse budget (≥ 90) in the E2E suite with `lighthouse` as a dev dependency | Accepted | H-02, ADR 0011 |
 | [0018](0018-optimistic-concurrency-with-representation-etags.md) | Optimistic concurrency: representation ETags, `If-Match` required on shared records (412/428) | Accepted | H-04c, F29 |
 | [0019](0019-qr-code-of-the-authenticator-enrolment.md) | QR code of the authenticator enrolment with `uqr` | Accepted | N02, D-22 |
+| [0020](0020-document-preview-with-pdfjs.md) | Document preview in the drawer with PDF.js (`pdfjs-dist`, legacy build, own worker CSP) | Accepted | F14, ADR 0011 |

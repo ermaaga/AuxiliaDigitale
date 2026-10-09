@@ -45,8 +45,8 @@ uploader (Q13). Names unique per client, case and folder (Q51 fix).
 `/{tenant}/documents` (nav `documents`) and the client 360° tab `?tab=documents` share `features/documents`
 (`DocumentsPanel`): uploader (choose, drag & drop, paste with Ctrl/Cmd+V, up to 50 files, progress through
 XMLHttpRequest, same metadata, custom name for one file, per-file errors), list (filters client, file name, year,
-area; legacy sorts; status badge), detail drawer (image preview, PDF preview in a new tab — the app never frames files,
-`X-Frame-Options: DENY` —, metadata edit keeping the extension, download, delete with confirmation) and the areas
+area; legacy sorts; status badge), detail drawer (preview of images, PDFs drawn by PDF.js and the beginning of text files — ADR 0020, the app never
+frames files, `X-Frame-Options: DENY`; PDF and images also open in a new tab —, metadata edit keeping the extension, download, delete with confirmation) and the areas
 dialog (`documents.areas.manage`). Lists refresh every 3 s while a document is `Processing` until the realtime client
 (B-21) delivers `DocumentProcessed`.
 
@@ -56,6 +56,6 @@ dialog (`documents.areas.manage`). Lists refresh every 3 s while a document is `
 - [x] Metadata rules: reference year ≥ current−10; custom name single-file only with extension kept; sanitization as legacy.
 - [x] Duplicate names detected against existing documents of the same owner/case/folder.
 - [x] Lists with the filters/sorts above, per client and global, access rules F10.
-- [x] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm). *(PDF preview in a new tab)*
+- [x] Detail drawer: preview (pdf/images), edit metadata, download, delete (confirm). *(PDF drawn in the drawer by PDF.js and in a new tab; text files too — ADR 0020)*
 - [x] Async processing path via Worker notifies the **uploader** (`DocumentProcessed`) and refreshes lists. *(event; list refresh in B-13)*
 - [x] Areas become a managed lookup seeded from legacy distinct values. *(lookup and API B-12; legacy values: E-04 `DocumentsStep`)*
