@@ -1,0 +1,56 @@
+[
+ {
+  "key": "app.documents.viewer.failed",
+  "category": "app",
+  "en": "The preview is not available: download the file to open it.",
+  "it": "L'anteprima non è disponibile: scarica il file per aprirlo."
+ },
+ {
+  "key": "app.documents.viewer.newTab",
+  "category": "app",
+  "en": "Open in a new tab",
+  "it": "Apri in una nuova scheda"
+ },
+ {
+  "key": "app.documents.viewer.next",
+  "category": "app",
+  "en": "Next page",
+  "it": "Pagina successiva"
+ },
+ {
+  "key": "app.documents.viewer.pageOf",
+  "category": "app",
+  "en": "Page {page} of {pages}",
+  "it": "Pagina {page} di {pages}"
+ },
+ {
+  "key": "app.documents.viewer.previous",
+  "category": "app",
+  "en": "Previous page",
+  "it": "Pagina precedente"
+ },
+ {
+  "key": "app.documents.viewer.protected",
+  "category": "app",
+  "en": "The PDF is protected by a password: download it to open it.",
+  "it": "Il PDF è protetto da password: scaricalo per aprirlo."
+ },
+ {
+  "key": "app.documents.viewer.title",
+  "category": "app",
+  "en": "Preview of {name}",
+  "it": "Anteprima di {name}"
+ },
+ {
+  "key": "app.documents.viewer.tooLarge",
+  "category": "app",
+  "en": "The file is too large for the preview here: open it in a new tab or download it.",
+  "it": "Il file è troppo grande per l'anteprima qui: aprilo in una nuova scheda o scaricalo."
+ },
+ {
+  "key": "app.documents.viewer.truncated",
+  "category": "app",
+  "en": "Only the beginning of the file is shown: download it to see all of it.",
+  "it": "Viene mostrato solo l'inizio del file: scaricalo per vederlo tutto."
+ }
+]

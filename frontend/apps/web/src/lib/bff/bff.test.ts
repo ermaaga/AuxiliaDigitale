@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { API_RESPONSE_CSP } from "./api";
 import { readBffConfig } from "./config";
 import { csrfRefusal } from "./csrf";
 import {
@@ -455,6 +456,7 @@ describe("proxy", () => {
     expect(response.headers.get("etag")).toBe('"v1"');
     expect(response.headers.get("set-cookie")).toBeNull();
     expect(response.headers.get("server")).toBeNull();
+    expect(response.headers.get("content-security-policy")).toBe(API_RESPONSE_CSP);
     const call = calls[1]!;
     expect(call.url).toBe(`${API}/api/v1/identity/login-attempts?page=2`);
     expect(Object.fromEntries(call.headers)).toMatchObject({
@@ -465,6 +467,32 @@ describe("proxy", () => {
     });
     expect(call.headers.get("x-client-secret")).toBeNull();
     expect(call.headers.get("cookie")).toBeNull();
+  });
+
+  it("keeps the API's CSP on a file opened inline (document preview, F14)", async () => {
+    const { cookie } = await signedIn();
+    replies.push(
+      () =>
+        new Response("%PDF-1.4", {
+          status: 200,
+          headers: {
+            "content-type": "application/pdf",
+            "content-disposition": 'inline; filename="a.pdf"',
+            "content-security-policy": "default-src 'none'; sandbox",
+          },
+        }),
+    );
+
+    const response = await proxy(
+      browser("/api/bff/documents/d1/content?inline=true", { cookie }),
+      "tenant",
+      ["documents", "d1", "content"],
+      context,
+    );
+
+    expect(response.headers.get("content-type")).toBe("application/pdf");
+    expect(response.headers.get("content-disposition")).toBe('inline; filename="a.pdf"');
+    expect(response.headers.get("content-security-policy")).toBe("default-src 'none'; sandbox");
   });
 
   it("forwards anonymous calls with the tenant of the page", async () => {
@@ -732,6 +760,7 @@ describe("content security policy", () => {
     expect(production).not.toContain("unsafe-eval");
     expect(production).toContain("connect-src 'self' https://api.test wss://api.test");
     expect(production).toContain("frame-ancestors 'none'");
+    expect(production).toContain("worker-src 'self';");
     expect(production).toContain("upgrade-insecure-requests");
     // Plain http (local stack): Safari would upgrade the static assets to https and drop the styles.
     expect(contentSecurityPolicy("abc", false, undefined, false)).not.toContain(

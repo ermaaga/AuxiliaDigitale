@@ -20,6 +20,9 @@
 # production
 /build
 
+# PDF.js worker and decoders, copied by scripts/pdfjs-assets.mjs
+/public/static/pdfjs/
+
 # misc
 .DS_Store
 *.pem
