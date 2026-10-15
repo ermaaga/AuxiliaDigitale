@@ -10,6 +10,10 @@ updates:
       nuget:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+    ignore:
+      # 6.5.0 moved to AGPL-3.0-only with a runtime license key (not in the license allowlist): stay on 6.2.x.
+      - dependency-name: "PDFsharp-MigraDoc"
+        versions: [">= 6.3.0"]
   - package-ecosystem: npm
     directory: /frontend
     schedule:
