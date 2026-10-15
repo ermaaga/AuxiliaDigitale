@@ -1,0 +1,86 @@
+[
+ {
+  "key": "settings.mailbox.sync.minIntervalSeconds.description",
+  "category": "settings",
+  "en": "Seconds after a mail or calendar sync during which opening the page does not start a new one (30–3600)",
+  "it": "Secondi dopo una sincronizzazione di posta o calendario durante i quali aprire la pagina non ne avvia un'altra (30–3600)"
+ },
+ {
+  "key": "settings.mailbox.calendar.pastDays.description",
+  "category": "settings",
+  "en": "Days of past events copied from the connected calendars (0–365)",
+  "it": "Giorni di eventi passati copiati dai calendari collegati (0–365)"
+ },
+ {
+  "key": "settings.mailbox.calendar.futureDays.description",
+  "category": "settings",
+  "en": "Days of future events copied from the connected calendars (1–730)",
+  "it": "Giorni di eventi futuri copiati dai calendari collegati (1–730)"
+ },
+ {
+  "key": "notifications.mailbox.reconnect.title",
+  "category": "notifications",
+  "en": "Reconnect your account",
+  "it": "Ricollega il tuo account"
+ },
+ {
+  "key": "notifications.mailbox.reconnect.message",
+  "category": "notifications",
+  "en": "{address} no longer gives access to Auxilia: connect it again from your profile.",
+  "it": "{address} non dà più accesso ad Auxilia: collegalo di nuovo dal tuo profilo."
+ },
+ {
+  "key": "errors.AUX-30020",
+  "category": "errors",
+  "en": "The provider refused the access: reconnect the account from your profile.",
+  "it": "Il fornitore ha rifiutato l'accesso: ricollega l'account dal tuo profilo."
+ },
+ {
+  "key": "errors.AUX-30021",
+  "category": "errors",
+  "en": "The provider could not be reached: the synchronisation will be tried again.",
+  "it": "Il fornitore non è raggiungibile: la sincronizzazione verrà riprovata."
+ },
+ {
+  "key": "errors.AUX-30022",
+  "category": "errors",
+  "en": "The synchronisation stopped without finishing: try again.",
+  "it": "La sincronizzazione si è interrotta senza finire: riprova."
+ },
+ {
+  "key": "errors.AUX-30023",
+  "category": "errors",
+  "en": "Choose mail or calendar.",
+  "it": "Scegli posta o calendario."
+ },
+ {
+  "key": "errors.AUX-30024",
+  "category": "errors",
+  "en": "Choose a range of at most 62 days.",
+  "it": "Scegli un intervallo di al massimo 62 giorni."
+ },
+ {
+  "key": "validation.mailbox.scope",
+  "category": "validation",
+  "en": "Choose mail or calendar.",
+  "it": "Scegli posta o calendario."
+ },
+ {
+  "key": "validation.mailbox.range",
+  "category": "validation",
+  "en": "Choose a range of at most 62 days, the end not before the start.",
+  "it": "Scegli un intervallo di al massimo 62 giorni, con la fine non prima dell'inizio."
+ },
+ {
+  "key": "app.connectedAccounts.mailSyncedAt",
+  "category": "app",
+  "en": "Mail updated {date}",
+  "it": "Posta aggiornata il {date}"
+ },
+ {
+  "key": "app.connectedAccounts.calendarSyncedAt",
+  "category": "app",
+  "en": "Calendar updated {date}",
+  "it": "Calendario aggiornato il {date}"
+ }
+]

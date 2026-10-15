@@ -75,7 +75,9 @@ internal static class ProviderNames
             account.LastErrorCode,
             account.ImapHost,
             account.ImapPort,
-            account.ConnectedAt);
+            account.ConnectedAt,
+            account.MailSyncedAt,
+            account.CalendarSyncedAt);
 }
 
 internal sealed class ConnectedAccountManager(

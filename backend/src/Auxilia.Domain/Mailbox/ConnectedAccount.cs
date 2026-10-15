@@ -106,6 +106,28 @@ public sealed partial class ConnectedAccount : AggregateRoot<Guid>
 
     public DateTimeOffset UpdatedAt { get; private set; }
 
+    /// <summary>End of the last successful mail synchronisation; null until the first one.</summary>
+    public DateTimeOffset? MailSyncedAt { get; private set; }
+
+    /// <summary>End of the last successful calendar synchronisation; null until the first one.</summary>
+    public DateTimeOffset? CalendarSyncedAt { get; private set; }
+
+    /// <summary>Whether the account gives access to what the scope copies.</summary>
+    public bool Has(SyncScope scope) => scope == SyncScope.Mail ? HasMail : HasCalendar;
+
+    /// <summary>A synchronisation of the scope completed.</summary>
+    public void Synced(SyncScope scope, DateTimeOffset now)
+    {
+        if (scope == SyncScope.Mail)
+        {
+            MailSyncedAt = now;
+        }
+        else
+        {
+            CalendarSyncedAt = now;
+        }
+    }
+
     public static string NormalizeAddress(string? address) => address?.Trim().ToLowerInvariant() ?? string.Empty;
 
     public static bool IsValidAddress(string address) =>

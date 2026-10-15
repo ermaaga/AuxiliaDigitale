@@ -42,6 +42,9 @@ public sealed class RateLimitingOptions
     /// <summary>Connecting accounts (N05: OAuth start/callback, IMAP connection tests that reach external servers), per tenant and user.</summary>
     public RateLimitRule ConnectedAccounts { get; set; } = new() { PermitLimit = 20, Window = TimeSpan.FromMinutes(15) };
 
+    /// <summary>Mail and calendar sync requests (opening the pages, "Sync now"), per tenant and user (N05, #106).</summary>
+    public RateLimitRule MailboxSync { get; set; } = new() { PermitLimit = 60, Window = TimeSpan.FromMinutes(15) };
+
     /// <summary>Every request of an authenticated user, per tenant and user.</summary>
     public RateLimitRule User { get; set; } = new() { PermitLimit = 600, Window = TimeSpan.FromMinutes(1) };
 
@@ -68,6 +71,8 @@ internal static class RateLimitingSetup
 
     public const string ConnectedAccountsPolicy = "connected-accounts";
 
+    public const string MailboxSyncPolicy = "mailbox-sync";
+
     private const int SegmentsPerWindow = 6;
 
     public static IServiceCollection AddAuxiliaRateLimiting(this IServiceCollection services, IConfiguration configuration)
@@ -82,6 +87,7 @@ internal static class RateLimitingSetup
             options.AddPolicy(AccountLinksPolicy, context => IpPartition(context, AccountLinksPolicy, rules => rules.AccountLinks));
             options.AddPolicy(RegistrationPolicy, context => IpPartition(context, RegistrationPolicy, rules => rules.Registration));
             options.AddPolicy(ConnectedAccountsPolicy, context => UserPartition(context, ConnectedAccountsPolicy, rules => rules.ConnectedAccounts));
+            options.AddPolicy(MailboxSyncPolicy, context => UserPartition(context, MailboxSyncPolicy, rules => rules.MailboxSync));
             options.OnRejected = OnRejectedAsync;
         });
         return services;

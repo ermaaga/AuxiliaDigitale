@@ -215,7 +215,10 @@ export function ConnectedAccountsPanel({
   );
 }
 
-/** One account: colour, address, provider, mail / calendar, status and the actions menu. */
+/** Date and time of the last synchronisation of a scope. */
+const synced = { dateStyle: "medium", timeStyle: "short" } as const;
+
+/** One account: colour, address, provider, mail / calendar, status, last update and the actions menu. */
 function AccountRow({
   tenant,
   account,
@@ -313,6 +316,20 @@ function AccountRow({
                 date: format.dateTime(new Date(account.connectedAt), { dateStyle: "medium" }),
               })}
             </span>
+            {account.hasMail && account.mailSyncedAt ? (
+              <span className="text-muted-foreground">
+                {t("app.connectedAccounts.mailSyncedAt", {
+                  date: format.dateTime(new Date(account.mailSyncedAt), synced),
+                })}
+              </span>
+            ) : null}
+            {account.hasCalendar && account.calendarSyncedAt ? (
+              <span className="text-muted-foreground">
+                {t("app.connectedAccounts.calendarSyncedAt", {
+                  date: format.dateTime(new Date(account.calendarSyncedAt), synced),
+                })}
+              </span>
+            ) : null}
           </div>
           {needsReconnect ? (
             <p className="text-sm text-destructive">

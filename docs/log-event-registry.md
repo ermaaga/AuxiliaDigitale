@@ -30,7 +30,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
 | 29000–29999 | Security | Security events | 36 | 29037 |
-| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 15 | 30016 |
+| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 26 | 30027 |
 
 ## Codes
 
@@ -514,3 +514,14 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-30013 | Mailbox.ImapAuthenticationFailed | – | Validation | – | – |
 | AUX-30014 | Mailbox.ImapConnectionFailed | Warning | Failure | – | IMAP connection test to port {Port} failed ({Reason}) |
 | AUX-30015 | Mailbox.GrantRevokeFailed | Warning | – | – | The {Provider} grant of connected account {ConnectedAccountId} could not be revoked at the provider |
+| AUX-30016 | Mailbox.SyncRequested | – | – | Mailbox.RequestSync (success) | – |
+| AUX-30017 | Mailbox.SyncMessageHandled | – | – | Mailbox.SyncAccount (success) | – |
+| AUX-30018 | Mailbox.SyncChunkSaved | – | – | Mailbox.SaveSyncChunk (success) | – |
+| AUX-30019 | Mailbox.SyncRunUpdated | – | – | Mailbox.UpdateSyncRun (success) | – |
+| AUX-30020 | Mailbox.SyncCredentialsRefused | Warning | Failure | – | The {Provider} provider refused the access of connected account {ConnectedAccountId} during a {Scope} sync: it needs to be reconnected |
+| AUX-30021 | Mailbox.SyncProviderUnavailable | Warning | Failure | – | The {Provider} provider was not reachable during {Scope} sync run {SyncRunId}: the message will be retried |
+| AUX-30022 | Mailbox.SyncAbandoned | Warning | Failure | – | Sync run {SyncRunId} made no progress since {UpdatedAt}: closed as failed |
+| AUX-30023 | Mailbox.SyncScopeInvalid | – | Validation | – | – |
+| AUX-30024 | Mailbox.CalendarRangeInvalid | – | Validation | – | – |
+| AUX-30025 | Mailbox.SyncCursorReset | Information | – | – | The {Scope} cursor of connected account {ConnectedAccountId} was reset ({Reason}): full sync of the window |
+| AUX-30026 | Mailbox.SyncItemsSkipped | Warning | – | – | {Count} malformed items skipped in {Scope} sync run {SyncRunId} |

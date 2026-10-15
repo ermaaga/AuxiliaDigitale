@@ -13,7 +13,19 @@ public static class MailboxSettings
     public static readonly SettingDefinition<string> ImapAllowedPorts = new(
         "mailbox.imap.allowedPorts", Module, "993,143", isValid: value => ParsePorts(value) is { Count: > 0 });
 
-    public static IReadOnlyList<SettingDefinition> All { get; } = [ImapAllowedPorts];
+    /// <summary>A sync of the same account and scope ended less than this ago: opening the page queues nothing (#106).</summary>
+    public static readonly SettingDefinition<int> SyncMinIntervalSeconds = new(
+        "mailbox.sync.minIntervalSeconds", Module, 120, isValid: value => value is >= 30 and <= 3600);
+
+    /// <summary>Days of past calendar events kept (sync window).</summary>
+    public static readonly SettingDefinition<int> CalendarPastDays = new(
+        "mailbox.calendar.pastDays", Module, 30, isValid: value => value is >= 0 and <= 365);
+
+    /// <summary>Days of future calendar events kept (sync window).</summary>
+    public static readonly SettingDefinition<int> CalendarFutureDays = new(
+        "mailbox.calendar.futureDays", Module, 180, isValid: value => value is >= 1 and <= 730);
+
+    public static IReadOnlyList<SettingDefinition> All { get; } = [ImapAllowedPorts, SyncMinIntervalSeconds, CalendarPastDays, CalendarFutureDays];
 
     /// <returns>Null when a part is not a port.</returns>
     public static IReadOnlySet<int>? ParsePorts(string? value)

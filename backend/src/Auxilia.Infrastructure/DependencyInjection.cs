@@ -78,6 +78,11 @@ public static class DependencyInjection
         services.TryAddSingleton<Application.Abstractions.Mailbox.IImapConnectionTester, Adapters.Mail.Imap.ImapConnectionTester>();
         services.TryAddSingleton<Application.Abstractions.Mailbox.IHostAddressResolver, Adapters.Network.DnsHostAddressResolver>();
 
+        // Calendars of connected accounts (C-04): Google Calendar and Microsoft Graph over HTTP, the sync's access token.
+        services.AddHttpClient(Adapters.Calendar.CalendarProviderBase.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.GoogleCalendarProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.MicrosoftCalendarProvider>());
+
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
         // Tokens (skill auxilia-security): ES256 ring in the Catalog, JWT issuer, deny-list on the distributed cache

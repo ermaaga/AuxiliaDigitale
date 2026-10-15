@@ -16,5 +16,16 @@ public static partial class Operations
 
         /// <summary>The grant is revoked at the provider after the account is deleted (a failure only logs).</summary>
         public static readonly OperationDescriptor DisconnectAccount = new("Mailbox.DisconnectAccount", EventCodes.Mailbox.AccountDisconnected, isWrite: false);
+
+        /// <summary>Queues (or reuses) a sync run per account of the owner and scope; the messages leave through the outbox.</summary>
+        public static readonly OperationDescriptor RequestSync = new("Mailbox.RequestSync", EventCodes.Mailbox.SyncRequested);
+
+        /// <summary>A sync message of the Worker: no transaction around it, every chunk and state change is its own.</summary>
+        public static readonly OperationDescriptor SyncAccount = new("Mailbox.SyncAccount", EventCodes.Mailbox.SyncMessageHandled, isWrite: false);
+
+        /// <summary>One chunk: items and cursor together (an interrupted sync resumes from the last saved chunk).</summary>
+        public static readonly OperationDescriptor SaveSyncChunk = new("Mailbox.SaveSyncChunk", EventCodes.Mailbox.SyncChunkSaved);
+
+        public static readonly OperationDescriptor UpdateSyncRun = new("Mailbox.UpdateSyncRun", EventCodes.Mailbox.SyncRunUpdated);
     }
 }
