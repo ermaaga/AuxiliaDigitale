@@ -18,6 +18,6 @@
   "devDependencies": {
     "@auxilia/config": "workspace:*",
     "prettier": "^3.9.10",
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   }
 }
