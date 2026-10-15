@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01, C-02 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [~] in progress (C-01, C-02, C-03 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.

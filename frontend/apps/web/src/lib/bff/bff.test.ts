@@ -8,6 +8,7 @@ import {
   brandingImage,
   changeExpiredPassword,
   confirmTwoFactorSetup,
+  connectedAccountCallback,
   login,
   logout,
   proxy,
@@ -120,6 +121,103 @@ beforeEach(() => {
 });
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe("connected account OAuth callback (N05, ADR 0021)", () => {
+  const callback = (query: string, cookie?: string, provider = "google") =>
+    connectedAccountCallback(
+      browser(`/api/connected-accounts/callback/${provider}?${query}`, { cookie }),
+      provider,
+      context,
+    );
+
+  it("completes the consent with the session's token and goes back to the profile tab", async () => {
+    const { cookie } = await signedIn();
+    replies.push(reply(200, { id: "0199a0b2-0000-7000-8000-00000000a001" }));
+
+    const response = await callback("code=the-code&state=the-state&scope=x", cookie);
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(
+      `${ORIGIN}/acme/profile?tab=accounts&connected=0199a0b2-0000-7000-8000-00000000a001`,
+    );
+    expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    const call = calls[1]!;
+    expect(call.method).toBe("POST");
+    expect(call.url).toBe(`${API}/api/v1/me/connected-accounts/oauth/google/callback`);
+    expect(call.headers.get("authorization")).toBe("Bearer access-1");
+    expect(call.headers.get("x-tenant")).toBe("acme");
+    expect(call.headers.get("x-client-secret")).toBeNull();
+    expect(JSON.parse(call.body!)).toEqual({ state: "the-state", code: "the-code" });
+  });
+
+  it("passes a refused consent to the API and shows its error code", async () => {
+    const { cookie } = await signedIn();
+    replies.push(reply(400, { status: 400, errorCode: "AUX-30010" }));
+
+    const response = await callback("error=access_denied&state=s1", cookie, "microsoft");
+
+    expect(response.headers.get("location")).toBe(
+      `${ORIGIN}/acme/profile?tab=accounts&error=AUX-30010`,
+    );
+    expect(JSON.parse(calls[1]!.body!)).toEqual({ state: "s1", error: "access_denied" });
+  });
+
+  it("never puts anything but an AUX code in the URL, and maps an unreachable API to 502", async () => {
+    const { cookie } = await signedIn();
+    replies.push(reply(500, { errorCode: "<script>" }));
+    expect((await callback("code=c&state=s", cookie)).headers.get("location")).toContain(
+      "error=AUX-WEB-502",
+    );
+
+    replies.push(() => {
+      throw new Error("down");
+    });
+    expect((await callback("code=c&state=s", cookie)).headers.get("location")).toContain(
+      "error=AUX-WEB-502",
+    );
+  });
+
+  it("refuses unknown providers and a missing state without calling the API", async () => {
+    const { cookie } = await signedIn();
+
+    for (const response of [
+      await callback("code=c&state=s", cookie, "yahoo"),
+      await callback("code=c", cookie),
+    ]) {
+      expect(response.headers.get("location")).toBe(
+        `${ORIGIN}/acme/profile?tab=accounts&error=AUX-WEB-400`,
+      );
+    }
+
+    expect(calls).toHaveLength(1);
+  });
+
+  it("without a session goes to the home page and calls nothing", async () => {
+    const response = await callback("code=c&state=s");
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe(`${ORIGIN}/`);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("is the only way to complete a consent: the proxy refuses the callback path", async () => {
+    const { cookie } = await signedIn();
+    const response = await proxy(
+      browser("/api/bff/me/connected-accounts/oauth/google/callback", {
+        method: "POST",
+        cookie,
+        body: "{}",
+      }),
+      "tenant",
+      ["me", "connected-accounts", "oauth", "google", "callback"],
+      context,
+    );
+
+    expect(response.status).toBe(404);
+    expect(calls).toHaveLength(1);
+  });
+});
 
 describe("realtime token", () => {
   it("gives the session's access token and the hub URL only when realtime is configured", async () => {

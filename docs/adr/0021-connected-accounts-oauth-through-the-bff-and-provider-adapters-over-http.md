@@ -32,13 +32,13 @@ browser sees nothing but redirects.
 ```
 Browser            BFF (Next.js)                         API                               Provider
   │ click "Sign in with Google"                          │                                    │
-  ├─► GET /api/connected-accounts/connect/google?capabilities=mail,calendar                  │
+  ├─► POST /api/bff/me/connected-accounts/oauth/google/authorize (BFF proxy, CSRF header)   │
   │                 ├─► POST /api/v1/me/connected-accounts/oauth/google/authorize ─►│        │
   │                 │      { capabilities, accountId? (reconnect) }                  │        │
   │                 │   ◄─ { authorizationUrl }   (row in mailbox.oauth_requests:    │        │
   │                 │       state, user, provider, capabilities,                     │        │
   │                 │       PKCE verifier protected, expires in 10 min)              │        │
-  │ ◄─ 302 authorizationUrl ────────────────────────────────────────────────────────────────►│ consent
+  │ ◄─ { authorizationUrl } → window.location.assign ───────────────────────────────────────►│ consent
   │ ◄──────────────────────────────── 302 {web}/api/connected-accounts/callback/google?code&state
   ├─► GET callback (cookie __Host-aux_sid: SameSite=Lax is sent on a top-level redirect)       │
   │                 ├─► POST /api/v1/me/connected-accounts/oauth/google/callback { code, state }
@@ -46,9 +46,14 @@ Browser            BFF (Next.js)                         API                    
   │                 │      mark used → exchange code + verifier ─────────────────────────────►│
   │                 │      ◄─ refresh/access token + id_token (address) ──────────────────────│
   │                 │      upsert account, protect refresh token, security event 29xxx       │
-  │ ◄─ 302 /{tenant}/profile?tab=accounts&connected=… (or &error=<code>)                     │
+  │ ◄─ 303 /{tenant}/profile?tab=accounts&connected=… (or &error=<code>)                     │
 ```
 
+- The start goes through the ordinary BFF proxy as a `POST` (CSRF header + `Origin`, C-03) rather than a `GET` route
+  of the BFF: a cross-site page cannot start a consent for the user. The callback is a BFF route of its own
+  (`GET /api/connected-accounts/callback/{provider}`, top-level redirect from the provider: the defence is the
+  single-use `state`), answers `303` without `Referer` and the proxy refuses `…/oauth/{provider}/callback`, so the
+  browser never posts a `code` itself.
 - **One redirect URI per provider and deployment**, independent from the tenant:
   `{web origin}/api/connected-accounts/callback/{google|microsoft}`. The tenant comes from the BFF session (one
   `__Host-aux_sid` per origin, the session carries the tenant), never from the URL.
