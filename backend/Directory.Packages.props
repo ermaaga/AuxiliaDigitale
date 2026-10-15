@@ -9,6 +9,8 @@
          GHSA-7hqp-7c5m-4vq6, GHSA-c399-9853-6jmj, GHSA-r955-8q5j-3h83 (Xml), fixed in 10.0.13 -->
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
+    <!-- Pinned above the version SignalR.StackExchangeRedis brings: GHSA-qhrr-8q5h-9q3h, fixed in 2.5.303 -->
+    <PackageVersion Include="MessagePack" Version="2.5.303" />
   </ItemGroup>
   <ItemGroup Label="Logging and telemetry">
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
