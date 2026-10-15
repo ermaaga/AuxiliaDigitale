@@ -22,4 +22,4 @@
 | [0018](0018-optimistic-concurrency-with-representation-etags.md) | Optimistic concurrency: representation ETags, `If-Match` required on shared records (412/428) | Accepted | H-04c, F29 |
 | [0019](0019-qr-code-of-the-authenticator-enrolment.md) | QR code of the authenticator enrolment with `uqr` | Accepted | N02, D-22 |
 | [0020](0020-document-preview-with-pdfjs.md) | Document preview in the drawer with PDF.js (`pdfjs-dist`, legacy build, own worker CSP) | Accepted | F14, ADR 0011 |
-| [0021](0021-connected-accounts-oauth-through-the-bff-and-provider-adapters-over-http.md) | Connected accounts: module `mailbox`, OAuth through the BFF, provider adapters over plain HTTP | Proposed | N05, D-33, D-15, D-19 |
+| [0021](0021-connected-accounts-oauth-through-the-bff-and-provider-adapters-over-http.md) | Connected accounts: module `mailbox`, OAuth through the BFF, provider adapters over plain HTTP | Accepted | N05, D-33, D-15, D-19 |

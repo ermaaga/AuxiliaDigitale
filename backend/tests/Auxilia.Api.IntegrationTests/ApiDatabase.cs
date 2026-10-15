@@ -66,7 +66,7 @@ public sealed class ApiDatabase : IAsyncLifetime
         catalog.TenantDomains.Add(new TenantDomain(Guid.CreateVersion7(), tenantB.Id, TenantBCustomHost));
 
         // Modules (ARCHITECTURE §5.2): identity is Core; cases, directory and documents are in the standard plan for staff only,
-        // scheduling, engagement and reporting for every role, marketing for staff; cases is disabled for tenant B by an override.
+        // scheduling, engagement and reporting for every role, marketing and mailbox for staff; cases is disabled for tenant B by an override.
         catalog.Modules.Add(new PlatformModule("identity", ModuleKind.Core, "modules.identity.name", 12000));
         catalog.Modules.Add(new PlatformModule("cases", ModuleKind.Optional, "modules.cases.name", 14000));
         catalog.Modules.Add(new PlatformModule("directory", ModuleKind.Optional, "modules.directory.name", 13000));
@@ -75,6 +75,7 @@ public sealed class ApiDatabase : IAsyncLifetime
         catalog.Modules.Add(new PlatformModule("engagement", ModuleKind.Optional, "modules.engagement.name", 17000));
         catalog.Modules.Add(new PlatformModule("reporting", ModuleKind.Optional, "modules.reporting.name", 27000));
         catalog.Modules.Add(new PlatformModule("marketing", ModuleKind.Optional, "modules.marketing.name", 19000));
+        catalog.Modules.Add(new PlatformModule("mailbox", ModuleKind.Optional, "modules.mailbox.name", 30000));
         await catalog.SaveChangesAsync();
         var standard = await catalog.Plans.Include(plan => plan.Modules).SingleAsync(plan => plan.Id == Plan.StandardId);
         standard.SetModule("cases", [TenantRole.Administrator, TenantRole.Employee]);
@@ -84,6 +85,7 @@ public sealed class ApiDatabase : IAsyncLifetime
         standard.SetModule("engagement", [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]);
         standard.SetModule("reporting", [TenantRole.Administrator, TenantRole.Employee, TenantRole.Client]);
         standard.SetModule("marketing", [TenantRole.Administrator, TenantRole.Employee]);
+        standard.SetModule("mailbox", [TenantRole.Administrator, TenantRole.Employee]);
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantA.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantPlans.Add(new TenantPlan(Guid.CreateVersion7(), tenantB.Id, Plan.StandardId, DateTimeOffset.UtcNow.AddDays(-1)));
         catalog.TenantModuleOverrides.Add(new TenantModuleOverride(tenantB.Id, "cases", isEnabled: false, []));

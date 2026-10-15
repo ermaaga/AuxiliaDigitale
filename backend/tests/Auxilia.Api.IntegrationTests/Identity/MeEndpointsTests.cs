@@ -52,7 +52,8 @@ public sealed class MeEndpointsTests : IClassFixture<MeEndpointsTests.Factory>
             || permission.StartsWith("scheduling.", StringComparison.Ordinal)
             || permission.StartsWith("engagement.", StringComparison.Ordinal)
             || permission.StartsWith("reporting.", StringComparison.Ordinal)
-            || permission.StartsWith("marketing.", StringComparison.Ordinal));
+            || permission.StartsWith("marketing.", StringComparison.Ordinal)
+            || permission.StartsWith("mailbox.", StringComparison.Ordinal));
     }
 
     [Theory]
