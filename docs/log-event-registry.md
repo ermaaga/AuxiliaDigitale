@@ -29,7 +29,8 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 26000–26999 | Jobs | Worker / recurring jobs (manual runs) | 5 | 26006 |
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
-| 29000–29999 | Security | Security events | 32 | 29033 |
+| 29000–29999 | Security | Security events | 36 | 29037 |
+| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 15 | 30016 |
 
 ## Codes
 
@@ -494,3 +495,22 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-29030 | Security.SessionRevokedByAdministrator | Warning | – | – | Session {SessionId} of user {UserId} revoked by {ActorUserId} |
 | AUX-29031 | Security.TwoFactorChanged | Warning | – | – | Authenticator app of user {UserId} {Change} by {ActorType} {ActorId} |
 | AUX-29032 | Security.TwoFactorCodeFailed | Warning | – | – | Sign-in of user {UserId} failed on the authenticator code ({Reason}) |
+| AUX-29033 | Security.ConnectedAccountLinked | Information | – | – | User {UserId} connected {Provider} account {ConnectedAccountId} |
+| AUX-29034 | Security.ConnectedAccountUnlinked | Information | – | – | User {UserId} disconnected {Provider} account {ConnectedAccountId} |
+| AUX-29035 | Security.OAuthStateRejected | Warning | – | – | OAuth answer for {Provider} refused for user {UserId} ({Reason}) |
+| AUX-29036 | Security.OutboundHostRefused | Warning | – | – | Server address entered by user {UserId} refused ({Reason}) |
+| AUX-30001 | Mailbox.OAuthStarted | – | – | Mailbox.StartOAuth (success) | – |
+| AUX-30002 | Mailbox.OAuthAccountConnected | – | – | Mailbox.CompleteOAuth (success) | – |
+| AUX-30003 | Mailbox.ImapAccountConnected | – | – | Mailbox.ConnectImap (success) | – |
+| AUX-30004 | Mailbox.AccountUpdated | – | – | Mailbox.UpdateAccount (success) | – |
+| AUX-30005 | Mailbox.AccountDisconnected | – | – | Mailbox.DisconnectAccount (success) | – |
+| AUX-30006 | Mailbox.AccountNotFound | – | NotFound | – | – |
+| AUX-30007 | Mailbox.ProviderNotAvailable | – | NotFound | – | – |
+| AUX-30008 | Mailbox.AccountInvalid | – | Validation | – | – |
+| AUX-30009 | Mailbox.OAuthStateInvalid | – | Validation | – | – |
+| AUX-30010 | Mailbox.OAuthDenied | – | Validation | – | – |
+| AUX-30011 | Mailbox.OAuthExchangeFailed | Warning | Failure | – | The {Provider} token endpoint did not exchange the code ({Reason}) |
+| AUX-30012 | Mailbox.ImapHostRefused | – | Validation | – | – |
+| AUX-30013 | Mailbox.ImapAuthenticationFailed | – | Validation | – | – |
+| AUX-30014 | Mailbox.ImapConnectionFailed | Warning | Failure | – | IMAP connection test to port {Port} failed ({Reason}) |
+| AUX-30015 | Mailbox.GrantRevokeFailed | Warning | – | – | The {Provider} grant of connected account {ConnectedAccountId} could not be revoked at the provider |

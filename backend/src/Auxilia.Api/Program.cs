@@ -98,10 +98,13 @@ builder.Services.AddSingleton<IModuleEndpoints, Auxilia.Api.Endpoints.Marketing.
 builder.Services.AddSingleton<IModuleEndpoints, NotificationEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, ExportEndpoints>();
 builder.Services.AddSingleton<IModuleEndpoints, DashboardEndpoints>();
+builder.Services.AddSingleton<IModuleEndpoints, Auxilia.Api.Endpoints.Mailbox.ConnectedAccountEndpoints>();
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 builder.Services.Configure<AltchaOptions>(builder.Configuration.GetSection(AltchaOptions.SectionName));
 builder.Services.Configure<LocalStorageOptions>(builder.Configuration.GetSection(LocalStorageOptions.SectionName));
+builder.Services.Configure<Auxilia.Infrastructure.Adapters.OAuth.ConnectedAccountsOptions>(
+    builder.Configuration.GetSection(Auxilia.Infrastructure.Adapters.OAuth.ConnectedAccountsOptions.SectionName));
 
 // Module descriptors are registered by AddApplication; their endpoints are IModuleEndpoints (MapModules below).
 

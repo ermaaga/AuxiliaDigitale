@@ -16590,6 +16590,422 @@
           }
         }
       }
+    },
+    "/api/v1/me/connected-accounts": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "My connected accounts (Google, Microsoft, PEC / IMAP), oldest first; secrets are never returned",
+        "operationId": "ListConnectedAccounts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConnectedAccountResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/providers": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Providers I can connect: Google and Microsoft only when this deployment has their OAuth application; IMAP always",
+        "operationId": "ListConnectedAccountProviders",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConnectedAccountProviderResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/imap-server": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "The IMAP server of a well-known provider (PEC included) from the domain of the address; nulls when unknown",
+        "operationId": "SuggestImapServer",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImapServerSuggestionResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/oauth/{provider}/authorize": {
+      "post": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Starts \u0022Sign in with Google / Microsoft\u0022 (provider google or microsoft): the consent page to send the browser to, valid 10 minutes",
+        "operationId": "StartConnectedAccountOAuth",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartOAuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartOAuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/oauth/{provider}/callback": {
+      "post": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Completes the consent with what the provider sent back (state \u002B code, or error): connects or reconnects the account",
+        "operationId": "CompleteConnectedAccountOAuth",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOAuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/imap": {
+      "post": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Connects a PEC / IMAP account after a connection test (TLS, public server address); the same address again replaces password and server",
+        "operationId": "ConnectImapAccount",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectImapRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/{id}": {
+      "put": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Changes the colour of one of my accounts",
+        "operationId": "UpdateConnectedAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConnectedAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectedAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Disconnects one of my accounts: deletes its secret and copied data (documents filed in cases stay) and revokes the Google grant",
+        "operationId": "DisconnectConnectedAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -18486,6 +18902,31 @@
           }
         }
       },
+      "CompleteOAuthRequest": {
+        "required": [
+          "state",
+          "code",
+          "error"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "code": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "error": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "ConfirmTwoFactorRequest": {
         "required": [
           "code"
@@ -18493,6 +18934,133 @@
         "type": "object",
         "properties": {
           "code": {
+            "type": "string"
+          }
+        }
+      },
+      "ConnectedAccountProviderResponse": {
+        "required": [
+          "provider",
+          "supportsMail",
+          "supportsCalendar"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "supportsMail": {
+            "type": "boolean"
+          },
+          "supportsCalendar": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ConnectedAccountResponse": {
+        "required": [
+          "id",
+          "provider",
+          "address",
+          "displayName",
+          "color",
+          "hasMail",
+          "hasCalendar",
+          "status",
+          "lastErrorCode",
+          "imapHost",
+          "imapPort",
+          "connectedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "color": {
+            "type": "string"
+          },
+          "hasMail": {
+            "type": "boolean"
+          },
+          "hasCalendar": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "lastErrorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imapHost": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "imapPort": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "connectedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ConnectImapRequest": {
+        "required": [
+          "address",
+          "userName",
+          "password",
+          "host",
+          "port",
+          "security"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "security": {
             "type": "string"
           }
         }
@@ -20499,6 +21067,37 @@
         ],
         "items": {
           "$ref": "#/components/schemas/IFormFile"
+        }
+      },
+      "ImapServerSuggestionResponse": {
+        "required": [
+          "host",
+          "port",
+          "security"
+        ],
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "port": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "security": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
         }
       },
       "ImportEntityResponse": {
@@ -24494,6 +25093,41 @@
           }
         }
       },
+      "StartOAuthRequest": {
+        "required": [
+          "mail",
+          "calendar",
+          "accountId"
+        ],
+        "type": "object",
+        "properties": {
+          "mail": {
+            "type": "boolean"
+          },
+          "calendar": {
+            "type": "boolean"
+          },
+          "accountId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
+      },
+      "StartOAuthResponse": {
+        "required": [
+          "authorizationUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "authorizationUrl": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
       "StaticListResponse": {
         "required": [
           "id",
@@ -25434,6 +26068,17 @@
           }
         }
       },
+      "UpdateConnectedAccountRequest": {
+        "required": [
+          "color"
+        ],
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateCustomFieldRequest": {
         "required": [
           "label",
@@ -25958,6 +26603,9 @@
     },
     {
       "name": "Dashboard"
+    },
+    {
+      "name": "Connected accounts"
     }
   ]
 }

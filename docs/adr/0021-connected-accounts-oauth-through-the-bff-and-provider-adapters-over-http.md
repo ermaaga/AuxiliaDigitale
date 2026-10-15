@@ -1,6 +1,6 @@
 # ADR 0021 — Connected accounts: module `mailbox`, OAuth through the BFF, provider adapters over plain HTTP
 
-- Status: Proposed (2026-10-15, C-01) · Related: N05, D-33, D-15, D-19, D-21, ADR 0004, ADR 0007, ADR 0008, ADR 0011, issues #100, #101, #106
+- Status: Accepted (2026-10-15, approved by the user with PR #122; implemented from C-02) · Related: N05, D-33, D-15, D-19, D-21, ADR 0004, ADR 0007, ADR 0008, ADR 0011, issues #100, #101, #106
 
 ## Context
 N05 lets an employee connect their own Google, Microsoft and PEC/IMAP accounts, see the mail and the external calendar

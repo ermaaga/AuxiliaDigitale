@@ -70,6 +70,14 @@ public static class DependencyInjection
         // Uploaded pictures are decoded and re-encoded by the server (F04).
         services.TryAddSingleton<IImageProcessor, SkiaImageProcessor>();
 
+        // Connected accounts (N05, ADR 0021): OAuth applications from ConnectedAccounts, IMAP test, DNS for the SSRF check.
+        services.AddOptions<Adapters.OAuth.ConnectedAccountsOptions>();
+        services.AddHttpClient(Adapters.OAuth.OAuthProviderBase.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(20));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.GoogleOAuthProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.MicrosoftOAuthProvider>());
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IImapConnectionTester, Adapters.Mail.Imap.ImapConnectionTester>();
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IHostAddressResolver, Adapters.Network.DnsHostAddressResolver>();
+
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
         // Tokens (skill auxilia-security): ES256 ring in the Catalog, JWT issuer, deny-list on the distributed cache
