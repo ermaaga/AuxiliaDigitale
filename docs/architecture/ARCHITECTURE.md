@@ -332,6 +332,7 @@ Base `data-model.md` v1 con queste modifiche:
 | **`messaging`** | **message_templates**, **outbound_messages** | nuovo (§8) |
 | **`marketing`** | **segments**, **static_lists**, **static_list_members**, **campaigns**, **campaign_recipients**, **suppressions** | nuovo (§11) |
 | `imports` | import_types, import_jobs, import_job_rows | invariato |
+| **`mailbox`** | **connected_accounts**, **oauth_requests**, **sync_cursors**, **sync_runs**, **mail_folders**, **mail_messages**, **calendar_events**, **filed_messages** | nuovo (N05, ADR 0021): account collegati del singolo utente, solo intestazioni ed eventi, nessun corpo |
 | `configuration` | settings, **user_settings**, branding, **messaging_accounts**, **sender_rules**, grid_layouts, user_saved_views, custom_field_definitions | − `modules` (nel Catalog), − `email_settings` (→ messaging_accounts); `custom_field_definitions` + `group_name`, `badge_color`, `visible_on_grid`, `dashboard_counter` |
 | `localization` | languages, resource_keys, resource_translations | `resource_keys.is_system`, `resource_translations.is_customized`; traduzioni riferite per `language_code` (P3-01) |
 | `audit` | **entity_changes** | − `app_logs` (log su file, D-17); `entity_changes` con `actor_type` (User/Platform/System) |

@@ -2,6 +2,9 @@
 
 Status: [ ] to do · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
+Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
+`mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
+
 ## Goal
 An employee connects one or more of their own mailboxes and calendars to Auxilia and works with them without leaving
 the application:
@@ -31,7 +34,7 @@ the application:
   item** (message headers, events, sync runs); messages already filed into a case stay there as documents.
 - **Visibility**: an account and its data are visible only to their owner. Administrators do not read other users'
   mail (no "shared mailbox" in v1). The System never sees any of it (D-21).
-- **Module**: a new optional module (code to be fixed in the design note, proposed `mailbox`), enabled per tenant and
+- **Module**: a new optional module, code `mailbox` (ADR 0021), enabled per tenant and
   role from the console like the others; permissions `mailbox.accounts.connect`, `mailbox.mail.view`,
   `mailbox.mail.file` (default roles Administrator, Employee). Clients have no access in v1.
 
