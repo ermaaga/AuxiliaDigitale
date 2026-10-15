@@ -1,11 +1,14 @@
 version: 2
+# Once a month (first day of the month, 07:00 Rome); security updates are not bound to the schedule.
 # Minor and patch updates arrive grouped (one PR per ecosystem, low risk); every major update arrives as its own PR
 # to be evaluated on its own (breaking changes, dependency policy).
 updates:
   - package-ecosystem: nuget
     directory: /backend
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       nuget:
         patterns: ["*"]
@@ -17,7 +20,9 @@ updates:
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       npm:
         patterns: ["*"]
@@ -29,7 +34,9 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       github-actions:
         patterns: ["*"]
