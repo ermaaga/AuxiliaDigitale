@@ -28,6 +28,7 @@ const TENANT_PAGES = [
   "exports",
   "login-audit",
   "profile",
+  "profile?tab=accounts",
   "marketing/campaigns",
   "marketing/campaigns/new",
   "marketing/segments",
