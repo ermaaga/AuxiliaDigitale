@@ -81,7 +81,7 @@ print(json.dumps({
 init_shared() {
   local name
   for name in postgres-prod-password postgres-qa-password rabbitmq-admin-password rabbitmq-prod-password \
-    rabbitmq-qa-password valkey-password; do
+    rabbitmq-qa-password valkey-password openwa-api-key; do
     ensure_random "$shared_vault" "$name"
   done
   rabbitmq_definitions | store "$shared_vault" rabbitmq-definitions

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Deploys the Bicep templates of deploy/azure (ADR 0022, runbook docs/runbooks/azure-deployment.md).
 #
-#   deploy/azure/scripts/deploy.sh shared [--what-if]
+#   deploy/azure/scripts/deploy.sh shared [--openwa <sha>] [--agent-openwa <sha>] [--site <sha>] [--what-if]
 #   deploy/azure/scripts/deploy.sh qa|prod [--image <commit sha>] [--what-if]
 #
 # shared: the PostgreSQL administrator password is read from Key Vault; on the very first run it is generated and
 #         stored there right after the deployment. RabbitMQ, Valkey and the psql job are deployed once
-#         scripts/secrets.sh has written their secrets.
+#         scripts/secrets.sh has written their secrets. The satellite apps (ADR 0022 §11) keep their running tags;
+#         --openwa/--agent-openwa/--site release another commit of their own repositories.
 # qa|prod: without --image the tag currently running is kept (a template change never rolls the images back); with
 #         no image at all only identities, Key Vault and storage are deployed.
 # Needs: az (logged in, Owner of the subscription), bicep. No secret is passed on the command line.
@@ -20,14 +21,26 @@ target="${1:-}"
 [ $# -gt 0 ] && shift
 what_if=false
 image=""
+openwa_tag=""
+agent_openwa_tag=""
+site_tag=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --what-if) what_if=true ;;
     --image) image="${2:?--image needs a commit sha}"; shift ;;
+    --openwa) openwa_tag="${2:?--openwa needs a commit sha}"; shift ;;
+    --agent-openwa) agent_openwa_tag="${2:?--agent-openwa needs a commit sha}"; shift ;;
+    --site) site_tag="${2:?--site needs a commit sha}"; shift ;;
     *) echo "unknown option: $1" >&2; exit 64 ;;
   esac
   shift
 done
+
+# Tag of the image a container app runs now (empty when the app does not exist).
+running_tag() {
+  az containerapp show -g "$1" -n "$2" --query 'properties.template.containers[0].image' -o tsv 2>/dev/null \
+    | sed 's/.*://' || true
+}
 
 secret() { az keyvault secret show --vault-name "$1" --name "$2" --query value -o tsv 2>/dev/null || true; }
 
@@ -67,19 +80,21 @@ case "$target" in
       export AUXILIA_DEPLOY_SHARED_SERVICES=false
       echo "RabbitMQ, Valkey and the psql job are skipped until scripts/secrets.sh init has run." >&2
     fi
+    AUXILIA_OPENWA_IMAGE_TAG="${openwa_tag:-$(running_tag rg-auxilia-next-shared ca-auxilia-openwa-01)}"
+    AUXILIA_AGENT_OPENWA_IMAGE_TAG="${agent_openwa_tag:-$(running_tag rg-auxilia-next-shared ca-auxilia-agent-openwa-01)}"
+    AUXILIA_SITE_IMAGE_TAG="${site_tag:-$(running_tag rg-auxilia-next-shared ca-auxilia-site-01)}"
+    export AUXILIA_OPENWA_IMAGE_TAG AUXILIA_AGENT_OPENWA_IMAGE_TAG AUXILIA_SITE_IMAGE_TAG
     params="$here/shared.bicepparam"
     ;;
   qa|prod)
-    if [ -z "$image" ]; then
-      image="$(az containerapp show -g "rg-auxilia-next-$target" -n "ca-auxilia-api-$target" \
-        --query 'properties.template.containers[0].image' -o tsv 2>/dev/null | sed 's/.*://' || true)"
-    fi
+    [ -n "$openwa_tag$agent_openwa_tag$site_tag" ] && { echo "--openwa/--agent-openwa/--site belong to shared" >&2; exit 64; }
+    [ -z "$image" ] && image="$(running_tag "rg-auxilia-next-$target" "ca-auxilia-api-$target")"
     [ -z "$image" ] && echo "No image tag: only identities, Key Vault and storage of $target." >&2
     export AUXILIA_IMAGE_TAG="$image"
     params="$here/$target.bicepparam"
     ;;
   *)
-    echo "usage: $0 shared|qa|prod [--image <sha>] [--what-if]" >&2
+    echo "usage: $0 shared [--openwa|--agent-openwa|--site <sha>] [--what-if] | qa|prod [--image <sha>] [--what-if]" >&2
     exit 64
     ;;
 esac

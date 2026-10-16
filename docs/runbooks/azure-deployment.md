@@ -7,7 +7,7 @@ never typed on a command line.
 
 | Resource group | Content |
 |---|---|
-| `rg-auxilia-next-shared` | VNet, `cae-auxilia-next-01`, `psql-auxilia-next-01`, `acrauxilianext01`, `kv-auxilia-next-shared`, RabbitMQ `ca-auxilia-rabbitmq-01`, Valkey `ca-auxilia-valkey-01`, job `caj-auxilia-psql-01` |
+| `rg-auxilia-next-shared` | VNet, `cae-auxilia-next-01`, `psql-auxilia-next-01`, `acrauxilianext01`, `kv-auxilia-next-shared`, RabbitMQ `ca-auxilia-rabbitmq-01`, Valkey `ca-auxilia-valkey-01`, job `caj-auxilia-psql-01`; satellite apps `ca-auxilia-openwa-01`, `ca-auxilia-agent-openwa-01`, `ca-auxilia-site-01` and their storage `stauxilianextshared` (ADR 0022 §11) |
 | `rg-auxilia-next-qa` / `rg-auxilia-next-prod` | identities, `kv-auxilia-next-<env>`, `stauxilianext<env>`, `ca-auxilia-{api,web,worker}-<env>`, job `caj-auxilia-auxctl-<env>` |
 
 ## Rules
@@ -54,12 +54,27 @@ never typed on a command line.
     `stauxilianext<env>` and container `documents` (the container disk is ephemeral; `local` loses the files).
 12. Repeat 8–11 for prod (`git push` to `main` builds `auxilia-build-main`).
 
+13. **Satellite apps** (ADR 0022 §11; after step 4, so `openwa-api-key` exists):
+    - set ports, session folder and settings in `deploy/azure/shared.bicepparam` (`openwaPort`, `openwaEnv`, …);
+      secrets of the agent: `secrets.sh set shared <name>` + `agentOpenwaSecrets`;
+    - one ACR Task per repository, e.g. `deploy/azure/scripts/acr-task.sh satellite site <owner/repo> main < token.txt`
+      (token with *Contents: read* and *Webhooks: read and write* on that repository); a push builds
+      `auxilia/<app>:<sha>`;
+    - `deploy.sh shared --openwa <sha> --agent-openwa <sha> --site <sha>` (each one optional); the site URL is the
+      output `siteUrl`, OpenWA's internal URL `openwaInternalUrl`;
+    - OpenWA: link the WhatsApp number once (QR code from the logs: `az containerapp logs show -g
+      rg-auxilia-next-shared -n ca-auxilia-openwa-01 --follow`); the session stays on Azure Files.
+
 ## Release
 Push to `qa` → CI green → **Deploy** releases to qa. Merge to `main` → CI green → **Deploy** waits for the reviewer of
 `production`. Steps: wait for the four images of the commit → `auxctl migrate catalog` → `auxctl migrate tenants --all`
 → update worker, api, web → `GET /health/ready` → automatic rollback of the applications if anything fails after the
 migrations. A failed migration stops the release with the previous version running (`MigrationFailed` tenants:
 `docs/runbooks/tenant-provisioning.md`).
+
+**Satellite apps**: `deploy/azure/scripts/deploy.sh shared --<openwa|agent-openwa|site> <sha>` (manual; the other
+apps keep their tags). Rollback = the same command with the previous SHA. OpenWA sleeps when unused and receives no
+WhatsApp message while asleep.
 
 **Rollback by hand**: Actions → Deploy → *Run workflow* with the environment and the previous commit SHA (migrations
 are expand/contract, the older images run on the newer schema).
