@@ -396,6 +396,7 @@ Implementazione: Serilog con instradamento per `TenantSlug` verso un writer per 
 | `auxilia.notifications` | notifiche in-app + push SignalR |
 | `auxilia.imports` | validazione e importazione |
 | `auxilia.reporting` | export grandi |
+| `auxilia.mailbox` | sincronizzazione su richiesta degli account collegati (posta, calendario; N05) |
 | `auxilia.marketing` | espansione destinatari e invio campagne |
 | `auxilia.platform` | provisioning/eliminazione tenant, esecuzione manuale job |
 | `error` | messaggi falliti dopo i retry |

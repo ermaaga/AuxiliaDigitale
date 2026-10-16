@@ -34,5 +34,22 @@ public static partial class Errors
 
         public static Error ImapConnectionFailed() =>
             Error.Failure(EventCodes.Mailbox.ImapConnectionFailed, "The IMAP server could not be reached securely");
+
+        public static Error SyncCredentialsRefused() =>
+            Error.Failure(EventCodes.Mailbox.SyncCredentialsRefused, "The provider refused the stored access: reconnect the account");
+
+        public static Error SyncProviderUnavailable() =>
+            Error.Failure(EventCodes.Mailbox.SyncProviderUnavailable, "The provider could not be reached");
+
+        public static Error SyncAbandoned() =>
+            Error.Failure(EventCodes.Mailbox.SyncAbandoned, "The synchronisation stopped without finishing");
+
+        public static Error SyncScopeInvalid() =>
+            Error.Validation(EventCodes.Mailbox.SyncScopeInvalid, "The sync scope is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["scope"] = ["validation.mailbox.scope"] });
+
+        public static Error CalendarRangeInvalid() =>
+            Error.Validation(EventCodes.Mailbox.CalendarRangeInvalid, "The calendar range is not valid",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["to"] = ["validation.mailbox.range"] });
     }
 }

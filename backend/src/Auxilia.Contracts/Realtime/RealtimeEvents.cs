@@ -26,6 +26,9 @@ public static class RealtimeEvents
 
     /// <summary>A queued export of the user is ready (F26): download it from <c>/api/v1/exports/{id}/file</c>.</summary>
     public const string ExportReady = "ExportReady";
+
+    /// <summary>A sync of one of the user's connected accounts ended (N05, #106): refresh the mail or calendar data.</summary>
+    public const string AccountSyncCompleted = "AccountSyncCompleted";
 }
 
 /// <param name="Reason">Why the session ended: <c>Logout</c>, <c>SingleSession</c>, <c>SecurityStampChanged</c>, <c>RefreshTokenReuse</c>, <c>Revoked</c>.</param>
@@ -47,3 +50,7 @@ public sealed record RequestChangedEvent(Guid RequestId, string Change, string S
 public sealed record NotificationReceivedEvent(Guid Id, string Kind, IReadOnlyDictionary<string, string> Parameters, string? Link, DateTimeOffset CreatedAt);
 
 public sealed record ExportReadyEvent(Guid ExportId, string FileName);
+
+/// <param name="Scope"><c>mail</c> or <c>calendar</c>.</param>
+/// <param name="Status"><c>Succeeded</c> or <c>Failed</c>.</param>
+public sealed record AccountSyncCompletedEvent(Guid AccountId, Guid RunId, string Scope, string Status, int NewCount, string? ErrorCode);

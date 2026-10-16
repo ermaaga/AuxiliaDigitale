@@ -30,6 +30,7 @@ describe("notifications", () => {
       queryKey("demo", "engagement", "requests"),
     ]);
     expect(staleKeys("demo", "DocumentProcessed")).toEqual([queryKey("demo", "documents")]);
+    expect(staleKeys("demo", "AccountSyncCompleted")).toEqual([queryKey("demo", "mailbox")]);
   });
 });
 

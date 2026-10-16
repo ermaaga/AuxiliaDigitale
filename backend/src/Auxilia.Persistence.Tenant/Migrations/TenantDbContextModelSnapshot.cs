@@ -2769,6 +2769,74 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("resource_translations", "localization");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.CalendarEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<bool>("AllDay")
+                        .HasColumnType("boolean")
+                        .HasColumnName("all_day");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ends_at");
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("link");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("ProviderEventId")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("provider_event_id");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<bool>("Tentative")
+                        .HasColumnType("boolean")
+                        .HasColumnName("tentative");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id")
+                        .HasName("pk_calendar_events");
+
+                    b.HasIndex("AccountId", "ProviderEventId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_calendar_events_account_id_provider_event_id");
+
+                    b.HasIndex("AccountId", "StartsAt")
+                        .HasDatabaseName("ix_calendar_events_account_id_starts_at");
+
+                    b.ToTable("calendar_events", "mailbox", t =>
+                        {
+                            t.HasCheckConstraint("ck_calendar_events_range", "ends_at >= starts_at");
+                        });
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Mailbox.ConnectedAccount", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2780,6 +2848,10 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)")
                         .HasColumnName("address");
+
+                    b.Property<DateTimeOffset?>("CalendarSyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("calendar_synced_at");
 
                     b.Property<string>("Color")
                         .IsRequired()
@@ -2832,6 +2904,10 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("last_error_code");
+
+                    b.Property<DateTimeOffset?>("MailSyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("mail_synced_at");
 
                     b.Property<string>("ProtectedSecret")
                         .IsRequired()
@@ -2953,6 +3029,150 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.ToTable("oauth_requests", "mailbox", t =>
                         {
                             t.HasCheckConstraint("ck_oauth_requests_provider", "provider IN ('Google', 'Microsoft')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.SyncCursor", b =>
+                {
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Scope")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("scope");
+
+                    b.Property<string>("FolderKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("folder_key");
+
+                    b.Property<DateTimeOffset>("FullSyncStartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("full_sync_started_at");
+
+                    b.Property<string>("PageToken")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("page_token");
+
+                    b.Property<string>("SyncToken")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)")
+                        .HasColumnName("sync_token");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("AccountId", "Scope", "FolderKey")
+                        .HasName("pk_sync_cursors");
+
+                    b.ToTable("sync_cursors", "mailbox", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_cursors_scope", "scope IN ('Mail', 'Calendar')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.SyncRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("error_code");
+
+                    b.Property<int>("NewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("new_count");
+
+                    b.Property<int>("Parts")
+                        .HasColumnType("integer")
+                        .HasColumnName("parts");
+
+                    b.Property<DateTimeOffset>("QueuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("queued_at");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("scope");
+
+                    b.Property<int>("SkippedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("skipped_count");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TraceId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("trace_id");
+
+                    b.Property<string>("Trigger")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("trigger");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UpdatedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("updated_count");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sync_runs");
+
+                    b.HasIndex("AccountId", "Scope")
+                        .IsUnique()
+                        .HasDatabaseName("ux_sync_runs_active")
+                        .HasFilter("status IN ('Queued', 'Running')");
+
+                    b.HasIndex("AccountId", "Scope", "QueuedAt")
+                        .HasDatabaseName("ix_sync_runs_account_id_scope_queued_at");
+
+                    b.ToTable("sync_runs", "mailbox", t =>
+                        {
+                            t.HasCheckConstraint("ck_sync_runs_scope", "scope IN ('Mail', 'Calendar')");
+
+                            t.HasCheckConstraint("ck_sync_runs_status", "status IN ('Queued', 'Running', 'Succeeded', 'Failed')");
+
+                            t.HasCheckConstraint("ck_sync_runs_trigger", "trigger IN ('PageOpen', 'Manual', 'Scheduled')");
                         });
                 });
 
@@ -5014,6 +5234,16 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .HasConstraintName("fk_resource_translations_resource_keys_resource_key_id");
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.CalendarEvent", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Mailbox.ConnectedAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_calendar_events_connected_account_account_id");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Mailbox.ConnectedAccount", b =>
                 {
                     b.HasOne("Auxilia.Domain.Identity.User", null)
@@ -5032,6 +5262,26 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_oauth_requests_users_user_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.SyncCursor", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Mailbox.ConnectedAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_cursors_connected_accounts_account_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.SyncRun", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Mailbox.ConnectedAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_sync_runs_connected_accounts_account_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Marketing.Campaign", b =>

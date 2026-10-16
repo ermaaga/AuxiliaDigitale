@@ -4,6 +4,8 @@ namespace Auxilia.Contracts.Mailbox;
 /// <param name="Color">A colour of the palette (<c>blue</c>, <c>green</c>, <c>orange</c>, <c>purple</c>, <c>red</c>, <c>teal</c>, <c>pink</c>, <c>yellow</c>).</param>
 /// <param name="Status"><c>Active</c> or <c>NeedsReconnect</c>.</param>
 /// <param name="LastErrorCode"><c>AUX-…</c> code of the last failure when the account needs to be connected again.</param>
+/// <param name="MailSyncedAt">End of the last successful mail synchronisation (null until the first one).</param>
+/// <param name="CalendarSyncedAt">End of the last successful calendar synchronisation (null until the first one).</param>
 public sealed record ConnectedAccountResponse(
     Guid Id,
     string Provider,
@@ -16,7 +18,9 @@ public sealed record ConnectedAccountResponse(
     string? LastErrorCode,
     string? ImapHost,
     int? ImapPort,
-    DateTimeOffset ConnectedAt);
+    DateTimeOffset ConnectedAt,
+    DateTimeOffset? MailSyncedAt,
+    DateTimeOffset? CalendarSyncedAt);
 
 /// <summary>A provider the user can connect: Google and Microsoft only when their OAuth application is configured.</summary>
 /// <param name="Provider"><c>google</c>, <c>microsoft</c> or <c>imap</c>.</param>

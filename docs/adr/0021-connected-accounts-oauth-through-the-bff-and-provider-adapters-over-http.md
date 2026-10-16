@@ -104,7 +104,13 @@ Browser            BFF (Next.js)                         API                    
   keyed by provider (`google`, `microsoft`, `imap`) as in ADR 0008.
 - Sync engine (C-04, #106): `IAccountSyncRequester.RequestAsync(userId, scope, trigger)` and
   `IAccountSyncService.SyncAsync(accountId, scope, trigger)`, `SyncTrigger` = `PageOpen | Manual | Scheduled`
-  (`Scheduled` exists and is unused); `SyncConnectedAccountCommand` on `auxilia.mailbox`, handled by a thin handler.
+  (`Scheduled` exists and is unused); `SyncConnectedAccountCommand(RunId, Part)` on `auxilia.mailbox`, handled by a thin
+  handler (C-04). Each scope has a synchronizer (calendar in C-04, mail in C-06) that reads one page, then saves items and
+  cursor in one write operation; the access token is refreshed once per part (a rotated refresh token is saved first);
+  failures are typed by the adapters (`MailboxProviderException`: `Credentials` → `NeedsReconnect` + notification
+  `mailbox.reconnect`, `Transient` → the bus retries, `CursorExpired` → one bounded full sync). Events seen by a full
+  sync are kept, the others removed (mark and sweep on `synced_at`); a full sync runs again every 7 days so the window
+  moves.
 - Tables (schema `mailbox`, tenant DB):
 
 | Table | Content | Keys and rules |
@@ -112,7 +118,7 @@ Browser            BFF (Next.js)                         API                    
 | `connected_accounts` | user, provider (`Google`/`Microsoft`/`Imap`), address, display name, colour, status (`Active`/`NeedsReconnect`/`Disconnected`), capabilities, granted scopes, IMAP host/port/security/user name, protected secret, last error code, timestamps | unique (user, provider, address); owner only |
 | `oauth_requests` | state, user, provider, capabilities, account (reconnect), protected PKCE verifier, created/expires/used | single use, 10 min; expired rows deleted on the next authorize |
 | `sync_cursors` | account, scope, folder key, cursor (UID+UIDVALIDITY, `historyId`, `syncToken`, `deltaLink`), first sync completed | PK (account, scope, folder key); written in the chunk's transaction |
-| `sync_runs` | account, scope, trigger, requested by, status (`Queued`/`Running`/`Succeeded`/`Failed`), start/end, error code, trace id, counts new/updated/skipped, continuation of | partial unique index (account, scope) where status in (`Queued`, `Running`): one sync at a time |
+| `sync_runs` | account, scope, trigger, requested by, status (`Queued`/`Running`/`Succeeded`/`Failed`), start/end, error code, trace id, counts new/updated/skipped, parts (1 + one per continuation message: the run id is the same), last progress (a run without progress for 30 minutes is abandoned) | partial unique index (account, scope) where status in (`Queued`, `Running`): one sync at a time |
 | `mail_folders` | account, provider folder id, name, kind (`Inbox`/`Sent`/`Other`) | unique (account, provider folder id) |
 | `mail_messages` | account, folder, provider message id, Internet Message-ID, thread id, from, to/cc (jsonb, bounded), subject (≤ 500), dates, read, size, attachment names (bounded) | unique (account, provider message id); upsert = idempotent chunks; no bodies |
 | `calendar_events` | account, provider event id, title, location, start/end (instants), all day, status, provider link | unique (account, provider event id); sync window only |

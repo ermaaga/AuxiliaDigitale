@@ -17006,10 +17006,230 @@
           }
         }
       }
+    },
+    "/api/v1/me/connected-accounts/sync": {
+      "post": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Synchronises my accounts with mail or calendar (page opened, or \u0022Sync now\u0022 with manual): a run per account, queued for the Worker; a run in progress or ended less than mailbox.sync.minIntervalSeconds ago is returned instead",
+        "operationId": "StartMailboxSync",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartSyncRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncRequestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "The newest sync run of each of my accounts for the scope (mail or calendar)",
+        "operationId": "GetMailboxSyncStatus",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncRequestResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/calendar-events": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "The events of my connected calendars in a range of local days (at most 62), read only",
+        "operationId": "ListConnectedCalendarEvents",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarEventsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AccountSyncResponse": {
+        "required": [
+          "accountId",
+          "runId",
+          "scope",
+          "trigger",
+          "status",
+          "queued",
+          "queuedAt",
+          "endedAt",
+          "errorCode",
+          "newCount",
+          "updatedCount",
+          "skippedCount"
+        ],
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "trigger": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "queued": {
+            "type": "boolean"
+          },
+          "queuedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "errorCode": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "newCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "updatedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "skippedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "ActivateAccountRequest": {
         "required": [
           "token",
@@ -17756,6 +17976,103 @@
               "string"
             ],
             "format": "int32"
+          }
+        }
+      },
+      "CalendarEventResponse": {
+        "required": [
+          "id",
+          "accountId",
+          "title",
+          "location",
+          "startsAt",
+          "endsAt",
+          "date",
+          "time",
+          "endDate",
+          "endTime",
+          "allDay",
+          "tentative",
+          "link"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "location": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "time": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "endTime": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "time"
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "tentative": {
+            "type": "boolean"
+          },
+          "link": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "CalendarEventsResponse": {
+        "required": [
+          "timeZone",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "timeZone": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarEventResponse"
+            }
           }
         }
       },
@@ -18970,7 +19287,9 @@
           "lastErrorCode",
           "imapHost",
           "imapPort",
-          "connectedAt"
+          "connectedAt",
+          "mailSyncedAt",
+          "calendarSyncedAt"
         ],
         "type": "object",
         "properties": {
@@ -19025,6 +19344,20 @@
           },
           "connectedAt": {
             "type": "string",
+            "format": "date-time"
+          },
+          "mailSyncedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "calendarSyncedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
             "format": "date-time"
           }
         }
@@ -25128,6 +25461,21 @@
           }
         }
       },
+      "StartSyncRequest": {
+        "required": [
+          "scope",
+          "manual"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string"
+          },
+          "manual": {
+            "type": "boolean"
+          }
+        }
+      },
       "StaticListResponse": {
         "required": [
           "id",
@@ -25247,6 +25595,20 @@
           "suppressedAt": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "SyncRequestResponse": {
+        "required": [
+          "runs"
+        ],
+        "type": "object",
+        "properties": {
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountSyncResponse"
+            }
           }
         }
       },

@@ -85,7 +85,39 @@ internal sealed class ConnectedAccountEndpoints : IModuleEndpoints
             .WithSummary("Disconnects one of my accounts: deletes its secret and copied data (documents filed in cases stay) and revokes the Google grant")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound);
+
+        accounts.MapPost("/sync", StartSyncAsync)
+            .RequirePermission(MailboxPermissions.ViewMail)
+            .RequireRateLimiting(RateLimitingSetup.MailboxSyncPolicy)
+            .WithName("StartMailboxSync")
+            .WithSummary("Synchronises my accounts with mail or calendar (page opened, or \"Sync now\" with manual): a run per account, queued for the Worker; a run in progress or ended less than mailbox.sync.minIntervalSeconds ago is returned instead")
+            .Produces<SyncRequestResponse>(StatusCodes.Status202Accepted)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        accounts.MapGet("/sync", SyncStatusAsync)
+            .RequirePermission(MailboxPermissions.ViewMail)
+            .WithName("GetMailboxSyncStatus")
+            .WithSummary("The newest sync run of each of my accounts for the scope (mail or calendar)")
+            .Produces<SyncRequestResponse>()
+            .ProducesValidationProblem();
+
+        accounts.MapGet("/calendar-events", CalendarEventsAsync)
+            .RequirePermission(MailboxPermissions.ViewMail)
+            .WithName("ListConnectedCalendarEvents")
+            .WithSummary("The events of my connected calendars in a range of local days (at most 62), read only")
+            .Produces<CalendarEventsResponse>()
+            .ProducesValidationProblem();
     }
+
+    private static async Task<IResult> StartSyncAsync(StartSyncRequest request, IAccountSyncRequester requester, CancellationToken cancellationToken) =>
+        (await requester.RequestAsync(request, cancellationToken)).ToHttpResult(value => TypedResults.Accepted((string?)null, value));
+
+    private static async Task<IResult> SyncStatusAsync(string? scope, IMailboxSyncQueryService query, CancellationToken cancellationToken) =>
+        (await query.SyncStatusAsync(scope, cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> CalendarEventsAsync(DateOnly from, DateOnly to, IMailboxSyncQueryService query, CancellationToken cancellationToken) =>
+        (await query.CalendarEventsAsync(from, to, cancellationToken)).ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> ListAsync(IConnectedAccountQueryService query, CancellationToken cancellationToken) =>
         (await query.ListAsync(cancellationToken)).ToHttpResult(TypedResults.Ok);

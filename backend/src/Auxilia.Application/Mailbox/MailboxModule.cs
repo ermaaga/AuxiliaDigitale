@@ -30,5 +30,9 @@ public sealed class MailboxModule : IModuleDescriptor
         services.TryAddScoped<ConnectedAccountPolicy>();
         services.TryAddScoped<IConnectedAccountManager, ConnectedAccountManager>();
         services.TryAddScoped<IConnectedAccountQueryService, ConnectedAccountQueryService>();
+        services.TryAddScoped<IAccountSyncRequester, AccountSyncRequester>();
+        services.TryAddScoped<IAccountSyncService, AccountSyncService>();
+        services.TryAddScoped<IMailboxSyncQueryService, MailboxSyncQueryService>();
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IScopeSynchronizer, CalendarSynchronizer>());
     }
 }

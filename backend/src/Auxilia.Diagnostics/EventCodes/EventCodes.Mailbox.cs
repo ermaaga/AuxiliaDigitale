@@ -49,5 +49,38 @@ public static partial class EventCodes
 
         /// <summary>The grant could not be revoked at the provider while disconnecting; the account is disconnected anyway.</summary>
         public const int GrantRevokeFailed = 30015;
+
+        /// <summary>The owner asked to synchronise mail or calendar (page opened, "Sync now"): runs queued or reused.</summary>
+        public const int SyncRequested = 30016;
+
+        /// <summary>A sync message of the Worker was handled (the run went on, continued, ended or failed).</summary>
+        public const int SyncMessageHandled = 30017;
+
+        /// <summary>A chunk of a sync was saved with its cursor (one transaction).</summary>
+        public const int SyncChunkSaved = 30018;
+
+        /// <summary>A sync run changed state (started, continued, succeeded, failed, abandoned).</summary>
+        public const int SyncRunUpdated = 30019;
+
+        /// <summary>The provider refused the stored grant or password during a sync: the account needs to be reconnected.</summary>
+        public const int SyncCredentialsRefused = 30020;
+
+        /// <summary>The provider could not be reached or asked to slow down during a sync: the bus retries it.</summary>
+        public const int SyncProviderUnavailable = 30021;
+
+        /// <summary>A sync made no progress for too long (its message failed every retry or the Worker stopped): closed as failed.</summary>
+        public const int SyncAbandoned = 30022;
+
+        /// <summary>The sync scope is not <c>mail</c> or <c>calendar</c>.</summary>
+        public const int SyncScopeInvalid = 30023;
+
+        /// <summary>The calendar range is not valid (from after to, or longer than allowed).</summary>
+        public const int CalendarRangeInvalid = 30024;
+
+        /// <summary>The provider no longer accepted the sync token (or the window moved): a bounded full sync starts again.</summary>
+        public const int SyncCursorReset = 30025;
+
+        /// <summary>Malformed items of a chunk were skipped and counted; the chunk went on.</summary>
+        public const int SyncItemsSkipped = 30026;
     }
 }

@@ -3655,10 +3655,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/connected-accounts/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The newest sync run of each of my accounts for the scope (mail or calendar) */
+        get: operations["GetMailboxSyncStatus"];
+        put?: never;
+        /** Synchronises my accounts with mail or calendar (page opened, or "Sync now" with manual): a run per account, queued for the Worker; a run in progress or ended less than mailbox.sync.minIntervalSeconds ago is returned instead */
+        post: operations["StartMailboxSync"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/calendar-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The events of my connected calendars in a range of local days (at most 62), read only */
+        get: operations["ListConnectedCalendarEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountSyncResponse: {
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            runId: string;
+            scope: string;
+            trigger: string;
+            status: string;
+            queued: boolean;
+            /** Format: date-time */
+            queuedAt: string;
+            /** Format: date-time */
+            endedAt: null | string;
+            errorCode: null | string;
+            /** Format: int32 */
+            newCount: number | string;
+            /** Format: int32 */
+            updatedCount: number | string;
+            /** Format: int32 */
+            skippedCount: number | string;
+        };
         ActivateAccountRequest: {
             token: string;
             password: string;
@@ -3852,6 +3908,33 @@ export interface components {
         BulkClientTagsResponse: {
             /** Format: int32 */
             changed: number | string;
+        };
+        CalendarEventResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            title: string;
+            location: null | string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: date */
+            date: string;
+            /** Format: time */
+            time: null | string;
+            /** Format: date */
+            endDate: string;
+            /** Format: time */
+            endTime: null | string;
+            allDay: boolean;
+            tentative: boolean;
+            link: null | string;
+        };
+        CalendarEventsResponse: {
+            timeZone: string;
+            items: components["schemas"]["CalendarEventResponse"][];
         };
         CampaignAudienceResponse: {
             /** Format: int32 */
@@ -4154,6 +4237,10 @@ export interface components {
             imapPort: null | number | string;
             /** Format: date-time */
             connectedAt: string;
+            /** Format: date-time */
+            mailSyncedAt: null | string;
+            /** Format: date-time */
+            calendarSyncedAt: null | string;
         };
         ConnectImapRequest: {
             address: string;
@@ -5614,6 +5701,10 @@ export interface components {
             /** Format: uri */
             authorizationUrl: string;
         };
+        StartSyncRequest: {
+            scope: string;
+            manual: boolean;
+        };
         StaticListResponse: {
             /** Format: uuid */
             id: string;
@@ -5644,6 +5735,9 @@ export interface components {
             reason: null | string;
             /** Format: date-time */
             suppressedAt: string;
+        };
+        SyncRequestResponse: {
+            runs: components["schemas"]["AccountSyncResponse"][];
         };
         TagResponse: {
             /** Format: uuid */
@@ -18792,6 +18886,111 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMailboxSyncStatus: {
+        parameters: {
+            query?: {
+                scope?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    StartMailboxSync: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartSyncRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedCalendarEvents: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
                 };
             };
         };

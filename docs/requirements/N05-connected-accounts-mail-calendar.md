@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01, C-02, C-03 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [~] in progress (C-01…C-04 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
@@ -41,7 +41,7 @@ the application:
 ## Synchronisation on demand (#106)
 No scheduled job: **D-15 is unchanged**. A scheduled sync is not planned; the code is ready for it (`SyncTrigger.Scheduled`).
 - **Trigger**: opening the Mail or Calendar page, or the "Sync now" button, calls
-  `POST /api/v1/connected-accounts/sync` (`scope` = `mail` | `calendar`) → `202` with the id of the sync. If a sync of
+  `POST /api/v1/me/connected-accounts/sync` (`scope` = `mail` | `calendar`, `manual` for "Sync now") → `202` with the run of each account (state: `GET …/sync?scope=`). If a sync of
   that account and scope is running or ended less than 2 minutes ago, nothing new is queued (the existing one is
   returned). Rate limited.
 - **Work**: a message on the module's queue; the Worker (scale to zero on the queue) syncs each account of the user.
