@@ -37,5 +37,9 @@ public static partial class Log
         [LoggerMessage(EventId = EventCodes.Mailbox.SyncItemsSkipped, EventName = "Mailbox.SyncItemsSkipped",
             Level = LogLevel.Warning, Message = "{Count} malformed items skipped in {Scope} sync run {SyncRunId}")]
         public static partial void SyncItemsSkipped(ILogger logger, int count, string scope, Guid syncRunId);
+
+        [LoggerMessage(EventId = EventCodes.Mailbox.MailArrived, EventName = "Mailbox.MailArrived",
+            Level = LogLevel.Information, Message = "{Count} new messages arrived in connected account {ConnectedAccountId}: the owner was notified")]
+        public static partial void MailArrived(ILogger logger, int count, Guid connectedAccountId);
     }
 }

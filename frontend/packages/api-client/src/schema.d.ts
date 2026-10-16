@@ -3690,6 +3690,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/connected-accounts/mail-folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The inbox and sent folders of my connected mailboxes, with their stored message and unread counts */
+        get: operations["ListConnectedMailFolders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The stored headers of my mail, newest first: one account or folder, search in sender, recipients and subject, unread only (bodies stay at the provider) */
+        get: operations["ListConnectedMailMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4867,6 +4901,40 @@ export interface components {
         LoginOtpRequest: {
             userName: string;
         };
+        MailFolderResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            kind: string;
+            name: string;
+            /** Format: int32 */
+            total: number | string;
+            /** Format: int32 */
+            unread: number | string;
+        };
+        MailMessageResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            folderId: string;
+            fromAddress: null | string;
+            fromName: null | string;
+            to: string[];
+            cc: string[];
+            subject: string;
+            /** Format: date-time */
+            sentAt: null | string;
+            /** Format: date-time */
+            receivedAt: string;
+            isRead: boolean;
+            /** Format: int64 */
+            size: number | string;
+            hasAttachments: boolean;
+            attachmentNames: string[];
+        };
         MeResponse: {
             /** Format: uuid */
             id: string;
@@ -5093,6 +5161,15 @@ export interface components {
         };
         PagedResponseOfLoginAttemptResponse: {
             items: components["schemas"]["LoginAttemptResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
+        PagedResponseOfMailMessageResponse: {
+            items: components["schemas"]["MailMessageResponse"][];
             /** Format: int32 */
             page: number | string;
             /** Format: int32 */
@@ -18982,6 +19059,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CalendarEventsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedMailFolders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailFolderResponse"][];
+                };
+            };
+        };
+    };
+    ListConnectedMailMessages: {
+        parameters: {
+            query?: {
+                accountId?: string;
+                folderId?: string;
+                search?: string;
+                "filter[unread]"?: boolean;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfMailMessageResponse"];
                 };
             };
             /** @description Bad Request */

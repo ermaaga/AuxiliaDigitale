@@ -129,6 +129,24 @@ Browser            BFF (Next.js)                         API                    
 - Filing into a case goes through `Documents.Public.IFileStore` and the Documents module's public API (F10 rules
   of the case); `.eml` (`message/rfc822`) joins the document type list, checked on the MIME headers.
 
+### 5. Implementation notes (mail headers, C-06a)
+- Folders copied in v1: the **inbox** and the **sent mail** of each account (`mail_folders` holds one row per account
+  and kind; the cursor key is `mail:inbox` / `mail:sent`, so a folder renamed at the provider keeps messages and
+  cursor). Gmail labels `INBOX`/`SENT`, Graph well-known `inbox`/`sentitems`, IMAP `INBOX` and the SPECIAL-USE sent
+  folder (or a usual name such as "Posta inviata").
+- `mail_messages` is unique per **folder** and provider id (not per account as first written): IMAP UIDs are per
+  folder (`uidvalidity:uid`) and a Gmail message can be both in the inbox and in the sent mail. Recipients and
+  attachment names are bounded `text[]` columns instead of jsonb.
+- Gmail reads each header with `messages.get?format=full&fields=…` (headers, labels, size, attachment names: the
+  `fields` filter keeps the body data off the wire). Graph has no size nor attachment names in the delta (only
+  `hasAttachments`); its first sync is bounded by days and stops storing at `mailbox.sync.initialMaxMessages`.
+- IMAP: the sync service resolves the server again for every part and checks every address (the DNS answer may have
+  changed since the account was connected); a private address fails the run with `AUX-30012`. Incremental syncs read
+  the UIDs after the last one and their last page lists every UID of the folder (deleted messages are removed); read
+  flags of messages already copied are not refreshed in v1 (CONDSTORE later).
+- Messages new in an incremental sync are counted on the run (`sync_runs.arrived_count`); the run's end sends one
+  `mailbox.received` notification when the count is not zero (never for a first or full sync).
+
 ## Consequences
 - No new dependency, licence or advisory surface; the adapters must be covered by tests with recorded responses
   (paging, 404/410 cursors, 429 with `Retry-After`) since no SDK does it for us.

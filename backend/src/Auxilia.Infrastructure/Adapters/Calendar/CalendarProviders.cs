@@ -5,108 +5,16 @@ using System.Text.Json;
 
 using Auxilia.Application.Abstractions.Mailbox;
 using Auxilia.Domain.Mailbox;
+using Auxilia.Infrastructure.Adapters.Mailbox;
 
 namespace Auxilia.Infrastructure.Adapters.Calendar;
 
-/// <summary>
-/// Calendar reads over plain HTTP (ADR 0021, no SDK): the access token of the sync, JSON answers read with
-/// <see cref="JsonDocument"/>, failures classified for the sync engine. The HTTP retries (429/5xx with
-/// <c>Retry-After</c>) come from the standard resilience handler of the hosts; what is left is
-/// <see cref="ProviderFailure.Transient"/>.
-/// </summary>
-internal abstract class CalendarProviderBase(IHttpClientFactory httpClients) : ICalendarProvider
+/// <summary>A calendar read over plain HTTP (ADR 0021, no SDK) with the access token of the sync.</summary>
+internal abstract class CalendarProviderBase(IHttpClientFactory httpClients) : ProviderHttpBase(httpClients), ICalendarProvider
 {
-    public const string HttpClientName = "auxilia-mailbox";
-
-    /// <summary>Largest answer read (a page of 250 events is far smaller).</summary>
-    private const int MaxBodyBytes = 8 * 1024 * 1024;
-
     public abstract ConnectedAccountProvider Provider { get; }
 
     public abstract Task<CalendarPage> ReadAsync(CalendarPageRequest request, CancellationToken cancellationToken);
-
-    /// <summary>GET with the bearer token; non-success answers become a <see cref="MailboxProviderException"/>.</summary>
-    protected async Task<JsonDocument> GetAsync(Uri uri, string accessToken, bool withToken, IEnumerable<KeyValuePair<string, string>> headers, CancellationToken cancellationToken)
-    {
-        using var client = httpClients.CreateClient(HttpClientName);
-        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        foreach (var (name, value) in headers)
-        {
-            request.Headers.TryAddWithoutValidation(name, value);
-        }
-
-        HttpResponseMessage response;
-        try
-        {
-            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        }
-        catch (Exception exception) when (exception is HttpRequestException || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested))
-        {
-            throw new MailboxProviderException(ProviderFailure.Transient, "Unreachable", exception);
-        }
-
-        using (response)
-        {
-            if (response.Content.Headers.ContentLength > MaxBodyBytes)
-            {
-                throw new MailboxProviderException(ProviderFailure.Transient, "AnswerTooLarge");
-            }
-
-            var body = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            JsonDocument? json = null;
-            try
-            {
-                json = body.Length is > 0 and <= MaxBodyBytes ? JsonDocument.Parse(body) : null;
-            }
-            catch (JsonException)
-            {
-                json = null;
-            }
-
-            if (response.IsSuccessStatusCode && json is not null)
-            {
-                return json;
-            }
-
-            using (json)
-            {
-                throw new MailboxProviderException(Classify(response.StatusCode, json, withToken), StatusReason(response.StatusCode, json));
-            }
-        }
-    }
-
-    /// <summary>What a refused call means for the sync (overridden per provider for their error formats).</summary>
-    protected virtual ProviderFailure Classify(HttpStatusCode status, JsonDocument? json, bool withToken) => status switch
-    {
-        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => ProviderFailure.Credentials,
-        HttpStatusCode.Gone => ProviderFailure.CursorExpired,
-        HttpStatusCode.BadRequest when withToken => ProviderFailure.CursorExpired,
-        _ => ProviderFailure.Transient,
-    };
-
-    /// <summary>HTTP status and the provider's error code only: never messages, which may echo account data.</summary>
-    protected virtual string StatusReason(HttpStatusCode status, JsonDocument? json) =>
-        ((int)status).ToString(CultureInfo.InvariantCulture);
-
-    protected static string? String(JsonElement element, string property) =>
-        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
-
-    protected static bool Boolean(JsonElement element, string property) =>
-        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.True;
-
-    protected static JsonElement Object(JsonElement element, string property) =>
-        element.ValueKind == JsonValueKind.Object && element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.Object
-            ? value
-            : default;
-
-    protected static string Iso(DateTimeOffset instant) => instant.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", CultureInfo.InvariantCulture);
-
-    protected static bool IsSafeCode(string? code) =>
-        code is { Length: > 0 and <= 64 } && code.All(character => char.IsAsciiLetterOrDigit(character) || character is '_' or '-' or '.');
 }
 
 /// <summary>

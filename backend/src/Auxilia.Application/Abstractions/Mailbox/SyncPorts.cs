@@ -34,6 +34,29 @@ public interface IMailboxSyncData : IAsyncDisposable
     /// <summary>The events of the user's own accounts overlapping [<paramref name="from"/>, <paramref name="to"/>), by start.</summary>
     Task<IReadOnlyList<CalendarEvent>> EventsOfUserAsync(Guid userId, DateTimeOffset from, DateTimeOffset to, int maxCount, CancellationToken cancellationToken);
 
+    Task<IReadOnlyList<MailFolder>> FoldersAsync(Guid accountId, CancellationToken cancellationToken);
+
+    void Add(MailFolder folder);
+
+    /// <summary>The stored messages of the folder among <paramref name="providerMessageIds"/>, by provider message id.</summary>
+    Task<IReadOnlyDictionary<string, MailMessage>> MessagesAsync(Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken);
+
+    void Add(MailMessage message);
+
+    Task<int> DeleteMessagesAsync(Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken);
+
+    /// <summary>The folder holds exactly <paramref name="present"/> at the provider: the other stored messages are gone.</summary>
+    Task<int> DeleteMessagesNotInAsync(Guid folderId, IReadOnlyCollection<string> present, CancellationToken cancellationToken);
+
+    /// <summary>After a full sync of the folder: the messages it did not see (synced before it started).</summary>
+    Task<int> DeleteStaleMessagesAsync(Guid folderId, DateTimeOffset notSyncedSince, CancellationToken cancellationToken);
+
+    /// <summary>The folders of the user's own accounts with mail, with their message and unread counts.</summary>
+    Task<IReadOnlyList<MailFolderSummary>> FoldersOfUserAsync(Guid userId, CancellationToken cancellationToken);
+
+    /// <summary>A page of the messages of the user's own accounts, newest first.</summary>
+    Task<(IReadOnlyList<MailMessage> Items, long Total)> MessagesOfUserAsync(Guid userId, MailMessageFilter filter, int skip, int take, CancellationToken cancellationToken);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
 
@@ -106,4 +129,66 @@ public interface ICalendarProvider
     ConnectedAccountProvider Provider { get; }
 
     Task<CalendarPage> ReadAsync(CalendarPageRequest request, CancellationToken cancellationToken);
+}
+
+/// <summary>A folder with its counts (the folder list of the mail page).</summary>
+public sealed record MailFolderSummary(MailFolder Folder, int Total, int Unread);
+
+/// <param name="Search">Words looked up in sender, recipients and subject (already trimmed and bounded).</param>
+public sealed record MailMessageFilter(Guid? AccountId, Guid? FolderId, string? Search, bool UnreadOnly);
+
+/// <summary>A PEC / IMAP sign-in: the server at an address already checked against SSRF, the user name and the password.</summary>
+public sealed record ImapLogin(ImapConnectionTarget Target, string UserName, string Password)
+{
+    /// <summary>Never the password (nor the user name) in a log or an exception message.</summary>
+    public override string ToString() => $"ImapLogin({Target.Host}:{Target.Port})";
+}
+
+/// <summary>
+/// The access of a sync part to the provider: the OAuth access token (Google, Microsoft) or the IMAP sign-in. Never
+/// logged or stored.
+/// </summary>
+public sealed record MailboxAccess(string? AccessToken, ImapLogin? Imap)
+{
+    public static MailboxAccess OAuth(string accessToken) => new(accessToken, null);
+
+    public static MailboxAccess Password(ImapLogin login) => new(null, login);
+
+    public override string ToString() => Imap is null ? "MailboxAccess(OAuth)" : "MailboxAccess(IMAP)";
+}
+
+/// <summary>
+/// One page of the headers of a folder: from <paramref name="PageToken"/> when a sync is in progress, otherwise from
+/// <paramref name="SyncToken"/> (incremental) or, for a full sync, the newest messages received since
+/// <paramref name="Since"/>, at most <paramref name="MaxMessages"/> in total over the pages (providers that cannot
+/// order newest first bound it by days only).
+/// </summary>
+public sealed record MailPageRequest(
+    MailboxAccess Access, MailFolderData Folder, string? PageToken, string? SyncToken, DateTimeOffset Since, int MaxMessages, int PageSize);
+
+/// <param name="Messages">New or changed headers (malformed items are left out and counted in <paramref name="Malformed"/>).</param>
+/// <param name="RemovedIds">Messages deleted at the provider or moved out of the folder.</param>
+/// <param name="Present">When not null (last page of an IMAP incremental sync): every message id the folder holds now.</param>
+/// <param name="NextPageToken">More pages follow; null on the last page.</param>
+/// <param name="SyncToken">On the last page: the token of the next incremental sync.</param>
+public sealed record MailPage(
+    IReadOnlyList<MailMessageData> Messages,
+    IReadOnlyList<string> RemovedIds,
+    IReadOnlyCollection<string>? Present,
+    string? NextPageToken,
+    string? SyncToken,
+    int Malformed);
+
+/// <summary>
+/// The headers of a mailbox (ADR 0021): Gmail and Microsoft Graph over HTTP, PEC / IMAP with MailKit. Read only, never
+/// the bodies; throws <see cref="MailboxProviderException"/>.
+/// </summary>
+public interface IMailProvider
+{
+    ConnectedAccountProvider Provider { get; }
+
+    /// <summary>The inbox and, when the provider has one, the sent mail.</summary>
+    Task<IReadOnlyList<MailFolderData>> FoldersAsync(MailboxAccess access, CancellationToken cancellationToken);
+
+    Task<MailPage> ReadAsync(MailPageRequest request, CancellationToken cancellationToken);
 }

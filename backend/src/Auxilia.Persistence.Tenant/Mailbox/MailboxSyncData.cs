@@ -85,6 +85,105 @@ internal sealed class MailboxSyncData(ITenantDbContext db) : IMailboxSyncData
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<MailFolder>> FoldersAsync(Guid accountId, CancellationToken cancellationToken) =>
+        await db.Set<MailFolder>().Where(folder => folder.AccountId == accountId).OrderBy(folder => folder.Kind).ToListAsync(cancellationToken);
+
+    public void Add(MailFolder folder) => db.Set<MailFolder>().Add(folder);
+
+    public async Task<IReadOnlyDictionary<string, MailMessage>> MessagesAsync(
+        Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken)
+    {
+        if (providerMessageIds.Count == 0)
+        {
+            return new Dictionary<string, MailMessage>(StringComparer.Ordinal);
+        }
+
+        return await db.Set<MailMessage>()
+            .Where(message => message.FolderId == folderId && providerMessageIds.Contains(message.ProviderMessageId))
+            .ToDictionaryAsync(message => message.ProviderMessageId, StringComparer.Ordinal, cancellationToken);
+    }
+
+    public void Add(MailMessage message) => db.Set<MailMessage>().Add(message);
+
+    public Task<int> DeleteMessagesAsync(Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken) =>
+        providerMessageIds.Count == 0
+            ? Task.FromResult(0)
+            : db.Set<MailMessage>()
+                .Where(message => message.FolderId == folderId && providerMessageIds.Contains(message.ProviderMessageId))
+                .ExecuteDeleteAsync(cancellationToken);
+
+    public Task<int> DeleteMessagesNotInAsync(Guid folderId, IReadOnlyCollection<string> present, CancellationToken cancellationToken)
+    {
+        // The headers added by the same chunk are inserted afterwards by SaveChanges (and are among the present ones anyway).
+        var keep = present.ToArray();
+        return db.Set<MailMessage>()
+            .Where(message => message.FolderId == folderId && !keep.Contains(message.ProviderMessageId))
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public Task<int> DeleteStaleMessagesAsync(Guid folderId, DateTimeOffset notSyncedSince, CancellationToken cancellationToken) =>
+        db.Set<MailMessage>()
+            .Where(message => message.FolderId == folderId && message.SyncedAt < notSyncedSince)
+            .ExecuteDeleteAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<MailFolderSummary>> FoldersOfUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var accounts = db.Set<ConnectedAccount>().Where(account => account.UserId == userId && account.HasMail);
+        var rows = await db.Set<MailFolder>()
+            .AsNoTracking()
+            .Join(accounts, folder => folder.AccountId, account => account.Id, (folder, account) => new { folder, account.ConnectedAt })
+            .OrderBy(row => row.ConnectedAt)
+            .ThenBy(row => row.folder.AccountId)
+            .ThenBy(row => row.folder.Kind)
+            .Select(row => new
+            {
+                row.folder,
+                Total = db.Set<MailMessage>().Count(message => message.FolderId == row.folder.Id),
+                Unread = db.Set<MailMessage>().Count(message => message.FolderId == row.folder.Id && !message.IsRead),
+            })
+            .ToListAsync(cancellationToken);
+        return [.. rows.Select(row => new MailFolderSummary(row.folder, row.Total, row.Unread))];
+    }
+
+    public async Task<(IReadOnlyList<MailMessage> Items, long Total)> MessagesOfUserAsync(
+        Guid userId, MailMessageFilter filter, int skip, int take, CancellationToken cancellationToken)
+    {
+        var accounts = db.Set<ConnectedAccount>().Where(account => account.UserId == userId && account.HasMail).Select(account => account.Id);
+        var messages = db.Set<MailMessage>().AsNoTracking().Where(message => accounts.Contains(message.AccountId));
+        if (filter.AccountId is { } accountId)
+        {
+            messages = messages.Where(message => message.AccountId == accountId);
+        }
+
+        if (filter.FolderId is { } folderId)
+        {
+            messages = messages.Where(message => message.FolderId == folderId);
+        }
+
+        if (filter.UnreadOnly)
+        {
+            messages = messages.Where(message => !message.IsRead);
+        }
+
+        if (filter.Search is { Length: > 0 } search)
+        {
+            var pattern = "%" + search.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("%", "\\%", StringComparison.Ordinal).Replace("_", "\\_", StringComparison.Ordinal) + "%";
+            messages = messages.Where(message => EF.Functions.ILike(message.Subject, pattern, "\\")
+                || (message.FromAddress != null && EF.Functions.ILike(message.FromAddress, pattern, "\\"))
+                || (message.FromName != null && EF.Functions.ILike(message.FromName, pattern, "\\"))
+                || message.To.Any(recipient => EF.Functions.ILike(recipient, pattern, "\\")));
+        }
+
+        var total = await messages.LongCountAsync(cancellationToken);
+        var items = await messages
+            .OrderByDescending(message => message.ReceivedAt)
+            .ThenByDescending(message => message.Id)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+        return (items, total);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();
