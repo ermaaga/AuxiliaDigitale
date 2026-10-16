@@ -21,7 +21,7 @@ namespace Auxilia.Infrastructure.Adapters.Mail.Imap;
 /// resolution), TLS with the host name for SNI and certificate validation (never disabled), sign-in, inbox opened
 /// read-only, disconnect. Nothing is read. Passwords and addresses are never logged.
 /// </summary>
-internal sealed class ImapConnectionTester(ILogger<ImapConnectionTester> logger) : IImapConnectionTester
+internal sealed class ImapConnectionTester(ImapCertificateTrust trust, ILogger<ImapConnectionTester> logger) : IImapConnectionTester
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(20);
 
@@ -39,6 +39,7 @@ internal sealed class ImapConnectionTester(ILogger<ImapConnectionTester> logger)
             await socket.ConnectAsync(new IPEndPoint(target.Address, target.Port), timeout.Token);
 
             using var client = new ImapClient { Timeout = (int)Timeout.TotalMilliseconds };
+            trust.Apply(client);
             var options = target.Security == ImapSecurity.SslOnConnect ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
             await client.ConnectAsync(socket, target.Host, target.Port, options, timeout.Token);
             await client.AuthenticateAsync(userName, password, timeout.Token);

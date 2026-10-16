@@ -30,7 +30,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
 | 29000–29999 | Security | Security events | 36 | 29037 |
-| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 35 | 30036 |
+| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 36 | 30037 |
 
 ## Codes
 
@@ -534,3 +534,4 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-30033 | Mailbox.MailFiled | – | – | Mailbox.FileMessage (success) | – |
 | AUX-30034 | Mailbox.MailFilingInvalid | – | Validation | – | – |
 | AUX-30035 | Mailbox.MailReadFailed | Warning | – | – | Message {MailMessageId} of connected account {ConnectedAccountId} could not be read at the {Provider} provider ({Reason}) |
+| AUX-30036 | Mailbox.UserAccountsRemoved | – | – | Mailbox.RemoveUserAccounts (success) | – |
