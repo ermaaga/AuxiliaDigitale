@@ -75,6 +75,76 @@ internal sealed class GmailMailProvider(IHttpClientFactory httpClients) : Provid
             : await FullAsync(request, token, cancellationToken);
     }
 
+    /// <summary>
+    /// <c>messages.get?format=raw</c>: the message in base64url inside a JSON answer (cut at a bound that fits the largest
+    /// message read), decoded into a temporary file in blocks.
+    /// </summary>
+    public async Task<Stream?> OpenRawAsync(MailboxAccess access, MailFolderData folder, string providerMessageId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(access);
+        var token = access.AccessToken ?? throw new ArgumentException("Gmail needs an access token.", nameof(access));
+        var uri = new Uri($"{ApiBase}messages/{Uri.EscapeDataString(providerMessageId)}?{Query([new("format", "raw"), new("fields", "raw")])}");
+        await using var json = await DownloadAsync(uri, token, (MailRaw.MaxBytes / 3 * 4) + 64 * 1024, cancellationToken);
+        if (json is null)
+        {
+            return null;
+        }
+
+        var bytes = new byte[json.Length];
+        await json.ReadExactlyAsync(bytes, cancellationToken);
+        return await DecodeRawAsync(bytes, cancellationToken);
+    }
+
+    /// <summary>The <c>raw</c> property of a Gmail answer decoded (base64url) into a temporary file; a message larger than the bound is cut.</summary>
+    internal static async Task<Stream> DecodeRawAsync(byte[] answer, CancellationToken cancellationToken)
+    {
+        var (start, length) = RawValue(answer);
+        var target = TemporaryFiles.Create();
+        try
+        {
+            var buffer = new byte[48 * 1024];
+            var position = start;
+            var end = start + length;
+            while (position < end && target.Length <= MailRaw.MaxBytes)
+            {
+                var block = Math.Min(64 * 1024, end - position);
+                var status = System.Buffers.Text.Base64Url.DecodeFromUtf8(
+                    answer.AsSpan(position, block), buffer, out var consumed, out var written, isFinalBlock: position + block >= end);
+                if (status is System.Buffers.OperationStatus.InvalidData || consumed == 0)
+                {
+                    throw new MailboxProviderException(ProviderFailure.Transient, "RawInvalid");
+                }
+
+                await target.WriteAsync(buffer.AsMemory(0, written), cancellationToken);
+                position += consumed;
+            }
+
+            await target.FlushAsync(cancellationToken);
+            target.Position = 0;
+            return target;
+        }
+        catch
+        {
+            await target.DisposeAsync();
+            throw;
+        }
+    }
+
+    private static (int Start, int Length) RawValue(byte[] answer)
+    {
+        var reader = new Utf8JsonReader(answer);
+        while (reader.Read())
+        {
+            if (reader is { TokenType: JsonTokenType.PropertyName, CurrentDepth: 1 } && reader.ValueTextEquals("raw"u8)
+                && reader.Read() && reader is { TokenType: JsonTokenType.String, ValueIsEscaped: false })
+            {
+                return ((int)reader.TokenStartIndex + 1, reader.ValueSpan.Length);
+            }
+        }
+
+        throw new MailboxProviderException(ProviderFailure.Transient, "RawMissing");
+    }
+
     protected override ProviderFailure Classify(HttpStatusCode status, JsonDocument? json, bool withToken) => status switch
     {
         HttpStatusCode.Forbidden when RateReasons.Contains(Reason(json)) => ProviderFailure.Transient,
@@ -334,6 +404,8 @@ internal sealed class GraphMailProvider(IHttpClientFactory httpClients) : Provid
 {
     public const string ApiBase = "https://graph.microsoft.com/v1.0/me/mailFolders/";
 
+    public const string MessagesBase = "https://graph.microsoft.com/v1.0/me/messages/";
+
     public const string Select =
         "id,internetMessageId,conversationId,from,toRecipients,ccRecipients,subject,sentDateTime,receivedDateTime,isRead,hasAttachments";
 
@@ -423,6 +495,14 @@ internal sealed class GraphMailProvider(IHttpClientFactory httpClients) : Provid
         var delta = String(root, "@odata.deltaLink");
         var nextToken = IsGraph(next) ? full ? $"{FullPrefix}|{count.ToString(CultureInfo.InvariantCulture)}|{next}" : next : null;
         return new MailPage(messages, removed, null, nextToken, nextToken is null && IsGraph(delta) ? delta : null, malformed);
+    }
+
+    /// <summary><c>/me/messages/{id}/$value</c>: the MIME content of the message, into a temporary file.</summary>
+    public Task<Stream?> OpenRawAsync(MailboxAccess access, MailFolderData folder, string providerMessageId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(access);
+        var token = access.AccessToken ?? throw new ArgumentException("Graph needs an access token.", nameof(access));
+        return DownloadAsync(new Uri($"{MessagesBase}{Uri.EscapeDataString(providerMessageId)}/$value"), token, MailRaw.MaxBytes, cancellationToken);
     }
 
     protected override string StatusReason(HttpStatusCode status, JsonDocument? json)

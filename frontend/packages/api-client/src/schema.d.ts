@@ -3724,6 +3724,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/connected-accounts/mail-messages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A message of my mailbox read live from the provider: bodies (untrusted content: HTML only in a sandboxed frame), attachments and the cases it was already filed into */
+        get: operations["GetConnectedMailMessage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/eml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The original message (.eml, RFC 822) read live from the provider: a PEC keeps receipt and signature */
+        get: operations["DownloadConnectedMailMessage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/attachments/{index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One attachment of a message (always downloaded, never shown inline) */
+        get: operations["DownloadConnectedMailAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Files a message into a case (F10 rules of the case): the .eml and the attachments chosen become documents; 409 when the case has it already (force to file it again) */
+        post: operations["FileConnectedMailMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4710,6 +4778,27 @@ export interface components {
             titleKey: string;
             columns: components["schemas"]["ExportColumnResponse"][];
         };
+        FiledCaseResponse: {
+            /** Format: uuid */
+            caseId: string;
+            caseNumber: string;
+            /** Format: date-time */
+            filedAt: string;
+        };
+        FileMailRequest: {
+            /** Format: uuid */
+            caseId: string;
+            /** Format: uuid */
+            folderId: null | string;
+            attachments: null | (number | string)[];
+            description: null | string;
+            force: boolean;
+        };
+        FileMailResponse: {
+            /** Format: uuid */
+            messageDocumentId: string;
+            attachmentDocumentIds: string[];
+        };
         ForgotPasswordRequest: {
             userName: string;
         };
@@ -4901,6 +4990,14 @@ export interface components {
         LoginOtpRequest: {
             userName: string;
         };
+        MailAttachmentResponse: {
+            /** Format: int32 */
+            index: number | string;
+            fileName: string;
+            contentType: string;
+            /** Format: int64 */
+            size: number | string;
+        };
         MailFolderResponse: {
             /** Format: uuid */
             id: string;
@@ -4912,6 +5009,14 @@ export interface components {
             total: number | string;
             /** Format: int32 */
             unread: number | string;
+        };
+        MailMessageDetailResponse: {
+            message: components["schemas"]["MailMessageResponse"];
+            text: null | string;
+            html: null | string;
+            truncated: boolean;
+            attachments: components["schemas"]["MailAttachmentResponse"][];
+            filedIn: components["schemas"]["FiledCaseResponse"][];
         };
         MailMessageResponse: {
             /** Format: uuid */
@@ -19124,6 +19229,158 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    GetConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailMessageDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadConnectedMailAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    FileConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileMailRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileMailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
         };

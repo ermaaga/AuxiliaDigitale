@@ -147,6 +147,18 @@ Browser            BFF (Next.js)                         API                    
 - Messages new in an incremental sync are counted on the run (`sync_runs.arrived_count`); the run's end sends one
   `mailbox.received` notification when the count is not zero (never for a first or full sync).
 
+### 6. Implementation notes (reading and filing, C-06b)
+- The body is never stored: each read fetches the original (RFC 822) live — Gmail `format=raw`, Graph `$value`, IMAP
+  by UID — into a temporary file deleted on close, bounded to 50 MB; MIME is parsed by MimeKit behind
+  `IMailContentReader` (Infrastructure). Bodies are returned up to 1,000,000 characters; the HTML is third-party
+  content and the web app shows it only in a sandboxed frame without scripts nor remote images (C-07).
+- Attachments are numbered in document order (MIME parts marked as attachments and attached messages such as a PEC's
+  `postacert.eml`); downloads are always `attachment`, attachments as `application/octet-stream` with `nosniff`.
+- Filing goes through the Documents module's public `ICaseDocuments` (the upload rules, F10 of the case, `.eml` in the
+  type whitelist recognised by its first header line); names already used in the folder get a suffix. The filing is
+  recorded in `filed_messages` with SHA-256 hashes only; the same message filed again into the same case needs
+  `force` (409 otherwise), from any folder or account.
+
 ## Consequences
 - No new dependency, licence or advisory surface; the adapters must be covered by tests with recorded responses
   (paging, 404/410 cursors, 429 with `Retry-After`) since no SDK does it for us.

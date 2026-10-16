@@ -62,7 +62,7 @@ public sealed class SyncTests : IAsyncDisposable
         requester = new AccountSyncRequester(
             ManagerHarness.Runner(), data, [calendar], outbox, settings, guard, caller, policy, clock, NullLogger<AccountSyncRequester>.Instance);
         service = new AccountSyncService(
-            ManagerHarness.Runner(), data, [calendar], [oauth], new ReversingProtector(), Substitute.For<IHostAddressResolver>(), outbox, notifications, realtime, clock,
+            ManagerHarness.Runner(), data, [calendar], new MailboxAccessResolver(ManagerHarness.Runner(), data, [oauth], new ReversingProtector(), Substitute.For<IHostAddressResolver>(), clock, NullLogger<MailboxAccessResolver>.Instance), outbox, notifications, realtime, clock,
             NullLogger<AccountSyncService>.Instance);
         query = new MailboxSyncQueryService(data, permissions, policy, tenant);
     }
@@ -562,6 +562,20 @@ internal sealed class InMemorySyncData : IMailboxSyncDataFactory, IMailboxSyncDa
             .ToList();
         return Task.FromResult<(IReadOnlyList<MailMessage>, long)>(([.. items.Skip(skip).Take(take)], items.Count));
     }
+
+    public List<FiledMessage> Filed { get; } = [];
+
+    public Task<OwnedMailMessage?> FindMessageOfUserAsync(Guid userId, Guid messageId, CancellationToken cancellationToken)
+    {
+        var message = Messages.SingleOrDefault(item => item.Id == messageId);
+        var account = message is null ? null : Accounts.SingleOrDefault(item => item.Id == message.AccountId && item.UserId == userId);
+        return Task.FromResult(account is null ? null : new OwnedMailMessage(message!, Folders.Single(folder => folder.Id == message!.FolderId), account));
+    }
+
+    public Task<IReadOnlyList<FiledMessage>> FilingsAsync(string messageKeyHash, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<FiledMessage>>([.. Filed.Where(filed => filed.MessageKeyHash == messageKeyHash).OrderBy(filed => filed.FiledAt)]);
+
+    public void Add(FiledMessage filed) => Filed.Add(filed);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

@@ -17257,6 +17257,210 @@
           }
         }
       }
+    },
+    "/api/v1/me/connected-accounts/mail-messages/{id}": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "A message of my mailbox read live from the provider: bodies (untrusted content: HTML only in a sandboxed frame), attachments and the cases it was already filed into",
+        "operationId": "GetConnectedMailMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailMessageDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/mail-messages/{id}/eml": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "The original message (.eml, RFC 822) read live from the provider: a PEC keeps receipt and signature",
+        "operationId": "DownloadConnectedMailMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/mail-messages/{id}/attachments/{index}": {
+      "get": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "One attachment of a message (always downloaded, never shown inline)",
+        "operationId": "DownloadConnectedMailAttachment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/me/connected-accounts/mail-messages/{id}/file": {
+      "post": {
+        "tags": [
+          "Connected accounts"
+        ],
+        "summary": "Files a message into a case (F10 rules of the case): the .eml and the attachments chosen become documents; 409 when the case has it already (force to file it again)",
+        "operationId": "FileConnectedMailMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FileMailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileMailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -21285,6 +21489,93 @@
           }
         }
       },
+      "FiledCaseResponse": {
+        "required": [
+          "caseId",
+          "caseNumber",
+          "filedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "caseNumber": {
+            "type": "string"
+          },
+          "filedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FileMailRequest": {
+        "required": [
+          "caseId",
+          "folderId",
+          "attachments",
+          "description",
+          "force"
+        ],
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "folderId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "attachments": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32"
+            }
+          },
+          "description": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "force": {
+            "type": "boolean"
+          }
+        }
+      },
+      "FileMailResponse": {
+        "required": [
+          "messageDocumentId",
+          "attachmentDocumentIds"
+        ],
+        "type": "object",
+        "properties": {
+          "messageDocumentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "attachmentDocumentIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
       "ForgotPasswordRequest": {
         "required": [
           "userName"
@@ -22052,6 +22343,39 @@
           }
         }
       },
+      "MailAttachmentResponse": {
+        "required": [
+          "index",
+          "fileName",
+          "contentType",
+          "size"
+        ],
+        "type": "object",
+        "properties": {
+          "index": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "size": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
       "MailFolderResponse": {
         "required": [
           "id",
@@ -22092,6 +22416,49 @@
               "string"
             ],
             "format": "int32"
+          }
+        }
+      },
+      "MailMessageDetailResponse": {
+        "required": [
+          "message",
+          "text",
+          "html",
+          "truncated",
+          "attachments",
+          "filedIn"
+        ],
+        "type": "object",
+        "properties": {
+          "message": {
+            "$ref": "#/components/schemas/MailMessageResponse"
+          },
+          "text": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "html": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MailAttachmentResponse"
+            }
+          },
+          "filedIn": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FiledCaseResponse"
+            }
           }
         }
       },

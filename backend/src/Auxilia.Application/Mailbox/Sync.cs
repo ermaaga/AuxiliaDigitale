@@ -240,9 +240,7 @@ internal sealed class AccountSyncService(
     IOperationRunner operations,
     IMailboxSyncDataFactory data,
     IEnumerable<IScopeSynchronizer> synchronizers,
-    IEnumerable<IOAuthProvider> providers,
-    IConnectedAccountSecretProtector secrets,
-    IHostAddressResolver resolver,
+    MailboxAccessResolver accessResolver,
     IMessageOutbox outbox,
     INotificationSender notifications,
     IRealtimeNotifier realtime,
@@ -267,50 +265,25 @@ internal sealed class AccountSyncService(
             }
 
             var (run, account, synchronizer) = startedRun;
-            MailboxAccess access;
-            if (account.Provider == ConnectedAccountProvider.Imap)
+            Result<MailboxAccess> access;
+            try
             {
-                var login = await ImapLoginAsync(run, account, cancellationToken);
-                if (login.IsFailure)
-                {
-                    return await EndAsync(runId, login.Error!.DisplayCode, cancellationToken);
-                }
-
-                access = MailboxAccess.Password(login.Value);
+                access = await accessResolver.ResolveAsync(account, cancellationToken);
             }
-            else
+            catch (Exception exception) when (exception is MailboxProviderException or System.Net.Sockets.SocketException || IsTransient(exception, cancellationToken))
             {
-                if (providers.FirstOrDefault(provider => provider.Provider == account.Provider && provider.IsConfigured) is not { } oauth)
-                {
-                    return await EndAsync(runId, Errors.Mailbox.ProviderNotAvailable(ProviderNames.Of(account.Provider)).DisplayCode, cancellationToken);
-                }
-
-                Result<OAuthTokens> refreshed;
-                try
-                {
-                    refreshed = await oauth.RefreshAsync(secrets.Unprotect(account.ProtectedSecret), cancellationToken);
-                }
-                catch (Exception exception) when (IsTransient(exception, cancellationToken))
-                {
-                    await NoteTransientAsync(run, account, exception, cancellationToken);
-                    throw;
-                }
-
-                if (refreshed.IsFailure)
-                {
-                    return await CredentialsRefusedAsync(runId, cancellationToken);
-                }
-
-                if (refreshed.Value.RefreshToken is { Length: > 0 } rotated)
-                {
-                    // The provider rotated the refresh token: the new one is saved before it is relied on.
-                    await SaveRotatedSecretAsync(account.Id, secrets.Protect(rotated), cancellationToken);
-                }
-
-                access = MailboxAccess.OAuth(refreshed.Value.AccessToken);
+                await NoteTransientAsync(run, account, exception, cancellationToken);
+                throw;
             }
 
-            var work = new SyncWork(run, account, access, clock.GetUtcNow());
+            if (access.IsFailure)
+            {
+                return access.Error!.Code == EventCodes.Mailbox.SyncCredentialsRefused
+                    ? await CredentialsRefusedAsync(runId, cancellationToken)
+                    : await EndAsync(runId, access.Error.DisplayCode, cancellationToken);
+            }
+
+            var work = new SyncWork(run, account, access.Value, clock.GetUtcNow());
             var deadline = work.StartedAt + PartBudget;
             try
             {
@@ -335,42 +308,7 @@ internal sealed class AccountSyncService(
             return await EndAsync(runId, errorCode: null, cancellationToken);
         }, cancellationToken);
 
-    /// <summary>
-    /// The IMAP sign-in of the part: the server name is resolved again and every address checked (the DNS answer may
-    /// have changed since the account was connected), the connection uses one of the checked addresses.
-    /// </summary>
-    private async Task<Result<ImapLogin>> ImapLoginAsync(SyncRun run, ConnectedAccount account, CancellationToken cancellationToken)
-    {
-        if (account is not { ImapHost: { Length: > 0 } host, ImapPort: { } port, ImapSecurity: { } security, ImapUserName: { Length: > 0 } userName })
-        {
-            return Errors.Mailbox.ProviderNotAvailable(ProviderNames.Of(account.Provider));
-        }
-
-        IReadOnlyList<System.Net.IPAddress> addresses;
-        try
-        {
-            addresses = await resolver.ResolveAsync(host, cancellationToken);
-            if (addresses.Count == 0)
-            {
-                throw new MailboxProviderException(ProviderFailure.Transient, "HostNotResolved");
-            }
-        }
-        catch (Exception exception) when (exception is MailboxProviderException or System.Net.Sockets.SocketException || IsTransient(exception, cancellationToken))
-        {
-            await NoteTransientAsync(run, account, exception, cancellationToken);
-            throw;
-        }
-
-        if (addresses.Any(address => !OutboundAddressPolicy.IsAllowed(address)))
-        {
-            Log.Security.OutboundHostRefused(logger, account.UserId, "PrivateAddress");
-            return Errors.Mailbox.ImapHostRefused();
-        }
-
-        return new ImapLogin(new ImapConnectionTarget(host, addresses[0], port, security), userName, secrets.Unprotect(account.ProtectedSecret));
-    }
-
-    private static bool IsTransient(Exception exception, CancellationToken cancellationToken) =>
+    internal static bool IsTransient(Exception exception, CancellationToken cancellationToken) =>
         exception is HttpRequestException || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested);
 
     /// <summary>The run starts (or goes on, for a continuation or a redelivery); nothing to do when it is not active any more.</summary>
@@ -499,15 +437,6 @@ internal sealed class AccountSyncService(
 
             await store.SaveChangesAsync(cancellationToken);
             Completed(scope, run);
-            return Result.Success();
-        }, cancellationToken);
-
-    private Task<Result> SaveRotatedSecretAsync(Guid accountId, string protectedSecret, CancellationToken cancellationToken) =>
-        operations.RunAsync(Operations.Mailbox.UpdateSyncRun, new { ConnectedAccountId = accountId }, async _ =>
-        {
-            await using var store = await data.OpenAsync(cancellationToken);
-            (await store.FindAccountAsync(accountId, cancellationToken))?.RotateSecret(protectedSecret, clock.GetUtcNow());
-            await store.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }, cancellationToken);
 
@@ -784,7 +713,7 @@ internal sealed class MailboxSyncQueryService(
         return new PagedResponse<MailMessageResponse>([.. items.Select(ToResponse)], query.Page, query.PageSize, total);
     }
 
-    private static MailMessageResponse ToResponse(MailMessage item) =>
+    internal static MailMessageResponse ToResponse(MailMessage item) =>
         new(item.Id, item.AccountId, item.FolderId, item.FromAddress, item.FromName, item.To, item.Cc, item.Subject, item.SentAt, item.ReceivedAt,
             item.IsRead, item.Size, item.HasAttachments, item.AttachmentNames);
 

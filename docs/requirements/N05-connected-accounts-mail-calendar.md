@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01…C-05 and C-06a done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [~] in progress (C-01…C-06 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
@@ -142,8 +142,8 @@ new-mail alerts without opening the page; OAuth for providers other than Google 
 
 **Mail**
 - [ ] Message list per account and folder with paging and search on stored headers; body loaded live; HTML sandboxed, remote images blocked by default.
-- [ ] "Download .eml" returns the original message (a PEC keeps receipt and signature).
-- [ ] "File into case" stores the `.eml` (and optionally the attachments) in the chosen case and folder, respecting F10; a message already filed is detected.
+- [x] "Download .eml" returns the original message (a PEC keeps receipt and signature).
+- [x] "File into case" stores the `.eml` (and optionally the attachments) in the chosen case and folder, respecting F10; a message already filed is detected.
 
 **Calendar**
 - [x] The calendar shows the events of each connected account in its colour, read-only, with a legend to hide/show accounts.

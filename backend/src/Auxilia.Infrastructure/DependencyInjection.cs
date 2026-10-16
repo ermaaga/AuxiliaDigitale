@@ -87,6 +87,7 @@ public static class DependencyInjection
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GmailMailProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GraphMailProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.Imap.ImapMailProvider>());
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IMailContentReader, Adapters.Mail.MimeMailContentReader>();
 
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
