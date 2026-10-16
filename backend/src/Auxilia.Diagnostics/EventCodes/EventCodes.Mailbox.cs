@@ -82,5 +82,11 @@ public static partial class EventCodes
 
         /// <summary>Malformed items of a chunk were skipped and counted; the chunk went on.</summary>
         public const int SyncItemsSkipped = 30026;
+
+        /// <summary>The mail list query is not valid (paging, search length).</summary>
+        public const int MailListInvalid = 30027;
+
+        /// <summary>Mail arrived in a sync: the owner was notified (count only).</summary>
+        public const int MailArrived = 30028;
     }
 }

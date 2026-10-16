@@ -2,7 +2,10 @@ using Auxilia.Api.Authorization;
 using Auxilia.Api.Infrastructure;
 using Auxilia.Api.RateLimiting;
 using Auxilia.Application.Mailbox;
+using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Mailbox;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Auxilia.Api.Endpoints.Mailbox;
 
@@ -108,7 +111,35 @@ internal sealed class ConnectedAccountEndpoints : IModuleEndpoints
             .WithSummary("The events of my connected calendars in a range of local days (at most 62), read only")
             .Produces<CalendarEventsResponse>()
             .ProducesValidationProblem();
+
+        accounts.MapGet("/mail-folders", MailFoldersAsync)
+            .RequirePermission(MailboxPermissions.ViewMail)
+            .WithName("ListConnectedMailFolders")
+            .WithSummary("The inbox and sent folders of my connected mailboxes, with their stored message and unread counts")
+            .Produces<IReadOnlyList<MailFolderResponse>>();
+
+        accounts.MapGet("/mail-messages", MailMessagesAsync)
+            .RequirePermission(MailboxPermissions.ViewMail)
+            .WithName("ListConnectedMailMessages")
+            .WithSummary("The stored headers of my mail, newest first: one account or folder, search in sender, recipients and subject, unread only (bodies stay at the provider)")
+            .Produces<PagedResponse<MailMessageResponse>>()
+            .ProducesValidationProblem();
     }
+
+    private static async Task<IResult> MailFoldersAsync(IMailboxSyncQueryService query, CancellationToken cancellationToken) =>
+        (await query.MailFoldersAsync(cancellationToken)).ToHttpResult(TypedResults.Ok);
+
+    private static async Task<IResult> MailMessagesAsync(
+        IMailboxSyncQueryService query,
+        Guid? accountId,
+        Guid? folderId,
+        string? search,
+        [FromQuery(Name = "filter[unread]")] bool? unread,
+        int? page,
+        int? pageSize,
+        CancellationToken cancellationToken) =>
+        (await query.MailMessagesAsync(new MailMessageListQuery(accountId, folderId, search, unread, page ?? 1, pageSize ?? 25), cancellationToken))
+            .ToHttpResult(TypedResults.Ok);
 
     private static async Task<IResult> StartSyncAsync(StartSyncRequest request, IAccountSyncRequester requester, CancellationToken cancellationToken) =>
         (await requester.RequestAsync(request, cancellationToken)).ToHttpResult(value => TypedResults.Accepted((string?)null, value));

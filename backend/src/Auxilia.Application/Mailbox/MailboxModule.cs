@@ -34,5 +34,6 @@ public sealed class MailboxModule : IModuleDescriptor
         services.TryAddScoped<IAccountSyncService, AccountSyncService>();
         services.TryAddScoped<IMailboxSyncQueryService, MailboxSyncQueryService>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IScopeSynchronizer, CalendarSynchronizer>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IScopeSynchronizer, MailSynchronizer>());
     }
 }

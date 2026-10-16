@@ -51,5 +51,8 @@ public static partial class Errors
         public static Error CalendarRangeInvalid() =>
             Error.Validation(EventCodes.Mailbox.CalendarRangeInvalid, "The calendar range is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["to"] = ["validation.mailbox.range"] });
+
+        public static Error MailListInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Mailbox.MailListInvalid, "The mail list query is not valid", errors);
     }
 }

@@ -30,7 +30,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 27000–27999 | Audit | Audit / Reporting / Export | 8 | 27009 |
 | 28000–28999 | Runner | MigrationRunner / Legacy import | 10 | 28011 |
 | 29000–29999 | Security | Security events | 36 | 29037 |
-| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 26 | 30027 |
+| 30000–30999 | Mailbox | Mailbox: connected accounts, mail, external calendars (N05) | 28 | 30029 |
 
 ## Codes
 
@@ -525,3 +525,5 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-30024 | Mailbox.CalendarRangeInvalid | – | Validation | – | – |
 | AUX-30025 | Mailbox.SyncCursorReset | Information | – | – | The {Scope} cursor of connected account {ConnectedAccountId} was reset ({Reason}): full sync of the window |
 | AUX-30026 | Mailbox.SyncItemsSkipped | Warning | – | – | {Count} malformed items skipped in {Scope} sync run {SyncRunId} |
+| AUX-30027 | Mailbox.MailListInvalid | – | Validation | – | – |
+| AUX-30028 | Mailbox.MailArrived | Information | – | – | {Count} new messages arrived in connected account {ConnectedAccountId}: the owner was notified |

@@ -25,7 +25,16 @@ public static class MailboxSettings
     public static readonly SettingDefinition<int> CalendarFutureDays = new(
         "mailbox.calendar.futureDays", Module, 180, isValid: value => value is >= 1 and <= 730);
 
-    public static IReadOnlyList<SettingDefinition> All { get; } = [ImapAllowedPorts, SyncMinIntervalSeconds, CalendarPastDays, CalendarFutureDays];
+    /// <summary>The first (or a full) mail sync copies the headers received in the last days only.</summary>
+    public static readonly SettingDefinition<int> SyncInitialDays = new(
+        "mailbox.sync.initialDays", Module, 90, isValid: value => value is >= 1 and <= 365);
+
+    /// <summary>The first (or a full) mail sync copies at most this many headers per folder, newest first.</summary>
+    public static readonly SettingDefinition<int> SyncInitialMaxMessages = new(
+        "mailbox.sync.initialMaxMessages", Module, 2000, isValid: value => value is >= 100 and <= 10000);
+
+    public static IReadOnlyList<SettingDefinition> All { get; } =
+        [ImapAllowedPorts, SyncMinIntervalSeconds, CalendarPastDays, CalendarFutureDays, SyncInitialDays, SyncInitialMaxMessages];
 
     /// <returns>Null when a part is not a port.</returns>
     public static IReadOnlySet<int>? ParsePorts(string? value)

@@ -14,8 +14,8 @@ using Npgsql;
 namespace Auxilia.Api.IntegrationTests.Mailbox;
 
 /// <summary>
-/// C-04 over HTTP (N05, #106): a sync request queues one run per calendar account and reuses it within the minimum
-/// interval; status and calendar events are the caller's own; Clients have no access.
+/// C-04 and C-06 over HTTP (N05, #106): a sync request queues one run per account with the scope and reuses it within
+/// the minimum interval; status, calendar events and mail headers are the caller's own; Clients have no access.
 /// </summary>
 public sealed class MailboxSyncEndpointsTests(ConnectedAccountEndpointsTests.Factory factory) : IClassFixture<ConnectedAccountEndpointsTests.Factory>
 {
@@ -44,8 +44,9 @@ public sealed class MailboxSyncEndpointsTests(ConnectedAccountEndpointsTests.Fac
         (await SyncAsync(other, new StartSyncRequest("calendar", false))).Runs.ShouldBeEmpty();
         (await GetAsync<SyncRequestResponse>(other, "/api/v1/me/connected-accounts/sync?scope=calendar")).Runs.ShouldBeEmpty();
 
-        // Mail: the Google account has mail, but mail is synchronised from C-06 on; nothing is queued yet.
-        (await SyncAsync(token, new StartSyncRequest("mail", false))).Runs.ShouldBeEmpty();
+        // Mail has its own run (C-06).
+        var mail = (await SyncAsync(token, new StartSyncRequest("mail", false))).Runs.ShouldHaveSingleItem();
+        (mail.AccountId, mail.Scope, mail.Queued).ShouldBe((account.Id, "mail", true));
 
         using var invalid = await SendAsync(HttpMethod.Post, "/api/v1/me/connected-accounts/sync", token, new StartSyncRequest("contacts", false));
         invalid.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
@@ -77,6 +78,46 @@ public sealed class MailboxSyncEndpointsTests(ConnectedAccountEndpointsTests.Fac
     }
 
     [Fact]
+    public async Task MailHeaders_AreOnlyTheCallersOwn_NewestFirst_WithSearch()
+    {
+        var token = await StaffAsync();
+        var other = await StaffAsync();
+        var account = await ConnectGoogleAsync(token);
+        var received = new DateTimeOffset(2026, 10, 16, 8, 0, 0, TimeSpan.Zero);
+        var folderId = await StoreMailAsync(account.Id,
+            Message("m1", "Fattura ottobre", received, read: false),
+            Message("m2", "Appuntamento", received.AddHours(1), read: true));
+
+        var folders = await GetAsync<List<MailFolderResponse>>(token, "/api/v1/me/connected-accounts/mail-folders");
+        var inbox = folders.ShouldHaveSingleItem();
+        (inbox.Id, inbox.AccountId, inbox.Kind, inbox.Total, inbox.Unread).ShouldBe((folderId, account.Id, "Inbox", 2, 1));
+
+        var page = await GetAsync<PagedMail>(token, $"/api/v1/me/connected-accounts/mail-messages?folderId={folderId}&pageSize=10");
+        page.TotalCount.ShouldBe(2);
+        page.Items.Select(item => item.Subject).ShouldBe(["Appuntamento", "Fattura ottobre"]);
+        page.Items[1].ShouldSatisfyAllConditions(
+            item => (item.FromAddress, item.FromName, item.IsRead).ShouldBe(("mario@example.com", "Mario Rossi", false)),
+            item => item.To.ShouldBe(["Studio <studio@example.com>"]),
+            item => item.AttachmentNames.ShouldBe(["fattura.pdf"]));
+
+        (await GetAsync<PagedMail>(token, "/api/v1/me/connected-accounts/mail-messages?search=fattura&filter[unread]=true")).Items
+            .Select(item => item.Subject).ShouldBe(["Fattura ottobre"]);
+        (await GetAsync<PagedMail>(token, "/api/v1/me/connected-accounts/mail-messages?search=studio@example")).TotalCount.ShouldBe(2);
+        (await GetAsync<PagedMail>(token, "/api/v1/me/connected-accounts/mail-messages?search=100%25")).TotalCount.ShouldBe(0);
+
+        (await GetAsync<List<MailFolderResponse>>(other, "/api/v1/me/connected-accounts/mail-folders")).ShouldBeEmpty();
+        (await GetAsync<PagedMail>(other, $"/api/v1/me/connected-accounts/mail-messages?folderId={folderId}")).TotalCount.ShouldBe(0);
+
+        using var invalid = await SendAsync(HttpMethod.Get, "/api/v1/me/connected-accounts/mail-messages?pageSize=500", token);
+        invalid.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await ErrorCodeAsync(invalid)).ShouldBe($"AUX-{EventCodes.Mailbox.MailListInvalid}");
+
+        // Disconnecting the account deletes folders and headers.
+        (await SendAsync(HttpMethod.Delete, $"/api/v1/me/connected-accounts/{account.Id}", token)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await GetAsync<List<MailFolderResponse>>(token, "/api/v1/me/connected-accounts/mail-folders")).ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task Clients_CannotSynchroniseNorReadEvents()
     {
         var (_, userName) = await factory.AddUserAsync([TenantRole.Client], Password);
@@ -84,7 +125,30 @@ public sealed class MailboxSyncEndpointsTests(ConnectedAccountEndpointsTests.Fac
 
         (await SendAsync(HttpMethod.Post, "/api/v1/me/connected-accounts/sync", client, new StartSyncRequest("calendar", false))).StatusCode.ShouldBe(HttpStatusCode.NotFound);
         (await SendAsync(HttpMethod.Get, "/api/v1/me/connected-accounts/calendar-events?from=2026-11-01&to=2026-11-30", client)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await SendAsync(HttpMethod.Get, "/api/v1/me/connected-accounts/mail-folders", client)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        (await SendAsync(HttpMethod.Get, "/api/v1/me/connected-accounts/mail-messages", client)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
+
+    private static MailMessageData Message(string id, string subject, DateTimeOffset received, bool read) =>
+        new(id, $"<{id}@example.com>", null, "mario@example.com", "Mario Rossi", ["Studio <studio@example.com>"], [], subject, received, received, read, 1024, true, ["fattura.pdf"]);
+
+    private static async Task<Guid> StoreMailAsync(Guid accountId, params MailMessageData[] messages)
+    {
+        await using var dataSource = NpgsqlDataSource.Create(
+            new NpgsqlConnectionStringBuilder(ApiDatabase.Instance.CatalogConnectionString) { Database = "tenant_a" }.ConnectionString);
+        await using var db = new TenantDbContext(TenantDbContextOptions.Create(dataSource));
+        var folder = MailFolder.Create(Guid.CreateVersion7(), accountId, new MailFolderData("INBOX", "Inbox", MailFolderKind.Inbox), DateTimeOffset.UtcNow);
+        db.Add(folder);
+        foreach (var message in messages)
+        {
+            db.Add(MailMessage.Create(Guid.CreateVersion7(), accountId, folder.Id, message, DateTimeOffset.UtcNow));
+        }
+
+        await db.SaveChangesAsync(Ct);
+        return folder.Id;
+    }
+
+    private sealed record PagedMail(List<MailMessageResponse> Items, int Page, int PageSize, long TotalCount);
 
     private async Task<string> StaffAsync()
     {
