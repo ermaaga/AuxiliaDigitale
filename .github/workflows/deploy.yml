@@ -1,0 +1,157 @@
+name: Deploy
+
+# Release to Azure Container Apps (ADR 0022 §8, runbook docs/runbooks/azure-deployment.md). The images are built by
+# the ACR Tasks on every push to main and qa; this workflow releases them once CI is green on that push:
+#   qa   → GitHub environment "qa" (automatic)
+#   main → GitHub environment "production" (waits for a required reviewer)
+# Rollback or re-release: run it by hand with the environment and the commit SHA of the images.
+# Azure login with OIDC (federated credential of id-auxilia-next-deploy-<env>): no secret is stored in GitHub.
+# Variables: AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID (repository), AZURE_CLIENT_ID (each environment).
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main, qa]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub environment
+        type: choice
+        options: [qa, production]
+        required: true
+      sha:
+        description: Full commit SHA of the images to release
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      environment: ${{ steps.plan.outputs.environment }}
+      suffix: ${{ steps.plan.outputs.suffix }}
+      sha: ${{ steps.plan.outputs.sha }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          INPUT_SHA: ${{ inputs.sha }}
+          RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            environment="$INPUT_ENVIRONMENT"; sha="$INPUT_SHA"
+          elif [ "$RUN_BRANCH" = "main" ]; then
+            environment="production"; sha="$RUN_SHA"
+          else
+            environment="qa"; sha="$RUN_SHA"
+          fi
+          if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::not a full commit SHA: $sha"; exit 1
+          fi
+          [ "$environment" = "production" ] && suffix="prod" || suffix="qa"
+          {
+            echo "environment=$environment"
+            echo "suffix=$suffix"
+            echo "sha=$sha"
+          } >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy to ${{ needs.plan.outputs.environment }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: ${{ needs.plan.outputs.environment }}
+    concurrency:
+      group: deploy-${{ needs.plan.outputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      SHA: ${{ needs.plan.outputs.sha }}
+      SUFFIX: ${{ needs.plan.outputs.suffix }}
+      RG: rg-auxilia-next-${{ needs.plan.outputs.suffix }}
+      REGISTRY: acrauxilianext01
+      LOGIN_SERVER: acrauxilianext01.azurecr.io
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Wait for the images of the commit (ACR Task)
+        run: |
+          deadline=$(( $(date +%s) + 3600 ))
+          for repository in api worker web auxctl; do
+            until az acr repository show --name "$REGISTRY" --image "auxilia/$repository:$SHA" --output none 2>/dev/null; do
+              if [ "$(date +%s)" -ge "$deadline" ]; then
+                echo "::error::auxilia/$repository:$SHA not found after 60 minutes (ACR Task failed?)"; exit 1
+              fi
+              sleep 30
+            done
+            echo "auxilia/$repository:$SHA ready"
+          done
+
+      - name: Remember the running version
+        id: previous
+        run: |
+          image="$(az containerapp show -g "$RG" -n "ca-auxilia-api-$SUFFIX" --query 'properties.template.containers[0].image' -o tsv)"
+          echo "tag=${image##*:}" >> "$GITHUB_OUTPUT"
+          echo "running: ${image##*:}"
+
+      - name: Migrations (auxctl job)
+        run: |
+          job="caj-auxilia-auxctl-$SUFFIX"
+          run_auxctl() {
+            az containerapp job update -g "$RG" -n "$job" --image "$LOGIN_SERVER/auxilia/auxctl:$SHA" --args "$@" --output none
+            execution="$(az containerapp job start -g "$RG" -n "$job" --query name -o tsv)"
+            echo "auxctl $* → execution $execution"
+            while :; do
+              status="$(az containerapp job execution show -g "$RG" -n "$job" --job-execution-name "$execution" --query properties.status -o tsv)"
+              case "$status" in
+                Succeeded) return 0 ;;
+                Failed|Stopped|Degraded) echo "::error::auxctl $* ended with $status (az containerapp job logs show -g $RG -n $job --execution $execution)"; return 1 ;;
+              esac
+              sleep 15
+            done
+          }
+          run_auxctl migrate catalog
+          run_auxctl migrate tenants --all
+
+      - name: Update worker, api and web
+        run: |
+          for app in worker api web; do
+            az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$SHA" --output none
+            echo "ca-auxilia-$app-$SUFFIX → $SHA"
+          done
+
+      - name: Smoke test
+        run: |
+          fqdn="$(az containerapp show -g "$RG" -n "ca-auxilia-api-$SUFFIX" --query properties.configuration.ingress.fqdn -o tsv)"
+          # Cold start from zero replicas: retry for up to five minutes.
+          curl --fail --silent --show-error --retry 30 --retry-delay 10 --retry-all-errors --max-time 30 \
+            "https://$fqdn/health/ready"
+
+      - name: Roll back the applications
+        if: failure() && steps.previous.outputs.tag != '' && steps.previous.outputs.tag != env.SHA
+        env:
+          PREVIOUS: ${{ steps.previous.outputs.tag }}
+        run: |
+          for app in worker api web; do
+            az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$PREVIOUS" --output none
+            echo "ca-auxilia-$app-$SUFFIX → $PREVIOUS"
+          done
+          echo "::warning::rolled back to $PREVIOUS (migrations are expand/contract: the previous images run on the new schema)"
