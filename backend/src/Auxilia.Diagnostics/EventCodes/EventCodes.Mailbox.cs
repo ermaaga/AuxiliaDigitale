@@ -109,5 +109,8 @@ public static partial class EventCodes
 
         /// <summary>The provider could not be reached (or refused) while a message was read live.</summary>
         public const int MailReadFailed = 30035;
+
+        /// <summary>The connected accounts of a deleted user were removed with everything copied from them.</summary>
+        public const int UserAccountsRemoved = 30036;
     }
 }

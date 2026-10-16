@@ -33,6 +33,7 @@ public sealed class MailboxModule : IModuleDescriptor
     {
         services.TryAddScoped<ConnectedAccountPolicy>();
         services.TryAddScoped<IConnectedAccountManager, ConnectedAccountManager>();
+        services.TryAddScoped<Public.IConnectedAccountCleanup, ConnectedAccountCleanup>();
         services.TryAddScoped<IConnectedAccountQueryService, ConnectedAccountQueryService>();
         services.TryAddScoped<IAccountSyncRequester, AccountSyncRequester>();
         services.TryAddScoped<MailboxAccessResolver>();

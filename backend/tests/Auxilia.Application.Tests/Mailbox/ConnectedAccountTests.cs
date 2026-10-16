@@ -293,6 +293,24 @@ public sealed class ConnectedAccountTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task RemoveAll_DeletesTheAccountsOfTheLeavingUserOnly_AndRevokesTheirGrants()
+    {
+        var (state, _) = await StartAsync();
+        google.NextTokens = Tokens();
+        await manager.CompleteOAuthAsync("google", new CompleteOAuthRequest(state, "code", null), Ct);
+        (await manager.ConnectImapAsync(Imap(), Ct)).IsSuccess.ShouldBeTrue();
+        CallAs(SomeoneElse);
+        (await manager.ConnectImapAsync(Imap(), Ct)).IsSuccess.ShouldBeTrue();
+        var cleanup = new ConnectedAccountCleanup(ManagerHarness.Runner(), data, [google, microsoft], new ReversingProtector(), NullLogger<ConnectedAccountCleanup>.Instance);
+
+        (await cleanup.RemoveAllAsync(Me, Ct)).IsSuccess.ShouldBeTrue();
+        (await cleanup.RemoveAllAsync(Guid.CreateVersion7(), Ct)).IsSuccess.ShouldBeTrue();
+
+        data.Accounts.ShouldHaveSingleItem().UserId.ShouldBe(SomeoneElse);
+        google.Revoked.ShouldBe(["refresh-1"]);
+    }
+
+    [Fact]
     public async Task Providers_OffersOnlyConfiguredOAuthProviders_AndImap()
     {
         (await query.ProvidersAsync(Ct)).Value.Select(provider => (provider.Provider, provider.SupportsCalendar)).ShouldBe([("google", true), ("imap", false)]);

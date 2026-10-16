@@ -75,6 +75,7 @@ public static class DependencyInjection
         services.AddHttpClient(Adapters.OAuth.OAuthProviderBase.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(20));
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.GoogleOAuthProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.MicrosoftOAuthProvider>());
+        services.TryAddSingleton(Adapters.Mail.Imap.ImapCertificateTrust.System);
         services.TryAddSingleton<Application.Abstractions.Mailbox.IImapConnectionTester, Adapters.Mail.Imap.ImapConnectionTester>();
         services.TryAddSingleton<Application.Abstractions.Mailbox.IHostAddressResolver, Adapters.Network.DnsHostAddressResolver>();
 

@@ -79,7 +79,7 @@ internal sealed record ImapCursor(char Kind, uint Validity, uint Uid, int Count,
 /// structure (never the bodies); incremental syncs read the UIDs after the last one, and their last page lists every
 /// UID of the folder so deleted messages are removed. Read flags of messages already copied are not refreshed (v1).
 /// </summary>
-internal sealed class ImapMailProvider : IMailProvider
+internal sealed class ImapMailProvider(ImapCertificateTrust trust) : IMailProvider
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
 
@@ -288,7 +288,7 @@ internal sealed class ImapMailProvider : IMailProvider
     }
 
     /// <summary>Signs in for one call and classifies the failures for the sync (credentials, transient).</summary>
-    private static async Task<T> WithClientAsync<T>(MailboxAccess access, Func<ImapClient, CancellationToken, Task<T>> work, CancellationToken cancellationToken)
+    private async Task<T> WithClientAsync<T>(MailboxAccess access, Func<ImapClient, CancellationToken, Task<T>> work, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(access);
         var login = access.Imap ?? throw new ArgumentException("IMAP needs a sign-in.", nameof(access));
@@ -299,6 +299,7 @@ internal sealed class ImapMailProvider : IMailProvider
             using var socket = new Socket(login.Target.Address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             await socket.ConnectAsync(new IPEndPoint(login.Target.Address, login.Target.Port), timeout.Token);
             using var client = new ImapClient { Timeout = (int)Timeout.TotalMilliseconds };
+            trust.Apply(client);
             var options = login.Target.Security == ImapSecurity.SslOnConnect ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
             await client.ConnectAsync(socket, login.Target.Host, login.Target.Port, options, timeout.Token);
             await client.AuthenticateAsync(login.UserName, login.Password, timeout.Token);

@@ -17,6 +17,12 @@ public static partial class Operations
         /// <summary>The grant is revoked at the provider after the account is deleted (a failure only logs).</summary>
         public static readonly OperationDescriptor DisconnectAccount = new("Mailbox.DisconnectAccount", EventCodes.Mailbox.AccountDisconnected, isWrite: false);
 
+        /// <summary>
+        /// Inside the operation of another module (deleting an employee): the accounts go in its transaction, the grants are
+        /// revoked at the providers once it has committed.
+        /// </summary>
+        public static readonly OperationDescriptor RemoveUserAccounts = new("Mailbox.RemoveUserAccounts", EventCodes.Mailbox.UserAccountsRemoved);
+
         /// <summary>Queues (or reuses) a sync run per account of the owner and scope; the messages leave through the outbox.</summary>
         public static readonly OperationDescriptor RequestSync = new("Mailbox.RequestSync", EventCodes.Mailbox.SyncRequested);
 

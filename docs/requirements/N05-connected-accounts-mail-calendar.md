@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01…C-07 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [x] done (C-01…C-08, 2026-10-16; real Google/Microsoft accounts to be tried by the user, Gmail verification and DPIA open) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
@@ -126,18 +126,18 @@ new-mail alerts without opening the page; OAuth for providers other than Google 
 
 ## Acceptance criteria
 **Connected accounts**
-- [ ] A user connects a Google account and a Microsoft account (OAuth through the BFF, tokens never in the browser) and a PEC/IMAP account (connection tested before saving); each has a colour that can be changed.
-- [ ] Mail and calendar access are granted separately; a calendar-only account never asks for mail scopes.
-- [ ] Disconnect revokes the grant when possible and deletes secrets and copied data; documents filed into cases stay.
-- [ ] An account is visible only to its owner (tests between users and between tenants); the System never sees it.
-- [ ] IMAP hosts on private/loopback/metadata addresses are refused; TLS is required.
+- [x] A user connects a Google account and a Microsoft account (OAuth through the BFF, tokens never in the browser) and a PEC/IMAP account (connection tested before saving); each has a colour that can be changed. *(fake OAuth providers in `ConnectedAccountEndpointsTests`, IMAP test against GreenMail in `ImapServerTests`, colour in E2E `tenant-mailbox.spec.ts`; a sign-in with real Google/Microsoft accounts is left to the user — runbook `connected-accounts-oauth.md`)*
+- [x] Mail and calendar access are granted separately; a calendar-only account never asks for mail scopes.
+- [x] Disconnect revokes the grant when possible and deletes secrets and copied data; documents filed into cases stay. *(also when the employee is deleted: `IConnectedAccountCleanup`, C-08)*
+- [x] An account is visible only to its owner (tests between users and between tenants); the System never sees it. *(`MailboxIsolationTests`, `SecurityPerimeterTests`)*
+- [x] IMAP hosts on private/loopback/metadata addresses are refused; TLS is required.
 
 **Sync**
 - [x] Opening Mail or Calendar starts a sync (202); a second request within 2 minutes queues nothing.
 - [x] The page shows stored data at once, the progress bar during the sync and refreshes on `AccountSyncCompleted`.
 - [x] Chunked retrieval with one transaction per chunk: a sync stopped halfway resumes from the last chunk; a redelivered message creates no duplicates.
 - [x] First sync bounded (days / messages); longer work continues in a queued continuation.
-- [ ] Errors handled as in the table: `NeedsReconnect` with notification, retries honouring `Retry-After`, bounded resync on an invalid cursor, malformed items skipped and counted.
+- [x] Errors handled as in the table: `NeedsReconnect` with notification, retries honouring `Retry-After`, bounded resync on an invalid cursor, malformed items skipped and counted.
 - [x] Bell notification only for new messages or an account to reconnect (EN + IT); `mailbox.sync_runs` records trigger and counts; `SyncTrigger.Scheduled` exists and is unused.
 
 **Mail**
@@ -149,4 +149,4 @@ new-mail alerts without opening the page; OAuth for providers other than Google 
 - [x] The calendar shows the events of each connected account in its colour, read-only, with a legend to hide/show accounts.
 
 **Quality**
-- [ ] EN + IT texts; event codes in the module range; Domain/Application tests (chunk algorithm with a fake provider), IMAP integration with a test server in Testcontainers, Gmail/Graph adapters with recorded responses, HTTP and E2E tests; ASVS checklist updated.
+- [x] EN + IT texts; event codes in the module range; Domain/Application tests (chunk algorithm with a fake provider), IMAP integration with a test server in Testcontainers, Gmail/Graph adapters with recorded responses, HTTP and E2E tests; ASVS checklist updated. *(`ImapServerTests` on GreenMail, `docs/security/asvs-checklist.md` §3, privacy note `docs/security/privacy-connected-accounts.md`)*

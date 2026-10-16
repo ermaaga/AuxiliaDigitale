@@ -388,8 +388,25 @@ internal sealed class ConnectedAccountManager(
             return Result.Success();
         }, cancellationToken);
 
+    private Task RevokeAsync(ConnectedAccountProvider provider, string protectedSecret, Guid accountId, CancellationToken cancellationToken) =>
+        GrantRevocation.RevokeAsync(providers, secrets, logger, provider, protectedSecret, accountId, cancellationToken);
+
+    private IOAuthProvider? OAuthProvider(string name) =>
+        ProviderNames.TryParse(name, out var provider) && provider != ConnectedAccountProvider.Imap
+            ? providers.FirstOrDefault(item => item.Provider == provider && item.IsConfigured)
+            : null;
+
+    private static async Task<string> NextColorAsync(IConnectedAccountData store, Guid userId, CancellationToken cancellationToken) =>
+        ConnectedAccount.NextColor((await store.AccountsOfAsync(userId, cancellationToken)).Select(account => account.Color));
+}
+
+/// <summary>Revokes the grant of an account that is already deleted, at providers that offer it (Google; Microsoft and IMAP have none).</summary>
+internal static class GrantRevocation
+{
     /// <summary>Best effort: the account is already gone; a provider that cannot be reached only leaves a warning.</summary>
-    private async Task RevokeAsync(ConnectedAccountProvider provider, string protectedSecret, Guid accountId, CancellationToken cancellationToken)
+    public static async Task RevokeAsync(
+        IEnumerable<IOAuthProvider> providers, IConnectedAccountSecretProtector secrets, ILogger logger,
+        ConnectedAccountProvider provider, string protectedSecret, Guid accountId, CancellationToken cancellationToken)
     {
         if (provider == ConnectedAccountProvider.Imap || providers.FirstOrDefault(item => item.Provider == provider && item.IsConfigured) is not { } adapter)
         {
@@ -408,14 +425,44 @@ internal sealed class ConnectedAccountManager(
             Log.Mailbox.GrantRevokeFailed(logger, exception, ProviderNames.Of(provider), accountId);
         }
     }
+}
 
-    private IOAuthProvider? OAuthProvider(string name) =>
-        ProviderNames.TryParse(name, out var provider) && provider != ConnectedAccountProvider.Imap
-            ? providers.FirstOrDefault(item => item.Provider == provider && item.IsConfigured)
-            : null;
+/// <inheritdoc cref="Public.IConnectedAccountCleanup"/>
+internal sealed class ConnectedAccountCleanup(
+    IOperationRunner operations,
+    IConnectedAccountDataFactory data,
+    IEnumerable<IOAuthProvider> providers,
+    IConnectedAccountSecretProtector secrets,
+    ILogger<ConnectedAccountCleanup> logger) : Public.IConnectedAccountCleanup
+{
+    public Task<Result> RemoveAllAsync(Guid userId, CancellationToken cancellationToken) =>
+        operations.RunAsync(Operations.Mailbox.RemoveUserAccounts, new { UserId = userId }, async scope =>
+        {
+            await using var store = await data.OpenAsync(cancellationToken);
+            var accounts = await store.AccountsOfAsync(userId, cancellationToken);
+            if (accounts.Count == 0)
+            {
+                return Result.Success();
+            }
 
-    private static async Task<string> NextColorAsync(IConnectedAccountData store, Guid userId, CancellationToken cancellationToken) =>
-        ConnectedAccount.NextColor((await store.AccountsOfAsync(userId, cancellationToken)).Select(account => account.Color));
+            var removed = accounts.Select(account => (account.Id, account.Provider, Name: ProviderNames.Of(account.Provider), account.ProtectedSecret)).ToArray();
+            foreach (var account in accounts)
+            {
+                store.Remove(account);
+            }
+
+            await store.SaveChangesAsync(cancellationToken);
+            foreach (var (id, provider, name, protectedSecret) in removed)
+            {
+                scope.OnCommitted(ct =>
+                {
+                    Log.Security.ConnectedAccountUnlinked(logger, userId, name, id);
+                    return GrantRevocation.RevokeAsync(providers, secrets, logger, provider, protectedSecret, id, ct);
+                });
+            }
+
+            return Result.Success();
+        }, cancellationToken);
 }
 
 internal sealed class ConnectedAccountQueryService(
