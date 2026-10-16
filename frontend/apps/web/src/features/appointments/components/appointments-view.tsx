@@ -175,6 +175,7 @@ export function AppointmentsView({
           global={showGlobal && global}
           clientId={clientId}
           staff={staff}
+          external={clientId === undefined}
           canCreate={canCreate}
           canMove={canMove}
           onCreate={(date, time) => setCreating({ date, time })}

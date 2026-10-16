@@ -15,6 +15,12 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
+import {
+  ExternalCalendarBar,
+  ExternalEventDialog,
+  useExternalCalendar,
+  type ExternalCalendarEvent,
+} from "@/features/mailbox";
 
 import { useAppointmentCalendar, type AppointmentListItem, type CalendarRange } from "../api";
 import { addDays, fromWallClock, nowIn, wallClock } from "../schemas/appointment";
@@ -31,13 +37,15 @@ export type CalendarMove = {
  * The appointment calendar (F13, skill auxilia-ui-design): month, week, day and list views (list on phones), the
  * tenant's wall-clock times (FullCalendar in UTC with the local times of the API, so the browser time zone never
  * shifts them). A click on a day or slot from today on creates, a click on an appointment opens it; staff move and
- * resize the appointments they manage (`canMove`).
+ * resize the appointments they manage (`canMove`). `external` adds the user's connected calendars (N05 #101): one
+ * read-only source per account in its colour, with the legend and the sync bar above.
  */
 export default function AppointmentsCalendar({
   tenant,
   global,
   clientId,
   staff,
+  external,
   canCreate,
   canMove,
   onCreate,
@@ -48,6 +56,7 @@ export default function AppointmentsCalendar({
   global: boolean;
   clientId?: string;
   staff: boolean;
+  external: boolean;
   canCreate: boolean;
   canMove: (appointment: AppointmentListItem) => boolean;
   onCreate: (date: string, time?: string) => void;
@@ -64,10 +73,12 @@ export default function AppointmentsCalendar({
   );
   const query: CalendarRange | null = range ? { ...range, global, clientId } : null;
   const calendar = useAppointmentCalendar(tenant, query);
+  const connected = useExternalCalendar(tenant, range, external);
+  const [shownEvent, setShownEvent] = React.useState<ExternalCalendarEvent | null>(null);
   const timeZone = calendar.data?.timeZone;
   const now = nowIn(timeZone);
 
-  const events: EventInput[] = (calendar.data?.items ?? []).map((item) => ({
+  const appointments: EventInput[] = (calendar.data?.items ?? []).map((item) => ({
     id: item.id,
     title: `${staff ? item.client.fullName : item.employee.fullName} · ${t(item.status as "Pending")}`,
     start: wallClock(item.date, item.time),
@@ -76,6 +87,8 @@ export default function AppointmentsCalendar({
     editable: canMove(item),
     extendedProps: { appointment: item },
   }));
+  const events =
+    connected.events.length > 0 ? [...appointments, ...connected.events] : appointments;
 
   const onDatesSet = (arg: DatesSetArg) => {
     const from = arg.start.toISOString().slice(0, 10);
@@ -113,9 +126,11 @@ export default function AppointmentsCalendar({
 
   return (
     <div className="flex flex-col gap-2" aria-busy={calendar.isFetching || undefined}>
+      <ExternalCalendarBar tenant={tenant} calendar={connected} />
       {calendar.error ? (
         <ApiErrorAlert error={calendar.error} onRetry={() => void calendar.refetch()} />
       ) : null}
+      {connected.error ? <ApiErrorAlert error={connected.error} onRetry={connected.retry} /> : null}
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
         locales={[itLocale, enLocale]}
@@ -143,12 +158,23 @@ export default function AppointmentsCalendar({
         dateClick={onDateClick}
         eventClick={(arg: EventClickArg) => {
           arg.jsEvent.preventDefault();
-          onOpen(arg.event.id);
+          const externalEvent = arg.event.extendedProps.external as
+            ExternalCalendarEvent | undefined;
+          if (externalEvent) {
+            setShownEvent(externalEvent);
+          } else {
+            onOpen(arg.event.id);
+          }
         }}
         eventAllow={(span) => fromWallClock(span.start).date >= now.date}
         eventDrop={moved}
         eventResize={moved}
         noEventsContent={t("app.appointments.none")}
+      />
+      <ExternalEventDialog
+        event={shownEvent}
+        accounts={connected.accounts}
+        onClose={() => setShownEvent(null)}
       />
     </div>
   );

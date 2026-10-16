@@ -69,6 +69,15 @@
 .fc .fc-daygrid-dot-event .fc-event-title {
   color: var(--foreground);
 }
+/* Events of the connected calendars (N05): a tint and a side bar in the account colour, read-only cursor. */
+.fc .external-event {
+  border-inline-start-width: 4px;
+  cursor: pointer;
+}
+.fc .external-event-tentative {
+  border-style: dashed;
+  font-style: italic;
+}
 /* Days of the other months: muted text instead of FullCalendar's 0.3 opacity (contrast ≥ 4.5:1). */
 .fc .fc-day-other .fc-daygrid-day-top {
   opacity: 1;

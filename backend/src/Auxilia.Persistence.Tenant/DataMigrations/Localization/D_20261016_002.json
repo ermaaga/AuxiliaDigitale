@@ -1,0 +1,92 @@
+[
+ {
+  "key": "app.externalCalendar.syncing",
+  "category": "app",
+  "en": "Synchronising your calendars…",
+  "it": "Sincronizzazione dei calendari in corso…"
+ },
+ {
+  "key": "app.externalCalendar.syncNow",
+  "category": "app",
+  "en": "Sync now",
+  "it": "Sincronizza ora"
+ },
+ {
+  "key": "app.externalCalendar.syncCompleted",
+  "category": "app",
+  "en": "Calendars updated.",
+  "it": "Calendari aggiornati."
+ },
+ {
+  "key": "app.externalCalendar.legend",
+  "category": "app",
+  "en": "Connected calendars",
+  "it": "Calendari collegati"
+ },
+ {
+  "key": "app.externalCalendar.toggle",
+  "category": "app",
+  "en": "Show or hide the events of this calendar",
+  "it": "Mostra o nascondi gli eventi di questo calendario"
+ },
+ {
+  "key": "app.externalCalendar.connect",
+  "category": "app",
+  "en": "Connect your Google or Microsoft calendar",
+  "it": "Collega il tuo calendario Google o Microsoft"
+ },
+ {
+  "key": "app.externalCalendar.reconnect",
+  "category": "app",
+  "en": "{name} must be connected again.",
+  "it": "{name} va ricollegato."
+ },
+ {
+  "key": "app.externalCalendar.failed",
+  "category": "app",
+  "en": "{name}: {message}",
+  "it": "{name}: {message}"
+ },
+ {
+  "key": "app.externalCalendar.readOnly",
+  "category": "app",
+  "en": "Event of your connected calendar, read only. Only you can see it.",
+  "it": "Evento del tuo calendario collegato, in sola lettura. Solo tu puoi vederlo."
+ },
+ {
+  "key": "app.externalCalendar.untitled",
+  "category": "app",
+  "en": "(No title)",
+  "it": "(Senza titolo)"
+ },
+ {
+  "key": "app.externalCalendar.when",
+  "category": "app",
+  "en": "When",
+  "it": "Quando"
+ },
+ {
+  "key": "app.externalCalendar.allDay",
+  "category": "app",
+  "en": "all day",
+  "it": "tutto il giorno"
+ },
+ {
+  "key": "app.externalCalendar.tentative",
+  "category": "app",
+  "en": "Tentative",
+  "it": "Provvisorio"
+ },
+ {
+  "key": "app.externalCalendar.location",
+  "category": "app",
+  "en": "Location",
+  "it": "Luogo"
+ },
+ {
+  "key": "app.externalCalendar.openAt",
+  "category": "app",
+  "en": "Open in {provider}",
+  "it": "Apri in {provider}"
+ }
+]
