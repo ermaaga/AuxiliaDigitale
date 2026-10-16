@@ -51,5 +51,24 @@ public static partial class Errors
         public static Error CalendarRangeInvalid() =>
             Error.Validation(EventCodes.Mailbox.CalendarRangeInvalid, "The calendar range is not valid",
                 new Dictionary<string, string[]>(StringComparer.Ordinal) { ["to"] = ["validation.mailbox.range"] });
+
+        public static Error MailListInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Mailbox.MailListInvalid, "The mail list query is not valid", errors);
+
+        public static Error MailMessageNotFound() =>
+            Error.NotFound(EventCodes.Mailbox.MailMessageNotFound, "Message not found");
+
+        public static Error MailAlreadyFiled() =>
+            Error.Conflict(EventCodes.Mailbox.MailAlreadyFiled, "The message is already filed into this case");
+
+        public static Error MailMessageTooLarge() =>
+            Error.Validation(EventCodes.Mailbox.MailMessageTooLarge, "The message is too large to be read here",
+                new Dictionary<string, string[]>(StringComparer.Ordinal) { ["id"] = ["validation.mailbox.messageTooLarge"] });
+
+        public static Error MailAttachmentNotFound() =>
+            Error.NotFound(EventCodes.Mailbox.MailAttachmentNotFound, "Attachment not found");
+
+        public static Error MailFilingInvalid(IReadOnlyDictionary<string, string[]> errors) =>
+            Error.Validation(EventCodes.Mailbox.MailFilingInvalid, "The filing request is not valid", errors);
     }
 }

@@ -4,10 +4,12 @@ using Auxilia.Application.Abstractions.Authorization;
 using Auxilia.Application.Abstractions.Mailbox;
 using Auxilia.Application.Abstractions.Messaging;
 using Auxilia.Application.Abstractions.Operations;
+using Auxilia.Application.Abstractions.Paging;
 using Auxilia.Application.Abstractions.Realtime;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Application.Abstractions.Tenancy;
 using Auxilia.Application.Engagement.Public;
+using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Mailbox;
 using Auxilia.Contracts.Messages.V1.Mailbox;
 using Auxilia.Contracts.Realtime;
@@ -44,9 +46,15 @@ public interface IAccountSyncService
     Task<Result> SyncAsync(Guid runId, int part, CancellationToken cancellationToken);
 }
 
-/// <summary>Sync state and copied calendar events of the caller's own accounts.</summary>
+/// <summary>Sync state, copied calendar events and mail headers of the caller's own accounts.</summary>
 public interface IMailboxSyncQueryService
 {
+    /// <summary>The inbox and sent folders of the caller's accounts with mail, with their counts.</summary>
+    Task<Result<IReadOnlyList<MailFolderResponse>>> MailFoldersAsync(CancellationToken cancellationToken);
+
+    /// <summary>A page of the caller's stored mail headers, newest first.</summary>
+    Task<Result<PagedResponse<MailMessageResponse>>> MailMessagesAsync(MailMessageListQuery query, CancellationToken cancellationToken);
+
     /// <summary>The newest run of each of the caller's accounts for the scope (<c>mail</c> or <c>calendar</c>).</summary>
     Task<Result<SyncRequestResponse>> SyncStatusAsync(string? scope, CancellationToken cancellationToken);
 
@@ -105,7 +113,7 @@ internal enum ChunkOutcome
 }
 
 /// <summary>A part of a sync run being worked on by <see cref="AccountSyncService"/>.</summary>
-internal sealed class SyncWork(SyncRun run, ConnectedAccount account, string accessToken, DateTimeOffset now)
+internal sealed class SyncWork(SyncRun run, ConnectedAccount account, MailboxAccess access, DateTimeOffset now)
 {
     public Guid RunId { get; } = run.Id;
 
@@ -115,16 +123,26 @@ internal sealed class SyncWork(SyncRun run, ConnectedAccount account, string acc
 
     public SyncScope Scope { get; } = run.Scope;
 
-    public string AccessToken { get; } = accessToken;
+    /// <summary>The OAuth access token or the IMAP sign-in of this part (never logged or stored).</summary>
+    public MailboxAccess Access { get; } = access;
+
+    /// <summary>The OAuth access token (empty for an IMAP account).</summary>
+    public string AccessToken => Access.AccessToken ?? string.Empty;
 
     /// <summary>When the part started: the sync window is computed from it once.</summary>
     public DateTimeOffset StartedAt { get; } = now;
 
     /// <summary>The cursor was reset in this part already: a second expiry is a failure, not a loop.</summary>
     public bool CursorReset { get; set; }
+
+    /// <summary>Mail: the folders still to sync in this part (read from the provider by the first chunk).</summary>
+    public Queue<MailFolderData>? MailFolders { get; set; }
+
+    /// <summary>Mail: the folder cursors reset in this part already (a second expiry is a failure, not a loop).</summary>
+    public HashSet<string> ResetFolders { get; } = new(StringComparer.Ordinal);
 }
 
-/// <summary>Reads one chunk of a scope from the provider and saves it with the cursor (one per scope; mail comes with C-06).</summary>
+/// <summary>Reads one chunk of a scope from the provider and saves it with the cursor (one per scope: calendar and mail).</summary>
 internal interface IScopeSynchronizer
 {
     SyncScope Scope { get; }
@@ -222,8 +240,7 @@ internal sealed class AccountSyncService(
     IOperationRunner operations,
     IMailboxSyncDataFactory data,
     IEnumerable<IScopeSynchronizer> synchronizers,
-    IEnumerable<IOAuthProvider> providers,
-    IConnectedAccountSecretProtector secrets,
+    MailboxAccessResolver accessResolver,
     IMessageOutbox outbox,
     INotificationSender notifications,
     IRealtimeNotifier realtime,
@@ -248,35 +265,25 @@ internal sealed class AccountSyncService(
             }
 
             var (run, account, synchronizer) = startedRun;
-
-            if (providers.FirstOrDefault(provider => provider.Provider == account.Provider && provider.IsConfigured) is not { } oauth)
-            {
-                return await EndAsync(runId, Errors.Mailbox.ProviderNotAvailable(ProviderNames.Of(account.Provider)).DisplayCode, cancellationToken);
-            }
-
-            Result<OAuthTokens> refreshed;
+            Result<MailboxAccess> access;
             try
             {
-                refreshed = await oauth.RefreshAsync(secrets.Unprotect(account.ProtectedSecret), cancellationToken);
+                access = await accessResolver.ResolveAsync(account, cancellationToken);
             }
-            catch (Exception exception) when (IsTransient(exception, cancellationToken))
+            catch (Exception exception) when (exception is MailboxProviderException or System.Net.Sockets.SocketException || IsTransient(exception, cancellationToken))
             {
                 await NoteTransientAsync(run, account, exception, cancellationToken);
                 throw;
             }
 
-            if (refreshed.IsFailure)
+            if (access.IsFailure)
             {
-                return await CredentialsRefusedAsync(runId, cancellationToken);
+                return access.Error!.Code == EventCodes.Mailbox.SyncCredentialsRefused
+                    ? await CredentialsRefusedAsync(runId, cancellationToken)
+                    : await EndAsync(runId, access.Error.DisplayCode, cancellationToken);
             }
 
-            if (refreshed.Value.RefreshToken is { Length: > 0 } rotated)
-            {
-                // The provider rotated the refresh token: the new one is saved before it is relied on.
-                await SaveRotatedSecretAsync(account.Id, secrets.Protect(rotated), cancellationToken);
-            }
-
-            var work = new SyncWork(run, account, refreshed.Value.AccessToken, clock.GetUtcNow());
+            var work = new SyncWork(run, account, access.Value, clock.GetUtcNow());
             var deadline = work.StartedAt + PartBudget;
             try
             {
@@ -301,7 +308,7 @@ internal sealed class AccountSyncService(
             return await EndAsync(runId, errorCode: null, cancellationToken);
         }, cancellationToken);
 
-    private static bool IsTransient(Exception exception, CancellationToken cancellationToken) =>
+    internal static bool IsTransient(Exception exception, CancellationToken cancellationToken) =>
         exception is HttpRequestException || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested);
 
     /// <summary>The run starts (or goes on, for a continuation or a redelivery); nothing to do when it is not active any more.</summary>
@@ -366,14 +373,32 @@ internal sealed class AccountSyncService(
             }
 
             var now = clock.GetUtcNow();
+            var account = await store.FindAccountAsync(run.AccountId, cancellationToken);
             if (errorCode is null)
             {
                 run.Succeed(now);
-                (await store.FindAccountAsync(run.AccountId, cancellationToken))?.Synced(run.Scope, now);
+                account?.Synced(run.Scope, now);
             }
             else
             {
                 run.Fail(errorCode, Activity.Current?.TraceId.ToString(), now);
+            }
+
+            // New mail since the previous sync (what a failed run saved arrived too): one notification, never for an empty sync.
+            if (run is { Scope: SyncScope.Mail, ArrivedCount: > 0 } && account is not null)
+            {
+                await notifications.NotifyUsersAsync(
+                    [account.UserId],
+                    new NotificationMessage(
+                        NotificationKinds.MailboxReceived, account.Id,
+                        new Dictionary<string, string>(StringComparer.Ordinal)
+                        {
+                            ["address"] = account.Address,
+                            ["count"] = run.ArrivedCount.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        },
+                        IncludeActor: true),
+                    cancellationToken);
+                Log.Mailbox.MailArrived(logger, run.ArrivedCount, account.Id);
             }
 
             await store.SaveChangesAsync(cancellationToken);
@@ -412,15 +437,6 @@ internal sealed class AccountSyncService(
 
             await store.SaveChangesAsync(cancellationToken);
             Completed(scope, run);
-            return Result.Success();
-        }, cancellationToken);
-
-    private Task<Result> SaveRotatedSecretAsync(Guid accountId, string protectedSecret, CancellationToken cancellationToken) =>
-        operations.RunAsync(Operations.Mailbox.UpdateSyncRun, new { ConnectedAccountId = accountId }, async _ =>
-        {
-            await using var store = await data.OpenAsync(cancellationToken);
-            (await store.FindAccountAsync(accountId, cancellationToken))?.RotateSecret(protectedSecret, clock.GetUtcNow());
-            await store.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }, cancellationToken);
 
@@ -647,6 +663,59 @@ internal sealed class MailboxSyncQueryService(
         var events = await store.EventsOfUserAsync(me, MailboxTime.StartOf(from, zone), MailboxTime.StartOf(to.AddDays(1), zone), MaxEvents, cancellationToken);
         return new CalendarEventsResponse(zone.Id, [.. events.Select(item => ToResponse(item, zone))]);
     }
+
+    public async Task<Result<IReadOnlyList<MailFolderResponse>>> MailFoldersAsync(CancellationToken cancellationToken)
+    {
+        if (!await permissions.HasAsync(MailboxPermissions.ViewMail, cancellationToken) || policy.Me is not { } me)
+        {
+            return Errors.Identity.PermissionDenied();
+        }
+
+        await using var store = await data.OpenAsync(cancellationToken);
+        return Result.Success<IReadOnlyList<MailFolderResponse>>([.. (await store.FoldersOfUserAsync(me, cancellationToken))
+            .Select(item => new MailFolderResponse(item.Folder.Id, item.Folder.AccountId, item.Folder.Kind.ToString(), item.Folder.Name, item.Total, item.Unread))]);
+    }
+
+    public async Task<Result<PagedResponse<MailMessageResponse>>> MailMessagesAsync(MailMessageListQuery query, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        if (!await permissions.HasAsync(MailboxPermissions.ViewMail, cancellationToken) || policy.Me is not { } me)
+        {
+            return Errors.Identity.PermissionDenied();
+        }
+
+        var errors = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        if (query.Page < 1)
+        {
+            errors["page"] = ["validation.paging.page"];
+        }
+
+        if (query.PageSize is < 1 or > PageRequest.MaxPageSize)
+        {
+            errors["pageSize"] = ["validation.paging.pageSize"];
+        }
+
+        var search = query.Search?.Trim();
+        if (search is { Length: > PageRequest.MaxSearchLength })
+        {
+            errors["search"] = ["validation.paging.search"];
+        }
+
+        if (errors.Count > 0)
+        {
+            return Errors.Mailbox.MailListInvalid(errors);
+        }
+
+        await using var store = await data.OpenAsync(cancellationToken);
+        var filter = new MailMessageFilter(query.AccountId, query.FolderId, string.IsNullOrEmpty(search) ? null : search, query.Unread == true);
+        var (items, total) = await store.MessagesOfUserAsync(me, filter, (query.Page - 1) * query.PageSize, query.PageSize, cancellationToken);
+        return new PagedResponse<MailMessageResponse>([.. items.Select(ToResponse)], query.Page, query.PageSize, total);
+    }
+
+    internal static MailMessageResponse ToResponse(MailMessage item) =>
+        new(item.Id, item.AccountId, item.FolderId, item.FromAddress, item.FromName, item.To, item.Cc, item.Subject, item.SentAt, item.ReceivedAt,
+            item.IsRead, item.Size, item.HasAttachments, item.AttachmentNames);
 
     private static CalendarEventResponse ToResponse(CalendarEvent item, TimeZoneInfo zone)
     {

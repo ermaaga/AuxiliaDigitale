@@ -62,7 +62,7 @@ public sealed class SyncTests : IAsyncDisposable
         requester = new AccountSyncRequester(
             ManagerHarness.Runner(), data, [calendar], outbox, settings, guard, caller, policy, clock, NullLogger<AccountSyncRequester>.Instance);
         service = new AccountSyncService(
-            ManagerHarness.Runner(), data, [calendar], [oauth], new ReversingProtector(), outbox, notifications, realtime, clock,
+            ManagerHarness.Runner(), data, [calendar], new MailboxAccessResolver(ManagerHarness.Runner(), data, [oauth], new ReversingProtector(), Substitute.For<IHostAddressResolver>(), clock, NullLogger<MailboxAccessResolver>.Instance), outbox, notifications, realtime, clock,
             NullLogger<AccountSyncService>.Instance);
         query = new MailboxSyncQueryService(data, permissions, policy, tenant);
     }
@@ -467,6 +467,10 @@ internal sealed class InMemorySyncData : IMailboxSyncDataFactory, IMailboxSyncDa
 
     public List<CalendarEvent> Events { get; } = [];
 
+    public List<MailFolder> Folders { get; } = [];
+
+    public List<MailMessage> Messages { get; } = [];
+
     public Task<IMailboxSyncData> OpenAsync(CancellationToken cancellationToken) => Task.FromResult<IMailboxSyncData>(this);
 
     public Task<ConnectedAccount?> FindAccountAsync(Guid id, CancellationToken cancellationToken) =>
@@ -513,6 +517,65 @@ internal sealed class InMemorySyncData : IMailboxSyncDataFactory, IMailboxSyncDa
             .OrderBy(item => item.StartsAt)
             .Take(maxCount)]);
     }
+
+    public Task<IReadOnlyList<MailFolder>> FoldersAsync(Guid accountId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<MailFolder>>([.. Folders.Where(folder => folder.AccountId == accountId).OrderBy(folder => folder.Kind)]);
+
+    public void Add(MailFolder folder) => Folders.Add(folder);
+
+    public Task<IReadOnlyDictionary<string, MailMessage>> MessagesAsync(Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyDictionary<string, MailMessage>>(
+            Messages.Where(item => item.FolderId == folderId && providerMessageIds.Contains(item.ProviderMessageId)).ToDictionary(item => item.ProviderMessageId, StringComparer.Ordinal));
+
+    public void Add(MailMessage message) => Messages.Add(message);
+
+    public Task<int> DeleteMessagesAsync(Guid folderId, IReadOnlyCollection<string> providerMessageIds, CancellationToken cancellationToken) =>
+        Task.FromResult(Messages.RemoveAll(item => item.FolderId == folderId && providerMessageIds.Contains(item.ProviderMessageId)));
+
+    public Task<int> DeleteMessagesNotInAsync(Guid folderId, IReadOnlyCollection<string> present, CancellationToken cancellationToken) =>
+        Task.FromResult(Messages.RemoveAll(item => item.FolderId == folderId && !present.Contains(item.ProviderMessageId)));
+
+    public Task<int> DeleteStaleMessagesAsync(Guid folderId, DateTimeOffset notSyncedSince, CancellationToken cancellationToken) =>
+        Task.FromResult(Messages.RemoveAll(item => item.FolderId == folderId && item.SyncedAt < notSyncedSince));
+
+    public Task<IReadOnlyList<MailFolderSummary>> FoldersOfUserAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var accounts = Accounts.Where(account => account.UserId == userId && account.HasMail).Select(account => account.Id).ToList();
+        return Task.FromResult<IReadOnlyList<MailFolderSummary>>([.. Folders
+            .Where(folder => accounts.Contains(folder.AccountId))
+            .OrderBy(folder => accounts.IndexOf(folder.AccountId)).ThenBy(folder => folder.Kind)
+            .Select(folder => new MailFolderSummary(
+                folder, Messages.Count(item => item.FolderId == folder.Id), Messages.Count(item => item.FolderId == folder.Id && !item.IsRead)))]);
+    }
+
+    public Task<(IReadOnlyList<MailMessage> Items, long Total)> MessagesOfUserAsync(Guid userId, MailMessageFilter filter, int skip, int take, CancellationToken cancellationToken)
+    {
+        var accounts = Accounts.Where(account => account.UserId == userId && account.HasMail).Select(account => account.Id).ToHashSet();
+        var items = Messages
+            .Where(item => accounts.Contains(item.AccountId)
+                && (filter.AccountId is null || item.AccountId == filter.AccountId)
+                && (filter.FolderId is null || item.FolderId == filter.FolderId)
+                && (!filter.UnreadOnly || !item.IsRead)
+                && (filter.Search is null || item.Subject.Contains(filter.Search, StringComparison.OrdinalIgnoreCase)
+                    || (item.FromAddress?.Contains(filter.Search, StringComparison.OrdinalIgnoreCase) ?? false)))
+            .OrderByDescending(item => item.ReceivedAt)
+            .ToList();
+        return Task.FromResult<(IReadOnlyList<MailMessage>, long)>(([.. items.Skip(skip).Take(take)], items.Count));
+    }
+
+    public List<FiledMessage> Filed { get; } = [];
+
+    public Task<OwnedMailMessage?> FindMessageOfUserAsync(Guid userId, Guid messageId, CancellationToken cancellationToken)
+    {
+        var message = Messages.SingleOrDefault(item => item.Id == messageId);
+        var account = message is null ? null : Accounts.SingleOrDefault(item => item.Id == message.AccountId && item.UserId == userId);
+        return Task.FromResult(account is null ? null : new OwnedMailMessage(message!, Folders.Single(folder => folder.Id == message!.FolderId), account));
+    }
+
+    public Task<IReadOnlyList<FiledMessage>> FilingsAsync(string messageKeyHash, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<FiledMessage>>([.. Filed.Where(filed => filed.MessageKeyHash == messageKeyHash).OrderBy(filed => filed.FiledAt)]);
+
+    public void Add(FiledMessage filed) => Filed.Add(filed);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

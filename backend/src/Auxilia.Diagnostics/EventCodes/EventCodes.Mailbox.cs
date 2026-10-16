@@ -82,5 +82,32 @@ public static partial class EventCodes
 
         /// <summary>Malformed items of a chunk were skipped and counted; the chunk went on.</summary>
         public const int SyncItemsSkipped = 30026;
+
+        /// <summary>The mail list query is not valid (paging, search length).</summary>
+        public const int MailListInvalid = 30027;
+
+        /// <summary>Mail arrived in a sync: the owner was notified (count only).</summary>
+        public const int MailArrived = 30028;
+
+        /// <summary>The message is not one of the caller's, or it is gone at the provider.</summary>
+        public const int MailMessageNotFound = 30029;
+
+        /// <summary>The message is already filed into the case (file it again with <c>force</c>).</summary>
+        public const int MailAlreadyFiled = 30030;
+
+        /// <summary>The original message is larger than what is read live.</summary>
+        public const int MailMessageTooLarge = 30031;
+
+        /// <summary>The attachment does not exist in the message.</summary>
+        public const int MailAttachmentNotFound = 30032;
+
+        /// <summary>A message was filed into a case (its <c>.eml</c> and the attachments chosen).</summary>
+        public const int MailFiled = 30033;
+
+        /// <summary>The filing request is not valid (attachments, description).</summary>
+        public const int MailFilingInvalid = 30034;
+
+        /// <summary>The provider could not be reached (or refused) while a message was read live.</summary>
+        public const int MailReadFailed = 30035;
     }
 }

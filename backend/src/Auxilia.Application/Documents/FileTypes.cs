@@ -44,6 +44,9 @@ internal static class FileTypes
         new("xml", "application/xml", IsText),
         new("txt", "text/plain", IsText),
         new("csv", "text/csv", IsText),
+
+        // E-mail messages (C-06b): no magic bytes, so text that starts with a header field ("Received: …", "From: …").
+        new("eml", "message/rfc822", IsMessage),
     }.ToDictionary(type => type.Extension, StringComparer.Ordinal);
 
     public static IReadOnlyCollection<string> Extensions => ByExtension.Keys;
@@ -57,6 +60,33 @@ internal static class FileTypes
         header.Length >= offset + value.Length && header.Span.Slice(offset, value.Length).SequenceEqual(value);
 
     private static bool IsTiff(ReadOnlyMemory<byte> header) => StartsWith(header, "II*\0"u8) || StartsWith(header, "MM\0*"u8);
+
+    /// <summary>A MIME message: text whose first line is a header field (<c>name: value</c>, RFC 5322 field name characters).</summary>
+    private static bool IsMessage(ReadOnlyMemory<byte> header)
+    {
+        if (!IsText(header) || StartsWith(header, [0xFF, 0xFE]) || StartsWith(header, [0xFE, 0xFF]))
+        {
+            return false;
+        }
+
+        var span = header.Span;
+        var colon = span.IndexOf((byte)':');
+        var lineEnd = span.IndexOfAny((byte)'\r', (byte)'\n');
+        if (colon <= 0 || (lineEnd >= 0 && lineEnd < colon))
+        {
+            return false;
+        }
+
+        foreach (var character in span[..colon])
+        {
+            if (character is < 33 or > 126)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /// <summary>No NUL byte in the header (a binary disguised as text has them); a UTF-16 text needs its BOM.</summary>
     private static bool IsText(ReadOnlyMemory<byte> header) =>

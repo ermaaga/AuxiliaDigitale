@@ -2959,6 +2959,203 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.FiledMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountAddressHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("account_address_hash")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<DateTimeOffset>("FiledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("filed_at");
+
+                    b.Property<string>("MessageKeyHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("message_key_hash")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_filed_messages");
+
+                    b.HasIndex("MessageKeyHash", "CaseId")
+                        .HasDatabaseName("ix_filed_messages_message_key_hash_case_id");
+
+                    b.ToTable("filed_messages", "mailbox");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.MailFolder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("ProviderFolderId")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("provider_folder_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mail_folders");
+
+                    b.HasIndex("AccountId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ix_mail_folders_account_id_kind");
+
+                    b.ToTable("mail_folders", "mailbox", t =>
+                        {
+                            t.HasCheckConstraint("ck_mail_folders_kind", "kind IN ('Inbox', 'Sent')");
+                        });
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.MailMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("account_id");
+
+                    b.PrimitiveCollection<string[]>("AttachmentNames")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("attachment_names");
+
+                    b.PrimitiveCollection<string[]>("Cc")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("cc_recipients");
+
+                    b.Property<Guid>("FolderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("folder_id");
+
+                    b.Property<string>("FromAddress")
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("from_address");
+
+                    b.Property<string>("FromName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("from_name");
+
+                    b.Property<bool>("HasAttachments")
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_attachments");
+
+                    b.Property<string>("InternetMessageId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("internet_message_id");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("ProviderMessageId")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("provider_message_id");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("received_at");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("subject");
+
+                    b.Property<DateTimeOffset>("SyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("synced_at");
+
+                    b.Property<string>("ThreadId")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("thread_id");
+
+                    b.PrimitiveCollection<string[]>("To")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("to_recipients");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mail_messages");
+
+                    b.HasIndex("InternetMessageId")
+                        .HasDatabaseName("ix_mail_messages_internet_message_id");
+
+                    b.HasIndex("AccountId", "ReceivedAt")
+                        .HasDatabaseName("ix_mail_messages_account_id_received_at");
+
+                    b.HasIndex("FolderId", "ProviderMessageId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_mail_messages_folder_id_provider_message_id");
+
+                    b.HasIndex("FolderId", "ReceivedAt")
+                        .HasDatabaseName("ix_mail_messages_folder_id_received_at");
+
+                    b.ToTable("mail_messages", "mailbox", t =>
+                        {
+                            t.HasCheckConstraint("ck_mail_messages_size", "size >= 0");
+                        });
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Mailbox.OAuthRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3084,6 +3281,10 @@ namespace Auxilia.Persistence.Tenant.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid")
                         .HasColumnName("account_id");
+
+                    b.Property<int>("ArrivedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("arrived_count");
 
                     b.Property<DateTimeOffset?>("EndedAt")
                         .HasColumnType("timestamp with time zone")
@@ -5252,6 +5453,33 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_connected_accounts_users_user_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.MailFolder", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Mailbox.ConnectedAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_mail_folders_connected_accounts_account_id");
+                });
+
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.MailMessage", b =>
+                {
+                    b.HasOne("Auxilia.Domain.Mailbox.ConnectedAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_mail_messages_connected_accounts_account_id");
+
+                    b.HasOne("Auxilia.Domain.Mailbox.MailFolder", null)
+                        .WithMany()
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_mail_messages_mail_folders_folder_id");
                 });
 
             modelBuilder.Entity("Auxilia.Domain.Mailbox.OAuthRequest", b =>

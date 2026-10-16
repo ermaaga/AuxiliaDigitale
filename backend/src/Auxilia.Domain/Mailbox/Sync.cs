@@ -94,6 +94,12 @@ public sealed class SyncRun : AggregateRoot<Guid>
     /// <summary>Messages the run took: 1, plus one per continuation queued when the time budget ran out.</summary>
     public int Parts { get; private set; }
 
+    /// <summary>
+    /// Mail that arrived since the previous sync (new messages of incremental syncs, not those of a first or full sync):
+    /// the owner is notified only when it is not zero (N05 #106).
+    /// </summary>
+    public int ArrivedCount { get; private set; }
+
     public bool IsActive => Status is SyncRunStatus.Queued or SyncRunStatus.Running;
 
     public static SyncRun Queue(Guid id, Guid accountId, Guid userId, SyncScope scope, SyncTrigger trigger, DateTimeOffset now) =>
@@ -126,6 +132,13 @@ public sealed class SyncRun : AggregateRoot<Guid>
         UpdatedCount += updated;
         SkippedCount += skipped;
         UpdatedAt = now;
+    }
+
+    /// <summary>New messages of an incremental sync (part of <see cref="NewCount"/>, recorded with them).</summary>
+    public void RecordArrived(int arrived)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(arrived);
+        ArrivedCount += arrived;
     }
 
     /// <summary>The time budget of this message ran out: the rest goes on in a new message.</summary>

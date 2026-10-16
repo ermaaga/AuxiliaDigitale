@@ -31,8 +31,13 @@ public sealed class MailboxModule : IModuleDescriptor
         services.TryAddScoped<IConnectedAccountManager, ConnectedAccountManager>();
         services.TryAddScoped<IConnectedAccountQueryService, ConnectedAccountQueryService>();
         services.TryAddScoped<IAccountSyncRequester, AccountSyncRequester>();
+        services.TryAddScoped<MailboxAccessResolver>();
         services.TryAddScoped<IAccountSyncService, AccountSyncService>();
         services.TryAddScoped<IMailboxSyncQueryService, MailboxSyncQueryService>();
+        services.TryAddScoped<LiveMessages>();
+        services.TryAddScoped<IMailMessageQueryService, MailMessageQueryService>();
+        services.TryAddScoped<IMailMessageManager, MailMessageManager>();
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IScopeSynchronizer, CalendarSynchronizer>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IScopeSynchronizer, MailSynchronizer>());
     }
 }

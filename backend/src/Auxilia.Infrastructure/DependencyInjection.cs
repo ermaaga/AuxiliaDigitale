@@ -83,6 +83,12 @@ public static class DependencyInjection
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.GoogleCalendarProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.MicrosoftCalendarProvider>());
 
+        // Mail headers of connected accounts (C-06): Gmail and Graph over the same HTTP client, PEC / IMAP with MailKit.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GmailMailProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GraphMailProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.Imap.ImapMailProvider>());
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IMailContentReader, Adapters.Mail.MimeMailContentReader>();
+
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
         // Tokens (skill auxilia-security): ES256 ring in the Catalog, JWT issuer, deny-list on the distributed cache

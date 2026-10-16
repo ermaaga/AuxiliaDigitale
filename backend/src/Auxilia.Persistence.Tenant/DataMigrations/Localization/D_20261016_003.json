@@ -1,0 +1,38 @@
+[
+ {
+  "key": "settings.mailbox.sync.initialDays.description",
+  "category": "settings",
+  "en": "Days of mail copied by the first synchronisation of a mailbox (1–365)",
+  "it": "Giorni di posta copiati dalla prima sincronizzazione di una casella (1–365)"
+ },
+ {
+  "key": "settings.mailbox.sync.initialMaxMessages.description",
+  "category": "settings",
+  "en": "Most messages per folder copied by the first synchronisation of a mailbox, newest first (100–10000)",
+  "it": "Numero massimo di messaggi per cartella copiati dalla prima sincronizzazione di una casella, dai più recenti (100–10000)"
+ },
+ {
+  "key": "notifications.mailbox.received.title",
+  "category": "notifications",
+  "en": "New mail",
+  "it": "Nuova posta"
+ },
+ {
+  "key": "notifications.mailbox.received.message",
+  "category": "notifications",
+  "en": "{count} new messages in {address}.",
+  "it": "{count} nuovi messaggi in {address}."
+ },
+ {
+  "key": "errors.AUX-30027",
+  "category": "errors",
+  "en": "Check the filters of the mail list.",
+  "it": "Controlla i filtri dell'elenco della posta."
+ },
+ {
+  "key": "validation.paging.search",
+  "category": "validation",
+  "en": "The search text is too long (at most 200 characters).",
+  "it": "Il testo da cercare è troppo lungo (al massimo 200 caratteri)."
+ }
+]
