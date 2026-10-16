@@ -1,6 +1,7 @@
 using Auxilia.Application.Abstractions.Modules;
 using Auxilia.Application.Abstractions.Settings;
 using Auxilia.Domain.Platform;
+using Auxilia.SharedKernel.Tenancy;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -22,8 +23,11 @@ public sealed class MailboxModule : IModuleDescriptor
 
     public IReadOnlyList<SettingDefinition> Settings { get; } = MailboxSettings.All;
 
-    /// <summary>No page yet: the accounts live in the profile (C-03); the mail page comes with C-07.</summary>
-    public IReadOnlyList<NavigationEntry> Navigation { get; } = [];
+    /// <summary>The mail page (C-07); the accounts live in the profile (C-03), the external events in the appointment calendar (C-05).</summary>
+    public IReadOnlyList<NavigationEntry> Navigation { get; } =
+    [
+        new("mail", "/mail", "mail", 65, [TenantRole.Administrator, TenantRole.Employee], MailboxPermissions.ViewMail),
+    ];
 
     public void AddServices(IServiceCollection services)
     {

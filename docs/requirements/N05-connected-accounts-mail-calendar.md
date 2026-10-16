@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01…C-06 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [~] in progress (C-01…C-07 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
@@ -133,15 +133,15 @@ new-mail alerts without opening the page; OAuth for providers other than Google 
 - [ ] IMAP hosts on private/loopback/metadata addresses are refused; TLS is required.
 
 **Sync**
-- [ ] Opening Mail or Calendar starts a sync (202); a second request within 2 minutes queues nothing.
-- [ ] The page shows stored data at once, the progress bar during the sync and refreshes on `AccountSyncCompleted`.
+- [x] Opening Mail or Calendar starts a sync (202); a second request within 2 minutes queues nothing.
+- [x] The page shows stored data at once, the progress bar during the sync and refreshes on `AccountSyncCompleted`.
 - [x] Chunked retrieval with one transaction per chunk: a sync stopped halfway resumes from the last chunk; a redelivered message creates no duplicates.
 - [x] First sync bounded (days / messages); longer work continues in a queued continuation.
 - [ ] Errors handled as in the table: `NeedsReconnect` with notification, retries honouring `Retry-After`, bounded resync on an invalid cursor, malformed items skipped and counted.
 - [x] Bell notification only for new messages or an account to reconnect (EN + IT); `mailbox.sync_runs` records trigger and counts; `SyncTrigger.Scheduled` exists and is unused.
 
 **Mail**
-- [ ] Message list per account and folder with paging and search on stored headers; body loaded live; HTML sandboxed, remote images blocked by default.
+- [x] Message list per account and folder with paging and search on stored headers; body loaded live; HTML sandboxed, remote images blocked by default (allowing them per message is not in v1).
 - [x] "Download .eml" returns the original message (a PEC keeps receipt and signature).
 - [x] "File into case" stores the `.eml` (and optionally the attachments) in the chosen case and folder, respecting F10; a message already filed is detected.
 

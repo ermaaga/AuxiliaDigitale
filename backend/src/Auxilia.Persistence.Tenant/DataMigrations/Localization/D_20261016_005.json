@@ -1,0 +1,314 @@
+[
+ {
+  "key": "nav.mail",
+  "category": "nav",
+  "en": "Mail",
+  "it": "Posta"
+ },
+ {
+  "key": "app.mail.syncing",
+  "category": "app",
+  "en": "Synchronising your mail…",
+  "it": "Sincronizzazione della posta in corso…"
+ },
+ {
+  "key": "app.mail.syncCompleted",
+  "category": "app",
+  "en": "Mail updated.",
+  "it": "Posta aggiornata."
+ },
+ {
+  "key": "app.mail.noAccounts",
+  "category": "app",
+  "en": "No mailbox connected yet: connect your Google, Microsoft or PEC account from your profile.",
+  "it": "Nessuna casella collegata: collega il tuo account Google, Microsoft o PEC dal profilo."
+ },
+ {
+  "key": "app.mail.connect",
+  "category": "app",
+  "en": "Connect a mailbox",
+  "it": "Collega una casella"
+ },
+ {
+  "key": "app.mail.folders",
+  "category": "app",
+  "en": "Mail folders",
+  "it": "Cartelle della posta"
+ },
+ {
+  "key": "app.mail.allMail",
+  "category": "app",
+  "en": "All mail",
+  "it": "Tutta la posta"
+ },
+ {
+  "key": "app.mail.inbox",
+  "category": "app",
+  "en": "Inbox",
+  "it": "Posta in arrivo"
+ },
+ {
+  "key": "app.mail.sent",
+  "category": "app",
+  "en": "Sent",
+  "it": "Inviata"
+ },
+ {
+  "key": "app.mail.notSynced",
+  "category": "app",
+  "en": "Not synchronised yet.",
+  "it": "Non ancora sincronizzata."
+ },
+ {
+  "key": "app.mail.messages",
+  "category": "app",
+  "en": "Messages",
+  "it": "Messaggi"
+ },
+ {
+  "key": "app.mail.search",
+  "category": "app",
+  "en": "Search sender, recipients or subject",
+  "it": "Cerca mittente, destinatari o oggetto"
+ },
+ {
+  "key": "app.mail.unreadOnly",
+  "category": "app",
+  "en": "Unread only",
+  "it": "Solo non letti"
+ },
+ {
+  "key": "app.mail.empty",
+  "category": "app",
+  "en": "No messages in this folder.",
+  "it": "Nessun messaggio in questa cartella."
+ },
+ {
+  "key": "app.mail.noResults",
+  "category": "app",
+  "en": "No message matches the search.",
+  "it": "Nessun messaggio corrisponde alla ricerca."
+ },
+ {
+  "key": "app.mail.previous",
+  "category": "app",
+  "en": "Previous",
+  "it": "Precedenti"
+ },
+ {
+  "key": "app.mail.next",
+  "category": "app",
+  "en": "Next",
+  "it": "Successivi"
+ },
+ {
+  "key": "app.mail.page",
+  "category": "app",
+  "en": "Page {page} of {pages}",
+  "it": "Pagina {page} di {pages}"
+ },
+ {
+  "key": "app.mail.reader",
+  "category": "app",
+  "en": "Message",
+  "it": "Messaggio"
+ },
+ {
+  "key": "app.mail.back",
+  "category": "app",
+  "en": "Back to the messages",
+  "it": "Torna ai messaggi"
+ },
+ {
+  "key": "app.mail.choose",
+  "category": "app",
+  "en": "Choose a message to read it.",
+  "it": "Scegli un messaggio per leggerlo."
+ },
+ {
+  "key": "app.mail.to",
+  "category": "app",
+  "en": "To:",
+  "it": "A:"
+ },
+ {
+  "key": "app.mail.unknownSender",
+  "category": "app",
+  "en": "(unknown sender)",
+  "it": "(mittente sconosciuto)"
+ },
+ {
+  "key": "app.mail.noSubject",
+  "category": "app",
+  "en": "(no subject)",
+  "it": "(senza oggetto)"
+ },
+ {
+  "key": "app.mail.hasAttachments",
+  "category": "app",
+  "en": "With attachments",
+  "it": "Con allegati"
+ },
+ {
+  "key": "app.mail.unread",
+  "category": "app",
+  "en": "Unread",
+  "it": "Non letto"
+ },
+ {
+  "key": "app.mail.from",
+  "category": "app",
+  "en": "From",
+  "it": "Da"
+ },
+ {
+  "key": "app.mail.toLabel",
+  "category": "app",
+  "en": "To",
+  "it": "A"
+ },
+ {
+  "key": "app.mail.cc",
+  "category": "app",
+  "en": "Cc",
+  "it": "Cc"
+ },
+ {
+  "key": "app.mail.date",
+  "category": "app",
+  "en": "Date",
+  "it": "Data"
+ },
+ {
+  "key": "app.mail.account",
+  "category": "app",
+  "en": "Account",
+  "it": "Account"
+ },
+ {
+  "key": "app.mail.downloadEml",
+  "category": "app",
+  "en": "Download .eml",
+  "it": "Scarica .eml"
+ },
+ {
+  "key": "app.mail.file",
+  "category": "app",
+  "en": "File into case",
+  "it": "Inserisci in pratica"
+ },
+ {
+  "key": "app.mail.filedIn",
+  "category": "app",
+  "en": "Already filed into:",
+  "it": "Già inserito in:"
+ },
+ {
+  "key": "app.mail.attachments",
+  "category": "app",
+  "en": "Attachments",
+  "it": "Allegati"
+ },
+ {
+  "key": "app.mail.truncated",
+  "category": "app",
+  "en": "The message is long: only its beginning is shown here. Download the .eml to read it all.",
+  "it": "Il messaggio è lungo: qui se ne vede solo l'inizio. Scarica l'.eml per leggerlo tutto."
+ },
+ {
+  "key": "app.mail.imagesBlocked",
+  "category": "app",
+  "en": "External images are blocked to protect your privacy.",
+  "it": "Le immagini esterne sono bloccate per proteggere la tua privacy."
+ },
+ {
+  "key": "app.mail.body",
+  "category": "app",
+  "en": "Message text",
+  "it": "Testo del messaggio"
+ },
+ {
+  "key": "app.mail.noBody",
+  "category": "app",
+  "en": "The message has no text.",
+  "it": "Il messaggio non ha testo."
+ },
+ {
+  "key": "app.mail.fileTitle",
+  "category": "app",
+  "en": "File into case",
+  "it": "Inserisci in pratica"
+ },
+ {
+  "key": "app.mail.fileDescription",
+  "category": "app",
+  "en": "The original message (.eml) becomes a document of the case; you can add its attachments as separate documents.",
+  "it": "Il messaggio originale (.eml) diventa un documento della pratica; puoi aggiungere i suoi allegati come documenti separati."
+ },
+ {
+  "key": "app.mail.clientFromSender",
+  "category": "app",
+  "en": "Proposed from the sender's address.",
+  "it": "Proposto dall'indirizzo del mittente."
+ },
+ {
+  "key": "app.mail.case",
+  "category": "app",
+  "en": "Case",
+  "it": "Pratica"
+ },
+ {
+  "key": "app.mail.chooseCase",
+  "category": "app",
+  "en": "Choose a case",
+  "it": "Scegli una pratica"
+ },
+ {
+  "key": "app.mail.noCases",
+  "category": "app",
+  "en": "This client has no case you can see.",
+  "it": "Questo cliente non ha pratiche che puoi vedere."
+ },
+ {
+  "key": "app.mail.folder",
+  "category": "app",
+  "en": "Folder",
+  "it": "Cartella"
+ },
+ {
+  "key": "app.mail.noFolder",
+  "category": "app",
+  "en": "No folder",
+  "it": "Nessuna cartella"
+ },
+ {
+  "key": "app.mail.fileAttachments",
+  "category": "app",
+  "en": "Attachments to file as documents",
+  "it": "Allegati da inserire come documenti"
+ },
+ {
+  "key": "app.mail.descriptionLabel",
+  "category": "app",
+  "en": "Description",
+  "it": "Descrizione"
+ },
+ {
+  "key": "app.mail.filed",
+  "category": "app",
+  "en": "Message filed into the case.",
+  "it": "Messaggio inserito nella pratica."
+ },
+ {
+  "key": "app.mail.alreadyFiled",
+  "category": "app",
+  "en": "This message is already in the case. File it again?",
+  "it": "Questo messaggio è già nella pratica. Inserirlo di nuovo?"
+ },
+ {
+  "key": "app.mail.fileAgain",
+  "category": "app",
+  "en": "File again",
+  "it": "Inserisci di nuovo"
+ }
+]

@@ -23,6 +23,7 @@ const TENANT_PAGES = [
   "appointments?view=list",
   "tasks",
   "requests",
+  "mail",
   "notifications",
   "sessions",
   "exports",
