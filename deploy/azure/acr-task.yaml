@@ -1,0 +1,38 @@
+# Multi-step ACR Task (ADR 0022 §7): on every commit of main or qa it builds the four images and tags each with the
+# commit SHA (immutable, used by .github/workflows/deploy.yml) and with the branch name (moving, informative).
+# Created by deploy/azure/scripts/acr-task.sh (one task per branch). The images are pushed together at the end, so the
+# release waits for a complete set.
+version: v1.1.0
+stepTimeout: 2400
+steps:
+  - id: build-api
+    build: >-
+      -f backend/Dockerfile --target api
+      -t $Registry/auxilia/api:{{.Run.Commit}} -t $Registry/auxilia/api:{{.Run.Branch}} .
+  # Same build stage as api (layer cache of the run): only the publish output differs.
+  - id: build-worker
+    when: ["build-api"]
+    build: >-
+      -f backend/Dockerfile --target worker
+      -t $Registry/auxilia/worker:{{.Run.Commit}} -t $Registry/auxilia/worker:{{.Run.Branch}} .
+  - id: build-auxctl
+    when: ["build-worker"]
+    build: >-
+      -f backend/Dockerfile --target auxctl
+      -t $Registry/auxilia/auxctl:{{.Run.Commit}} -t $Registry/auxilia/auxctl:{{.Run.Branch}} .
+  - id: build-web
+    when: ["-"]
+    build: >-
+      -f frontend/Dockerfile
+      -t $Registry/auxilia/web:{{.Run.Commit}} -t $Registry/auxilia/web:{{.Run.Branch}} frontend
+  - id: push
+    when: ["build-auxctl", "build-web"]
+    push:
+      - $Registry/auxilia/api:{{.Run.Commit}}
+      - $Registry/auxilia/api:{{.Run.Branch}}
+      - $Registry/auxilia/worker:{{.Run.Commit}}
+      - $Registry/auxilia/worker:{{.Run.Branch}}
+      - $Registry/auxilia/auxctl:{{.Run.Commit}}
+      - $Registry/auxilia/auxctl:{{.Run.Branch}}
+      - $Registry/auxilia/web:{{.Run.Commit}}
+      - $Registry/auxilia/web:{{.Run.Branch}}
