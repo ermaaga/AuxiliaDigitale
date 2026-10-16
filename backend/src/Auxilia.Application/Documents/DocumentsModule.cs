@@ -37,5 +37,6 @@ public sealed class DocumentsModule : IModuleDescriptor
         services.TryAddScoped<DocumentAccess>();
         services.TryAddScoped<IDocumentManager, DocumentManager>();
         services.TryAddScoped<IDocumentQueryService, DocumentQueryService>();
+        services.TryAddScoped<Public.ICaseDocuments, CaseDocuments>();
     }
 }

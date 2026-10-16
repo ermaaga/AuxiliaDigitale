@@ -27,5 +27,8 @@ public static partial class Operations
         public static readonly OperationDescriptor SaveSyncChunk = new("Mailbox.SaveSyncChunk", EventCodes.Mailbox.SyncChunkSaved);
 
         public static readonly OperationDescriptor UpdateSyncRun = new("Mailbox.UpdateSyncRun", EventCodes.Mailbox.SyncRunUpdated);
+
+        /// <summary>Not one transaction: the message is read at the provider, the documents are stored by the Documents module, then the filing is recorded.</summary>
+        public static readonly OperationDescriptor FileMessage = new("Mailbox.FileMessage", EventCodes.Mailbox.MailFiled, isWrite: false);
     }
 }

@@ -1,0 +1,44 @@
+[
+ {
+  "key": "errors.AUX-30029",
+  "category": "errors",
+  "en": "The message is no longer available: refresh the mail.",
+  "it": "Il messaggio non è più disponibile: aggiorna la posta."
+ },
+ {
+  "key": "errors.AUX-30030",
+  "category": "errors",
+  "en": "This message is already filed into the case.",
+  "it": "Questo messaggio è già stato inserito nella pratica."
+ },
+ {
+  "key": "errors.AUX-30031",
+  "category": "errors",
+  "en": "The message is too large to be opened here: open it in your mail program.",
+  "it": "Il messaggio è troppo grande per essere aperto qui: aprilo nel tuo programma di posta."
+ },
+ {
+  "key": "errors.AUX-30032",
+  "category": "errors",
+  "en": "The attachment is no longer available.",
+  "it": "L'allegato non è più disponibile."
+ },
+ {
+  "key": "errors.AUX-30034",
+  "category": "errors",
+  "en": "Check the attachments to file.",
+  "it": "Controlla gli allegati da inserire."
+ },
+ {
+  "key": "validation.mailbox.messageTooLarge",
+  "category": "validation",
+  "en": "The message is too large to be opened here.",
+  "it": "Il messaggio è troppo grande per essere aperto qui."
+ },
+ {
+  "key": "validation.mailbox.attachments",
+  "category": "validation",
+  "en": "Choose attachments of this message (at most 49).",
+  "it": "Scegli allegati di questo messaggio (al massimo 49)."
+ }
+]

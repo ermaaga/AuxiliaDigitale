@@ -113,3 +113,18 @@ internal sealed class MailMessageConfiguration : IEntityTypeConfiguration<MailMe
         builder.HasIndex(message => message.InternetMessageId);
     }
 }
+
+internal sealed class FiledMessageConfiguration : IEntityTypeConfiguration<FiledMessage>
+{
+    public void Configure(EntityTypeBuilder<FiledMessage> builder)
+    {
+        builder.ToTable("filed_messages", TenantSchemas.Mailbox);
+        builder.HasKey(filed => filed.Id);
+        builder.Property(filed => filed.Id).ValueGeneratedNever();
+        builder.Property(filed => filed.MessageKeyHash).HasMaxLength(FiledMessage.HashLength).IsFixedLength();
+        builder.Property(filed => filed.AccountAddressHash).HasMaxLength(FiledMessage.HashLength).IsFixedLength();
+
+        // No foreign key to the account (kept after a disconnect) nor to the case (another module's schema).
+        builder.HasIndex(filed => new { filed.MessageKeyHash, filed.CaseId });
+    }
+}

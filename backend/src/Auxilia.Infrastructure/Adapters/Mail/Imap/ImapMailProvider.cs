@@ -127,6 +127,56 @@ internal sealed class ImapMailProvider : IMailProvider
         }, cancellationToken);
     }
 
+    /// <summary>The message of the UID (<c>uidvalidity:uid</c>) into a temporary file; null when the UIDs changed or it was expunged.</summary>
+    public Task<Stream?> OpenRawAsync(MailboxAccess access, MailFolderData folder, string providerMessageId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(folder);
+        var parts = providerMessageId?.Split(':');
+        if (parts is not [var validityText, var uidText]
+            || !uint.TryParse(validityText, NumberStyles.None, CultureInfo.InvariantCulture, out var validity)
+            || !uint.TryParse(uidText, NumberStyles.None, CultureInfo.InvariantCulture, out var uid) || uid == 0)
+        {
+            return Task.FromResult<Stream?>(null);
+        }
+
+        return WithClientAsync<Stream?>(access, async (client, token) =>
+        {
+            var mailFolder = folder.Kind == MailFolderKind.Inbox && string.Equals(folder.ProviderFolderId, client.Inbox.FullName, StringComparison.Ordinal)
+                ? client.Inbox
+                : await client.GetFolderAsync(folder.ProviderFolderId, token);
+            await mailFolder.OpenAsync(FolderAccess.ReadOnly, token);
+            if (mailFolder.UidValidity != validity)
+            {
+                return null;
+            }
+
+            var id = new UniqueId(validity, uid);
+            var summary = (await mailFolder.FetchAsync([id], MessageSummaryItems.UniqueId | MessageSummaryItems.Size, token)).FirstOrDefault();
+            if (summary is null)
+            {
+                return null;
+            }
+
+            if (summary.Size > MailRaw.MaxBytes)
+            {
+                // Not downloaded: an empty file of the refused size tells the caller it is too large.
+                var tooLarge = TemporaryFiles.Create();
+                tooLarge.SetLength(MailRaw.MaxBytes + 1);
+                return tooLarge;
+            }
+
+            try
+            {
+                await using var content = await mailFolder.GetStreamAsync(id, token);
+                return await TemporaryFiles.CopyBoundedAsync(content, MailRaw.MaxBytes, token);
+            }
+            catch (MessageNotFoundException)
+            {
+                return null;
+            }
+        }, cancellationToken);
+    }
+
     private static async Task<MailPage> FullAsync(IMailFolder folder, uint validity, ImapCursor? cursor, MailPageRequest request, CancellationToken token)
     {
         var count = cursor?.Count ?? 0;

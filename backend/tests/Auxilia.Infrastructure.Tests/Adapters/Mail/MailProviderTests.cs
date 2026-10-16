@@ -222,6 +222,153 @@ public sealed class MailProviderTests : IDisposable
         MailHeaders.Date("garbage").ShouldBeNull();
     }
 
+    [Fact]
+    public async Task Gmail_Raw_DecodesTheBase64UrlMessage_AndIsNullWhenGone()
+    {
+        var original = Encoding.UTF8.GetBytes("From: mario@example.com\r\nSubject: Ciao ??\r\n\r\nTesto con caratteri >>> e ???");
+        var raw = Convert.ToBase64String(original).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        handler.On("/messages/m1?format=raw", $$"""{ "raw": "{{raw}}" }""");
+        handler.On("/messages/gone?format=raw", """{ "error": { "code": 404 } }""", HttpStatusCode.NotFound);
+
+        await using (var stream = await gmail.OpenRawAsync(MailboxAccess.OAuth("access-1"), GmailInbox, "m1", Ct))
+        {
+            using var copy = new MemoryStream();
+            await stream!.CopyToAsync(copy, Ct);
+            copy.ToArray().ShouldBe(original);
+        }
+
+        HttpUtility.ParseQueryString(handler.Requests[0].RequestUri!.Query)["fields"].ShouldBe("raw");
+        (await gmail.OpenRawAsync(MailboxAccess.OAuth("access-1"), GmailInbox, "gone", Ct)).ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Gmail_Raw_LargerThanTheBound_IsCut()
+    {
+        var big = new byte[100_000];
+        Random.Shared.NextBytes(big);
+        var raw = Convert.ToBase64String(big).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        await using var stream = await GmailMailProvider.DecodeRawAsync(Encoding.UTF8.GetBytes($$"""{"raw":"{{raw}}"}"""), Ct);
+
+        using var copy = new MemoryStream();
+        await stream.CopyToAsync(copy, Ct);
+        copy.ToArray().ShouldBe(big);
+        await Should.ThrowAsync<MailboxProviderException>(() => GmailMailProvider.DecodeRawAsync("""{"id":"x"}"""u8.ToArray(), Ct));
+    }
+
+    [Fact]
+    public async Task Graph_Raw_ReadsTheValueOfTheMessage_AndClassifiesTheFailures()
+    {
+        handler.On("/me/messages/AAMk%2Fx%3D/$value", "From: a@example.com\r\n\r\nCiao");
+        handler.On("/me/messages/denied/$value", "{}", HttpStatusCode.Unauthorized);
+        handler.On("/me/messages/missing/$value", "{}", HttpStatusCode.NotFound);
+
+        await using (var stream = await graph.OpenRawAsync(MailboxAccess.OAuth("access-1"), GraphInbox, "AAMk/x=", Ct))
+        {
+            using var text = new StreamReader(stream!);
+            (await text.ReadToEndAsync(Ct)).ShouldStartWith("From: a@example.com");
+        }
+
+        (await graph.OpenRawAsync(MailboxAccess.OAuth("access-1"), GraphInbox, "missing", Ct)).ShouldBeNull();
+        (await Should.ThrowAsync<MailboxProviderException>(() => graph.OpenRawAsync(MailboxAccess.OAuth("access-1"), GraphInbox, "denied", Ct)))
+            .Failure.ShouldBe(ProviderFailure.Credentials);
+    }
+
+    [Fact]
+    public async Task TemporaryFiles_CutAtTheBoundPlusOne()
+    {
+        await using var small = await TemporaryFiles.CopyBoundedAsync(new MemoryStream(new byte[10]), 100, Ct);
+        await using var large = await TemporaryFiles.CopyBoundedAsync(new MemoryStream(new byte[1000]), 100, Ct);
+
+        (small.Length, small.Position, large.Length).ShouldBe((10L, 0L, 101L));
+    }
+
+    private const string Mime = """
+        From: "Mario Rossi" <mario@example.com>
+        To: studio@example.com
+        Subject: Documenti
+        Message-ID: <abc@example.com>
+        MIME-Version: 1.0
+        Content-Type: multipart/mixed; boundary="b1"
+
+        --b1
+        Content-Type: multipart/alternative; boundary="b2"
+
+        --b2
+        Content-Type: text/plain; charset=utf-8
+
+        Buongiorno, in allegato la fattura.
+        --b2
+        Content-Type: text/html; charset=utf-8
+
+        <p>Buongiorno, <img src="https://tracker.example/x.png"> in allegato la fattura.</p>
+        --b2--
+        --b1
+        Content-Type: application/pdf; name="fattura.pdf"
+        Content-Disposition: attachment; filename="../fattura.pdf"
+        Content-Transfer-Encoding: base64
+
+        JVBERi0xLjcK
+        --b1
+        Content-Type: message/rfc822
+        Content-Disposition: attachment; filename="postacert"
+
+        From: pec@example.com
+        Subject: Inner
+
+        Messaggio interno
+        --b1--
+        """;
+
+    [Fact]
+    public async Task MimeReader_ReadsBodiesAndAttachments_AndTakesOneOut()
+    {
+        var reader = new MimeMailContentReader();
+        await using var raw = TemporaryFiles.Create();
+        await raw.WriteAsync(Encoding.UTF8.GetBytes(Mime.ReplaceLineEndings("\r\n")), Ct);
+
+        var content = await reader.ReadAsync(raw, 1000, Ct);
+
+        content.Text!.Trim().ShouldBe("Buongiorno, in allegato la fattura.");
+        content.Html!.ShouldContain("<p>Buongiorno");
+        content.Truncated.ShouldBeFalse();
+        content.Attachments.Select(item => (item.Index, item.FileName, item.ContentType)).ShouldBe(
+            [(0, "_fattura.pdf", "application/pdf"), (1, "postacert.eml", "message/rfc822")]);
+        content.Attachments[0].Size.ShouldBe(9);
+
+        var pdf = (await reader.OpenAttachmentAsync(raw, 0, Ct)).ShouldNotBeNull();
+        await using (pdf.Content)
+        {
+            using var copy = new MemoryStream();
+            await pdf.Content.CopyToAsync(copy, Ct);
+            copy.ToArray().ShouldBe("%PDF-1.7\n"u8.ToArray());
+        }
+
+        var inner = (await reader.OpenAttachmentAsync(raw, 1, Ct)).ShouldNotBeNull();
+        await using (inner.Content)
+        {
+            using var text = new StreamReader(inner.Content);
+            (await text.ReadToEndAsync(Ct)).ShouldContain("Messaggio interno");
+        }
+
+        (await reader.OpenAttachmentAsync(raw, 2, Ct)).ShouldBeNull();
+        (await reader.ReadAsync(raw, 10, Ct)).Truncated.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task MimeReader_ToleratesWhatIsNotAMessage()
+    {
+        var reader = new MimeMailContentReader();
+        await using var raw = new MemoryStream("not a mime message at all"u8.ToArray());
+
+        var content = await reader.ReadAsync(raw, 1000, Ct);
+
+        content.Attachments.ShouldBeEmpty();
+        MimeMailContentReader.SafeFileName("a/b:c?.pdf", 0, message: false).ShouldBe("a_b_c_.pdf");
+        MimeMailContentReader.SafeFileName(" .. ", 2, message: true).ShouldBe("message-3.eml");
+        MimeMailContentReader.SafeFileName(null, 0, message: false).ShouldBe("attachment-1");
+    }
+
     private sealed class RoutedHandler : HttpMessageHandler
     {
         private readonly List<(string Fragment, HttpStatusCode Status, string Body)> routes = [];

@@ -184,6 +184,27 @@ internal sealed class MailboxSyncData(ITenantDbContext db) : IMailboxSyncData
         return (items, total);
     }
 
+    public async Task<OwnedMailMessage?> FindMessageOfUserAsync(Guid userId, Guid messageId, CancellationToken cancellationToken)
+    {
+        var row = await (
+                from message in db.Set<MailMessage>()
+                join folder in db.Set<MailFolder>() on message.FolderId equals folder.Id
+                join account in db.Set<ConnectedAccount>() on message.AccountId equals account.Id
+                where message.Id == messageId && account.UserId == userId
+                select new { message, folder, account })
+            .SingleOrDefaultAsync(cancellationToken);
+        return row is null ? null : new OwnedMailMessage(row.message, row.folder, row.account);
+    }
+
+    public async Task<IReadOnlyList<FiledMessage>> FilingsAsync(string messageKeyHash, CancellationToken cancellationToken) =>
+        await db.Set<FiledMessage>()
+            .AsNoTracking()
+            .Where(filed => filed.MessageKeyHash == messageKeyHash)
+            .OrderBy(filed => filed.FiledAt)
+            .ToListAsync(cancellationToken);
+
+    public void Add(FiledMessage filed) => db.Set<FiledMessage>().Add(filed);
+
     public Task SaveChangesAsync(CancellationToken cancellationToken) => db.SaveChangesAsync(cancellationToken);
 
     public ValueTask DisposeAsync() => db.DisposeAsync();

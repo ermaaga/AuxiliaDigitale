@@ -2959,6 +2959,51 @@ namespace Auxilia.Persistence.Tenant.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Auxilia.Domain.Mailbox.FiledMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountAddressHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("account_address_hash")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("CaseId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("case_id");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<DateTimeOffset>("FiledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("filed_at");
+
+                    b.Property<string>("MessageKeyHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("message_key_hash")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_filed_messages");
+
+                    b.HasIndex("MessageKeyHash", "CaseId")
+                        .HasDatabaseName("ix_filed_messages_message_key_hash_case_id");
+
+                    b.ToTable("filed_messages", "mailbox");
+                });
+
             modelBuilder.Entity("Auxilia.Domain.Mailbox.MailFolder", b =>
                 {
                     b.Property<Guid>("Id")

@@ -12,6 +12,7 @@ using Auxilia.Application.Cases.Public;
 using Auxilia.Application.Configuration.Public;
 using Auxilia.Application.Directory.Public;
 using Auxilia.Application.Documents;
+using Auxilia.Application.Documents.Public;
 using Auxilia.Application.Tests.Directory;
 using Auxilia.Application.Tests.Identity;
 using Auxilia.Application.Tests.Platform;
@@ -126,6 +127,37 @@ public sealed class DocumentManagerTests : IAsyncDisposable
 
         // The same name in another folder of the case is fine.
         (await manager.UploadAsync(Request(CaseId, Folder), Ct)).IsSuccess.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Upload_RenameTaken_SuffixesTheNamesInsteadOfRefusing()
+    {
+        await UploadAsync(Request(CaseId, Folder, null, ("mail.eml", "From: a@example.com\r\n\r\nx"u8.ToArray())));
+
+        var request = Request(CaseId, Folder, null, ("mail.eml", "From: a@example.com\r\n\r\ny"u8.ToArray()), ("mail.eml", "From: b@example.com\r\n\r\nz"u8.ToArray()))
+            with { RenameTaken = true };
+        (await manager.UploadAsync(request, Ct)).IsSuccess.ShouldBeTrue();
+
+        data.Documents.Select(document => document.FileName).ShouldBe(["mail.eml", "mail_(2).eml", "mail_(3).eml"]);
+        data.Documents[1].ContentType.ShouldBe("message/rfc822");
+    }
+
+    [Fact]
+    public async Task CaseDocuments_FileIntoTheCaseOfItsClient_WithTheF10RulesOfTheCase()
+    {
+        var filer = new CaseDocuments(manager, cases);
+
+        var ids = (await filer.FileAsync(new CaseFiling(CaseId, Folder, "Dalla posta", [new CaseFile(new MemoryStream(Pdf()), "fattura.pdf")]), Ct)).Value;
+
+        var document = data.Documents.Single(item => item.Id == ids.Single());
+        (document.ClientId, document.CaseId, document.FolderId, document.Description).ShouldBe((Client, (Guid?)CaseId, (Guid?)Folder, "Dalla posta"));
+        (await filer.FileAsync(new CaseFiling(CaseId, Folder, null, [new CaseFile(new MemoryStream(Pdf()), "fattura.pdf")]), Ct)).Value.Count.ShouldBe(1);
+        data.Documents.Select(item => item.FileName).ShouldBe(["fattura.pdf", "fattura_(2).pdf"]);
+
+        caseSummary = caseSummary with { CanSee = false, CanManage = false };
+        (await filer.FileAsync(new CaseFiling(CaseId, null, null, [new CaseFile(new MemoryStream(Pdf()), "x.pdf")]), Ct)).Error!.Code
+            .ShouldBe(EventCodes.Documents.DocumentInvalid);
+        (await filer.FileAsync(new CaseFiling(Guid.CreateVersion7(), null, null, [new CaseFile(new MemoryStream(Pdf()), "x.pdf")]), Ct)).IsFailure.ShouldBeTrue();
     }
 
     [Fact]

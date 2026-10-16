@@ -29,6 +29,50 @@ internal abstract class ProviderHttpBase(IHttpClientFactory httpClients)
     protected Task<JsonDocument?> GetOrNullAsync(Uri uri, string accessToken, CancellationToken cancellationToken) =>
         SendAsync(uri, accessToken, withToken: false, [], notFoundIsNull: true, cancellationToken);
 
+    /// <summary>
+    /// GET of a large answer (an original message) into a temporary file, cut at <paramref name="maxBytes"/> + 1 bytes;
+    /// null when the item is gone (404). Failures are classified like <see cref="GetAsync"/>.
+    /// </summary>
+    protected async Task<Stream?> DownloadAsync(Uri uri, string accessToken, long maxBytes, CancellationToken cancellationToken)
+    {
+        using var client = httpClients.CreateClient(HttpClientName);
+        using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+        }
+        catch (Exception exception) when (exception is HttpRequestException || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested))
+        {
+            throw new MailboxProviderException(ProviderFailure.Transient, "Unreachable", exception);
+        }
+
+        using (response)
+        {
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new MailboxProviderException(Classify(response.StatusCode, null, withToken: false), StatusReason(response.StatusCode, null));
+            }
+
+            await using var body = await response.Content.ReadAsStreamAsync(cancellationToken);
+            try
+            {
+                return await Mail.TemporaryFiles.CopyBoundedAsync(body, maxBytes, cancellationToken);
+            }
+            catch (Exception exception) when (exception is HttpRequestException or IOException || (exception is TaskCanceledException && !cancellationToken.IsCancellationRequested))
+            {
+                throw new MailboxProviderException(ProviderFailure.Transient, "Interrupted", exception);
+            }
+        }
+    }
+
     private async Task<JsonDocument?> SendAsync(
         Uri uri, string accessToken, bool withToken, IEnumerable<KeyValuePair<string, string>> headers, bool notFoundIsNull, CancellationToken cancellationToken)
     {

@@ -79,4 +79,15 @@ public sealed class MailTests
         run.ArrivedCount.ShouldBe(2);
         Should.Throw<ArgumentOutOfRangeException>(() => run.RecordArrived(-1));
     }
+
+    [Fact]
+    public void FiledMessage_KeepsOnlyHashes()
+    {
+        var hash = new string('a', 64);
+        var filed = FiledMessage.Record(Guid.CreateVersion7(), hash, new string('0', 64), Folder, Account, Guid.CreateVersion7(), Now);
+
+        (filed.MessageKeyHash, filed.CaseId, filed.DocumentId, filed.FiledAt).ShouldBe((hash, Folder, Account, Now));
+        Should.Throw<ArgumentException>(() => FiledMessage.Record(Guid.CreateVersion7(), "mario@example.com", hash, Folder, Account, Guid.CreateVersion7(), Now));
+        Should.Throw<ArgumentException>(() => FiledMessage.Record(Guid.CreateVersion7(), hash, new string('A', 64), Folder, Account, Guid.CreateVersion7(), Now));
+    }
 }

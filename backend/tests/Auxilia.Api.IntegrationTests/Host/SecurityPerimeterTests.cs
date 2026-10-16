@@ -268,11 +268,15 @@ public sealed partial class SecurityPerimeterTests(SecurityPerimeterTests.Factor
     {
         public string Key => $"{Method} {Pattern}";
 
-        /// <summary>The pattern with sample route values: a slug for <c>{slug}</c>, a language for <c>{lang}</c>, otherwise a new id.</summary>
+        /// <summary>
+        /// The pattern with sample route values: a slug for <c>{slug}</c>, a language for <c>{lang}</c>, a number for an
+        /// <c>:int</c> constraint, otherwise a new id.
+        /// </summary>
         public string SamplePath() => RouteParameter().Replace(Pattern, match => match.Groups["name"].Value switch
         {
             "slug" => ApiDatabase.TenantA,
             "lang" => "it",
+            _ when match.Value.Contains(":int", StringComparison.Ordinal) => "0",
             _ => Guid.CreateVersion7().ToString(),
         });
 

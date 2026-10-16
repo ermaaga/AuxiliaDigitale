@@ -247,3 +247,56 @@ internal static class MailText
     public static string[] List(IEnumerable<string>? values, int maxLength, int maxCount) =>
         [.. (values ?? []).Select(value => Clean(value, maxLength)).OfType<string>().Take(maxCount)];
 }
+
+/// <summary>
+/// A message filed into a case (<c>mailbox.filed_messages</c>, C-06b): the hash of its key (the <c>Message-ID</c>, so the
+/// same message is recognised from any folder or account) and of the account address, the case and the <c>.eml</c>
+/// document. No link to the account: it stays after a disconnect, like the documents.
+/// </summary>
+public sealed class FiledMessage : Entity<Guid>
+{
+    public const int HashLength = 64;
+
+    private FiledMessage(Guid id, string messageKeyHash, string accountAddressHash, Guid caseId, Guid documentId, Guid userId, DateTimeOffset filedAt)
+        : base(id)
+    {
+        MessageKeyHash = messageKeyHash;
+        AccountAddressHash = accountAddressHash;
+        CaseId = caseId;
+        DocumentId = documentId;
+        UserId = userId;
+        FiledAt = filedAt;
+    }
+
+    private FiledMessage()
+    {
+        MessageKeyHash = string.Empty;
+        AccountAddressHash = string.Empty;
+    }
+
+    /// <summary>SHA-256 (hex) of the message key: no third-party data stored in clear.</summary>
+    public string MessageKeyHash { get; private set; }
+
+    public string AccountAddressHash { get; private set; }
+
+    public Guid CaseId { get; private set; }
+
+    /// <summary>The <c>.eml</c> document in the case.</summary>
+    public Guid DocumentId { get; private set; }
+
+    public Guid UserId { get; private set; }
+
+    public DateTimeOffset FiledAt { get; private set; }
+
+    public static FiledMessage Record(Guid id, string messageKeyHash, string accountAddressHash, Guid caseId, Guid documentId, Guid userId, DateTimeOffset filedAt)
+    {
+        if (!IsHash(messageKeyHash) || !IsHash(accountAddressHash))
+        {
+            throw new ArgumentException("A SHA-256 hash in lower-case hex is expected.");
+        }
+
+        return new FiledMessage(id, messageKeyHash, accountAddressHash, caseId, documentId, userId, filedAt);
+    }
+
+    private static bool IsHash(string? value) => value is { Length: HashLength } && value.All(character => char.IsAsciiHexDigitLower(character) || char.IsAsciiDigit(character));
+}

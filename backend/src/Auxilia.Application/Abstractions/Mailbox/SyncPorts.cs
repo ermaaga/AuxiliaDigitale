@@ -57,6 +57,14 @@ public interface IMailboxSyncData : IAsyncDisposable
     /// <summary>A page of the messages of the user's own accounts, newest first.</summary>
     Task<(IReadOnlyList<MailMessage> Items, long Total)> MessagesOfUserAsync(Guid userId, MailMessageFilter filter, int skip, int take, CancellationToken cancellationToken);
 
+    /// <summary>A message of one of the user's own accounts with its folder and account; null otherwise.</summary>
+    Task<OwnedMailMessage?> FindMessageOfUserAsync(Guid userId, Guid messageId, CancellationToken cancellationToken);
+
+    /// <summary>The filings of a message (by the hash of its key), oldest first.</summary>
+    Task<IReadOnlyList<FiledMessage>> FilingsAsync(string messageKeyHash, CancellationToken cancellationToken);
+
+    void Add(FiledMessage filed);
+
     Task SaveChangesAsync(CancellationToken cancellationToken);
 }
 
@@ -131,6 +139,9 @@ public interface ICalendarProvider
     Task<CalendarPage> ReadAsync(CalendarPageRequest request, CancellationToken cancellationToken);
 }
 
+/// <summary>A stored message with the folder and the account it belongs to.</summary>
+public sealed record OwnedMailMessage(MailMessage Message, MailFolder Folder, ConnectedAccount Account);
+
 /// <summary>A folder with its counts (the folder list of the mail page).</summary>
 public sealed record MailFolderSummary(MailFolder Folder, int Total, int Unread);
 
@@ -191,4 +202,39 @@ public interface IMailProvider
     Task<IReadOnlyList<MailFolderData>> FoldersAsync(MailboxAccess access, CancellationToken cancellationToken);
 
     Task<MailPage> ReadAsync(MailPageRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// The original message (RFC 822, a PEC keeps receipt and signature) as a seekable temporary stream deleted when
+    /// closed, read live from the provider and cut at <see cref="MailRaw.MaxBytes"/> + 1 bytes; null when the message
+    /// is gone (deleted at the provider, or the IMAP UIDs changed).
+    /// </summary>
+    Task<Stream?> OpenRawAsync(MailboxAccess access, MailFolderData folder, string providerMessageId, CancellationToken cancellationToken);
+}
+
+/// <summary>Bounds of a message read live (C-06b).</summary>
+public static class MailRaw
+{
+    /// <summary>Largest original message read (larger ones are refused, <c>AUX-30031</c>).</summary>
+    public const long MaxBytes = 50L * 1024 * 1024;
+
+    /// <summary>Characters of the text and of the HTML body returned to the page (the rest is cut, <c>truncated</c>).</summary>
+    public const int MaxBodyChars = 1_000_000;
+}
+
+/// <summary>An attachment of a message: its position among the attachments is its id.</summary>
+public sealed record MailAttachmentInfo(int Index, string FileName, string ContentType, long Size);
+
+/// <summary>The bodies and attachments of an original message (third-party content, untrusted: never rendered as is).</summary>
+public sealed record MailContent(string? Text, string? Html, bool Truncated, IReadOnlyList<MailAttachmentInfo> Attachments);
+
+/// <summary>An attachment taken out of a message: a temporary stream deleted when closed.</summary>
+public sealed record MailAttachmentContent(Stream Content, MailAttachmentInfo Info);
+
+/// <summary>Reads an original message (MIME, MimeKit in the adapter); malformed parts are tolerated.</summary>
+public interface IMailContentReader
+{
+    Task<MailContent> ReadAsync(Stream raw, int maxBodyChars, CancellationToken cancellationToken);
+
+    /// <summary>The decoded attachment at <paramref name="index"/>; null when there is none.</summary>
+    Task<MailAttachmentContent?> OpenAttachmentAsync(Stream raw, int index, CancellationToken cancellationToken);
 }

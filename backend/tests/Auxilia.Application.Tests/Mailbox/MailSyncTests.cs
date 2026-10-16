@@ -62,7 +62,7 @@ public sealed class MailSyncTests : IAsyncDisposable
         var mail = new MailSynchronizer(ManagerHarness.Runner(), data, [gmail, imap], settings, clock, NullLogger<MailSynchronizer>.Instance);
         requester = new AccountSyncRequester(ManagerHarness.Runner(), data, [mail], outbox, settings, guard, caller, policy, clock, NullLogger<AccountSyncRequester>.Instance);
         service = new AccountSyncService(
-            ManagerHarness.Runner(), data, [mail], [oauth], new ReversingProtector(), resolver, outbox, notifications, realtime, clock,
+            ManagerHarness.Runner(), data, [mail], new MailboxAccessResolver(ManagerHarness.Runner(), data, [oauth], new ReversingProtector(), resolver, clock, NullLogger<MailboxAccessResolver>.Instance), outbox, notifications, realtime, clock,
             NullLogger<AccountSyncService>.Instance);
         query = new MailboxSyncQueryService(data, permissions, policy, tenant);
     }
@@ -336,5 +336,23 @@ internal sealed class FakeMail(ConnectedAccountProvider provider) : IMailProvide
         Requests.Add(request);
         var pages = request.Folder.Kind == MailFolderKind.Inbox ? Inbox : Sent;
         return Task.FromResult(pages.Dequeue()(request));
+    }
+
+    /// <summary>Originals by provider message id (C-06b).</summary>
+    public Dictionary<string, byte[]> Raw { get; } = new(StringComparer.Ordinal);
+
+    public Exception? RawFailure { get; set; }
+
+    public List<(MailboxAccess Access, MailFolderData Folder, string Id)> RawRequests { get; } = [];
+
+    public Task<Stream?> OpenRawAsync(MailboxAccess access, MailFolderData folder, string providerMessageId, CancellationToken cancellationToken)
+    {
+        RawRequests.Add((access, folder, providerMessageId));
+        if (RawFailure is not null)
+        {
+            throw RawFailure;
+        }
+
+        return Task.FromResult<Stream?>(Raw.TryGetValue(providerMessageId, out var bytes) ? new MemoryStream(bytes) : null);
     }
 }

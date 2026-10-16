@@ -30,7 +30,8 @@ public sealed record UploadedFile(Stream Content, string? FileName);
 /// <summary>
 /// An upload (F14): every file gets the same client, case, folder, reference year (default this year), area,
 /// description and custom fields; <see cref="FileName"/> (a custom name) only with one file, its original extension
-/// appended when missing (legacy).
+/// appended when missing (legacy). <see cref="RenameTaken"/>: a name already used in the same place gets
+/// <c>" (2)"</c>, <c>" (3)"</c>… instead of refusing the upload (files filed from another module, C-06b).
 /// </summary>
 public sealed record UploadDocuments(
     Guid ClientId,
@@ -41,7 +42,8 @@ public sealed record UploadDocuments(
     string? Description,
     string? FileName,
     JsonElement? CustomFields,
-    IReadOnlyList<UploadedFile> Files);
+    IReadOnlyList<UploadedFile> Files,
+    bool RenameTaken = false);
 
 /// <summary>The content of a document to download.</summary>
 public sealed record DocumentContent(Stream Content, string FileName, string ContentType);
@@ -87,6 +89,27 @@ public interface IDocumentQueryService
     Task<Result<DocumentContent>> ZipAsync(Guid caseId, Guid? folderId, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<DocumentAreaResponse>> AreasAsync(CancellationToken cancellationToken);
+}
+
+/// <inheritdoc cref="ICaseDocuments"/>
+internal sealed class CaseDocuments(IDocumentManager documents, ICaseDirectory cases) : ICaseDocuments
+{
+    public async Task<Result<IReadOnlyList<Guid>>> FileAsync(CaseFiling filing, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(filing);
+
+        if (await cases.FindAsync(filing.CaseId, cancellationToken) is not { CanSee: true } found)
+        {
+            return Errors.Documents.DocumentInvalid("caseId", "validation.documents.case");
+        }
+
+        var uploaded = await documents.UploadAsync(
+            new UploadDocuments(
+                found.ClientId, found.Id, filing.FolderId, null, null, filing.Description, null, null,
+                [.. filing.Files.Select(file => new UploadedFile(file.Content, file.FileName))], RenameTaken: true),
+            cancellationToken);
+        return uploaded.IsFailure ? Result.Failure<IReadOnlyList<Guid>>(uploaded.Error!) : Result.Success(uploaded.Value.DocumentIds);
+    }
 }
 
 /// <summary>What the caller may do on the documents of one client (and case).</summary>
@@ -156,6 +179,7 @@ internal sealed class DocumentManager(
     public const string CustomFieldEntity = "document";
     public const string StorageArea = "documents";
     public const int MaxFilesPerUpload = 50;
+    public const int MaxRenameAttempts = 50;
 
     private DateOnly Today => DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
 
@@ -482,6 +506,13 @@ internal sealed class DocumentManager(
         }
 
         var names = request.Files.Select(file => Name(request.FileName, file.FileName)).ToArray();
+        if (request.RenameTaken)
+        {
+            return await FreeNamesAsync(store, request, names, cancellationToken) is { } free
+                ? (free, fields.Value)
+                : Errors.Documents.DocumentNameTaken();
+        }
+
         if (names.Distinct(StringComparer.OrdinalIgnoreCase).Count() != names.Length
             || (await store.NamesTakenAsync(request.ClientId, request.CaseId, request.FolderId, names, null, cancellationToken)).Count > 0)
         {
@@ -489,6 +520,37 @@ internal sealed class DocumentManager(
         }
 
         return (names, fields.Value);
+    }
+
+    /// <summary>
+    /// The names with <c>" (n)"</c> before the extension where they are taken (in the place or by an earlier file); null
+    /// when no free name is found (a name so long that the suffix is cut away).
+    /// </summary>
+    private static async Task<string[]?> FreeNamesAsync(IDocumentData store, UploadDocuments request, string[] names, CancellationToken cancellationToken)
+    {
+        var used = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var result = new string?[names.Length];
+        for (var index = 0; index < names.Length; index++)
+        {
+            var (stem, extension) = (Path.GetFileNameWithoutExtension(names[index]), Path.GetExtension(names[index]));
+            for (var attempt = 1; result[index] is null; attempt++)
+            {
+                if (attempt > MaxRenameAttempts)
+                {
+                    return null;
+                }
+
+                var candidate = attempt == 1 ? names[index] : FileNames.Sanitize($"{stem} ({attempt}){extension}");
+                if (!used.Contains(candidate)
+                    && (await store.NamesTakenAsync(request.ClientId, request.CaseId, request.FolderId, [candidate], null, cancellationToken)).Count == 0)
+                {
+                    used.Add(candidate);
+                    result[index] = candidate;
+                }
+            }
+        }
+
+        return [.. result.OfType<string>()];
     }
 
     /// <summary>Legacy: a custom name gets the original extension when it has not that one.</summary>
