@@ -34,10 +34,11 @@ Questo repo è il monorepo che il blueprint chiama `auxilia-next`.
 ---
 
 ## 3. Stato corrente
-- Fase: **Fase 8 — Hardening** (Fasi 0–7 completate, migrazione dati compresa; anagrafiche, catalogo servizi, pratiche, documenti, appuntamenti, richieste, notifiche, sessioni, sicurezza account, export, dashboard, scadenze, import, task e timeline CRM)
-- Prossimo task: **H-03** (deploy, hosting D-12 — decide l'utente); H-04 completato il 2026-10-09: aperti solo la retention dei log (F25 → H-03), l'UAT per ruolo con l'utente (F34) e la disiscrizione self-service rimandata (N01, D-24). Poi **H-03** (deploy, hosting D-12, storage dei log, backup, runbook; comprende la protezione delle chiavi di Data Protection, rischio R4 di H-01) — serve la decisione D-12; altrimenti H-04 (regressione E2E di parità). H-01 chiuso con i rischi residui in `docs/security/asvs-checklist.md` §4 (protezione delle chiavi di Data Protection e TLS → H-03); D-11 serve solo per eseguire l'import reale (`--tenant`)
-- **Fase 10** (N05, issue #100/#101/#106: account collegati Google/Microsoft/PEC, posta, calendari esterni), indipendente da H-03: C-01 (ADR 0021, accettato), C-02 (backend degli account collegati) e C-03 (scheda "Account collegati" del profilo e callback OAuth del BFF) fatti il 2026-10-15, C-04 (motore di sincronizzazione e calendari Google/Microsoft) e C-05 (calendari collegati nel calendario degli appuntamenti) il 2026-10-16, C-06a (sincronizzazione delle intestazioni di posta, elenco e ricerca) e C-06b (lettura in diretta, `.eml`, inserisci in pratica) il 2026-10-16, C-07 (pagina `/mail`) e C-08 (E2E, isolamento, IMAP su GreenMail, ASVS, nota privacy, verifica di N05) il 2026-10-16: **Fase 10 completata**; restano con l'utente la prova con account Google/Microsoft reali, la verifica Google degli ambiti Gmail e la decisione sulla DPIA (`docs/security/privacy-connected-accounts.md` §4). C-06 è stato diviso in C-06a/C-06b (2,5 gg) per avere PR più piccole. Le registrazioni delle app OAuth su Google Cloud e Microsoft Entra le fa l'utente seguendo `docs/runbooks/connected-accounts-oauth.md` (servono solo per provare con account reali: senza chiavi il fornitore non viene proposto)
-- Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale, Fase 7) e D-12 (hosting/osservabilità, Fase 8)
+- Fasi 0–7 e **Fase 10** (N05, account collegati, posta e calendari esterni: C-01…C-08, PR #122 e #127–#136, chiusa il 2026-10-16) completate; **Fase 8 — Hardening** quasi chiusa: H-01, H-02, H-04 fatti, **H-03** in corso.
+- Prossimo task: **H-03, primo deploy reale su Azure** (ADR 0022, runbook `docs/runbooks/azure-deployment.md`): Bicep, ACR Tasks e workflow di rilascio sono su `main`, il deploy crea risorse a pagamento sulla subscription dell'utente e va eseguito con lui (login `az`, segreti, `deploy.sh --what-if` poi il deploy di `qa`); comprende la verifica dello scale to zero di RabbitMQ con KEDA e la protezione delle chiavi di Data Protection (R4, `docs/security/asvs-checklist.md` §4). Per le app satellite (OpenWA, agent-openwa, sito) servono dall'utente repository, porte e variabili.
+- Poi **Fase 9** (R-01…R-03: staging da dump reale, UAT per ruolo, cutover, dismissione del legacy): serve la decisione D-11 (tenant del cliente attuale) e il dump del legacy.
+- Aperti con l'utente: N05 — prova con account Google/Microsoft reali (app OAuth da registrare con `docs/runbooks/connected-accounts-oauth.md`), verifica Google degli ambiti Gmail, decisione sulla DPIA (`docs/security/privacy-connected-accounts.md` §4); issue #100/#101/#106 da chiudere (lavoro completato); F34 UAT per ruolo; disiscrizione self-service rimandata (N01, D-24).
+- Architettura approvata; decisioni tutte chiuse tranne D-11 (tenant del cliente attuale) e il tema mobile di D-12 (l'hosting è deciso, ADR 0022)
 
 ---
 
@@ -209,7 +210,7 @@ Colonne: **Stima** (giorni) · **Dip.** · **F/N** (parità / nuove funzionalit�
 | [ ] R-02 | Prova di cutover, criteri di rollback, go-live. | 1 | R-01 | – | legacy-migration |
 | [ ] R-03 | Dismissione legacy: backup, archivio, rotazione credenziali (Postgres in `appsettings`/`docker-compose`, SMTP in `DataSeeder`, FTP/Azure/reCAPTCHA). | 0,5 | R-02 | F32 | security |
 
-### Fase 10 — Account collegati, posta e calendari esterni (N05) (≈ 12 gg)
+### Fase 10 — Account collegati, posta e calendari esterni (N05) (≈ 12 gg) — completata il 2026-10-16
 Issue #100 (posta), #101 (calendario), #106 (sincronizzazione su richiesta); nessuna sincronizzazione pianificata: D-15 invariata. Indipendente da H-03 e dalla Fase 9.
 
 | ID | Task | Stima | Dip. | F/N | Skill |
