@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { unwrap, type components } from "@auxilia/api-client";
 
 import { createBffClient } from "@/lib/api/client";
@@ -22,10 +22,11 @@ const api = () => createBffClient("tenant");
 export const mailboxKey = (tenant: string) => queryKey(tenant, "mailbox");
 export const connectedAccountsKey = (tenant: string) => queryKey(tenant, "mailbox", "accounts");
 
-export function useConnectedAccounts(tenant: string) {
+export function useConnectedAccounts(tenant: string, enabled = true) {
   return useQuery({
     queryKey: connectedAccountsKey(tenant),
     queryFn: async () => unwrap(await api().GET("/api/v1/me/connected-accounts")),
+    enabled,
   });
 }
 
@@ -94,4 +95,71 @@ export async function disconnectAccount(id: string) {
 /** Whether a provider name of the API is one with OAuth. */
 export function isOAuthProvider(provider: string): provider is OAuthProvider {
   return provider === "google" || provider === "microsoft";
+}
+
+export type AccountSync = components["schemas"]["AccountSyncResponse"];
+export type ExternalCalendarEvent = components["schemas"]["CalendarEventResponse"];
+
+/** Scope of a sync run (`SyncNames` of the API). */
+export type SyncScope = "mail" | "calendar";
+
+/** Permission of the sync and of the copied mail and events (module `mailbox`, N05). */
+export const VIEW_MAIL_PERMISSION = "mailbox.mail.view";
+
+/** Status poll while a run is active and the realtime hub is not connected (it pushes `AccountSyncCompleted`). */
+const SYNC_POLL_MS = 5_000;
+
+export const syncKey = (tenant: string, scope: SyncScope) =>
+  queryKey(tenant, "mailbox", "sync", { scope });
+
+/** A run still waiting for the Worker or in progress. */
+export function isSyncActive(run: Pick<AccountSync, "status">) {
+  return run.status === "Queued" || run.status === "Running";
+}
+
+/** The newest run of each account for the scope; polled while one is active and no realtime event will arrive. */
+export function useSyncStatus(tenant: string, scope: SyncScope, enabled: boolean, poll: boolean) {
+  return useQuery({
+    queryKey: syncKey(tenant, scope),
+    queryFn: async () =>
+      unwrap(
+        await api().GET("/api/v1/me/connected-accounts/sync", { params: { query: { scope } } }),
+      ).runs,
+    enabled,
+    refetchInterval: (query) =>
+      poll && (query.state.data ?? []).some(isSyncActive) ? SYNC_POLL_MS : false,
+  });
+}
+
+/**
+ * Starts a sync (N05 #106): the page opening (`manual: false`) or "Sync now" (`manual: true`). The answer holds the
+ * run of each account (a recent or active one is returned instead of a new one) and becomes the status at once.
+ */
+export function useStartSync(tenant: string, scope: SyncScope) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (manual: boolean) =>
+      unwrap(await api().POST("/api/v1/me/connected-accounts/sync", { body: { scope, manual } }))
+        .runs,
+    onSuccess: (runs) => client.setQueryData(syncKey(tenant, scope), runs),
+  });
+}
+
+/** The copied events of my calendars in a range of local days (≤ 62, tenant time zone), read only. */
+export function useExternalCalendarEvents(
+  tenant: string,
+  range: { from: string; to: string } | null,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: queryKey(tenant, "mailbox", "calendar-events", range ?? {}),
+    queryFn: async () =>
+      unwrap(
+        await api().GET("/api/v1/me/connected-accounts/calendar-events", {
+          params: { query: { from: range!.from, to: range!.to } },
+        }),
+      ),
+    enabled: enabled && range !== null,
+    placeholderData: keepPreviousData,
+  });
 }

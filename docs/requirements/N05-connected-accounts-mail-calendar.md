@@ -1,6 +1,6 @@
 # N05 — Connected accounts: mailbox (e-mail and PEC) and external calendars
 
-Status: [~] in progress (C-01…C-04 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
+Status: [~] in progress (C-01…C-05 done) · Decided with the user on 2026-10-15 · Tasks: C-01…C-08 · Issues: #100 (mailbox), #101 (calendar), #106 (on-demand sync) · Related: F13, F14, F16, N03, D-13 (perimeter extended by D-33), D-15 (unchanged), D-19, D-21
 
 Design: ADR 0021 (module `mailbox`, OAuth through the BFF with PKCE, adapters over HTTP without new packages, schema
 `mailbox`, event codes 30xxx); OAuth app registration: `docs/runbooks/connected-accounts-oauth.md`.
@@ -146,7 +146,7 @@ new-mail alerts without opening the page; OAuth for providers other than Google 
 - [ ] "File into case" stores the `.eml` (and optionally the attachments) in the chosen case and folder, respecting F10; a message already filed is detected.
 
 **Calendar**
-- [ ] The calendar shows the events of each connected account in its colour, read-only, with a legend to hide/show accounts.
+- [x] The calendar shows the events of each connected account in its colour, read-only, with a legend to hide/show accounts.
 
 **Quality**
 - [ ] EN + IT texts; event codes in the module range; Domain/Application tests (chunk algorithm with a fake provider), IMAP integration with a test server in Testcontainers, Gmail/Graph adapters with recorded responses, HTTP and E2E tests; ASVS checklist updated.
