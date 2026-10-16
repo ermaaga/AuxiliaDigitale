@@ -7,8 +7,9 @@ import { expectAccessible, expectNoHorizontalScroll, t } from "./support/ui";
 /*
  * Connected accounts in the profile (N05, C-03): an Employee opens the tab, finds only "Connect PEC / IMAP" (the E2E API
  * has no Google / Microsoft application), gets the server filled in from a PEC domain and a port refused by the API
- * before any connection, and comes back from a consent the API cannot complete with its error code. Real accounts and
- * an IMAP test server come with C-08.
+ * before any connection, and comes back from a consent the API cannot complete with its error code; the mail page
+ * (C-07) is in the menu and, without a mailbox, sends to the profile. Real accounts and an IMAP test server come with
+ * C-08.
  */
 test("an Employee opens the connected accounts of the profile", async ({ page }) => {
   await signInWithNewPassword(page, E2E.accountsUser.userName);
@@ -59,5 +60,18 @@ test("an Employee opens the connected accounts of the profile", async ({ page })
     const alert = page.getByRole("alert").filter({ hasText: t("errors.AUX-30007") });
     await expect(alert).toBeVisible();
     await expect(alert.getByTestId("error-code")).toHaveText("AUX-30007");
+  });
+
+  await test.step("the mail page offers to connect a mailbox", async () => {
+    await page
+      .getByRole("navigation", { name: t("app.shell.navigation") })
+      .getByRole("link", { name: t("nav.mail"), exact: true })
+      .click();
+    await expect(page.getByRole("heading", { level: 1, name: t("nav.mail") })).toBeVisible();
+    await expect(page.getByText(t("app.mail.noAccounts"))).toBeVisible();
+    await expectAccessible(page, "mail-without-accounts");
+    await expectNoHorizontalScroll(page);
+    await page.getByRole("link", { name: t("app.mail.connect") }).click();
+    await expect(page).toHaveURL(`/${E2E.tenant}/profile?tab=accounts`);
   });
 });

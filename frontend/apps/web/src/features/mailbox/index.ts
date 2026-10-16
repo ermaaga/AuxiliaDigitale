@@ -8,3 +8,4 @@ export {
 } from "./components/external-calendar";
 export { ExternalEventDialog } from "./components/external-event-dialog";
 export type { ExternalCalendarEvent } from "./api";
+export { MailView } from "./components/mail-view";

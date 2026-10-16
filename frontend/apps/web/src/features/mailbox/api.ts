@@ -3,7 +3,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { unwrap, type components } from "@auxilia/api-client";
 
-import { createBffClient } from "@/lib/api/client";
+import { BFF_PREFIX, createBffClient } from "@/lib/api/client";
 import { queryKey } from "@/lib/api/query-keys";
 
 export type ConnectedAccount = components["schemas"]["ConnectedAccountResponse"];
@@ -163,3 +163,76 @@ export function useExternalCalendarEvents(
     placeholderData: keepPreviousData,
   });
 }
+
+export type MailFolder = components["schemas"]["MailFolderResponse"];
+export type MailMessage = components["schemas"]["MailMessageResponse"];
+export type MailMessageDetail = components["schemas"]["MailMessageDetailResponse"];
+export type FileMail = components["schemas"]["FileMailRequest"];
+
+/** Permission of "File into case" (N05, C-06b). */
+export const FILE_MAIL_PERMISSION = "mailbox.mail.file";
+
+/** Query of the mail list: one account or folder, search on sender/recipients/subject, unread only, page. */
+export type MailListParams = {
+  accountId?: string;
+  folderId?: string;
+  search?: string;
+  "filter[unread]"?: boolean;
+  page: number;
+  pageSize: number;
+};
+
+export function useMailFolders(tenant: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKey(tenant, "mailbox", "mail-folders"),
+    queryFn: async () => unwrap(await api().GET("/api/v1/me/connected-accounts/mail-folders")),
+    enabled,
+  });
+}
+
+export function useMailMessages(tenant: string, params: MailListParams, enabled = true) {
+  return useQuery({
+    queryKey: queryKey(tenant, "mailbox", "mail-messages", params),
+    queryFn: async () =>
+      unwrap(
+        await api().GET("/api/v1/me/connected-accounts/mail-messages", {
+          params: { query: params },
+        }),
+      ),
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** A message read live from the provider: never retried on its own (the provider may be down or the message gone). */
+export function useMailMessage(tenant: string, id: string | null) {
+  return useQuery({
+    queryKey: queryKey(tenant, "mailbox", "mail-message", { id }),
+    queryFn: async () =>
+      unwrap(
+        await api().GET("/api/v1/me/connected-accounts/mail-messages/{id}", {
+          params: { path: { id: id! } },
+        }),
+      ),
+    enabled: id !== null,
+    retry: false,
+    staleTime: 60_000,
+  });
+}
+
+export async function fileMessage(id: string, body: FileMail) {
+  return unwrap(
+    await api().POST("/api/v1/me/connected-accounts/mail-messages/{id}/file", {
+      params: { path: { id } },
+      body,
+    }),
+  );
+}
+
+/** The original message through the BFF (always a download). */
+export const mailEmlUrl = (id: string) =>
+  `${BFF_PREFIX.tenant}me/connected-accounts/mail-messages/${encodeURIComponent(id)}/eml`;
+
+/** One attachment through the BFF (always a download, never shown inline). */
+export const mailAttachmentUrl = (id: string, index: number) =>
+  `${BFF_PREFIX.tenant}me/connected-accounts/mail-messages/${encodeURIComponent(id)}/attachments/${index}`;

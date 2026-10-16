@@ -3,23 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import type { EventInput } from "@fullcalendar/core";
-import { CircleAlertIcon, LinkIcon, LoaderCircleIcon, RefreshCwIcon } from "lucide-react";
+import { CircleAlertIcon, LinkIcon, RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";
 
 import { tenantHref } from "@/lib/href";
-import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
-import { useRealtimeConnected } from "@/lib/realtime/realtime";
 
 import {
   CONNECT_ACCOUNTS_PERMISSION,
   VIEW_MAIL_PERMISSION,
-  isSyncActive,
   useConnectedAccounts,
   useExternalCalendarEvents,
-  useStartSync,
-  useSyncStatus,
   type AccountSync,
   type ConnectedAccount,
 } from "../api";
@@ -31,6 +26,7 @@ import {
   toCalendarEvents,
 } from "../calendar";
 import { accountColorStyle } from "../colors";
+import { SyncProgress, useAutoSync } from "./auto-sync";
 
 export type ExternalCalendar = {
   /** The signed-in user may see their connected calendars (module `mailbox` visible to the role). */
@@ -107,36 +103,13 @@ export function ExternalCalendarBar({
   calendar: ExternalCalendar;
 }) {
   const t = useTranslations();
-  const notify = useNotify();
-  const connected = useRealtimeConnected();
   const { enabled, accounts } = calendar;
   const syncable = accounts.some((account) => account.status === "Active");
-  const status = useSyncStatus(tenant, "calendar", enabled && syncable, !connected);
-  const start = useStartSync(tenant, "calendar");
-  const runs = status.data ?? [];
-  const active = runs.some(isSyncActive);
-  const succeeded = runs.some((run) => run.status === "Succeeded");
-  const opened = React.useRef(false);
-  const wasActive = React.useRef(false);
-
-  // The page opening starts a sync once (a recent or running one is returned by the API instead).
-  React.useEffect(() => {
-    if (!enabled || !syncable || opened.current) {
-      return;
-    }
-
-    opened.current = true;
-    start.mutate(false);
-  }, [enabled, syncable, start]);
-
-  // A short toast when the runs seen running on this page are over.
-  React.useEffect(() => {
-    if (wasActive.current && !active && succeeded) {
-      notify.success("app.externalCalendar.syncCompleted");
-    }
-
-    wasActive.current = active;
-  }, [active, succeeded, notify]);
+  const sync = useAutoSync(tenant, "calendar", {
+    enabled,
+    syncable,
+    completedKey: "app.externalCalendar.syncCompleted",
+  });
 
   if (!enabled || !calendar.ready) {
     return null;
@@ -156,7 +129,7 @@ export function ExternalCalendarBar({
     );
   }
 
-  const failed = runs.filter((run) => run.status === "Failed" && run.errorCode);
+  const failed = sync.failed;
   const reconnect = accounts.filter((account) => account.status !== "Active");
 
   return (
@@ -195,24 +168,14 @@ export function ExternalCalendarBar({
             type="button"
             size="sm"
             variant="ghost"
-            disabled={active || start.isPending}
-            onClick={() => start.mutate(true, { onError: (error) => notify.error(error) })}
+            disabled={sync.syncing}
+            onClick={sync.syncNow}
           >
             <RefreshCwIcon aria-hidden /> {t("app.externalCalendar.syncNow")}
           </Button>
         ) : null}
       </div>
-      <div role="status" aria-live="polite" className="text-sm">
-        {active ? (
-          <p className="flex items-center gap-2 rounded-md border bg-muted px-3 py-2 text-muted-foreground">
-            <LoaderCircleIcon
-              aria-hidden
-              className="size-4 animate-spin motion-reduce:animate-none"
-            />
-            {t("app.externalCalendar.syncing")}
-          </p>
-        ) : null}
-      </div>
+      <SyncProgress active={sync.active} label={t("app.externalCalendar.syncing")} />
       {failed.length > 0 || reconnect.length > 0 ? (
         <ul className="flex flex-col gap-1 text-sm text-destructive">
           {reconnect.map((account) => (
