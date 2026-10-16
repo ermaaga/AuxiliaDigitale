@@ -66,7 +66,7 @@ different slugs the two environments never reach each other's connections. **The
 and written in the runbook. A second line of defence comes from PostgreSQL ≥ 16: a role with `CREATEROLE` may alter
 only the roles it created, so a qa provisioning that hit a prod slug fails on `ALTER ROLE` instead of taking the
 prod database over. Should the rule ever be too fragile, the fix is a configurable prefix for tenant databases and
-for the backplane channel (small code change, not done now).
+for the backplane channel (small code change, not done now). The code review behind this table is in §10.
 
 ### 3. PostgreSQL Flexible Server 18, free-tier shaped, private
 `Standard_B1ms` (Burstable), 32 GB `P4`, **auto-grow off** (above 32 GB the storage is paid), backup 7 days, no
@@ -137,6 +137,31 @@ in `modules/`, parameters in `shared.bicepparam`, `qa.bicepparam`, `prod.biceppa
 (`deploy.sh` with `--what-if`, `secrets.sh`, `acr-task.sh`; `secrets.sh init` also writes the RabbitMQ definitions), Postgres bootstrap SQL in
 `postgres/`. Every deployment can be previewed with `what-if`. Images of RabbitMQ, Valkey and Postgres are pinned
 (minor version).
+
+### 10. Code review of the sharing (findings, no code changed)
+The application was written for one environment per infrastructure: every name it uses on Postgres, Valkey and
+RabbitMQ is fixed in the code, with no environment part. Each point below says what the code does, what happens when
+prod and qa share the service, and what keeps them apart today. The fixes in the last column are **not done** (user's
+choice: no code changes for H-03); they become necessary if the configuration rules turn out to be too fragile.
+
+| # | Where in the code | Behaviour with prod and qa sharing the service | Protection today | Possible code fix (not done) |
+|---|---|---|---|---|
+| C1 | `TenantDatabaseAdmin.DatabaseName` (`Persistence.Tenant/Administration`): database **and** role are `auxilia_t_<slug>` (`-` → `_`) | Same slug in both environments → same database and same role. `CreateDatabaseAsync` finds the role and runs `ALTER ROLE … PASSWORD` (the prod tenant loses its password and stops working), skips `CREATE DATABASE` because it exists, and returns a connection string to the **prod database**: qa would migrate and write prod data | Slug rule (qa slugs never match prod slugs, e.g. suffix `-qa`); PostgreSQL ≥ 16: `auxilia_qa` has `CREATEROLE` but may alter only the roles it created, so the `ALTER ROLE` fails and provisioning stops (`bootstrap.sql` grants neither login to the other) | Configurable prefix (e.g. `Provisioning:DatabasePrefix` = `auxilia_t_` / `auxilia_qa_t_`) used by `DatabaseName` |
+| C2 | `RealtimeRegistration.AddRealtime` (`Infrastructure/Realtime`): the SignalR backplane **overrides** the `ChannelPrefix` of the connection string with the fixed `auxilia:signalr` | The `channelPrefix=prod:`/`qa:` of `redis-connection` does not reach the backplane, and Redis pub/sub ignores the database number: API and Worker nodes of both environments share every backplane message. Groups are `RealtimeGroups.*(slug, …)` (user, role, session, tenant), so with the same slug a qa event (notification, `ForceLogout`, `AppointmentChanged`…) is delivered to the prod users of that tenant and role | Slug rule (groups contain the slug; connection ids are random; the code sends only to groups, never `Clients.All`). Each node still receives and discards the other environment's traffic (small load) | Backplane prefix from configuration, or `auxilia:signalr` + the connection string's prefix |
+| C3 | `RedisCacheInvalidationBus` (`auxilia:invalidate`) and `TenantLogLevelBus` (`auxilia:log-levels`) on the shared `RedisConnection` | Without isolation a qa invalidation would evict prod L1 entries, and a qa debug level for a slug would make prod nodes reload that slug (from their own Catalog): no data crosses, only useless work | `RedisConnection` parses the whole connection string, so `channelPrefix` applies: the channels become `prod:auxilia:…` and `qa:auxilia:…`. Do not remove `channelPrefix` from `redis-connection` | – |
+| C4 | Valkey keys: HybridCache `InstanceName = "auxilia:"`, ALTCHA `auxilia:altcha:<challenge>`, token deny-list, distributed locks | Same key names in both environments; e.g. a prod deny-list entry would be seen by qa | `defaultDatabase=0` (prod) / `1` (qa) in `redis-connection`: keys live in separate databases. Memory and eviction policy are shared, and a `FLUSHALL` by hand empties both | `InstanceName` from configuration |
+| C5 | `MessageRouting` (`Infrastructure/Messaging`): queues `auxilia.<module>` and `auxilia.platform`, Rebus error queue, topic exchanges | Same queue names: without isolation the qa Worker would consume prod messages (and run them against its own Catalog) | Vhost in the AMQP URI (`/prod`, `/qa`), one user per vhost with permissions only there; the Worker's KEDA rules read the queue length through the same URI, so they scale on their own vhost | – |
+| C6 | `CatalogPersistence`: Data Protection with fixed application name, keys in the Catalog (`PersistKeysToDbContext`) | Separate Catalogs → separate key rings: tenant connection strings (`TenantConnectionProtector`), TOTP secrets and connected-account secrets of prod cannot be read by qa. A prod database copied into qa therefore has unreadable secrets (reset them in qa); copying the prod key ring into qa would break the separation and is not allowed | Separate Catalog databases and logins | Key Vault protection of the key ring (needs `Azure.Identity`, separate decision — §5) |
+| C7 | Npgsql connection pools: one pool per connection string per process; tenant connection strings are built from `Provisioning:AdminConnectionString` (defaults to the Catalog one) with `NpgsqlConnectionStringBuilder`, so they inherit its keywords | B1ms allows about 50 connections (some reserved by Azure) for **both** environments: API, Worker and `auxctl` of prod and qa, each with a pool for the Catalog and for every tenant (default `Maximum Pool Size` 100) can exhaust the server, and prod then refuses connections because of qa | Few tenants, scale to zero closes the pools; **open point**: verify on qa and, if needed, add `Maximum Pool Size` (and `Connection Idle Lifetime`) to `catalog-connection` in `secrets.sh` — new tenants inherit it, existing ones need their stored connection string updated | – |
+| C8 | Health checks (`/health/ready`: Postgres, Redis, RabbitMQ) | A shared service down or saturated makes **both** environments unhealthy; a load test on qa slows prod (Consequences) | None: accepted with the sharing | One RabbitMQ/Valkey per environment (Alternatives) |
+| C9 | `InMemorySessionStore` of the web BFF (not shared, but found in the same review) | Sessions live in the replica: max 1 replica per environment, sessions end on scale to zero (§4) | `maxReplicas: 1` on `ca-auxilia-web-<env>` | Session store on Valkey (with a per-environment database) |
+
+Not affected: logs and documents (own storage account per environment), JWT signing keys (`catalog.signing_keys`, per
+Catalog), client applications and System users (per Catalog), Key Vault and identities (per environment).
+
+Operational rules that follow (also in the runbook): qa tenant slugs never match prod slugs (C1, C2); `redis-connection`
+always keeps `defaultDatabase` and `channelPrefix` (C3, C4); never copy the prod Data Protection keys into qa (C6);
+watch the Postgres connections during the first weeks on qa (C7).
 
 ## Estimated cost (Italy North, list prices, October 2026)
 | Item | €/month |

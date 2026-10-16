@@ -12,7 +12,11 @@ never typed on a command line.
 
 ## Rules
 - **Tenant slugs of qa never match a slug of prod** (e.g. `demo-qa`): Postgres, the SignalR backplane and the tenant
-  roles are shared (ADR 0022 §2).
+  roles are shared (ADR 0022 §2, findings C1–C2 in §10).
+- `redis-connection` always keeps `defaultDatabase` and `channelPrefix` (ADR 0022 §10, C3–C4); never copy the
+  Data Protection keys of the prod Catalog into qa (C6).
+- Watch the metric *Active connections* of `psql-auxilia-next-01` during the first weeks of qa: B1ms has about 50
+  connections for both environments (C7).
 - Preview every change: `deploy/azure/scripts/deploy.sh <shared|qa|prod> --what-if`.
 - A template change keeps the running images (`deploy.sh` passes the current tag); images change only through a release.
 - After a secret changes, restart the revisions that read it (`az containerapp revision restart`, or a new release):
