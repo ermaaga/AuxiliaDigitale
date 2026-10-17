@@ -12,7 +12,7 @@ No secrets in this folder: configuration comes from environment variables or a s
 
 ```bash
 docker compose -f deploy/compose.local.yml up -d --build          # first run: images built, a few minutes
-docker compose -f deploy/compose.local.yml logs bootstrap         # first sign-in details
+docker compose -f deploy/compose.local.yml logs bootstrap         # first sign-in details (first run only)
 ```
 
 | Address | What |
@@ -30,7 +30,13 @@ tenants. On the first run it also:
 - registers the client applications `web-bff` and `console`, whose secrets stay in the `shared` volume (`/shared/web.env`, read by the web container);
 - adds the System user `system@auxilia.local` with a one-use activation token.
 
-To see the sign-in details again: `docker compose -f deploy/compose.local.yml run --rm --entrypoint cat bootstrap /shared/credentials.txt`.
+The sign-in details are printed only by the first run: they are one-use (the temporary password is changed at the
+first sign-in), so the later runs print the commands to get new ones instead. The original file stays in the `shared`
+volume (`run --rm --entrypoint cat bootstrap /shared/credentials.txt`), but its secrets are only valid until used.
+
+The tenant Administrator signs in with password only; the authenticator code is asked only once the user has enabled
+the app from their profile (or when `auth.mfa.requiredRoles` lists their role, empty by default). A password reset does
+not remove the app. The console System user always has TOTP (D-21).
 
 **E-mails.** Sending accounts are tenant data. To receive invitations, password resets, notifications and campaigns in
 Mailpit, open the console, choose `demo` → Messaging, and add an account: provider `smtp`, host `mailpit`, port `1025`,
@@ -40,6 +46,7 @@ security `None`, any from-address. Make it the default.
 token or password:
 - `run --rm auxctl platform users reset --email system@auxilia.local`
 - `run --rm auxctl users reset-password --tenant demo --user admin@demo.local`
+- `run --rm auxctl users reset-mfa --tenant demo --user admin@demo.local` (removes the authenticator app)
 
 **After a code change:** `docker compose -f deploy/compose.local.yml up -d --build`. The data stays in the volumes.
 
