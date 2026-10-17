@@ -64,5 +64,14 @@ New tokens/passwords: docker compose -f deploy/compose.local.yml run --rm auxctl
 TXT
 fi
 
-echo "bootstrap: ready — sign-in details: docker compose -f deploy/compose.local.yml run --rm --entrypoint cat bootstrap /shared/credentials.txt"
-cat "$credentials" 2>/dev/null || true
+if [[ "$first_run" == true ]]; then
+  echo "bootstrap: ready — first sign-in details:"
+  cat "$credentials"
+else
+  # The file holds the secrets of the first run only: once used (or after a reset) they no longer work, so they are
+  # not printed again at every start.
+  echo "bootstrap: ready — the first sign-in details are not shown again (they may have been used or changed since)."
+  echo "  temporary password: docker compose -f deploy/compose.local.yml run --rm auxctl users reset-password --tenant $slug --user $admin"
+  echo "  console token:      docker compose -f deploy/compose.local.yml run --rm auxctl platform users reset --email $system"
+  echo "  authenticator lost: docker compose -f deploy/compose.local.yml run --rm auxctl users reset-mfa --tenant $slug --user $admin"
+fi
