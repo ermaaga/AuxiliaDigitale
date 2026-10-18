@@ -39,7 +39,10 @@ internal static class AuxctlHost
 
         // The legacy import copies documents to the tenant's storage: the local root must be the one Api and Worker use.
         builder.Services.Configure<LocalStorageOptions>(builder.Configuration.GetSection(LocalStorageOptions.SectionName));
-        builder.Services.AddCatalogPersistence(catalog);
+        builder.Services.AddCatalogPersistence(catalog, DataProtectionKeyVault.From(
+            builder.Configuration[DataProtectionKeyVault.KeyIdSetting],
+            builder.Configuration[DataProtectionKeyVault.ManagedIdentityClientIdSetting],
+            builder.Environment.IsDevelopment()));
         builder.Services.AddTenantPersistence();
         builder.Services.AddTenantDatabaseAdministration(builder.Configuration["Provisioning:AdminConnectionString"] ?? catalog);
 

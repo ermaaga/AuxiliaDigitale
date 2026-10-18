@@ -47,7 +47,10 @@ builder.Services.AddTenantLogLevelSync();
 // The Catalog is the only connection string in configuration (user-secrets / environment, never committed).
 var catalogConnectionString = builder.Configuration.GetConnectionString("Catalog")
     ?? throw new InvalidOperationException("ConnectionStrings:Catalog is not configured.");
-builder.Services.AddCatalogPersistence(catalogConnectionString);
+builder.Services.AddCatalogPersistence(catalogConnectionString, DataProtectionKeyVault.From(
+    builder.Configuration[DataProtectionKeyVault.KeyIdSetting],
+    builder.Configuration[DataProtectionKeyVault.ManagedIdentityClientIdSetting],
+    builder.Environment.IsDevelopment()));
 builder.Services.AddTenantPersistence();
 builder.Services.AddTenantSchemaHealthCheck();
 

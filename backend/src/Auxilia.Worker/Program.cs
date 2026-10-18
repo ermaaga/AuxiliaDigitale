@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddWorkerServices(builder.Configuration);
+builder.Services.AddWorkerServices(builder.Configuration, isDevelopment: builder.Environment.IsDevelopment());
 
 // The Worker only consumes queues (decision D-15, ADR 0007): no timers or scheduled services.
 using var host = builder.Build();

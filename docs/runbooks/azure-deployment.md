@@ -15,6 +15,8 @@ never typed on a command line.
   roles are shared (ADR 0022 §2, findings C1–C2 in §10).
 - `redis-connection` always keeps `defaultDatabase` and `channelPrefix` (ADR 0022 §10, C3–C4); never copy the
   Data Protection keys of the prod Catalog into qa (C6).
+- The key `dataprotection-kek` of each vault (ADR 0023) protects every secret of that environment: never delete it nor
+  disable a version of it; rotating it (`az keyvault key rotate`) keeps the old versions enabled.
 - Watch the metric *Active connections* of `psql-auxilia-next-01` during the first weeks of qa: B1ms has about 50
   connections for both environments (C7).
 - Preview every change: `deploy/azure/scripts/deploy.sh <shared|qa|prod> --what-if`.
@@ -46,6 +48,11 @@ never typed on a command line.
    `clients add --client-id console --name "Console" --type PlatformConsole --origin <webUrl>`; read the printed secrets
    from the job log and store them with `secrets.sh set qa web-client-secret` / `console-client-secret` (standard
    input); restart the web revision. Then `platform users add --email … --name …` (activation token in the log).
+   **Check the Data Protection keys** (ADR 0023): after the first start every row of `catalog.data_protection_keys`
+   must be encrypted with the vault key — in `psql` (job `caj-auxilia-psql-01` or the auxctl job)
+   `SELECT friendly_name, xml LIKE '%AzureKeyVaultXmlDecryptor%' AS protected FROM catalog.data_protection_keys;` shows `true`
+   on every row. A `false` row means `DataProtection__KeyVaultKeyId` did not reach that container: fix it and plan a new
+   key ring before storing real secrets.
 10. **GitHub**: environments `qa` and `production` (Settings → Environments; `production` with a required reviewer),
     variable `AZURE_CLIENT_ID` in each (output `deployClientId` of `deploy.sh <env>`, or
     `az identity show -g rg-auxilia-next-<env> -n id-auxilia-next-deploy-<env> --query clientId -o tsv`);
