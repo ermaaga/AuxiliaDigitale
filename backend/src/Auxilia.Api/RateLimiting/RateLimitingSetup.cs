@@ -51,7 +51,11 @@ public sealed class RateLimitingOptions
     /// <summary>Every anonymous request, per IP.</summary>
     public RateLimitRule Anonymous { get; set; } = new() { PermitLimit = 300, Window = TimeSpan.FromMinutes(1) };
 
-    /// <summary>Every request of a client application (<c>client_id</c> claim or <c>X-Client-Id</c>), all users together.</summary>
+    /// <summary>
+    /// Every request of a client application, all users together: only the <c>client_id</c> claim of a validated token
+    /// counts (the <c>X-Client-Id</c> header is not authenticated, anyone could exhaust a real client's budget with it).
+    /// Anonymous requests have the per-IP limits.
+    /// </summary>
     public RateLimitRule Client { get; set; } = new() { PermitLimit = 5000, Window = TimeSpan.FromMinutes(1) };
 }
 
@@ -113,7 +117,7 @@ internal static class RateLimitingSetup
     private static RateLimitPartition<string> ClientPartition(HttpContext context)
     {
         var rules = Rules(context);
-        var clientId = context.User.FindFirstValue(TokenClaims.Client) ?? context.Request.Headers["X-Client-Id"].FirstOrDefault();
+        var clientId = context.User.Identity?.IsAuthenticated == true ? context.User.FindFirstValue(TokenClaims.Client) : null;
         return rules is null || IsExempt(context) || string.IsNullOrWhiteSpace(clientId)
             ? RateLimitPartition.GetNoLimiter("none")
             : Sliding($"client:{clientId.Trim()}", rules.Client);

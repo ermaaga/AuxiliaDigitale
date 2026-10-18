@@ -1998,6 +1998,7 @@
   "errors.AUX-16018": "L'area non esiste.",
   "errors.AUX-16019": "Un'altra area attiva ha già questo nome.",
   "errors.AUX-16021": "File non trovato.",
+  "errors.AUX-16023": "Troppi file per un unico download: scarica le cartelle una alla volta.",
   "errors.AUX-17006": "La richiesta non esiste o è stata eliminata.",
   "errors.AUX-17007": "La richiesta è chiusa: non accetta altri messaggi.",
   "errors.AUX-17013": "L'attività non è valida.",

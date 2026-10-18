@@ -735,6 +735,12 @@ internal sealed class DocumentQueryService(IDocumentDataFactory data, IFileStore
             return Errors.Documents.DocumentFileMissing();
         }
 
+        // The archive is built in a temporary file: bounded, so concurrent downloads cannot fill the disk.
+        if (entries.Count > ZipPaths.MaxEntries || entries.Sum(entry => entry.Document.Size) > ZipPaths.MaxBytes)
+        {
+            return Errors.Documents.DocumentZipTooLarge();
+        }
+
         var zip = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.ReadWrite, FileShare.None, 81920, FileOptions.DeleteOnClose | FileOptions.Asynchronous);
         try
         {
@@ -824,6 +830,12 @@ internal sealed class DocumentQueryService(IDocumentDataFactory data, IFileStore
 /// <summary>The paths inside a case ZIP (F33, branch <c>fix/zip-download-folder</c>, part of the D-30 baseline).</summary>
 internal static class ZipPaths
 {
+    /// <summary>Files in one ZIP download (far above a real case; larger ones are downloaded folder by folder).</summary>
+    public const int MaxEntries = 1000;
+
+    /// <summary>Bytes of the files in one ZIP download (1 GiB, the size of the temporary file at most).</summary>
+    public const long MaxBytes = 1L << 30;
+
     /// <summary>
     /// Whole case: every document under the path of its folder, documents without a folder at the root. One folder F:
     /// the documents of F at the root and those of its subfolders under their path relative to F. Duplicate paths get

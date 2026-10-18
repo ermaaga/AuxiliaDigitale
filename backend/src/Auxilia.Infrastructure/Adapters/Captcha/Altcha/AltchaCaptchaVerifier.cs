@@ -19,11 +19,41 @@ public sealed class AltchaOptions
 {
     public const string SectionName = "Captcha:Altcha";
 
-    /// <summary>64 random bytes, base64 (user-secrets / environment). Without it a random key is used until restart (one node only).</summary>
+    /// <summary>Length of <see cref="Key"/> once decoded.</summary>
+    public const int KeyLength = 64;
+
+    /// <summary>64 random bytes, base64 (user-secrets / environment). Without it a random key is used until restart (Development only).</summary>
     public string? Key { get; set; }
 
     /// <summary>Seconds a challenge stays valid (the applicant fills the form after solving it).</summary>
     public int ExpirySeconds { get; set; } = 600;
+
+    /// <summary>
+    /// Checked when the Api starts: a malformed key always fails, a missing one only when <paramref name="required"/>
+    /// (outside Development every node must share the key, an ephemeral one breaks challenges across nodes and restarts).
+    /// </summary>
+    /// <returns>The decoded key, or <see langword="null"/> when none is configured.</returns>
+    public static byte[]? Decode(string? key, bool required)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return required ? throw new InvalidOperationException($"{SectionName}:Key is required outside Development.") : null;
+        }
+
+        byte[] decoded;
+        try
+        {
+            decoded = Convert.FromBase64String(key);
+        }
+        catch (FormatException exception)
+        {
+            throw new InvalidOperationException($"{SectionName}:Key must be {KeyLength} bytes in base64.", exception);
+        }
+
+        return decoded.Length == KeyLength
+            ? decoded
+            : throw new InvalidOperationException($"{SectionName}:Key must be {KeyLength} bytes in base64.");
+    }
 }
 
 /// <summary>
@@ -33,8 +63,6 @@ public sealed class AltchaOptions
 internal sealed class AltchaCaptchaVerifier : ICaptchaVerifier
 {
     public const string ProviderKey = "altcha";
-
-    private const int KeyLength = 64;
 
     private readonly Lazy<AltchaService> service;
 
@@ -81,16 +109,13 @@ internal sealed class AltchaCaptchaVerifier : ICaptchaVerifier
 
     private static byte[] Key(string? configured, ILogger logger)
     {
-        if (string.IsNullOrWhiteSpace(configured))
+        if (AltchaOptions.Decode(configured, required: false) is { } key)
         {
-            Log.Security.CaptchaKeyEphemeral(logger);
-            return RandomNumberGenerator.GetBytes(KeyLength);
+            return key;
         }
 
-        var key = Convert.FromBase64String(configured);
-        return key.Length == KeyLength
-            ? key
-            : throw new InvalidOperationException($"{AltchaOptions.SectionName}:Key must be {KeyLength} bytes in base64.");
+        Log.Security.CaptchaKeyEphemeral(logger);
+        return RandomNumberGenerator.GetBytes(AltchaOptions.KeyLength);
     }
 
     /// <summary>Verified challenges on the distributed cache (Redis/Valkey in production), until they expire.</summary>

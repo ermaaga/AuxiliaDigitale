@@ -70,5 +70,8 @@ public static partial class EventCodes
 
         /// <summary>The stored file does not match the checksum of the upload: the document is marked damaged.</summary>
         public const int DocumentIntegrityFailed = 16022;
+
+        /// <summary>A case ZIP would hold more files or bytes than one download allows (400): download the folders one by one.</summary>
+        public const int DocumentZipTooLarge = 16023;
     }
 }

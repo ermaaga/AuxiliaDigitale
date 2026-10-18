@@ -2,9 +2,11 @@ using Auxilia.Infrastructure.Adapters.Templates.Fluid;
 
 namespace Auxilia.Infrastructure.Tests.Adapters;
 
-public sealed class FluidTemplateRendererTests
+public sealed class FluidTemplateRendererTests : IDisposable
 {
     private readonly FluidTemplateRenderer renderer = new();
+
+    public void Dispose() => renderer.Dispose();
 
     [Fact]
     public void Body_EncodesValuesForHtml_SubjectDoesNot()
@@ -26,4 +28,31 @@ public sealed class FluidTemplateRendererTests
     [Fact]
     public void MissingValues_RenderEmpty() =>
         renderer.Render("[{{ missing }}]", new Dictionary<string, object?>(), html: false).ShouldBe("[]");
+
+    [Fact]
+    public void RunawayLoop_StopsAfterMaxSteps_AndRendersNothing()
+    {
+        renderer.IsValid("{% for i in (1..100000000) %}x{% endfor %}").ShouldBeTrue();
+
+        renderer.Render("{% for i in (1..100000000) %}x{% endfor %}", new Dictionary<string, object?>(), html: true).ShouldBeNull();
+    }
+
+    [Fact]
+    public void LoopWithinMaxSteps_Renders() =>
+        renderer.Render("{% for i in (1..3) %}{{ i }}{% endfor %}", new Dictionary<string, object?>(), html: false).ShouldBe("123");
+
+    [Fact]
+    public void Cache_StaysWithinItsSizeLimit()
+    {
+        using var bounded = new FluidTemplateRenderer(cacheSizeLimit: 100);
+
+        for (var i = 0; i < 50; i++)
+        {
+            bounded.Render($"Template number {i:D4} {{{{ name }}}}", new Dictionary<string, object?> { ["name"] = "x" }, html: false)
+                .ShouldBe($"Template number {i:D4} x");
+        }
+
+        // Each entry weighs its length (31 characters): at most three fit in 100.
+        bounded.CachedCount.ShouldBeLessThanOrEqualTo(3);
+    }
 }

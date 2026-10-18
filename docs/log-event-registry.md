@@ -16,7 +16,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | 13000–13999 | Directory | Directory (clients, employees) | 51 | 13052 |
 | 14000–14999 | Cases | Cases (services, cases, payments) | 41 | 14042 |
 | 15000–15999 | Scheduling | Scheduling | 14 | 15015 |
-| 16000–16999 | Documents | Documents / Storage | 22 | 16023 |
+| 16000–16999 | Documents | Documents / Storage | 23 | 16024 |
 | 17000–17999 | Requests | Engagement: requests, tasks, activities | 18 | 17019 |
 | 18000–18999 | Notifications | Engagement: notifications / realtime | 10 | 18011 |
 | 19000–19999 | Marketing | Marketing | 33 | 19034 |
@@ -292,6 +292,7 @@ A new code is the current max of its range + 1; codes are never reused or renumb
 | AUX-16020 | Documents.DocumentProcessed | – | – | Documents.Process (success) | – |
 | AUX-16021 | Documents.DocumentFileMissing | – | NotFound | – | – |
 | AUX-16022 | Documents.DocumentIntegrityFailed | Warning | – | – | Document {DocumentId}: the stored file is missing or does not match the upload checksum |
+| AUX-16023 | Documents.DocumentZipTooLarge | – | Validation | – | – |
 | AUX-17001 | Requests.RequestCreated | – | – | Requests.CreateRequest (success) | – |
 | AUX-17002 | Requests.RequestReplied | – | – | Requests.ReplyToRequest (success) | – |
 | AUX-17003 | Requests.RequestClosed | – | – | Requests.CloseRequest (success) | – |

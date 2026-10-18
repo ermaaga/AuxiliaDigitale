@@ -70,6 +70,34 @@ public sealed class AltchaCaptchaVerifierTests
     }
 
     [Fact]
+    public void Decode_WithoutAKey_FailsOnlyWhenRequired()
+    {
+        AltchaOptions.Decode(null, required: false).ShouldBeNull();
+        AltchaOptions.Decode(" ", required: false).ShouldBeNull();
+        Should.Throw<InvalidOperationException>(() => AltchaOptions.Decode(null, required: true));
+    }
+
+    [Theory]
+    [InlineData(48)]
+    [InlineData(65)]
+    public void Decode_KeyOfTheWrongLength_FailsEvenWhenOptional(int length)
+    {
+        Should.Throw<InvalidOperationException>(() => AltchaOptions.Decode(Convert.ToBase64String(new byte[length]), required: false));
+    }
+
+    [Fact]
+    public void Decode_NotBase64_Fails()
+    {
+        Should.Throw<InvalidOperationException>(() => AltchaOptions.Decode("not base64!", required: true));
+    }
+
+    [Fact]
+    public void Decode_KeyOf64Bytes_IsReturned()
+    {
+        AltchaOptions.Decode(Key, required: true)!.Length.ShouldBe(AltchaOptions.KeyLength);
+    }
+
+    [Fact]
     public async Task WithoutAKey_ARandomOneIsUsed_AndAWrongKeyFailsLoudly()
     {
         var ephemeral = new AltchaCaptchaVerifier(Options.Create(new AltchaOptions()), cache, NullLogger<AltchaCaptchaVerifier>.Instance);

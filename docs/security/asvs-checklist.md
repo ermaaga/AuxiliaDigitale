@@ -30,6 +30,12 @@ si verifica che la guardia risponda prima di qualsiasi logica.
 | R2 | L'hub `/hubs/notifications` accettava un token di piattaforma del tenant (ha `sub`, `sid`, `tenant`): la connessione entrava nel gruppo del tenant e riceveva gli eventi realtime destinati a tutti | Media | `NotificationsHub` rifiuta lo scope `platform` (motivo `PlatformToken`, `AUX-18002`) |
 | R3 | Import Excel: il file `.xlsx` era controllato solo per estensione e poi aperto da ClosedXML nel Worker; un archivio compresso di 10 MB può espandersi a GB (zip bomb, esaurimento di memoria) | Media | `XlsxImportWorkbook.IsReasonablePackage`: firma ZIP, al massimo 1000 voci e 200 MB decompressi dichiarati (.NET rifiuta le voci che superano la dimensione dichiarata); altrimenti il file è "illeggibile" come prima |
 | R4 | Le chiavi di Data Protection (cifrano connection string dei tenant, password SMTP, chiavi di firma, segreti TOTP) sono nel Catalog senza protezione a riposo: un dump del Catalog basta per decifrare i segreti | Alta in produzione | ⚠ **H-03**: `ProtectKeysWith…` dal secret store dell'hosting (D-12) — già previsto in `CatalogPersistence` |
+| R5 | Revisione esterna (#139, report della PR #99): la partizione per client del rate limit si basava anche sull'header `X-Client-Id` non autenticato; chiunque poteva esaurire il budget di un client reale | Bassa | La partizione per client usa solo il claim `client_id` di un token valido; le richieste anonime hanno i limiti per IP (`RateLimitingTests`) |
+| R6 | #139: i template Liquid analizzati restavano in memoria per sempre (`ConcurrentDictionary`) e un render non aveva limite di passi (un ciclo enorme in anteprima occupava un thread) | Bassa/Media | `FluidTemplateRenderer`: cache limitata (10 M caratteri, scadenza scorrevole 1 h) e `MaxSteps` 100.000 (`FluidTemplateRendererTests`) |
+| R7 | #139: lo ZIP di un fascicolo nasce in un file temporaneo grande quanto tutti i documenti, senza limite | Bassa | Al massimo 1000 file e 1 GiB per download, altrimenti 400 `AUX-16023` (si scaricano le cartelle) |
+| R8 | #139: un link di reset password inviato prima della disattivazione dell'account funzionava ancora (l'accesso restava comunque bloccato) | Bassa | Il reset rifiuta gli account disattivati (`AUX-12018` link non valido); l'attivazione non cambia mai `IsActive` (è l'interruttore dello staff) |
+| R9 | #139: `deploy/azure/scripts/secrets.sh` generava una chiave ALTCHA di 48 byte, il verificatore ne vuole 64: le registrazioni esterne su Azure sarebbero fallite al primo captcha | Alta (funzionale) | Chiave di 64 byte; l'Api controlla la chiave all'avvio: malformata sempre, mancante fuori da Development → l'Api non parte |
+| R10 | #139: lo storage FTP accetta `documents.storage.ftp.tls = false` (credenziali e file in chiaro) | Bassa | Rischio accettato per i server legacy: il default è TLS, il chiaro lo imposta solo la piattaforma (endpoint tecnico); da evitare in produzione |
 
 ## 2. Checklist per capitolo
 
@@ -87,7 +93,8 @@ operazione (revoca presso il fornitore dopo il commit). Resta voluto che la sola
 - **R4 — chiavi di Data Protection a riposo** e **TLS/segreti di produzione**: H-03, con la decisione D-12 sull'hosting.
 - `ForwardedHeaders:KnownProxies`/`KnownNetworks` vanno impostati per il reverse proxy di produzione (H-03), altrimenti
   il rate limit per IP vede l'indirizzo del proxy.
-- `Captcha:Altcha:Key` va impostata in produzione (senza, la chiave è casuale per nodo e lo avvisa `AUX-29xxx` all'avvio).
+- `Captcha:Altcha:Key` (64 byte in base64) è obbligatoria fuori da Development: senza, l'Api non parte (R9). Se il Key
+  Vault ha già una `altcha-key` di 48 byte creata dalla versione precedente di `secrets.sh`, va cancellata e rigenerata.
 - Credenziali del legacy (Postgres, SMTP, FTP/Azure, reCAPTCHA): rotazione al cutover, R-03.
 - Antivirus sui documenti (ClamAV) non previsto: il controllo di tipo e contenuto resta l'unica difesa (decisione da
   prendere con l'hosting).
