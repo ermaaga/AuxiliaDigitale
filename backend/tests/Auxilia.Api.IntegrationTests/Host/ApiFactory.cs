@@ -25,6 +25,9 @@ public class ApiFactory : WebApplicationFactory<Program>
     /// <summary>The <c>sub</c> claim of the test caller (default: a new id per request).</summary>
     public const string TestUserHeader = "X-Test-User";
 
+    /// <summary>The <c>client_id</c> claim of the test caller (default: none).</summary>
+    public const string TestClientHeader = "X-Test-Client";
+
     public const string BaseDomain = "auxilia.test";
 
     protected virtual IApiEndpoints? Endpoints => null;
@@ -78,8 +81,11 @@ public class ApiFactory : WebApplicationFactory<Program>
                     var roles = context.Request.Headers[TestRolesHeader].ToString()
                         .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                         .Select(role => new Claim("role", role));
+                    var client = context.Request.Headers[TestClientHeader].FirstOrDefault() is { Length: > 0 } clientId
+                        ? new[] { new Claim("client_id", clientId) }
+                        : [];
                     context.User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim("sub", context.Request.Headers[TestUserHeader].FirstOrDefault() ?? Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString()), .. roles], "Test"));
+                        [new Claim("sub", context.Request.Headers[TestUserHeader].FirstOrDefault() ?? Guid.CreateVersion7().ToString()), new Claim("tenant", tenant.ToString()), .. roles, .. client], "Test"));
                 }
 
                 return nextMiddleware(context);

@@ -102,6 +102,9 @@ builder.Services.AddSingleton<IModuleEndpoints, Auxilia.Api.Endpoints.Mailbox.Co
 
 builder.Services.Configure<TenancyOptions>(builder.Configuration.GetSection(TenancyOptions.SectionName));
 builder.Services.Configure<AltchaOptions>(builder.Configuration.GetSection(AltchaOptions.SectionName));
+
+// Fails fast: a malformed key always, a missing one outside Development (every node must share it).
+AltchaOptions.Decode(builder.Configuration[$"{AltchaOptions.SectionName}:Key"], required: !builder.Environment.IsDevelopment());
 builder.Services.Configure<LocalStorageOptions>(builder.Configuration.GetSection(LocalStorageOptions.SectionName));
 builder.Services.Configure<Auxilia.Infrastructure.Adapters.OAuth.ConnectedAccountsOptions>(
     builder.Configuration.GetSection(Auxilia.Infrastructure.Adapters.OAuth.ConnectedAccountsOptions.SectionName));

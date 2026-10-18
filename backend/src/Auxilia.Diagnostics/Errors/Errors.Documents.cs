@@ -49,5 +49,8 @@ public static partial class Errors
 
         public static Error DocumentFileMissing() =>
             Error.NotFound(EventCodes.Documents.DocumentFileMissing, "The file is not available");
+
+        public static Error DocumentZipTooLarge() =>
+            Error.Validation(EventCodes.Documents.DocumentZipTooLarge, "Too many files for one ZIP download");
     }
 }

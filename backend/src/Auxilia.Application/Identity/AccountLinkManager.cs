@@ -308,7 +308,9 @@ internal sealed class AccountLinkManager : IAccountLinkManager
         var now = timeProvider.GetUtcNow();
         var stored = string.IsNullOrWhiteSpace(token) ? null : await store.FindUserTokenAsync(SecureTokens.Hash(token), purpose, cancellationToken);
         var user = stored is null ? null : await store.FindUserAsync(stored.UserId, cancellationToken);
-        if (stored is null || user is null || !stored.IsUsableAt(now))
+        // A reset link sent before the account was disabled does not work any more (activation keeps working: setting the
+        // first password does not give access, IsActive is the staff's switch and is never changed here).
+        if (stored is null || user is null || !stored.IsUsableAt(now) || (purpose == UserTokenPurpose.PasswordReset && !user.IsActive))
         {
             return Errors.Identity.UserTokenInvalid();
         }

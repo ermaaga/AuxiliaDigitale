@@ -11,6 +11,8 @@ namespace Auxilia.Api.IntegrationTests.Host;
 /// <summary>Rate limits (skill auxilia-security): 429 ProblemDetails with Retry-After, per tenant, health not limited.</summary>
 public sealed class RateLimitingTests : IClassFixture<RateLimitingTests.Factory>
 {
+    private const string ClientUnderTest = "client-budget-tests";
+
     private readonly Factory factory;
 
     public RateLimitingTests(Factory factory) => this.factory = factory;
@@ -68,6 +70,31 @@ public sealed class RateLimitingTests : IClassFixture<RateLimitingTests.Factory>
     }
 
     [Fact]
+    public async Task ClientBudget_CountsTheTokenClaim_NotTheUnauthenticatedHeader()
+    {
+        // Anonymous requests naming the client in X-Client-Id do not consume its budget (only the per-IP limit).
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            using var anonymous = await GetAsync(request => request.Headers.Add("X-Client-Id", ClientUnderTest));
+            anonymous.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        }
+
+        // Users of that client (different users, each under their own limit) share the client budget.
+        var responses = new List<HttpStatusCode>();
+        for (var attempt = 0; attempt < 4; attempt++)
+        {
+            using var response = await GetAsync(request =>
+            {
+                request.Headers.Add(ApiFactory.TestTenantClaimHeader, ApiDatabase.TenantA);
+                request.Headers.Add(ApiFactory.TestClientHeader, ClientUnderTest);
+            });
+            responses.Add(response.StatusCode);
+        }
+
+        responses.ShouldBe([HttpStatusCode.NotFound, HttpStatusCode.NotFound, HttpStatusCode.NotFound, HttpStatusCode.TooManyRequests]);
+    }
+
+    [Fact]
     public async Task HealthEndpoints_AreNeverLimited()
     {
         using var client = factory.CreateClient();
@@ -76,6 +103,14 @@ public sealed class RateLimitingTests : IClassFixture<RateLimitingTests.Factory>
             using var response = await client.GetAsync("/health/live", Ct);
             response.StatusCode.ShouldBe(HttpStatusCode.OK);
         }
+    }
+
+    private async Task<HttpResponseMessage> GetAsync(Action<HttpRequestMessage> configure)
+    {
+        using var client = factory.CreateClient();
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/v1/no-such-route");
+        configure(request);
+        return await client.SendAsync(request, Ct);
     }
 
     private async Task<HttpResponseMessage> PostTokenAsync(string tenant)
@@ -113,6 +148,8 @@ public sealed class RateLimitingTests : IClassFixture<RateLimitingTests.Factory>
             builder.UseSetting("RateLimiting:AccountLinks:Window", "00:10:00");
             builder.UseSetting("RateLimiting:User:PermitLimit", "4");
             builder.UseSetting("RateLimiting:User:Window", "00:10:00");
+            builder.UseSetting("RateLimiting:Client:PermitLimit", "3");
+            builder.UseSetting("RateLimiting:Client:Window", "00:10:00");
         }
     }
 }

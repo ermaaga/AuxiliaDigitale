@@ -113,7 +113,7 @@ init_environment() {
   echo "written $vault/{catalog,redis,rabbitmq,storage}-connection"
 
   if [ -z "$(secret "$vault" altcha-key)" ]; then
-    openssl rand -base64 48 | tr -d '\n' | store "$vault" altcha-key
+    openssl rand -base64 64 | tr -d '\n' | store "$vault" altcha-key
     echo "generated $vault/altcha-key"
   fi
   ensure_placeholder "$vault" web-client-secret

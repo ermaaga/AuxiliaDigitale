@@ -1998,6 +1998,7 @@
   "errors.AUX-16018": "The area does not exist.",
   "errors.AUX-16019": "Another active area already has this name.",
   "errors.AUX-16021": "File not found.",
+  "errors.AUX-16023": "Too many files for one download: download the folders one at a time.",
   "errors.AUX-17006": "The request does not exist or has been deleted.",
   "errors.AUX-17007": "The request is closed: it takes no more messages.",
   "errors.AUX-17013": "The task is not valid.",

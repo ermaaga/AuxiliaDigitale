@@ -292,6 +292,24 @@ public sealed class DocumentManagerTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task Zip_OverTheSizeOrFileLimit_IsRefusedBeforeReadingTheFiles()
+    {
+        Document Stored(string name, long size) => Document.Upload(
+            Guid.CreateVersion7(),
+            new DocumentUpload(Client, CaseId, null, name, "k" + Guid.NewGuid(), "application/pdf", size, "h", 2026, null, null, "{}"),
+            null,
+            clock.GetUtcNow()).Value;
+
+        data.Documents.Add(Stored("big.pdf", ZipPaths.MaxBytes));
+        data.Documents.Add(Stored("one-more.pdf", 1));
+        (await query.ZipAsync(CaseId, null, Ct)).Error!.Code.ShouldBe(EventCodes.Documents.DocumentZipTooLarge);
+
+        data.Documents.Clear();
+        data.Documents.AddRange(Enumerable.Range(0, ZipPaths.MaxEntries + 1).Select(i => Stored($"f{i}.pdf", 1)));
+        (await query.ZipAsync(CaseId, null, Ct)).Error!.Code.ShouldBe(EventCodes.Documents.DocumentZipTooLarge);
+    }
+
+    [Fact]
     public void ZipPaths_DuplicatesGetASuffix()
     {
         var folders = new[] { new FolderSummary(Folder, null, "Redditi", "Redditi") };

@@ -1,0 +1,8 @@
+[
+ {
+  "key": "errors.AUX-16023",
+  "category": "errors",
+  "en": "Too many files for one download: download the folders one at a time.",
+  "it": "Troppi file per un unico download: scarica le cartelle una alla volta."
+ }
+]

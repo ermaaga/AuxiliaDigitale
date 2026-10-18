@@ -152,6 +152,32 @@ public sealed class AccountLinkManagerTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task ResetPassword_AfterTheAccountWasDisabled_FailsAndKeepsThePassword()
+    {
+        var user = AddUser("mario.rossi", "old password");
+        await links.RequestPasswordResetAsync("mario.rossi", Ct);
+        var token = TokenOf((string)dispatcher.Requests.Single().Model["link"]!);
+        user.SetActive(false);
+
+        (await links.ResetPasswordAsync(token, "a new long password", Ct)).Error!.Code.ShouldBe(EventCodes.Identity.UserTokenInvalid);
+
+        user.PasswordHash.ShouldBe("hash:old password");
+    }
+
+    [Fact]
+    public async Task Activate_OfADisabledAccount_SetsThePasswordButLeavesItDisabled()
+    {
+        var user = AddUser(password: null);
+        user.SetActive(false);
+        await links.SendActivationAsync(user.Id, Ct);
+
+        (await links.ActivateAsync(TokenOf((string)dispatcher.Requests.Single().Model["link"]!), "a new long password", Ct)).IsSuccess.ShouldBeTrue();
+
+        user.PasswordHash.ShouldBe("hash:a new long password");
+        user.IsActive.ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task ResetPassword_WithAnActivationToken_Fails()
     {
         var user = AddUser(password: null);
