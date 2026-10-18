@@ -102,6 +102,7 @@ module keyVault 'modules/key-vault.bicep' = {
     name: 'kv-auxilia-next-${environmentName}'
     readerPrincipalIds: [runtimeIdentity.outputs.principalId]
     operatorObjectIds: operatorObjectIds
+    cryptoUserPrincipalIds: [runtimeIdentity.outputs.principalId]
   }
 }
 
@@ -128,7 +129,9 @@ module apps 'modules/apps.bicep' = if (!empty(imageTag)) {
     registryLoginServer: registry.properties.loginServer
     imageTag: imageTag
     identityId: runtimeIdentity.outputs.id
+    identityClientId: runtimeIdentity.outputs.clientId
     keyVaultUri: keyVault.outputs.uri
+    dataProtectionKeyUri: keyVault.outputs.dataProtectionKeyUri
     forwardedNetworks: forwardedNetworks
     apiMaxReplicas: apiMaxReplicas
     workerMaxReplicas: workerMaxReplicas

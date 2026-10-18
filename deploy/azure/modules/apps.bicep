@@ -9,7 +9,11 @@ param registryLoginServer string
 @description('Commit SHA built by the ACR Task (tag of auxilia/api|worker|web|auxctl).')
 param imageTag string
 param identityId string
+@description('Client id of the runtime identity (AZURE_CLIENT_ID: the managed identity Azure.Identity uses).')
+param identityClientId string
 param keyVaultUri string
+@description('Versionless Key Vault key that protects the Data Protection key ring (#141).')
+param dataProtectionKeyUri string
 @description('Networks of the ingress proxies whose X-Forwarded-For the API trusts (ForwardedHeaders:KnownNetworks).')
 param forwardedNetworks array
 param apiMaxReplicas int = 2
@@ -58,6 +62,8 @@ var backendEnv = [
   { name: 'AuxiliaLogging__AzureBlob__ConnectionString', secretRef: 'storage-connection' }
   { name: 'AuxiliaLogging__AzureBlob__Container', value: 'logs' }
   { name: 'Captcha__Altcha__Key', secretRef: 'altcha-key' }
+  { name: 'AZURE_CLIENT_ID', value: identityClientId }
+  { name: 'DataProtection__KeyVaultKeyId', value: dataProtectionKeyUri }
 ]
 
 var forwardedEnv = [for (network, index) in forwardedNetworks: {

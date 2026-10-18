@@ -26,10 +26,10 @@ public static class CatalogPersistence
     /// <summary>
     /// <see cref="CatalogDbContext"/> on PostgreSQL (snake_case names, schema <c>catalog</c>) and the Data Protection
     /// key ring persisted in <c>catalog.data_protection_keys</c>, platform settings and the protector of secret settings.
-    /// Needs <c>IReferenceDataCache</c> (<c>AddInfrastructure</c>) for the tenant lookups. Protecting the keys at rest with a certificate is
-    /// configured by the host from its secret store (H-03).
+    /// Needs <c>IReferenceDataCache</c> (<c>AddInfrastructure</c>) for the tenant lookups. With <paramref name="keyVault"/>
+    /// the keys are protected at rest by a Key Vault key (#141, R4); without it (Development) they are stored as they are.
     /// </summary>
-    public static IServiceCollection AddCatalogPersistence(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddCatalogPersistence(this IServiceCollection services, string connectionString, DataProtectionKeyVault? keyVault = null)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
@@ -42,9 +42,14 @@ public static class CatalogPersistence
                 provider.GetService<TimeProvider>() ?? TimeProvider.System));
         });
 
-        services.AddDataProtection()
+        var dataProtection = services.AddDataProtection()
             .SetApplicationName(DataProtectionApplicationName)
             .PersistKeysToDbContext<CatalogDbContext>();
+        if (keyVault is not null)
+        {
+            // The key wraps and unwraps each key of the ring inside the vault: a copy of the Catalog alone decrypts nothing.
+            dataProtection.ProtectKeysWithAzureKeyVault(keyVault.KeyId, keyVault.Credential());
+        }
 
         services.AddScoped<ITenantDirectory, CatalogTenantDirectory>();
         services.AddScoped<ICatalogStore, CatalogStore>();
