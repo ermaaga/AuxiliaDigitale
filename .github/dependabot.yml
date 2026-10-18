@@ -1,23 +1,43 @@
 version: 2
+# Once a month (first day of the month, 07:00 Rome); security updates are not bound to the schedule.
+# Minor and patch updates arrive grouped (one PR per ecosystem, low risk); every major update arrives as its own PR
+# to be evaluated on its own (breaking changes, dependency policy).
 updates:
   - package-ecosystem: nuget
     directory: /backend
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       nuget:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # 6.5.0 moved to AGPL-3.0-only with a runtime license key (not in the license allowlist): stay on 6.2.x.
+      - dependency-name: "PDFsharp-MigraDoc"
+        versions: [">= 6.3.0"]
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       npm:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # Types follow the Node LTS of .nvmrc (24); a new major comes with the move to the next LTS.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+      time: "07:00"
+      timezone: Europe/Rome
     groups:
       github-actions:
         patterns: ["*"]
+        update-types: ["minor", "patch"]

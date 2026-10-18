@@ -65,7 +65,8 @@ public sealed class DependencyInjectionTests
             "auth.session.absoluteDays", "auth.session.idleMinutes", "auth.session.rememberMeDays", "auth.singleSession", "branding.appName", "branding.background.color",
             "branding.background.endColor", "branding.background.kind", "branding.background.startColor", "branding.theme.accentColor",
             "branding.theme.fill", "branding.theme.primaryColor", "branding.useAppName", "cases.expiry.enabled",
-            "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.azure.connectionString", "documents.storage.azure.container", "documents.storage.ftp.host", "documents.storage.ftp.password", "documents.storage.ftp.path", "documents.storage.ftp.port", "documents.storage.ftp.tls", "documents.storage.ftp.user", "documents.storage.provider", "registration.defaultLanguage",
+            "cases.expiry.expiringDays", "documents.maxUploadMb", "documents.storage.azure.connectionString", "documents.storage.azure.container", "documents.storage.ftp.host", "documents.storage.ftp.password", "documents.storage.ftp.path", "documents.storage.ftp.port", "documents.storage.ftp.tls", "documents.storage.ftp.user", "documents.storage.provider", "mailbox.calendar.futureDays", "mailbox.calendar.pastDays", "mailbox.imap.allowedPorts", "mailbox.sync.initialDays", "mailbox.sync.initialMaxMessages", "mailbox.sync.minIntervalSeconds",
+            "registration.defaultLanguage",
             "registration.enabled", "registration.minimumAge", "registration.notifyAdmins", "registration.sendConfirmationEmail",
         ]);
     }
@@ -83,7 +84,7 @@ public sealed class DependencyInjectionTests
 
         registry.All.Select(module => module.Code).ShouldBe(
         [
-            "cases", "configuration", "directory", "documents", "engagement", "identity", "imports", "localization", "marketing",
+            "cases", "configuration", "directory", "documents", "engagement", "identity", "imports", "localization", "mailbox", "marketing",
             "messaging", "reporting", "scheduling", "testing",
         ]);
         extra.ServicesAdded.ShouldBe(1);

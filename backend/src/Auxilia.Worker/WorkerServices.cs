@@ -27,6 +27,7 @@ public static class WorkerServices
         services.AddApplication();
         services.AddInfrastructure();
         services.Configure<LocalStorageOptions>(configuration.GetSection(LocalStorageOptions.SectionName));
+        services.Configure<Infrastructure.Adapters.OAuth.ConnectedAccountsOptions>(configuration.GetSection(Infrastructure.Adapters.OAuth.ConnectedAccountsOptions.SectionName));
         services.AddTenantLogLevelSync();
 
         // Same Catalog and tenant databases as the Api (user-secrets / environment, never committed).

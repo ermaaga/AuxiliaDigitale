@@ -21,6 +21,7 @@ const ROLES = [
       "services",
       "appointments",
       "documents",
+      "mail",
       "requests",
       "tasks",
       "marketing",
@@ -38,6 +39,7 @@ const ROLES = [
       "cases",
       "appointments",
       "documents",
+      "mail",
       "requests",
       "tasks",
       "marketing",
@@ -48,7 +50,7 @@ const ROLES = [
     name: "Client",
     user: E2E.parityClient,
     pages: ["dashboard", "cases", "appointments", "requests"],
-    closed: ["/clients", "/employees", "/documents", "/marketing", "/sessions"],
+    closed: ["/clients", "/employees", "/documents", "/mail", "/marketing", "/sessions"],
   },
 ] as const;
 

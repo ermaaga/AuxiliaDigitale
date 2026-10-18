@@ -1,6 +1,6 @@
 # Sicurezza — checklist ASVS L2 e pen-test interno (H-01)
 
-Stato al 2026-10-06 (H-01). Livello richiesto: **OWASP ASVS 4.0.3 livello 2** (skill `auxilia-security`).
+Stato al 2026-10-06 (H-01), §3 al 2026-10-16 (C-08, N05). Livello richiesto: **OWASP ASVS 4.0.3 livello 2** (skill `auxilia-security`).
 Ogni riga indica dove sta il controllo e quale test lo verifica; `⚠` = rischio residuo con il task che lo chiude.
 
 ## 1. Pen-test interno automatico
@@ -55,11 +55,34 @@ si verifica che la guardia risponda prima di qualsiasi logica.
 | V8 Dati | log degli accessi per tenant, export con permessi della lista, file solo attraverso l'API autorizzata | `Documents`, `Reporting` | test dei moduli |
 | V9 Comunicazioni | HSTS (API fuori da Development, web sempre con `preload`), `upgrade-insecure-requests` | `Program.cs`, `next.config.ts` | ⚠ TLS terminato dall'hosting (H-03) |
 | V10 Codice malevolo | allowlist delle dipendenze, lock file, audit moderate+, licenze, gitleaks, osv-scanner in CI | `.github/workflows/ci.yml`, ADR 0011 | CI |
-| V12 File | documenti: whitelist dei tipi + magic bytes + dimensione + SHA-256, staging → commit, controllo nel Worker, chiavi `tenants/{slug}/…` (altre rifiutate); immagini profilo decodificate e ricodificate; branding PNG/JPEG/WebP per firma (mai SVG); import `.xlsx` ≤ 10 MB con controllo del pacchetto (R3) | `Documents.Public.IFileStore`, `IImageProcessor`, `BrandingAsset`, `XlsxImportWorkbook` | test di dominio e di Infrastructure |
+| V12 File | documenti: whitelist dei tipi + magic bytes + dimensione + SHA-256, staging → commit, controllo nel Worker, chiavi `tenants/{slug}/…` (altre rifiutate); immagini profilo decodificate e ricodificate; branding PNG/JPEG/WebP per firma (mai SVG); import `.xlsx` ≤ 10 MB con controllo del pacchetto (R3); anteprima (ADR 0020): PDF disegnati da PDF.js su canvas (niente frame, niente script/XFA del PDF, worker servito dall'app con CSP propria `default-src 'self'; script-src 'self' 'wasm-unsafe-eval'`), testo in `<pre>`, file aperti in una scheda con la CSP dell'API inoltrata dal BFF | `Documents.Public.IFileStore`, `IImageProcessor`, `BrandingAsset`, `XlsxImportWorkbook` | test di dominio e di Infrastructure |
 | V13 API | header `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, CSP `default-src 'none'`, `Cache-Control: no-store`, nessun header `Server`; OpenAPI e Scalar solo in Development; 429 con `Retry-After` | `SecurityHeaders`, `RateLimitingSetup` | `ErrorResponseTests`, `RateLimitingTests` |
-| V14 Configurazione | segreti solo da user-secrets/ambiente (`.env.example` vuoti, password di default solo negli stack locali), CSP per richiesta con nonce e `strict-dynamic`, `X-Forwarded-For` accettato solo dai proxy fidati (ultimo hop) | `proxy.ts`, `ForwardedHeadersSetup` | `ForwardedHeadersTests` |
+| V14 Configurazione | segreti solo da user-secrets/ambiente (`.env.example` vuoti, password di default solo negli stack locali), CSP per richiesta con nonce e `strict-dynamic` (`worker-src 'self'`), `X-Forwarded-For` accettato solo dai proxy fidati (ultimo hop) | `proxy.ts`, `ForwardedHeadersSetup` | `ForwardedHeadersTests` |
 
-## 3. Rischi residui (fuori da H-01)
+## 3. Account collegati, posta e calendari esterni (N05, C-08)
+
+Modulo `mailbox` (ADR 0021): l'API legge per conto dell'utente caselle e calendari di terzi. Nota privacy e valutazione
+preliminare della DPIA: [`privacy-connected-accounts.md`](privacy-connected-accounts.md).
+
+| Capitolo ASVS | Controllo | Dove | Verifica |
+|---|---|---|---|
+| V4.2 Accesso ai record | account e copie visibili solo al proprietario: ogni query filtra per l'utente del token, un id di un altro utente o di un altro tenant risponde 404, una sincronizzazione chiesta da altri non tocca gli account del proprietario; Administrator e System non vedono la posta degli altri | `ConnectedAccountPolicy`, `MailboxAccessResolver`, query `…Data` per utente | `MailboxIsolationTests` (altro utente e altro tenant su tutti gli endpoint), `SecurityPerimeterTests` (token di piattaforma) |
+| V4.1 Ruoli | permessi `mailbox.accounts.connect`/`mail.view`/`mail.file` solo per Administrator ed Employee; i clienti ricevono 404 dal filtro del modulo | `MailboxPermissions`, `MailboxModule` | `Clients_*` dei test di integrazione |
+| V2.10 / V6.4 Segreti di servizio | refresh token OAuth e password IMAP cifrati con Data Protection con il tenant nello scopo (`IConnectedAccountSecretProtector`), mai restituiti né registrati; refresh ruotato dal fornitore salvato insieme al suo uso; `ToString()` di accesso e login senza segreti | `Infrastructure/Security`, `SyncPorts` | `ConnectedAccountTests`, `SyncTests` · ⚠ R4 (chiavi a riposo, H-03) |
+| V3.5 OAuth | authorization code + PKCE S256, `state` monouso di 10 minuti salvato come hash, legato all'utente che l'ha chiesto, verifier protetto lato server; l'API è client confidenziale e il browser non vede mai i token (callback attraverso il BFF); `id_token` verificato per `aud`; scope in sola lettura e incrementali | `OAuthProviderBase`, `ConnectedAccountManager`, `connectedAccountCallback` | `OAuthProviderTests`, `ConnectedAccountEndpointsTests`, E2E `tenant-connected-accounts.spec.ts` |
+| V12.6 SSRF | server IMAP scritti dall'utente: solo nomi DNS, ogni risposta DNS controllata (privati, loopback, link-local, metadata cloud rifiutati, evento `AUX-29036`), porte da `mailbox.imap.allowedPorts`, connessione all'indirizzo controllato (nessuna seconda risoluzione) e di nuovo a ogni parte della sincronizzazione; i link dei fornitori seguiti solo sui loro host | `OutboundAddressPolicy`, `ImapConnectionTester`, `MailSynchronizer`, adapter Graph | `ConnectedAccountEndpointsTests`, `MailSyncTests`, `CalendarProviderTests` |
+| V9.2 TLS verso i server | IMAP solo `SslOnConnect`/`StartTls`, validazione del certificato e del nome mai disattivata (`ImapCertificateTrust.System`), HTTPS verso Google e Microsoft | `Adapters/Mail/Imap` | `ImapServerTests` (GreenMail: certificato sconosciuto o nome diverso → connessione rifiutata) |
+| V5.3 / V12.5 Contenuti di terzi | corpo HTML solo in un `iframe srcdoc` sandbox senza script né same-origin, immagini remote bloccate dalla CSP; `.eml` e allegati scaricati con `Content-Disposition: attachment`, `no-store`, tipo generico per gli allegati; originale letto in un file temporaneo limitato a 50 MB; contenuti della posta trattati come dati, mai come istruzioni | `mail-reader.tsx`, `MailEndpoints`, `TemporaryFiles` | `MailFilingEndpointsTests`, `MailReadingTests`, vitest `mail.test.ts` |
+| V12.1 File archiviati | "Inserisci in pratica" passa dagli stessi controlli dei documenti (`.eml` controllato sulle intestazioni MIME, allegati per tipo e magic bytes, dimensione, regole F10 della pratica) | `Documents.Public.ICaseDocuments` | `MailFilingEndpointsTests` |
+| V11 Logica / anti-automazione | sincronizzazione solo su richiesta, rate limit `mailbox-sync` per utente, un run attivo per account e scope, intervallo minimo, budget di tempo con continuazione | `AccountSyncRequester`, `RateLimitingSetup` | `SyncTests`, `MailboxSyncEndpointsTests` |
+| V7 Log | solo codici e id (mai indirizzi, oggetti, contenuti); eventi di sicurezza `AUX-29033…29036` (collegato, scollegato, `state` rifiutato, host rifiutato) | `Log.Mailbox`, `Log.Security` | test del registro |
+| V8.3 Dati personali | solo intestazioni ed eventi della finestra, con lunghezze massime; scollegando (o eliminando l'operatore) si cancellano segreti e copie e si revoca il consenso dove il fornitore lo prevede | `ConnectedAccountManager`, `ConnectedAccountCleanup` | `MailboxSyncEndpointsTests`, `MailboxIsolationTests`, E2E `tenant-mailbox.spec.ts` |
+
+Rilievo di C-08: eliminare un operatore (soft delete della persona) lasciava i suoi account collegati con segreti e
+copie. Corretto con `Mailbox.Public.IConnectedAccountCleanup`, chiamata da `EmployeeManager.DeleteAsync` nella stessa
+operazione (revoca presso il fornitore dopo il commit). Resta voluto che la sola disattivazione dell'accesso li conservi.
+
+## 4. Rischi residui (fuori da H-01)
 
 - **R4 — chiavi di Data Protection a riposo** e **TLS/segreti di produzione**: H-03, con la decisione D-12 sull'hosting.
 - `ForwardedHeaders:KnownProxies`/`KnownNetworks` vanno impostati per il reverse proxy di produzione (H-03), altrimenti
@@ -68,3 +91,6 @@ si verifica che la guardia risponda prima di qualsiasi logica.
 - Credenziali del legacy (Postgres, SMTP, FTP/Azure, reCAPTCHA): rotazione al cutover, R-03.
 - Antivirus sui documenti (ClamAV) non previsto: il controllo di tipo e contenuto resta l'unica difesa (decisione da
   prendere con l'hosting).
+- N05: verifica Google degli ambiti Gmail (restricted) prima di uscire dalla modalità di test; prova manuale con
+  account Google e Microsoft reali (le chiavi OAuth le registra l'utente, runbook `connected-accounts-oauth.md`); DPIA
+  da decidere con l'utente (nota privacy §4).

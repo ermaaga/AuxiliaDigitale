@@ -1,6 +1,7 @@
 using Auxilia.Application.Abstractions.Directory;
 using Auxilia.Application.Directory;
 using Auxilia.Application.Identity.Public;
+using Auxilia.Application.Mailbox.Public;
 using Auxilia.Application.Tests.Identity;
 using Auxilia.Application.Tests.Platform;
 using Auxilia.Contracts.Directory;
@@ -23,6 +24,7 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
     private readonly IUserAccounts accounts = Substitute.For<IUserAccounts>();
     private readonly ManualTimeProvider clock = new();
     private readonly Dictionary<Guid, UserAccount> users = [];
+    private readonly IConnectedAccountCleanup connectedAccounts = Substitute.For<IConnectedAccountCleanup>();
     private readonly EmployeeManager manager;
     private readonly EmployeeQueryService query;
 
@@ -48,7 +50,9 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
         accounts.UpdateAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
         accounts.SendActivationAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
 
-        manager = new EmployeeManager(ManagerHarness.Runner(), data, accounts, clock, NullLogger<EmployeeManager>.Instance);
+        connectedAccounts.RemoveAllAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns(Result.Success());
+
+        manager = new EmployeeManager(ManagerHarness.Runner(), data, accounts, connectedAccounts, clock, NullLogger<EmployeeManager>.Instance);
         query = new EmployeeQueryService(data, accounts);
     }
 
@@ -189,6 +193,8 @@ public sealed class EmployeeManagerTests : IAsyncDisposable
         client.Assignments.Select(item => (item.EmployeeUserId, item.EndedAt is null)).ShouldBe([(leaving, false), (fallback, true)]);
         data.Deleted.ShouldContain(data.Employees[leaving]);
         users[leaving].CanSignIn.ShouldBeFalse();
+        await connectedAccounts.Received(1).RemoveAllAsync(leaving, Arg.Any<CancellationToken>());
+        await connectedAccounts.DidNotReceive().RemoveAllAsync(fallback, Arg.Any<CancellationToken>());
         (await query.GetAsync(leaving, Ct)).Error!.Code.ShouldBe(EventCodes.Directory.EmployeeNotFound);
         (await manager.DeleteAsync(leaving, Ct)).Error!.Code.ShouldBe(EventCodes.Directory.EmployeeNotFound);
     }

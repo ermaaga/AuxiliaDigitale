@@ -1,0 +1,152 @@
+[
+ {
+  "key": "errors.AUX-30006",
+  "category": "errors",
+  "en": "This connected account does not exist.",
+  "it": "Questo account collegato non esiste."
+ },
+ {
+  "key": "errors.AUX-30007",
+  "category": "errors",
+  "en": "This provider is not available.",
+  "it": "Questo fornitore non è disponibile."
+ },
+ {
+  "key": "errors.AUX-30008",
+  "category": "errors",
+  "en": "Check the highlighted fields.",
+  "it": "Controlla i campi evidenziati."
+ },
+ {
+  "key": "errors.AUX-30009",
+  "category": "errors",
+  "en": "The connection request has expired or was already used: try again.",
+  "it": "La richiesta di collegamento è scaduta o è già stata usata: riprova."
+ },
+ {
+  "key": "errors.AUX-30010",
+  "category": "errors",
+  "en": "Access was not granted, so the account was not connected.",
+  "it": "L'accesso non è stato concesso, quindi l'account non è stato collegato."
+ },
+ {
+  "key": "errors.AUX-30011",
+  "category": "errors",
+  "en": "The provider did not complete the connection: try again later.",
+  "it": "Il fornitore non ha completato il collegamento: riprova più tardi."
+ },
+ {
+  "key": "errors.AUX-30012",
+  "category": "errors",
+  "en": "This server address is not allowed.",
+  "it": "Questo indirizzo di server non è consentito."
+ },
+ {
+  "key": "errors.AUX-30013",
+  "category": "errors",
+  "en": "The server refused user name or password.",
+  "it": "Il server ha rifiutato nome utente o password."
+ },
+ {
+  "key": "errors.AUX-30014",
+  "category": "errors",
+  "en": "The server could not be reached with a secure connection: check server, port and connection type.",
+  "it": "Il server non è raggiungibile con una connessione sicura: controlla server, porta e tipo di connessione."
+ },
+ {
+  "key": "modules.mailbox.name",
+  "category": "modules",
+  "en": "Mailbox",
+  "it": "Posta"
+ },
+ {
+  "key": "permissions.mailbox.accounts.connect.description",
+  "category": "permissions",
+  "en": "Connect, change and disconnect your own Google, Microsoft and PEC / IMAP accounts",
+  "it": "Collegare, modificare e scollegare i propri account Google, Microsoft e PEC / IMAP"
+ },
+ {
+  "key": "permissions.mailbox.mail.file.description",
+  "category": "permissions",
+  "en": "File a message of your own mailbox into a case",
+  "it": "Inserire un messaggio della propria casella in una pratica"
+ },
+ {
+  "key": "permissions.mailbox.mail.view.description",
+  "category": "permissions",
+  "en": "Read the mail and calendar events of your own connected accounts",
+  "it": "Leggere la posta e gli eventi del calendario dei propri account collegati"
+ },
+ {
+  "key": "settings.mailbox.imap.allowedPorts.description",
+  "category": "settings",
+  "en": "Ports a PEC / IMAP server entered by a user may use, comma separated (993 = TLS, 143 = STARTTLS)",
+  "it": "Porte che un server PEC / IMAP inserito dall'utente può usare, separate da virgola (993 = TLS, 143 = STARTTLS)"
+ },
+ {
+  "key": "validation.mailbox.address",
+  "category": "validation",
+  "en": "Enter a valid e-mail address.",
+  "it": "Inserisci un indirizzo e-mail valido."
+ },
+ {
+  "key": "validation.mailbox.capabilities",
+  "category": "validation",
+  "en": "Choose mail, calendar or both.",
+  "it": "Scegli posta, calendario o entrambi."
+ },
+ {
+  "key": "validation.mailbox.color",
+  "category": "validation",
+  "en": "Choose a colour from the list.",
+  "it": "Scegli un colore dall'elenco."
+ },
+ {
+  "key": "validation.mailbox.credentials",
+  "category": "validation",
+  "en": "The server refused user name or password.",
+  "it": "Il server ha rifiutato nome utente o password."
+ },
+ {
+  "key": "validation.mailbox.host",
+  "category": "validation",
+  "en": "Enter the server name (for example imap.example.com).",
+  "it": "Inserisci il nome del server (per esempio imap.esempio.it)."
+ },
+ {
+  "key": "validation.mailbox.hostRefused",
+  "category": "validation",
+  "en": "This server address is not allowed.",
+  "it": "Questo indirizzo di server non è consentito."
+ },
+ {
+  "key": "validation.mailbox.hostUnknown",
+  "category": "validation",
+  "en": "This server name does not exist.",
+  "it": "Questo nome di server non esiste."
+ },
+ {
+  "key": "validation.mailbox.password",
+  "category": "validation",
+  "en": "Enter the password of the mailbox.",
+  "it": "Inserisci la password della casella."
+ },
+ {
+  "key": "validation.mailbox.port",
+  "category": "validation",
+  "en": "Enter a valid port and connection type.",
+  "it": "Inserisci una porta e un tipo di connessione validi."
+ },
+ {
+  "key": "validation.mailbox.portNotAllowed",
+  "category": "validation",
+  "en": "This port is not allowed: use 993 (TLS) or 143 (STARTTLS).",
+  "it": "Questa porta non è consentita: usa 993 (TLS) o 143 (STARTTLS)."
+ },
+ {
+  "key": "validation.mailbox.userName",
+  "category": "validation",
+  "en": "Enter the user name of the mailbox.",
+  "it": "Inserisci il nome utente della casella."
+ }
+]

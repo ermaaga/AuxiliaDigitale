@@ -46,6 +46,10 @@ export const E2E = {
   parityAdministrator: { userName: "giorgio.costa", fullName: "Giorgio Costa" },
   parityEmployee: { userName: "irene.villa", fullName: "Irene Villa" },
   parityClient: { userName: "nicola.fontana", fullName: "Nicola Fontana" },
+  /** Connected accounts (N05): an Employee owned by tenant-connected-accounts.spec.ts. */
+  accountsUser: { userName: "davide.marino", fullName: "Davide Marino" },
+  /** Mail and connected calendars (N05, C-08): an Employee whose accounts e2e/support/mailbox-seed.sql seeds before every run. */
+  mailboxUser: { userName: "silvia.rinaldi", fullName: "Silvia Rinaldi" },
 } as const;
 
 /** Loads `e2e/.env.e2e` (written by prepare.sh) into `process.env` without overriding what is already set. */

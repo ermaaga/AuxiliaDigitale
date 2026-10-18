@@ -99,6 +99,22 @@ public static partial class Log
             Level = LogLevel.Warning, Message = "Sign-in of user {UserId} failed on the authenticator code ({Reason})")]
         public static partial void TwoFactorCodeFailed(ILogger logger, Guid userId, string reason);
 
+        [LoggerMessage(EventId = EventCodes.Security.ConnectedAccountLinked, EventName = "Security.ConnectedAccountLinked",
+            Level = LogLevel.Information, Message = "User {UserId} connected {Provider} account {ConnectedAccountId}")]
+        public static partial void ConnectedAccountLinked(ILogger logger, Guid userId, string provider, Guid connectedAccountId);
+
+        [LoggerMessage(EventId = EventCodes.Security.ConnectedAccountUnlinked, EventName = "Security.ConnectedAccountUnlinked",
+            Level = LogLevel.Information, Message = "User {UserId} disconnected {Provider} account {ConnectedAccountId}")]
+        public static partial void ConnectedAccountUnlinked(ILogger logger, Guid userId, string provider, Guid connectedAccountId);
+
+        [LoggerMessage(EventId = EventCodes.Security.OAuthStateRejected, EventName = "Security.OAuthStateRejected",
+            Level = LogLevel.Warning, Message = "OAuth answer for {Provider} refused for user {UserId} ({Reason})")]
+        public static partial void OAuthStateRejected(ILogger logger, string provider, Guid userId, string reason);
+
+        [LoggerMessage(EventId = EventCodes.Security.OutboundHostRefused, EventName = "Security.OutboundHostRefused",
+            Level = LogLevel.Warning, Message = "Server address entered by user {UserId} refused ({Reason})")]
+        public static partial void OutboundHostRefused(ILogger logger, Guid userId, string reason);
+
         [LoggerMessage(EventId = EventCodes.Security.PlatformCredentialsChanged, EventName = "Security.PlatformCredentialsChanged",
             Level = LogLevel.Information, Message = "Credentials of platform user {PlatformUserId} {Change}")]
         public static partial void PlatformCredentialsChanged(ILogger logger, Guid platformUserId, string change);

@@ -20,6 +20,8 @@ export function contentSecurityPolicy(
     // FullCalendar embeds its icon font as a data: URL in its stylesheet.
     "font-src 'self' data:",
     `connect-src ${connect}`,
+    // The PDF.js worker of the document preview, served by the app (/static/pdfjs); never a blob: or another host.
+    "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

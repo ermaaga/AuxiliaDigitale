@@ -1,0 +1,344 @@
+[
+ {
+  "key": "app.profile.tabs.profile",
+  "category": "app",
+  "en": "Profile",
+  "it": "Profilo"
+ },
+ {
+  "key": "app.profile.tabs.accounts",
+  "category": "app",
+  "en": "Connected accounts",
+  "it": "Account collegati"
+ },
+ {
+  "key": "app.connectedAccounts.title",
+  "category": "app",
+  "en": "Connected accounts",
+  "it": "Account collegati"
+ },
+ {
+  "key": "app.connectedAccounts.description",
+  "category": "app",
+  "en": "Connect your mailboxes and calendars to use them in Auxilia. Only you can see them.",
+  "it": "Collega le tue caselle di posta e i tuoi calendari per usarli in Auxilia. Solo tu puoi vederli."
+ },
+ {
+  "key": "app.connectedAccounts.connectNew",
+  "category": "app",
+  "en": "Connect an account",
+  "it": "Collega un account"
+ },
+ {
+  "key": "app.connectedAccounts.signInWith.google",
+  "category": "app",
+  "en": "Sign in with Google",
+  "it": "Accedi con Google"
+ },
+ {
+  "key": "app.connectedAccounts.signInWith.microsoft",
+  "category": "app",
+  "en": "Sign in with Microsoft",
+  "it": "Accedi con Microsoft"
+ },
+ {
+  "key": "app.connectedAccounts.imap",
+  "category": "app",
+  "en": "Connect PEC / IMAP",
+  "it": "Collega PEC / IMAP"
+ },
+ {
+  "key": "app.connectedAccounts.oauthNotConfigured",
+  "category": "app",
+  "en": "Sign in with Google and Microsoft is not configured on this installation: you can connect PEC / IMAP mailboxes.",
+  "it": "L'accesso con Google e Microsoft non è configurato in questa installazione: puoi collegare caselle PEC / IMAP."
+ },
+ {
+  "key": "app.connectedAccounts.mine",
+  "category": "app",
+  "en": "My accounts",
+  "it": "I miei account"
+ },
+ {
+  "key": "app.connectedAccounts.empty",
+  "category": "app",
+  "en": "No account connected yet.",
+  "it": "Nessun account collegato."
+ },
+ {
+  "key": "app.connectedAccounts.providers.google",
+  "category": "app",
+  "en": "Google",
+  "it": "Google"
+ },
+ {
+  "key": "app.connectedAccounts.providers.microsoft",
+  "category": "app",
+  "en": "Microsoft",
+  "it": "Microsoft"
+ },
+ {
+  "key": "app.connectedAccounts.providers.imap",
+  "category": "app",
+  "en": "PEC / IMAP",
+  "it": "PEC / IMAP"
+ },
+ {
+  "key": "app.connectedAccounts.mail",
+  "category": "app",
+  "en": "Mail",
+  "it": "Posta"
+ },
+ {
+  "key": "app.connectedAccounts.calendar",
+  "category": "app",
+  "en": "Calendar",
+  "it": "Calendario"
+ },
+ {
+  "key": "app.connectedAccounts.statusActive",
+  "category": "app",
+  "en": "Active",
+  "it": "Attivo"
+ },
+ {
+  "key": "app.connectedAccounts.statusNeedsReconnect",
+  "category": "app",
+  "en": "To reconnect",
+  "it": "Da ricollegare"
+ },
+ {
+  "key": "app.connectedAccounts.needsReconnectHint",
+  "category": "app",
+  "en": "Access expired or was revoked: reconnect the account.",
+  "it": "L'accesso è scaduto o è stato revocato: ricollega l'account."
+ },
+ {
+  "key": "app.connectedAccounts.connectedOn",
+  "category": "app",
+  "en": "Connected on {date}",
+  "it": "Collegato il {date}"
+ },
+ {
+  "key": "app.connectedAccounts.colorName",
+  "category": "app",
+  "en": "Colour: {color}",
+  "it": "Colore: {color}"
+ },
+ {
+  "key": "app.connectedAccounts.actionsFor",
+  "category": "app",
+  "en": "Actions for {address}",
+  "it": "Azioni per {address}"
+ },
+ {
+  "key": "app.connectedAccounts.color",
+  "category": "app",
+  "en": "Colour",
+  "it": "Colore"
+ },
+ {
+  "key": "app.connectedAccounts.colors.blue",
+  "category": "app",
+  "en": "Blue",
+  "it": "Blu"
+ },
+ {
+  "key": "app.connectedAccounts.colors.green",
+  "category": "app",
+  "en": "Green",
+  "it": "Verde"
+ },
+ {
+  "key": "app.connectedAccounts.colors.orange",
+  "category": "app",
+  "en": "Orange",
+  "it": "Arancione"
+ },
+ {
+  "key": "app.connectedAccounts.colors.purple",
+  "category": "app",
+  "en": "Purple",
+  "it": "Viola"
+ },
+ {
+  "key": "app.connectedAccounts.colors.red",
+  "category": "app",
+  "en": "Red",
+  "it": "Rosso"
+ },
+ {
+  "key": "app.connectedAccounts.colors.teal",
+  "category": "app",
+  "en": "Teal",
+  "it": "Verde acqua"
+ },
+ {
+  "key": "app.connectedAccounts.colors.pink",
+  "category": "app",
+  "en": "Pink",
+  "it": "Rosa"
+ },
+ {
+  "key": "app.connectedAccounts.colors.yellow",
+  "category": "app",
+  "en": "Yellow",
+  "it": "Giallo"
+ },
+ {
+  "key": "app.connectedAccounts.colorSaved",
+  "category": "app",
+  "en": "Colour changed.",
+  "it": "Colore cambiato."
+ },
+ {
+  "key": "app.connectedAccounts.reconnect",
+  "category": "app",
+  "en": "Reconnect",
+  "it": "Ricollega"
+ },
+ {
+  "key": "app.connectedAccounts.changeAccess",
+  "category": "app",
+  "en": "Change access",
+  "it": "Modifica accessi"
+ },
+ {
+  "key": "app.connectedAccounts.reconnectTitle",
+  "category": "app",
+  "en": "Reconnect {address}",
+  "it": "Ricollega {address}"
+ },
+ {
+  "key": "app.connectedAccounts.disconnect",
+  "category": "app",
+  "en": "Disconnect",
+  "it": "Scollega"
+ },
+ {
+  "key": "app.connectedAccounts.disconnectConfirm",
+  "category": "app",
+  "en": "Disconnect {address}? The copied messages and events are deleted; documents already filed in cases stay.",
+  "it": "Scollegare {address}? I messaggi e gli eventi copiati vengono cancellati; i documenti già inseriti nelle pratiche restano."
+ },
+ {
+  "key": "app.connectedAccounts.disconnected",
+  "category": "app",
+  "en": "Account disconnected.",
+  "it": "Account scollegato."
+ },
+ {
+  "key": "app.connectedAccounts.connected",
+  "category": "app",
+  "en": "Account connected.",
+  "it": "Account collegato."
+ },
+ {
+  "key": "app.connectedAccounts.oauthTitle",
+  "category": "app",
+  "en": "Sign in with {provider}",
+  "it": "Accedi con {provider}"
+ },
+ {
+  "key": "app.connectedAccounts.oauthDescription",
+  "category": "app",
+  "en": "Choose what Auxilia may read (read only). You can add the rest later.",
+  "it": "Scegli cosa può leggere Auxilia (in sola lettura). Potrai aggiungere il resto in seguito."
+ },
+ {
+  "key": "app.connectedAccounts.access",
+  "category": "app",
+  "en": "Access",
+  "it": "Accessi"
+ },
+ {
+  "key": "app.connectedAccounts.mailHint",
+  "category": "app",
+  "en": "Read your e-mail messages.",
+  "it": "Leggere i tuoi messaggi di posta."
+ },
+ {
+  "key": "app.connectedAccounts.calendarHint",
+  "category": "app",
+  "en": "Read the events of your calendar.",
+  "it": "Leggere gli eventi del tuo calendario."
+ },
+ {
+  "key": "app.connectedAccounts.continueTo",
+  "category": "app",
+  "en": "Continue to {provider}",
+  "it": "Continua su {provider}"
+ },
+ {
+  "key": "app.connectedAccounts.imapDescription",
+  "category": "app",
+  "en": "Mail only, no calendar. The connection is tested before the account is saved.",
+  "it": "Solo posta, niente calendario. Il collegamento viene provato prima di salvare l'account."
+ },
+ {
+  "key": "app.connectedAccounts.address",
+  "category": "app",
+  "en": "E-mail address",
+  "it": "Indirizzo e-mail"
+ },
+ {
+  "key": "app.connectedAccounts.userName",
+  "category": "app",
+  "en": "User name",
+  "it": "Nome utente"
+ },
+ {
+  "key": "app.connectedAccounts.userNameHint",
+  "category": "app",
+  "en": "Usually the e-mail address itself.",
+  "it": "Di solito è l'indirizzo e-mail stesso."
+ },
+ {
+  "key": "app.connectedAccounts.host",
+  "category": "app",
+  "en": "IMAP server",
+  "it": "Server IMAP"
+ },
+ {
+  "key": "app.connectedAccounts.serverKnown",
+  "category": "app",
+  "en": "Server filled in from the domain of the address.",
+  "it": "Server compilato dal dominio dell'indirizzo."
+ },
+ {
+  "key": "app.connectedAccounts.port",
+  "category": "app",
+  "en": "Port",
+  "it": "Porta"
+ },
+ {
+  "key": "app.connectedAccounts.security",
+  "category": "app",
+  "en": "Connection",
+  "it": "Connessione"
+ },
+ {
+  "key": "app.connectedAccounts.securities.SslOnConnect",
+  "category": "app",
+  "en": "TLS (SSL)",
+  "it": "TLS (SSL)"
+ },
+ {
+  "key": "app.connectedAccounts.securities.StartTls",
+  "category": "app",
+  "en": "STARTTLS",
+  "it": "STARTTLS"
+ },
+ {
+  "key": "app.connectedAccounts.testAndConnect",
+  "category": "app",
+  "en": "Test and connect",
+  "it": "Prova e collega"
+ },
+ {
+  "key": "app.connectedAccounts.testing",
+  "category": "app",
+  "en": "Testing the connection…",
+  "it": "Prova del collegamento in corso…"
+ }
+]

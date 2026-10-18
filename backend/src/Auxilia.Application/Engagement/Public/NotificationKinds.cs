@@ -23,6 +23,12 @@ public static class NotificationKinds
     public const string CaseExpired = "case.expired";
     public const string TaskAssigned = "task.assigned";
 
+    /// <summary>A connected account of the user stopped working (grant revoked, password changed): reconnect it (N05).</summary>
+    public const string MailboxReconnect = "mailbox.reconnect";
+
+    /// <summary>New mail arrived in a connected account during a sync (never for a first sync or an empty one, N05 #106).</summary>
+    public const string MailboxReceived = "mailbox.received";
+
     /// <summary>
     /// A notification migrated from the legacy application (E-05): its title and message are kept as parameters
     /// (<c>{title}</c>, <c>{message}</c>). Not in <see cref="All"/>: nothing sends it, so it has no preference.
@@ -33,7 +39,7 @@ public static class NotificationKinds
     [
         AppointmentScheduled, AppointmentRequested, AppointmentUpdated, AppointmentApproved, AppointmentRejected,
         AppointmentCompleted, AppointmentCancelled, AppointmentDeleted, RequestCreated, RequestReplied, RequestClosed,
-        RegistrationRequested, ExportReady, CaseExpiring, CaseExpired, TaskAssigned,
+        RegistrationRequested, ExportReady, CaseExpiring, CaseExpired, TaskAssigned, MailboxReconnect, MailboxReceived,
     ];
 
     /// <summary>The route (without the tenant) a notification opens; <c>null</c> when the record is gone.</summary>
@@ -54,6 +60,8 @@ public static class NotificationKinds
             ExportReady => $"/exports?download={id}",
             CaseExpiring or CaseExpired => $"/cases/{id}",
             TaskAssigned => $"/tasks?open={id}",
+            MailboxReconnect => "/profile?tab=accounts",
+            MailboxReceived => "/mail",
             _ => null,
         };
     }

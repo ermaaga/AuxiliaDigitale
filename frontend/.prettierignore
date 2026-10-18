@@ -9,3 +9,6 @@ packages/api-client/src/schema.d.ts
 test-results
 playwright-report
 blob-report
+
+# PDF.js files copied from node_modules (apps/web/scripts/pdfjs-assets.mjs)
+apps/web/public/static/pdfjs

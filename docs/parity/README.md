@@ -41,7 +41,7 @@ Legacy bugs and ambiguities: [`legacy-quirks.md`](legacy-quirks.md). Plan and ta
 | [F34](F34-cross-cutting-ui.md) | Cross-cutting UI behaviours (new in inventory) | ◐ (UAT per role) |
 | [F35](F35-account-security.md) | Account security: password policy/history/expiry, reset, OTP, login audit (branch `Security_Update`, D-30) | ☑ |
 
-New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing ☑, N02 Platform console / tenants / plans ☑, N03 Outbound messaging ☑, N04 Authenticator app and "stay signed in" ☑.
+New features (not in the legacy): [`../requirements/`](../requirements/) — N01 Marketing ☑, N02 Platform console / tenants / plans ☑, N03 Outbound messaging ☑, N04 Authenticator app and "stay signed in" ☑, N05 Connected accounts, mailbox and external calendars ☑.
 
 Verification (H-04, 2026-10-09): every criterion is ticked with its evidence (test, page or decision); open only the retention by storage lifecycle policy (F25 → H-03), the UAT per role with the user (F34) and the deferred unsubscribe page (N01, D-24). E2E regression per role: `apps/web/e2e/parity-roles.spec.ts`.
 

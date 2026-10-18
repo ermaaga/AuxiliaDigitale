@@ -23,6 +23,7 @@ public sealed partial class EventCodeTests
         { "Notifications", 18000 }, { "Marketing", 19000 }, { "Configuration", 20000 }, { "Localization", 21000 },
         { "Imports", 22000 }, { "Bus", 23000 }, { "Cache", 24000 }, { "Messaging", 25000 },
         { "Jobs", 26000 }, { "Audit", 27000 }, { "Runner", 28000 }, { "Security", 29000 },
+        { "Mailbox", 30000 },
     };
 
     [Fact]

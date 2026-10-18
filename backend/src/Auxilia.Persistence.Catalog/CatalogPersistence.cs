@@ -59,6 +59,7 @@ public static class CatalogPersistence
         services.AddSingleton<ISigningKeyProtector, SigningKeyProtector>();
         services.AddSingleton<ITwoFactorSecretProtector, TwoFactorSecretProtector>();
         services.AddScoped<IUserTwoFactorSecretProtector, UserTwoFactorSecretProtector>();
+        services.AddScoped<Application.Abstractions.Mailbox.IConnectedAccountSecretProtector, ConnectedAccountSecretProtector>();
         services.AddScoped<IPlatformIdentityStore, PlatformIdentityStore>();
 
         return services;

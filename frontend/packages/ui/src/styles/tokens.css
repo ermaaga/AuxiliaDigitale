@@ -51,6 +51,16 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Connected accounts (N05): one colour per account, ≥ 3:1 on the background; always shown with the account name. */
+  --account-blue: oklch(0.55 0.17 255);
+  --account-green: oklch(0.55 0.14 150);
+  --account-orange: oklch(0.6 0.17 50);
+  --account-purple: oklch(0.52 0.2 300);
+  --account-red: oklch(0.55 0.2 25);
+  --account-teal: oklch(0.55 0.1 195);
+  --account-pink: oklch(0.58 0.2 350);
+  --account-yellow: oklch(0.6 0.13 90);
 }
 
 .dark {
@@ -95,4 +105,13 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+
+  --account-blue: oklch(0.72 0.14 255);
+  --account-green: oklch(0.74 0.15 150);
+  --account-orange: oklch(0.75 0.15 55);
+  --account-purple: oklch(0.72 0.16 300);
+  --account-red: oklch(0.7 0.18 25);
+  --account-teal: oklch(0.76 0.11 195);
+  --account-pink: oklch(0.74 0.16 350);
+  --account-yellow: oklch(0.84 0.15 92);
 }

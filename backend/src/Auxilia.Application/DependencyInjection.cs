@@ -109,6 +109,7 @@ public static class DependencyInjection
         new IdentityModule(), new ConfigurationModule(), new LocalizationModule(), new MessagingModule(),
         new DirectoryModule(), new CasesModule(), new SchedulingModule(), new DocumentsModule(),
         new EngagementModule(), new MarketingModule(), new ReportingModule(), new Imports.ImportsModule(),
+        new Mailbox.MailboxModule(),
     ];
 
     /// <summary>

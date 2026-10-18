@@ -172,6 +172,15 @@ values ('0199aaaa-0000-7000-8000-000000000152', 'Administrator'), ('0199aaaa-000
        ('0199aaaa-0000-7000-8000-000000000172', 'Client');
 insert into directory.client_profiles(id, status, status_changed_at, employee_user_id, created_at)
 values ('0199aaaa-0000-7000-8000-000000000171', 'Inactive', now(), '0199aaaa-0000-7000-8000-000000000162', now());
+
+-- Connected accounts (N05, C-03): an Employee whose profile tab tenant-connected-accounts.spec.ts uses.
+insert into directory.people(id, first_name, last_name, email, created_at)
+values ('0199aaaa-0000-7000-8000-000000000181', 'Davide', 'Marino', 'davide.marino@example.test', now());
+insert into identity.users(id, person_id, user_name, email, language_code, is_active, password_format, security_stamp,
+                           access_failed_count, lockout_count, created_at)
+values ('0199aaaa-0000-7000-8000-000000000182', '0199aaaa-0000-7000-8000-000000000181', 'davide.marino',
+        'davide.marino@example.test', 'it', true, 'Identity', '00000000000000000000000000000181', 0, 0, now());
+insert into identity.user_roles(user_id, role) values ('0199aaaa-0000-7000-8000-000000000182', 'Employee');
 SQL
 
 if [[ -z "$web_secret" || -z "$console_secret" ]]; then

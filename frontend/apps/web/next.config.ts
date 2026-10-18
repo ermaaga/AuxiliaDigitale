@@ -17,11 +17,23 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+/**
+ * The PDF.js worker of the document preview parses untrusted files (F14, ADR 0020): a worker follows the CSP of its own
+ * script, so it may load and fetch only from the app and compile its WebAssembly decoders, nothing else.
+ */
+const PDFJS_WORKER_CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'";
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      {
+        source: "/static/pdfjs/:path*",
+        headers: [{ key: "Content-Security-Policy", value: PDFJS_WORKER_CSP }],
+      },
+    ];
   },
 };
 

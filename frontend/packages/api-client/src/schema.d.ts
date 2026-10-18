@@ -3535,10 +3535,288 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/connected-accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** My connected accounts (Google, Microsoft, PEC / IMAP), oldest first; secrets are never returned */
+        get: operations["ListConnectedAccounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Providers I can connect: Google and Microsoft only when this deployment has their OAuth application; IMAP always */
+        get: operations["ListConnectedAccountProviders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/imap-server": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The IMAP server of a well-known provider (PEC included) from the domain of the address; nulls when unknown */
+        get: operations["SuggestImapServer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/oauth/{provider}/authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Starts "Sign in with Google / Microsoft" (provider google or microsoft): the consent page to send the browser to, valid 10 minutes */
+        post: operations["StartConnectedAccountOAuth"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/oauth/{provider}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Completes the consent with what the provider sent back (state + code, or error): connects or reconnects the account */
+        post: operations["CompleteConnectedAccountOAuth"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/imap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Connects a PEC / IMAP account after a connection test (TLS, public server address); the same address again replaces password and server */
+        post: operations["ConnectImapAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Changes the colour of one of my accounts */
+        put: operations["UpdateConnectedAccount"];
+        post?: never;
+        /** Disconnects one of my accounts: deletes its secret and copied data (documents filed in cases stay) and revokes the Google grant */
+        delete: operations["DisconnectConnectedAccount"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The newest sync run of each of my accounts for the scope (mail or calendar) */
+        get: operations["GetMailboxSyncStatus"];
+        put?: never;
+        /** Synchronises my accounts with mail or calendar (page opened, or "Sync now" with manual): a run per account, queued for the Worker; a run in progress or ended less than mailbox.sync.minIntervalSeconds ago is returned instead */
+        post: operations["StartMailboxSync"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/calendar-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The events of my connected calendars in a range of local days (at most 62), read only */
+        get: operations["ListConnectedCalendarEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-folders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The inbox and sent folders of my connected mailboxes, with their stored message and unread counts */
+        get: operations["ListConnectedMailFolders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The stored headers of my mail, newest first: one account or folder, search in sender, recipients and subject, unread only (bodies stay at the provider) */
+        get: operations["ListConnectedMailMessages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A message of my mailbox read live from the provider: bodies (untrusted content: HTML only in a sandboxed frame), attachments and the cases it was already filed into */
+        get: operations["GetConnectedMailMessage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/eml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The original message (.eml, RFC 822) read live from the provider: a PEC keeps receipt and signature */
+        get: operations["DownloadConnectedMailMessage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/attachments/{index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One attachment of a message (always downloaded, never shown inline) */
+        get: operations["DownloadConnectedMailAttachment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/connected-accounts/mail-messages/{id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Files a message into a case (F10 rules of the case): the .eml and the attachments chosen become documents; 409 when the case has it already (force to file it again) */
+        post: operations["FileConnectedMailMessage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountSyncResponse: {
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            runId: string;
+            scope: string;
+            trigger: string;
+            status: string;
+            queued: boolean;
+            /** Format: date-time */
+            queuedAt: string;
+            /** Format: date-time */
+            endedAt: null | string;
+            errorCode: null | string;
+            /** Format: int32 */
+            newCount: number | string;
+            /** Format: int32 */
+            updatedCount: number | string;
+            /** Format: int32 */
+            skippedCount: number | string;
+        };
         ActivateAccountRequest: {
             token: string;
             password: string;
@@ -3732,6 +4010,33 @@ export interface components {
         BulkClientTagsResponse: {
             /** Format: int32 */
             changed: number | string;
+        };
+        CalendarEventResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            title: string;
+            location: null | string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: date */
+            date: string;
+            /** Format: time */
+            time: null | string;
+            /** Format: date */
+            endDate: string;
+            /** Format: time */
+            endTime: null | string;
+            allDay: boolean;
+            tentative: boolean;
+            link: null | string;
+        };
+        CalendarEventsResponse: {
+            timeZone: string;
+            items: components["schemas"]["CalendarEventResponse"][];
         };
         CampaignAudienceResponse: {
             /** Format: int32 */
@@ -4005,8 +4310,48 @@ export interface components {
             rejected: boolean;
             note: null | string;
         };
+        CompleteOAuthRequest: {
+            state: string;
+            code: null | string;
+            error: null | string;
+        };
         ConfirmTwoFactorRequest: {
             code: string;
+        };
+        ConnectedAccountProviderResponse: {
+            provider: string;
+            supportsMail: boolean;
+            supportsCalendar: boolean;
+        };
+        ConnectedAccountResponse: {
+            /** Format: uuid */
+            id: string;
+            provider: string;
+            address: string;
+            displayName: null | string;
+            color: string;
+            hasMail: boolean;
+            hasCalendar: boolean;
+            status: string;
+            lastErrorCode: null | string;
+            imapHost: null | string;
+            /** Format: int32 */
+            imapPort: null | number | string;
+            /** Format: date-time */
+            connectedAt: string;
+            /** Format: date-time */
+            mailSyncedAt: null | string;
+            /** Format: date-time */
+            calendarSyncedAt: null | string;
+        };
+        ConnectImapRequest: {
+            address: string;
+            userName: string;
+            password: string;
+            host: string;
+            /** Format: int32 */
+            port: number | string;
+            security: string;
         };
         ConsentChangeResponse: {
             /** Format: uuid */
@@ -4433,6 +4778,27 @@ export interface components {
             titleKey: string;
             columns: components["schemas"]["ExportColumnResponse"][];
         };
+        FiledCaseResponse: {
+            /** Format: uuid */
+            caseId: string;
+            caseNumber: string;
+            /** Format: date-time */
+            filedAt: string;
+        };
+        FileMailRequest: {
+            /** Format: uuid */
+            caseId: string;
+            /** Format: uuid */
+            folderId: null | string;
+            attachments: null | (number | string)[];
+            description: null | string;
+            force: boolean;
+        };
+        FileMailResponse: {
+            /** Format: uuid */
+            messageDocumentId: string;
+            attachmentDocumentIds: string[];
+        };
         ForgotPasswordRequest: {
             userName: string;
         };
@@ -4489,6 +4855,12 @@ export interface components {
         /** Format: binary */
         IFormFile: string;
         IFormFileCollection: null | components["schemas"]["IFormFile"][];
+        ImapServerSuggestionResponse: {
+            host: null | string;
+            /** Format: int32 */
+            port: null | number | string;
+            security: null | string;
+        };
         ImportEntityResponse: {
             entity: string;
             fields: components["schemas"]["ImportFieldResponse"][];
@@ -4617,6 +4989,56 @@ export interface components {
         };
         LoginOtpRequest: {
             userName: string;
+        };
+        MailAttachmentResponse: {
+            /** Format: int32 */
+            index: number | string;
+            fileName: string;
+            contentType: string;
+            /** Format: int64 */
+            size: number | string;
+        };
+        MailFolderResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            kind: string;
+            name: string;
+            /** Format: int32 */
+            total: number | string;
+            /** Format: int32 */
+            unread: number | string;
+        };
+        MailMessageDetailResponse: {
+            message: components["schemas"]["MailMessageResponse"];
+            text: null | string;
+            html: null | string;
+            truncated: boolean;
+            attachments: components["schemas"]["MailAttachmentResponse"][];
+            filedIn: components["schemas"]["FiledCaseResponse"][];
+        };
+        MailMessageResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            accountId: string;
+            /** Format: uuid */
+            folderId: string;
+            fromAddress: null | string;
+            fromName: null | string;
+            to: string[];
+            cc: string[];
+            subject: string;
+            /** Format: date-time */
+            sentAt: null | string;
+            /** Format: date-time */
+            receivedAt: string;
+            isRead: boolean;
+            /** Format: int64 */
+            size: number | string;
+            hasAttachments: boolean;
+            attachmentNames: string[];
         };
         MeResponse: {
             /** Format: uuid */
@@ -4844,6 +5266,15 @@ export interface components {
         };
         PagedResponseOfLoginAttemptResponse: {
             items: components["schemas"]["LoginAttemptResponse"][];
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+            /** Format: int64 */
+            totalCount: number | string;
+        };
+        PagedResponseOfMailMessageResponse: {
+            items: components["schemas"]["MailMessageResponse"][];
             /** Format: int32 */
             page: number | string;
             /** Format: int32 */
@@ -5442,6 +5873,20 @@ export interface components {
             /** Format: uuid */
             id: string;
         };
+        StartOAuthRequest: {
+            mail: boolean;
+            calendar: boolean;
+            /** Format: uuid */
+            accountId: null | string;
+        };
+        StartOAuthResponse: {
+            /** Format: uri */
+            authorizationUrl: string;
+        };
+        StartSyncRequest: {
+            scope: string;
+            manual: boolean;
+        };
         StaticListResponse: {
             /** Format: uuid */
             id: string;
@@ -5472,6 +5917,9 @@ export interface components {
             reason: null | string;
             /** Format: date-time */
             suppressedAt: string;
+        };
+        SyncRequestResponse: {
+            runs: components["schemas"]["AccountSyncResponse"][];
         };
         TagResponse: {
             /** Format: uuid */
@@ -5669,6 +6117,9 @@ export interface components {
             fiscalCode: string;
             userName: string;
             customFields: null | components["schemas"]["JsonElement"];
+        };
+        UpdateConnectedAccountRequest: {
+            color: string;
         };
         UpdateCustomFieldRequest: {
             label: string;
@@ -18284,6 +18735,647 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedAccounts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectedAccountResponse"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedAccountProviders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectedAccountProviderResponse"][];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    SuggestImapServer: {
+        parameters: {
+            query?: {
+                address?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImapServerSuggestionResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    StartConnectedAccountOAuth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartOAuthRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartOAuthResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    CompleteConnectedAccountOAuth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteOAuthRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectedAccountResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ConnectImapAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectImapRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectedAccountResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    UpdateConnectedAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateConnectedAccountRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConnectedAccountResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DisconnectConnectedAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetMailboxSyncStatus: {
+        parameters: {
+            query?: {
+                scope?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    StartMailboxSync: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartSyncRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SyncRequestResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedCalendarEvents: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventsResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    ListConnectedMailFolders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailFolderResponse"][];
+                };
+            };
+        };
+    };
+    ListConnectedMailMessages: {
+        parameters: {
+            query?: {
+                accountId?: string;
+                folderId?: string;
+                search?: string;
+                "filter[unread]"?: boolean;
+                page?: number | string;
+                pageSize?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResponseOfMailMessageResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+        };
+    };
+    GetConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MailMessageDetailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DownloadConnectedMailAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    FileConnectedMailMessage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FileMailRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileMailResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -70,6 +70,26 @@ public static class DependencyInjection
         // Uploaded pictures are decoded and re-encoded by the server (F04).
         services.TryAddSingleton<IImageProcessor, SkiaImageProcessor>();
 
+        // Connected accounts (N05, ADR 0021): OAuth applications from ConnectedAccounts, IMAP test, DNS for the SSRF check.
+        services.AddOptions<Adapters.OAuth.ConnectedAccountsOptions>();
+        services.AddHttpClient(Adapters.OAuth.OAuthProviderBase.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(20));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.GoogleOAuthProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IOAuthProvider, Adapters.OAuth.MicrosoftOAuthProvider>());
+        services.TryAddSingleton(Adapters.Mail.Imap.ImapCertificateTrust.System);
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IImapConnectionTester, Adapters.Mail.Imap.ImapConnectionTester>();
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IHostAddressResolver, Adapters.Network.DnsHostAddressResolver>();
+
+        // Calendars of connected accounts (C-04): Google Calendar and Microsoft Graph over HTTP, the sync's access token.
+        services.AddHttpClient(Adapters.Calendar.CalendarProviderBase.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(30));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.GoogleCalendarProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.ICalendarProvider, Adapters.Calendar.MicrosoftCalendarProvider>());
+
+        // Mail headers of connected accounts (C-06): Gmail and Graph over the same HTTP client, PEC / IMAP with MailKit.
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GmailMailProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.GraphMailProvider>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<Application.Abstractions.Mailbox.IMailProvider, Adapters.Mail.Imap.ImapMailProvider>());
+        services.TryAddSingleton<Application.Abstractions.Mailbox.IMailContentReader, Adapters.Mail.MimeMailContentReader>();
+
         services.TryAddSingleton<IPasswordHasher, CompositePasswordHasher>();
 
         // Tokens (skill auxilia-security): ES256 ring in the Catalog, JWT issuer, deny-list on the distributed cache

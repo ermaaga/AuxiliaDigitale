@@ -1,6 +1,7 @@
 using Auxilia.Application.Abstractions.Directory;
 using Auxilia.Application.Abstractions.Operations;
 using Auxilia.Application.Identity.Public;
+using Auxilia.Application.Mailbox.Public;
 using Auxilia.Contracts.Common;
 using Auxilia.Contracts.Directory;
 using Auxilia.Diagnostics;
@@ -90,6 +91,7 @@ internal sealed class EmployeeManager(
     IOperationRunner operations,
     IEmployeeDataFactory data,
     IUserAccounts accounts,
+    IConnectedAccountCleanup connectedAccounts,
     TimeProvider clock,
     ILogger<EmployeeManager> logger) : IEmployeeManager
 {
@@ -227,7 +229,9 @@ internal sealed class EmployeeManager(
                 await people.SaveChangesAsync(cancellationToken);
             }
 
-            return await accounts.SetSignInAsync(id, false, cancellationToken);
+            // The soft delete keeps the user row: mailboxes and calendars connected by the employee go now (N05).
+            var removed = await connectedAccounts.RemoveAllAsync(id, cancellationToken);
+            return removed.IsFailure ? removed : await accounts.SetSignInAsync(id, false, cancellationToken);
         }, cancellationToken);
 
     public Task<Result> SetSignInAsync(Guid id, bool canSignIn, CancellationToken cancellationToken) =>

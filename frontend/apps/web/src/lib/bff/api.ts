@@ -14,12 +14,16 @@ const FORWARDED_REQUEST_HEADERS = [
 const FORWARDED_RESPONSE_HEADERS = [
   "cache-control",
   "content-disposition",
+  "content-security-policy",
   "content-type",
   "etag",
   "location",
   "retry-after",
   "vary",
 ];
+
+/** The CSP of the API's own responses (`SecurityHeaders.ApiContentSecurityPolicy`), kept when the API sends none. */
+export const API_RESPONSE_CSP = "default-src 'none'; frame-ancestors 'none'";
 
 export type ApiCall = {
   method: string;
@@ -108,6 +112,12 @@ export function toBrowserResponse(response: Response): Response {
 
   if (!headers.has("cache-control")) {
     headers.set("cache-control", "no-store");
+  }
+
+  // A file opened in a tab (PDF preview) is a document of the app's origin: it keeps the API's CSP, which lets it
+  // run nothing and be framed nowhere (the pages' CSP of src/proxy.ts does not cover /api).
+  if (!headers.has("content-security-policy")) {
+    headers.set("content-security-policy", API_RESPONSE_CSP);
   }
 
   const noBody = response.status === 204 || response.status === 304;

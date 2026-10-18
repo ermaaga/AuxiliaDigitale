@@ -46,13 +46,14 @@ import {
   splitFileName,
   type EditDocumentValues,
 } from "../schemas/document";
+import { DocumentPreview } from "./document-preview";
 import { DocumentStatusBadge } from "./document-status-badge";
 
 const NO_AREA = "none";
 
 /**
- * The detail drawer of a document (F14): preview of images (PDF and images open inline in a new tab: the API never
- * lets a page frame them), metadata edit (name without the extension, year, area, description; only when the API
+ * The detail drawer of a document (F14): preview of images, PDFs and text files (`DocumentPreview`; PDF and images also
+ * open inline in a new tab, the API never lets a page frame them), metadata edit (name without the extension, year, area, description; only when the API
  * allows it), download and delete with confirmation.
  */
 export function DocumentDrawer({
@@ -183,15 +184,7 @@ function DocumentDetailBody({
 
   return (
     <>
-      {document.contentType.startsWith("image/") && previewable ? (
-        // The API serves the file with `Content-Disposition: inline` only for these types.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={documentContentUrl(document.id, true)}
-          alt={document.fileName}
-          className="max-h-72 w-full rounded-md border object-contain"
-        />
-      ) : null}
+      <DocumentPreview tenant={tenant} document={document} />
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
         <dt className="text-muted-foreground">{t("Client")}</dt>
         <dd>{document.client.fullName}</dd>
@@ -243,7 +236,7 @@ function DocumentDetailBody({
               target="_blank"
               rel="noopener noreferrer"
             >
-              <ExternalLinkIcon aria-hidden /> {t("app.documents.preview")}
+              <ExternalLinkIcon aria-hidden /> {t("app.documents.viewer.newTab")}
             </a>
           </Button>
         ) : null}

@@ -12,6 +12,7 @@ import {
 } from "./session";
 import { sessionStore, type SessionStore } from "./session-store";
 import { remainingSeconds, withFreshAccessToken } from "./tokens";
+import { tenantHref } from "@/lib/href";
 
 /** Everything a handler needs; tests pass their own. */
 export type BffContext = { config: BffConfig; store: SessionStore; now: () => number };
@@ -39,7 +40,9 @@ function isAllowedPath(area: BffArea, path: string): boolean {
       path !== "auth/token" &&
       path !== "auth/logout" &&
       path !== "auth/password/change" &&
-      !path.startsWith("auth/two-factor/setup")
+      !path.startsWith("auth/two-factor/setup") &&
+      // The consent of a connected account is completed by the BFF callback only (ADR 0021).
+      !/^me\/connected-accounts\/oauth\/[^/]+\/callback$/.test(path)
     );
   }
 
@@ -376,6 +379,100 @@ export async function realtimeToken(
     },
     { headers: { "cache-control": "no-store" } },
   );
+}
+
+/** Providers of "Sign in with Google / Microsoft" (N05, ADR 0021): the last segment of their redirect URI. */
+export const OAUTH_PROVIDERS = ["google", "microsoft"] as const;
+
+/** Longest `code`, `state` or `error` the callback forwards (the API validates them again). */
+const OAUTH_PARAMETER_MAX = 4096;
+
+/**
+ * `GET /api/connected-accounts/callback/{google|microsoft}` (N05, ADR 0021): the provider sends the browser back with
+ * `code` and `state` (or `error`). The BFF completes the consent with the session's token (the browser never sees the
+ * code exchange nor any token), then sends the browser to the profile tab "Connected accounts" with `connected=<id>`
+ * or `error=<code>`. One redirect URI per deployment: the tenant comes from the session, never from the URL. A
+ * top-level GET from the provider carries no CSRF header; the defence is the single-use `state` bound to the user and
+ * the tenant (checked by the API).
+ */
+export async function connectedAccountCallback(
+  request: Request,
+  provider: string,
+  context: BffContext = defaultContext(),
+): Promise<Response> {
+  const url = new URL(request.url);
+  const origin = context.config.publicOrigin ?? url.origin;
+  const current = await readSession(request, "tenant", context);
+  const session = current
+    ? await withFreshAccessToken(context.config, context.store, current, context.now).catch(
+        () => undefined,
+      )
+    : undefined;
+  if (session?.tenant === undefined) {
+    // Signed out during the consent: nothing to complete, and no tenant to go back to.
+    return redirectTo(origin, "/");
+  }
+
+  const tenant = session.tenant;
+  const back = (outcome: Record<string, string>) =>
+    redirectTo(
+      origin,
+      `${tenantHref(tenant, "/profile")}?${new URLSearchParams({ tab: "accounts", ...outcome })}`,
+    );
+
+  const parameter = (name: string) => {
+    const value = url.searchParams.get(name);
+    return value === null || value === "" ? undefined : value.slice(0, OAUTH_PARAMETER_MAX);
+  };
+  const state = parameter("state");
+  if (!(OAUTH_PROVIDERS as readonly string[]).includes(provider) || state === undefined) {
+    return back({ error: "AUX-WEB-400" });
+  }
+
+  try {
+    const response = await callApi(
+      context.config,
+      "tenant",
+      {
+        method: "POST",
+        path: `me/connected-accounts/oauth/${provider}/callback`,
+        tenant,
+        accessToken: session.accessToken,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ state, code: parameter("code"), error: parameter("error") }),
+        signal: AbortSignal.timeout(30_000),
+      },
+      request,
+    );
+
+    if (response.ok) {
+      const account = (await response.json()) as { id?: unknown };
+      return back(typeof account.id === "string" ? { connected: account.id } : {});
+    }
+
+    const problem = (await response.json().catch(() => ({}))) as { errorCode?: unknown };
+    const code =
+      typeof problem.errorCode === "string" && /^AUX-[A-Z0-9-]{1,32}$/.test(problem.errorCode)
+        ? problem.errorCode
+        : response.status === 401
+          ? "AUX-WEB-401"
+          : "AUX-WEB-502";
+    return back({ error: code });
+  } catch {
+    return back({ error: "AUX-WEB-502" });
+  }
+}
+
+/** A redirect of the browser that never leaks the provider's `code` to the next page (no Referer). */
+function redirectTo(origin: string, path: string): Response {
+  return new Response(null, {
+    status: 303,
+    headers: {
+      location: `${origin}${path}`,
+      "cache-control": "no-store",
+      "referrer-policy": "no-referrer",
+    },
+  });
 }
 
 /**

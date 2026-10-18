@@ -1,9 +1,13 @@
+import path from "node:path";
+
 import { auxctlSecret } from "./support/auxctl";
+import { runSql } from "./support/database";
 import { E2E, loadE2eEnv } from "./support/env";
 
 /**
  * Before every run: a new temporary password for the tenant Administrator and a new activation token for the System
- * user (auxctl), so the suite can run again on the same database. Values reach the tests through `process.env`.
+ * user (auxctl), so the suite can run again on the same database. Values reach the tests through `process.env`. The
+ * connected accounts of tenant-mailbox.spec.ts are seeded again, with today's events.
  */
 export default function globalSetup() {
   loadE2eEnv();
@@ -22,4 +26,5 @@ export default function globalSetup() {
     "--email",
     E2E.systemEmail,
   );
+  runSql(`auxilia_t_${E2E.tenant}`, path.join(__dirname, "support", "mailbox-seed.sql"));
 }

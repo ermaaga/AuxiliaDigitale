@@ -100,5 +100,17 @@ public static partial class EventCodes
 
         /// <summary>A sign-in failed on the code of the authenticator app (wrong, expired or replayed).</summary>
         public const int TwoFactorCodeFailed = 29032;
+
+        /// <summary>A user connected (or reconnected) an external mailbox or calendar account (N05): provider and account id.</summary>
+        public const int ConnectedAccountLinked = 29033;
+
+        /// <summary>A user disconnected an external account (N05): its secret and copied data were deleted.</summary>
+        public const int ConnectedAccountUnlinked = 29034;
+
+        /// <summary>An OAuth answer did not match a pending request of the caller (unknown, expired, used, other user).</summary>
+        public const int OAuthStateRejected = 29035;
+
+        /// <summary>A user-entered server address was refused (private, loopback, link-local or metadata address: SSRF).</summary>
+        public const int OutboundHostRefused = 29036;
     }
 }

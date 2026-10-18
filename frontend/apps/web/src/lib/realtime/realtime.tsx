@@ -15,6 +15,7 @@ export const REALTIME_EVENTS = [
   "RequestChanged",
   "DocumentProcessed",
   "RegistrationRequested",
+  "AccountSyncCompleted",
 ] as const;
 export type RealtimeEvent = (typeof REALTIME_EVENTS)[number];
 
@@ -45,6 +46,8 @@ export function staleKeys(tenant: string, event: RealtimeEvent) {
       return [queryKey(tenant, "documents")];
     case "RegistrationRequested":
       return [queryKey(tenant, "directory", "registrations")];
+    case "AccountSyncCompleted":
+      return [queryKey(tenant, "mailbox")];
   }
 }
 
