@@ -1,7 +1,8 @@
 // Shared resources of Auxilia Next on Azure (ADR 0022): network, Container Apps environment, PostgreSQL, registry,
 // Key Vault and, once their secrets exist, RabbitMQ, Valkey, the psql job and the satellite apps (OpenWA,
 // agent-openwa, showcase site: §11, each one only once its image tag is set).
-// Deploy with scripts/deploy.sh shared [--what-if]; never by hand with secrets on the command line.
+// Deployed by the Infrastructure workflow (scripts/provision.sh) or scripts/deploy.sh shared [--what-if]; never by hand
+// with secrets on the command line.
 targetScope = 'subscription'
 
 @description('Azure region of every resource.')
@@ -29,6 +30,11 @@ param postgresAdminPassword string
 
 @description('Users who write secrets with scripts/secrets.sh (object ids, Key Vault Secrets Officer).')
 param operatorObjectIds array = []
+@description('Identity of the Infrastructure workflow (Key Vault Secrets Officer).')
+param automationPrincipalIds array = []
+
+@description('Every environment (files environments/<name>.bicepparam): Postgres logins and Catalog databases of the psql job.')
+param environmentNames array
 
 @description('RabbitMQ, Valkey and the psql job: only after scripts/secrets.sh has written their Key Vault secrets.')
 param deploySharedServices bool = false
@@ -89,6 +95,7 @@ module keyVault 'modules/key-vault.bicep' = {
     name: keyVaultName
     readerPrincipalIds: [identity.outputs.principalId]
     operatorObjectIds: operatorObjectIds
+    automationPrincipalIds: automationPrincipalIds
   }
 }
 
@@ -140,6 +147,7 @@ module sharedServices 'modules/shared-services.bicep' = if (deploySharedServices
     keyVaultUri: keyVault.outputs.uri
     postgresFqdn: postgres.outputs.fqdn
     postgresAdminLogin: postgresAdminLogin
+    environmentNames: environmentNames
     rabbitmqImage: rabbitmqImage
     valkeyImage: valkeyImage
     postgresClientImage: postgresClientImage

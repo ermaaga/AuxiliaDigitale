@@ -1,0 +1,85 @@
+name: Infrastructure
+
+# Provisions or updates the Azure infrastructure (ADR 0024, runbook docs/runbooks/azure-deployment.md): the shared
+# resources, then one environment (deploy/azure/environments/<name>.bicepparam), through deploy/azure/scripts/provision.sh.
+# Idempotent: the same run creates a new environment, applies a change of the Bicep templates or completes a run that
+# stopped halfway. The images of the applications change only with "image" (normally the first time; afterwards the
+# releases of deploy.yml change them).
+# Azure login with OIDC on id-auxilia-next-infra (deploy/azure/automation.bicep, deployed once by an Owner): no secret.
+# Variables: AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (repository), AZURE_CLIENT_ID (environment "infrastructure",
+# required reviewer); optional AZURE_OPERATOR_OBJECT_IDS (repository: object ids of the users who write secrets with
+# secrets.sh, separated by commas). Optional secret ACR_TASK_GITHUB_TOKEN (environment "infrastructure"): creates or
+# updates the ACR Tasks that build the images.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment (file deploy/azure/environments/<name>.bicepparam, e.g. qa, prod)
+        type: string
+        required: true
+      image:
+        description: Full commit SHA of the images to run (optional; empty = keep the running ones)
+        type: string
+        required: false
+        default: ''
+      what-if:
+        description: Preview only (az deployment what-if), change nothing
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: infrastructure
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    name: ${{ inputs.what-if && 'Preview' || 'Provision' }} shared + ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: infrastructure
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Azure login (OIDC)
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Azure CLI tools
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt --only-show-errors
+          az bicep install --version v0.48.1
+
+      - name: Provision
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          IMAGE: ${{ inputs.image }}
+          WHAT_IF: ${{ inputs.what-if }}
+          AUXILIA_EXTRA_OPERATORS: ${{ vars.AZURE_OPERATOR_OBJECT_IDS }}
+        run: |
+          args=("$ENVIRONMENT")
+          [ -n "$IMAGE" ] && args+=(--image "$IMAGE")
+          [ "$WHAT_IF" = "true" ] && args+=(--what-if)
+          deploy/azure/scripts/provision.sh "${args[@]}"
+
+      - name: ACR Tasks
+        if: ${{ !inputs.what-if }}
+        env:
+          ACR_TASK_GITHUB_TOKEN: ${{ secrets.ACR_TASK_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$ACR_TASK_GITHUB_TOKEN" ]; then
+            echo "ACR_TASK_GITHUB_TOKEN not set: ACR Tasks left as they are (deploy/azure/scripts/acr-task.sh)."
+            exit 0
+          fi
+          printf '%s' "$ACR_TASK_GITHUB_TOKEN" | deploy/azure/scripts/acr-task.sh

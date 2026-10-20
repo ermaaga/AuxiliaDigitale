@@ -25,3 +25,4 @@
 | [0021](0021-connected-accounts-oauth-through-the-bff-and-provider-adapters-over-http.md) | Connected accounts: module `mailbox`, OAuth through the BFF, provider adapters over plain HTTP | Accepted | N05, D-33, D-15, D-19 |
 | [0022](0022-azure-hosting-on-container-apps-with-bicep.md) | Azure hosting on Container Apps, described in Bicep, built by ACR Tasks, released by GitHub Actions | Accepted | D-12, D-17, H-03 |
 | [0023](0023-data-protection-keys-protected-by-azure-key-vault.md) | Data Protection keys protected at rest by an Azure Key Vault key (`Azure.Extensions.AspNetCore.DataProtection.Keys`, `Azure.Identity`) | Accepted | R4, H-03, ADR 0022 |
+| [0024](0024-infrastructure-provisioned-by-a-github-actions-workflow.md) | Infrastructure provisioned by a GitHub Actions workflow (`infrastructure.yml`), one parameter file per environment | Accepted | H-03, ADR 0022 |

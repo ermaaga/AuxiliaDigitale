@@ -136,6 +136,8 @@ Rollback by hand = `workflow_dispatch` with the previous SHA (migrations are exp
 the newer schema).
 
 ### 9. Bicep layout
+(Provisioning moved to the Infrastructure workflow and environments became parameter files `environments/<name>.bicepparam`:
+ADR 0024.)
 `deploy/azure/`: `shared.bicep` and `environment.bicep` (subscription scope, they create their resource group), modules
 in `modules/`, parameters in `shared.bicepparam`, `qa.bicepparam`, `prod.bicepparam`, scripts in `scripts/`
 (`deploy.sh` with `--what-if`, `secrets.sh`, `acr-task.sh`; `secrets.sh init` also writes the RabbitMQ definitions), Postgres bootstrap SQL in

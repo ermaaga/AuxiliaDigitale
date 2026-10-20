@@ -4,7 +4,9 @@ name: Deploy
 # the ACR Tasks on every push to main and qa; this workflow releases them once CI is green on that push:
 #   qa   → GitHub environment "qa" (automatic)
 #   main → GitHub environment "production" (waits for a required reviewer)
-# Rollback or re-release: run it by hand with the environment and the commit SHA of the images.
+# Other environments (deploy/azure/environments/<name>.bicepparam, GitHub environment = <name>), rollback or
+# re-release: run it by hand with the GitHub environment and the commit SHA of the images. An environment receives
+# releases once the Infrastructure workflow has deployed its applications.
 # Azure login with OIDC (federated credential of id-auxilia-next-deploy-<env>): no secret is stored in GitHub.
 # Variables: AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID (repository), AZURE_CLIENT_ID (each environment).
 
@@ -16,9 +18,8 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: GitHub environment
-        type: choice
-        options: [qa, production]
+        description: GitHub environment (qa, production or the name of another environment)
+        type: string
         required: true
       sha:
         description: Full commit SHA of the images to release
@@ -59,7 +60,12 @@ jobs:
           if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::not a full commit SHA: $sha"; exit 1
           fi
-          [ "$environment" = "production" ] && suffix="prod" || suffix="qa"
+          # Resource suffix = environment name; only "production" differs (prod).
+          [ "$environment" = "production" ] && suffix="prod" || suffix="$environment"
+          # "prod" would create an unprotected GitHub environment: production is released only as "production".
+          if ! [[ "$suffix" =~ ^[a-z][a-z0-9]{1,8}$ ]] || [ "$suffix" = "shared" ] || [ "$environment" = "prod" ]; then
+            echo "::error::unknown environment: $environment"; exit 1
+          fi
           {
             echo "environment=$environment"
             echo "suffix=$suffix"
