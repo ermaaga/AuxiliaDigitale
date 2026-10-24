@@ -2,8 +2,11 @@ using 'shared.bicep'
 
 // No secret in this file: scripts/deploy.sh exports the values read from Key Vault (or generated on the first run).
 param postgresAdminPassword = readEnvironmentVariable('AUXILIA_PG_ADMIN_PASSWORD')
-// Signed-in user running scripts/deploy.sh: writes the secrets (Key Vault Secrets Officer).
-param operatorObjectIds = [readEnvironmentVariable('AUXILIA_OPERATOR_OBJECT_ID')]
+// Set by scripts/deploy.sh: users and the workflow identity that write the secrets (Key Vault Secrets Officer).
+param operatorObjectIds = json(readEnvironmentVariable('AUXILIA_OPERATOR_OBJECT_IDS', '[]'))
+param automationPrincipalIds = json(readEnvironmentVariable('AUXILIA_AUTOMATION_PRINCIPAL_IDS', '[]'))
+// Every environments/<name>.bicepparam, listed by scripts/deploy.sh (JSON array).
+param environmentNames = json(readEnvironmentVariable('AUXILIA_ENVIRONMENTS', '[]'))
 param deploySharedServices = readEnvironmentVariable('AUXILIA_DEPLOY_SHARED_SERVICES', 'false') == 'true'
 // Satellite apps (ADR 0022 §11): deploy.sh keeps the running tags, --openwa/--agent-openwa/--site <sha> change them.
 param openwaImageTag = readEnvironmentVariable('AUXILIA_OPENWA_IMAGE_TAG', '')

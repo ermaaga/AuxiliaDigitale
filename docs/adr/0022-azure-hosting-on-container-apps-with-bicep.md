@@ -119,6 +119,8 @@ Registry retention is manual on Basic (`az acr run` purge, runbook).
 
 ### 8. Release: GitHub Actions with OIDC, approval for prod
 ACR Tasks have no approval step, so releases live in `.github/workflows/deploy.yml`:
+(Amended by ADR 0025: no GitHub environments — OIDC trusts the runs of `main`, qa is released automatically, prod only
+by a manual run from `main` with a commit of `main`; client ids in the repository variables `AZURE_CLIENT_ID_<ENV>`.)
 
 1. trigger `workflow_run` of **CI** completed with success on `main` or `qa` (or `workflow_dispatch` with a SHA, used
    for rollbacks); `qa` → GitHub environment `qa`, `main` → environment `production` (**required reviewer**: free on
@@ -136,6 +138,8 @@ Rollback by hand = `workflow_dispatch` with the previous SHA (migrations are exp
 the newer schema).
 
 ### 9. Bicep layout
+(Provisioning moved to the Infrastructure workflow and environments became parameter files `environments/<name>.bicepparam`:
+ADR 0024.)
 `deploy/azure/`: `shared.bicep` and `environment.bicep` (subscription scope, they create their resource group), modules
 in `modules/`, parameters in `shared.bicepparam`, `qa.bicepparam`, `prod.bicepparam`, scripts in `scripts/`
 (`deploy.sh` with `--what-if`, `secrets.sh`, `acr-task.sh`; `secrets.sh init` also writes the RabbitMQ definitions), Postgres bootstrap SQL in
