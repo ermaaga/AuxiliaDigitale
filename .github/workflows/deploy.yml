@@ -1,28 +1,30 @@
 name: Deploy
 
-# Release to Azure Container Apps (ADR 0022 §8, runbook docs/runbooks/azure-deployment.md). The images are built by
-# the ACR Tasks on every push to main and qa; this workflow releases them once CI is green on that push:
-#   qa   → GitHub environment "qa" (automatic)
-#   main → GitHub environment "production" (waits for a required reviewer)
-# Other environments (deploy/azure/environments/<name>.bicepparam, GitHub environment = <name>), rollback or
-# re-release: run it by hand with the GitHub environment and the commit SHA of the images. An environment receives
-# releases once the Infrastructure workflow has deployed its applications.
-# Azure login with OIDC (federated credential of id-auxilia-next-deploy-<env>): no secret is stored in GitHub.
-# Variables: AZURE_TENANT_ID and AZURE_SUBSCRIPTION_ID (repository), AZURE_CLIENT_ID (each environment).
+# Release to Azure Container Apps (ADR 0022 §8, ADR 0025, runbook docs/runbooks/azure-deployment.md). The images are
+# built by the ACR Tasks on every push to main and qa; this workflow releases them:
+#   qa   → environment qa, automatically once CI is green on the push to qa
+#   prod → by hand only (Run workflow from main with environment "prod" and a commit SHA of main): starting the run is
+#          the approval, since a private repository on GitHub Free has no GitHub environments nor required reviewers
+# Other environments (deploy/azure/environments/<name>.bicepparam), rollback or re-release: run it by hand with the
+# environment name and the commit SHA of the images. An environment receives releases once the Infrastructure workflow
+# has deployed its applications.
+# Azure login with OIDC (federated credential of id-auxilia-next-deploy-<env>, trusting the runs of main): no secret is
+# stored in GitHub. Repository variables: AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID and AZURE_CLIENT_ID_<ENV> (one per
+# environment, e.g. AZURE_CLIENT_ID_QA, AZURE_CLIENT_ID_PROD; printed by the Infrastructure workflow).
 
 on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [main, qa]
+    branches: [qa]
   workflow_dispatch:
     inputs:
       environment:
-        description: GitHub environment (qa, production or the name of another environment)
+        description: Environment (file deploy/azure/environments/<name>.bicepparam, e.g. qa, prod)
         type: string
         required: true
       sha:
-        description: Full commit SHA of the images to release
+        description: Full commit SHA of the images to release (for prod a commit of main)
         type: string
         required: true
 
@@ -39,36 +41,46 @@ jobs:
     timeout-minutes: 5
     outputs:
       environment: ${{ steps.plan.outputs.environment }}
-      suffix: ${{ steps.plan.outputs.suffix }}
+      client-variable: ${{ steps.plan.outputs.client-variable }}
       sha: ${{ steps.plan.outputs.sha }}
     steps:
       - id: plan
         env:
           EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
           INPUT_ENVIRONMENT: ${{ inputs.environment }}
           INPUT_SHA: ${{ inputs.sha }}
-          RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
           RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "$EVENT" = "workflow_dispatch" ]; then
             environment="$INPUT_ENVIRONMENT"; sha="$INPUT_SHA"
-          elif [ "$RUN_BRANCH" = "main" ]; then
-            environment="production"; sha="$RUN_SHA"
+            # The deploy identities trust the runs of main only (ADR 0025).
+            if [ "$REF" != "refs/heads/main" ]; then
+              echo "::error::run the Deploy workflow from main (started from $REF)"; exit 1
+            fi
           else
             environment="qa"; sha="$RUN_SHA"
           fi
           if ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::not a full commit SHA: $sha"; exit 1
           fi
-          # Resource suffix = environment name; only "production" differs (prod).
-          [ "$environment" = "production" ] && suffix="prod" || suffix="$environment"
-          # "prod" would create an unprotected GitHub environment: production is released only as "production".
-          if ! [[ "$suffix" =~ ^[a-z][a-z0-9]{1,8}$ ]] || [ "$suffix" = "shared" ] || [ "$environment" = "prod" ]; then
+          # Environment name = resource suffix (rg-auxilia-next-<name>).
+          if ! [[ "$environment" =~ ^[a-z][a-z0-9]{1,8}$ ]] || [ "$environment" = "shared" ]; then
             echo "::error::unknown environment: $environment"; exit 1
+          fi
+          # Production runs only code merged to main: the commit must be main itself or one of its ancestors.
+          if [ "$environment" = "prod" ]; then
+            status="$(gh api "repos/$GITHUB_REPOSITORY/compare/$sha...main" --jq .status)" || {
+              echo "::error::commit $sha not found"; exit 1
+            }
+            if [ "$status" != "ahead" ] && [ "$status" != "identical" ]; then
+              echo "::error::$sha is not a commit of main (compare: $status)"; exit 1
+            fi
           fi
           {
             echo "environment=$environment"
-            echo "suffix=$suffix"
+            echo "client-variable=AZURE_CLIENT_ID_${environment^^}"
             echo "sha=$sha"
           } >> "$GITHUB_OUTPUT"
 
@@ -77,7 +89,6 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    environment: ${{ needs.plan.outputs.environment }}
     concurrency:
       group: deploy-${{ needs.plan.outputs.environment }}
       cancel-in-progress: false
@@ -86,15 +97,24 @@ jobs:
       id-token: write
     env:
       SHA: ${{ needs.plan.outputs.sha }}
-      SUFFIX: ${{ needs.plan.outputs.suffix }}
-      RG: rg-auxilia-next-${{ needs.plan.outputs.suffix }}
+      SUFFIX: ${{ needs.plan.outputs.environment }}
+      RG: rg-auxilia-next-${{ needs.plan.outputs.environment }}
       REGISTRY: acrauxilianext01
       LOGIN_SERVER: acrauxilianext01.azurecr.io
     steps:
+      - name: Deploy identity of the environment
+        env:
+          CLIENT_ID: ${{ vars[needs.plan.outputs.client-variable] }}
+          VARIABLE: ${{ needs.plan.outputs.client-variable }}
+        run: |
+          if [ -z "$CLIENT_ID" ]; then
+            echo "::error::repository variable $VARIABLE not set (summary of the Infrastructure workflow)"; exit 1
+          fi
+
       - name: Azure login (OIDC)
         uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          client-id: ${{ vars[needs.plan.outputs.client-variable] }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 

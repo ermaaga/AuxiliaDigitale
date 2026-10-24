@@ -21,10 +21,8 @@ param registryName string = 'acrauxilianext01'
 @description('Networks whose X-Forwarded-For the API trusts: the subnet of the Container Apps environment.')
 param forwardedNetworks array = ['10.40.0.0/23']
 
-@description('GitHub repository allowed to deploy this environment through OIDC.')
+@description('GitHub repository allowed to deploy this environment through OIDC (workflow runs of main, ADR 0025).')
 param githubRepository string = 'ermaaga/AuxiliaDigitale'
-@description('GitHub environment of the release job (production requires a reviewer).')
-param githubEnvironment string
 
 @description('Days after which the daily log files are deleted (D-17).')
 param logRetentionDays int
@@ -81,7 +79,6 @@ module deployIdentity 'modules/identity.bicep' = {
     tags: tags
     name: 'id-auxilia-next-deploy-${environmentName}'
     githubRepository: githubRepository
-    githubEnvironment: githubEnvironment
   }
 }
 
@@ -154,9 +151,10 @@ module apps 'modules/apps.bicep' = if (!empty(imageTag)) {
 output resourceGroupName string = rg.name
 output keyVaultName string = keyVault.outputs.name
 output storageAccountName string = storage.outputs.name
-@description('Set as variable AZURE_CLIENT_ID of the GitHub environment.')
+@description('Set as the repository variable named by clientIdVariable.')
 output deployClientId string = deployIdentity.outputs.clientId
-output githubEnvironment string = githubEnvironment
+@description('Repository variable read by deploy.yml for this environment (ADR 0025).')
+output clientIdVariable string = toUpper('AZURE_CLIENT_ID_${environmentName}')
 output valkeyDatabase int = valkeyDatabase
 output apiUrl string = 'https://ca-auxilia-api-${environmentName}.${containerAppsEnvironment.properties.defaultDomain}'
 output webUrl string = 'https://ca-auxilia-web-${environmentName}.${containerAppsEnvironment.properties.defaultDomain}'

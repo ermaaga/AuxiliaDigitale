@@ -26,3 +26,4 @@
 | [0022](0022-azure-hosting-on-container-apps-with-bicep.md) | Azure hosting on Container Apps, described in Bicep, built by ACR Tasks, released by GitHub Actions | Accepted | D-12, D-17, H-03 |
 | [0023](0023-data-protection-keys-protected-by-azure-key-vault.md) | Data Protection keys protected at rest by an Azure Key Vault key (`Azure.Extensions.AspNetCore.DataProtection.Keys`, `Azure.Identity`) | Accepted | R4, H-03, ADR 0022 |
 | [0024](0024-infrastructure-provisioned-by-a-github-actions-workflow.md) | Infrastructure provisioned by a GitHub Actions workflow (`infrastructure.yml`), one parameter file per environment | Accepted | H-03, ADR 0022 |
+| [0025](0025-releases-without-github-environments.md) | Releases and provisioning without GitHub environments: OIDC bound to `main`, repository variables, prod released by hand | Accepted | H-03, ADR 0022, ADR 0024 |

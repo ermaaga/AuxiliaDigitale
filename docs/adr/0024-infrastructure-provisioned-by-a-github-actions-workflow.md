@@ -1,6 +1,8 @@
 # ADR 0024 — Infrastructure provisioned by a GitHub Actions workflow, one parameter file per environment
 
 - Status: Accepted (2026-10-20, requested by the user) · Related: H-03, ADR 0022 (§2, §8, §9), ADR 0023
+- Amended by ADR 0025 (2026-10-24): no GitHub environment — the federated credential trusts the runs of `main`,
+  `AZURE_CLIENT_ID_INFRA` and `ACR_TASK_GITHUB_TOKEN` are repository variable/secret, `githubEnvironment` is gone.
 
 ## Context
 ADR 0022 described the infrastructure in Bicep but deployed it from an operator's shell: `deploy.sh shared`,

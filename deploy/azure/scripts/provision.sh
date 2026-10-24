@@ -97,7 +97,7 @@ end_step
 
 output() { python3 -I -c 'import json, sys; print(json.load(sys.stdin)[sys.argv[1]]["value"])' "$1" <<< "$outputs"; }
 client_id="$(output deployClientId)"
-github_environment="$(output githubEnvironment)"
+client_id_variable="$(output clientIdVariable)"
 api_url="$(output apiUrl)"
 web_url="$(output webUrl)"
 
@@ -110,10 +110,9 @@ summary="$(cat <<EOF
 | Applications | ${apps:+\`$apps\`}${apps:-not deployed (run again with an image SHA)} |
 | API | $api_url |
 | Web | $web_url |
-| GitHub environment of the releases | \`$github_environment\` |
-| Its variable \`AZURE_CLIENT_ID\` | \`$client_id\` |
+| Repository variable of the releases | \`$client_id_variable\` = \`$client_id\` |
 
-Releases (deploy.yml) need the GitHub environment \`$github_environment\` with the variable \`AZURE_CLIENT_ID\` above.
+Releases (deploy.yml) need the repository variable \`$client_id_variable\` above (Settings → Secrets and variables → Actions → Variables).
 First applications of a new environment: runbook docs/runbooks/azure-deployment.md, "New environment".
 EOF
 )"

@@ -119,6 +119,8 @@ Registry retention is manual on Basic (`az acr run` purge, runbook).
 
 ### 8. Release: GitHub Actions with OIDC, approval for prod
 ACR Tasks have no approval step, so releases live in `.github/workflows/deploy.yml`:
+(Amended by ADR 0025: no GitHub environments — OIDC trusts the runs of `main`, qa is released automatically, prod only
+by a manual run from `main` with a commit of `main`; client ids in the repository variables `AZURE_CLIENT_ID_<ENV>`.)
 
 1. trigger `workflow_run` of **CI** completed with success on `main` or `qa` (or `workflow_dispatch` with a SHA, used
    for rollbacks); `qa` → GitHub environment `qa`, `main` → environment `production` (**required reviewer**: free on

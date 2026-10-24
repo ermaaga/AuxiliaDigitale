@@ -14,8 +14,6 @@ param tags object = {
 }
 @description('GitHub repository allowed to run the Infrastructure workflow through OIDC.')
 param githubRepository string = 'ermaaga/AuxiliaDigitale'
-@description('GitHub environment of the workflow (with a required reviewer).')
-param githubEnvironment string = 'infrastructure'
 
 // Roles the templates assign (environment.bicep, shared.bicep and their modules); the workflow may assign or remove
 // only these, so it can never make anybody Owner or User Access Administrator.
@@ -46,7 +44,6 @@ module identity 'modules/identity.bicep' = {
     tags: tags
     name: identityName
     githubRepository: githubRepository
-    githubEnvironment: githubEnvironment
   }
 }
 
@@ -72,6 +69,6 @@ resource rbacAdministrator 'Microsoft.Authorization/roleAssignments@2022-04-01' 
   }
 }
 
-@description('Variable AZURE_CLIENT_ID of the GitHub environment "infrastructure".')
+@description('Repository variable AZURE_CLIENT_ID_INFRA.')
 output clientId string = identity.outputs.clientId
 output principalId string = identity.outputs.principalId
