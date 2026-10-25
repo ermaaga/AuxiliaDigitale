@@ -43,6 +43,29 @@ json_array() {
   printf '[%s]' "$out"
 }
 
+# Object id of the signed-in service principal (the workflow's OIDC login); empty for a user (az login).
+signed_in_principal_id() {
+  [ "$(az account show --query user.type -o tsv)" = "servicePrincipal" ] || return 0
+  az account get-access-token --query accessToken -o tsv | python3 -I -c '
+import base64, json, sys
+payload = sys.stdin.read().strip().split(".")[1]
+print(json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))["oid"])'
+}
+
+# Gives the signed-in service principal Key Vault Secrets Officer on an existing vault (modules/vault-officer.bicep, the
+# same assignment the templates make). Needed once when a shell run created the vault before the workflow ran: the
+# scripts read secrets before the templates that grant the workflow its role. No-op for a user.
+grant_vault_officer() {
+  local vault="$1" principal rg
+  principal="$(signed_in_principal_id)"
+  [ -n "$principal" ] || return 0
+  rg="$(az keyvault show --name "$vault" --query resourceGroup -o tsv)"
+  echo "granting Key Vault Secrets Officer on $vault to the workflow identity..." >&2
+  az deployment group create --resource-group "$rg" --name "vault-officer-$vault" \
+    --template-file "$azure_dir/modules/vault-officer.bicep" \
+    --parameters vaultName="$vault" principalId="$principal" --output none >&2
+}
+
 # Value of a secret, empty when the vault or the secret does not exist. Any other error (typically a role assignment
 # that is not active yet) is retried and then fails with status 2, so a missing permission never looks like a missing
 # secret: that would generate a new password over the existing one. Assign the result to a variable (`v="$(…)"`) so
@@ -62,6 +85,9 @@ secret_value() {
     if grep -q "SecretNotFound" "$err"; then
       rm -f "$err"
       return 0
+    fi
+    if [ "$attempt" = 1 ] && grep -qi "forbidden" "$err"; then
+      grant_vault_officer "$vault"
     fi
     echo "waiting for read access to $vault ($attempt/10)..." >&2
     sleep 30
