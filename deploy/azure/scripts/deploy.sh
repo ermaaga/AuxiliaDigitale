@@ -56,10 +56,7 @@ automation=()
 if [ "$(az account show --query user.type -o tsv)" = "user" ]; then
   operators+=("$(az ad signed-in-user show --query id -o tsv)")
 else
-  automation+=("$(az account get-access-token --query accessToken -o tsv | python3 -I -c '
-import base64, json, sys
-payload = sys.stdin.read().strip().split(".")[1]
-print(json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))["oid"])')")
+  automation+=("$(signed_in_principal_id)")
 fi
 extra_operators="${AUXILIA_EXTRA_OPERATORS:-}"
 for id in ${extra_operators//,/ }; do
