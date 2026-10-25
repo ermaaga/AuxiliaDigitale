@@ -7,6 +7,8 @@ param name string
 param readerPrincipalIds array = []
 @description('Users who write secrets with scripts/secrets.sh (Key Vault Secrets Officer).')
 param operatorObjectIds array = []
+@description('Service principals that write secrets: the identity of the Infrastructure workflow (Key Vault Secrets Officer).')
+param automationPrincipalIds array = []
 @description('Identities that wrap and unwrap the Data Protection key ring with the key below (Key Vault Crypto Service Encryption User).')
 param cryptoUserPrincipalIds array = []
 
@@ -50,6 +52,16 @@ resource operators 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for o
     roleDefinitionId: secretsOfficerRole
     principalId: objectId
     principalType: 'User'
+  }
+}]
+
+resource automation 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principalId in automationPrincipalIds: {
+  scope: vault
+  name: guid(vault.id, principalId, secretsOfficerRole)
+  properties: {
+    roleDefinitionId: secretsOfficerRole
+    principalId: principalId
+    principalType: 'ServicePrincipal'
   }
 }]
 
