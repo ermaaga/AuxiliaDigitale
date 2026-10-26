@@ -146,6 +146,31 @@ public sealed class AuxctlTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Provision_WithACreateRoleLoginThatIsNotSuperuser_CreatesTheTenantDatabase()
+    {
+        // As on Azure (deploy/azure/postgres/bootstrap.sql): the provisioning login has only CREATEDB and CREATEROLE.
+        await using (var connection = new NpgsqlConnection(container.GetConnectionString()))
+        {
+            await connection.OpenAsync(Ct);
+            await using var create = new NpgsqlCommand("create role provisioner login password 'provisioner' createdb createrole", connection);
+            await create.ExecuteNonQueryAsync(Ct);
+        }
+
+        var admin = new NpgsqlConnectionStringBuilder(container.GetConnectionString()) { Username = "provisioner", Password = "provisioner" }.ConnectionString;
+        using var provisioning = AuxctlHost.Build(new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:Catalog"] = container.GetConnectionString(),
+            ["Provisioning:AdminConnectionString"] = admin,
+            ["AuxiliaLogging:Storage"] = "none",
+        });
+
+        var run = await RunAsync(provisioning, "tenant", "provision", "--slug", "restricted", "--name", "Restricted");
+
+        run.ExitCode.ShouldBe(AuxctlCli.Success, run.Error);
+        run.Output.ShouldContain("restricted: Active");
+    }
+
+    [Fact]
     public async Task Provision_ExistingDatabase_UsesTheProvidedConnection()
     {
         await using (var connection = new NpgsqlConnection(container.GetConnectionString()))
@@ -299,12 +324,16 @@ public sealed class AuxctlTests : IAsyncLifetime
 
     private Task<(int ExitCode, string Output, string Error)> RunAsync(params string[] args) => RunWithInputAsync(string.Empty, args);
 
-    private async Task<(int ExitCode, string Output, string Error)> RunWithInputAsync(string input, params string[] args)
+    private Task<(int ExitCode, string Output, string Error)> RunWithInputAsync(string input, params string[] args) => RunAsync(host, input, args);
+
+    private static Task<(int ExitCode, string Output, string Error)> RunAsync(IHost on, params string[] args) => RunAsync(on, string.Empty, args);
+
+    private static async Task<(int ExitCode, string Output, string Error)> RunAsync(IHost on, string input, string[] args)
     {
         using var output = new StringWriter();
         using var error = new StringWriter();
         using var reader = new StringReader(input);
-        var exitCode = await new AuxctlCli(() => host.Services, output, error, reader).RunAsync(args, Ct);
+        var exitCode = await new AuxctlCli(() => on.Services, output, error, reader).RunAsync(args, Ct);
         return (exitCode, output.ToString(), error.ToString());
     }
 

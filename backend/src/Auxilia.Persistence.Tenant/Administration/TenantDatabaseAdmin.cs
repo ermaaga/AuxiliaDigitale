@@ -66,6 +66,10 @@ internal sealed class TenantDatabaseAdmin : ITenantDatabaseAdmin
 
         if (!await ExistsAsync(connection, "select 1 from pg_database where datname = @name", name, cancellationToken))
         {
+            // PostgreSQL >= 16 gives a CREATEROLE login (not a superuser, as on Azure) only ADMIN on the roles it creates,
+            // while "owner" needs SET on that role: the login grants it to itself, without INHERIT, so it never acts
+            // with the tenant's privileges (it can already change the role's password).
+            await ExecuteAsync(connection, $"grant \"{name}\" to current_user with inherit false, set true", cancellationToken);
             await ExecuteAsync(connection, $"create database \"{name}\" owner \"{name}\"", cancellationToken);
         }
 
