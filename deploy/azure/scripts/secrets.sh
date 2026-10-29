@@ -18,7 +18,6 @@ set -euo pipefail
 # shellcheck source=lib.sh
 . "$(dirname "$0")/lib.sh"
 
-cae="cae-auxilia-next-01"
 pg_server="psql-auxilia-next-01"
 rabbitmq_app="ca-auxilia-rabbitmq-01"
 valkey_app="ca-auxilia-valkey-01"
@@ -112,7 +111,7 @@ init_shared() {
 }
 
 init_environment() {
-  local env="$1" vault domain pg_host database value
+  local env="$1" vault pg_host database value
   require_environment "$env"
   vault="$(vault_of "$env")"
   if ! az keyvault show --name "$vault" --output none 2>/dev/null; then
@@ -120,7 +119,6 @@ init_environment() {
     return 0
   fi
 
-  domain="$(az containerapp env show -g "$shared_rg" -n "$cae" --query properties.defaultDomain -o tsv)"
   pg_host="$(az postgres flexible-server show -g "$shared_rg" -n "$pg_server" --query fullyQualifiedDomainName -o tsv)"
   # Valkey: one database and one channel prefix per environment (ADR 0022 §2).
   database="$(environment_param "$env" valkeyDatabase)"
@@ -129,12 +127,14 @@ init_environment() {
   [ -z "$value" ] && { echo "missing $shared_vault/postgres-$env-password: run secrets.sh init shared" >&2; exit 1; }
   put_secret "$vault" catalog-connection < <(printf 'Host=%s;Database=auxilia_catalog_%s;Username=auxilia_%s;Password=%s;SSL Mode=Require' \
     "$pg_host" "$env" "$env" "$value")
+  # Valkey and RabbitMQ have TCP ingress: inside the Container Apps environment they answer on the app name only
+  # (<app>.internal.<domain> resolves, but its TCP ports do not answer; checked on qa).
   value="$(secret_value "$shared_vault" valkey-password)"
-  put_secret "$vault" redis-connection < <(printf '%s.internal.%s:6379,password=%s,defaultDatabase=%s,channelPrefix=%s:,abortConnect=false' \
-    "$valkey_app" "$domain" "$value" "$database" "$env")
+  put_secret "$vault" redis-connection < <(printf '%s:6379,password=%s,defaultDatabase=%s,channelPrefix=%s:,abortConnect=false' \
+    "$valkey_app" "$value" "$database" "$env")
   value="$(secret_value "$shared_vault" "rabbitmq-$env-password")"
-  put_secret "$vault" rabbitmq-connection < <(printf 'amqp://auxilia_%s:%s@%s.internal.%s:5672/%s' \
-    "$env" "$value" "$rabbitmq_app" "$domain" "$env")
+  put_secret "$vault" rabbitmq-connection < <(printf 'amqp://auxilia_%s:%s@%s:5672/%s' \
+    "$env" "$value" "$rabbitmq_app" "$env")
   value="$(az storage account show-connection-string -g "rg-auxilia-next-$env" -n "stauxilianext$env" --query connectionString -o tsv)"
   put_secret "$vault" storage-connection <<< "$value"
 
