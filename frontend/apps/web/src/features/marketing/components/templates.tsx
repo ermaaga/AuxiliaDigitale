@@ -34,6 +34,7 @@ import type { LanguageOption } from "@/components/shell/language-switcher";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   addSuppression,
@@ -427,7 +428,10 @@ export function SuppressionsPage({ tenant }: { tenant: string }) {
             variant="ghost"
             size="sm"
             disabled={remove.isPending}
-            aria-label={t("app.marketing.suppressions.removeNamed", { email: item.email })}
+            aria-label={labelInName(
+              t("app.marketing.suppressions.remove"),
+              t("app.marketing.suppressions.removeNamed", { email: item.email }),
+            )}
             onClick={() =>
               void remove.mutateAsync(item.id).then(
                 () => notify.success("app.marketing.suppressions.removed"),

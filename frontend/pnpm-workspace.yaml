@@ -7,10 +7,10 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
 
-# Advisories accepted temporarily (ADR 0015; analysis and expiry there, mirrored with an expiry in osv-scanner.toml).
+# Advisories accepted temporarily (ADR 0026; analysis and expiry there, mirrored with an expiry in osv-scanner.toml).
 auditConfig:
   ignoreGhsas:
-    - GHSA-vfj7-8cjw-p6xm
+    - GHSA-g3hv-75wg-m249
 
 # Dependencies removed from the tree: `pdfjs-dist` renders in the browser only, its optional Node canvas (native binary) is never used (ADR 0020).
 overrides:

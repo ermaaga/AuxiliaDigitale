@@ -25,6 +25,7 @@ import {
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import { jobKey, useJobRuns, useJobs, useRunJob, type Job, type JobRun } from "../../jobs-api";
 
@@ -139,7 +140,10 @@ function JobsCard({
                       variant="outline"
                       disabled={job.isRunning || run.isPending}
                       onClick={() => void onRun(job)}
-                      aria-label={t("app.platform.jobs.runNamed", { name: name(job.code) })}
+                      aria-label={labelInName(
+                        t("app.platform.jobs.run"),
+                        t("app.platform.jobs.runNamed", { name: name(job.code) }),
+                      )}
                     >
                       <PlayIcon aria-hidden /> {t("app.platform.jobs.run")}
                     </Button>

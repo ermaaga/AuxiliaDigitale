@@ -39,6 +39,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { FormField, applyApiErrors, useZodForm } from "@/components/forms/form";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   CUSTOM_FIELD_TYPES,
@@ -138,7 +139,10 @@ export function TenantCustomFields({ slug }: { slug: string }) {
             variant="outline"
             size="sm"
             onClick={() => setEditing(field)}
-            aria-label={t("app.platform.customFields.editNamed", { field: field.label })}
+            aria-label={labelInName(
+              t("Edit"),
+              t("app.platform.customFields.editNamed", { field: field.label }),
+            )}
           >
             {t("Edit")}
           </Button>
@@ -146,7 +150,10 @@ export function TenantCustomFields({ slug }: { slug: string }) {
             variant="ghost"
             size="sm"
             disabled={remove.isPending}
-            aria-label={t("app.platform.customFields.deleteNamed", { field: field.label })}
+            aria-label={labelInName(
+              t("Delete"),
+              t("app.platform.customFields.deleteNamed", { field: field.label }),
+            )}
             onClick={async () => {
               if (
                 await confirm({

@@ -17,6 +17,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   TASK_SCOPES,
@@ -156,7 +157,10 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
                 variant="outline"
                 size="sm"
                 disabled={busy}
-                aria-label={t("app.tasks.completeNamed", { title: task.title })}
+                aria-label={labelInName(
+                  t("app.tasks.complete"),
+                  t("app.tasks.completeNamed", { title: task.title }),
+                )}
                 onClick={() =>
                   void complete.mutateAsync(task.id).then(
                     () => notify.success("app.tasks.completed"),
@@ -171,7 +175,10 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
                 variant="outline"
                 size="sm"
                 disabled={busy}
-                aria-label={t("app.tasks.reopenNamed", { title: task.title })}
+                aria-label={labelInName(
+                  t("app.tasks.reopen"),
+                  t("app.tasks.reopenNamed", { title: task.title }),
+                )}
                 onClick={() =>
                   void reopen.mutateAsync(task.id).then(
                     () => notify.success("app.tasks.reopened"),
@@ -185,7 +192,7 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
             <Button
               variant="ghost"
               size="sm"
-              aria-label={t("app.tasks.editNamed", { title: task.title })}
+              aria-label={labelInName(t("Edit"), t("app.tasks.editNamed", { title: task.title }))}
               onClick={() => setEditing(task)}
             >
               {t("Edit")}
@@ -194,7 +201,10 @@ export function TasksTable({ tenant, context }: { tenant: string; context?: Task
               variant="ghost"
               size="sm"
               disabled={busy}
-              aria-label={t("app.tasks.deleteNamed", { title: task.title })}
+              aria-label={labelInName(
+                t("Delete"),
+                t("app.tasks.deleteNamed", { title: task.title }),
+              )}
               onClick={async () => {
                 if (
                   await confirm({

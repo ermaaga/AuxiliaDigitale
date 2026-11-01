@@ -36,6 +36,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { tenantConsoleHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   MAX_IMPORT_FILE_BYTES,
@@ -125,7 +126,10 @@ function ImportTypesCard({ slug }: { slug: string }) {
           <Button
             variant="outline"
             size="sm"
-            aria-label={t("app.platform.imports.templateNamed", { type: type.name })}
+            aria-label={labelInName(
+              t("app.platform.imports.template"),
+              t("app.platform.imports.templateNamed", { type: type.name }),
+            )}
             onClick={() =>
               void downloadTemplate(slug, type).catch((error: unknown) => notify.error(error))
             }
@@ -135,7 +139,10 @@ function ImportTypesCard({ slug }: { slug: string }) {
           <Button
             variant="ghost"
             size="sm"
-            aria-label={t("app.platform.imports.fieldsNamed", { type: type.name })}
+            aria-label={labelInName(
+              t("app.platform.imports.fields"),
+              t("app.platform.imports.fieldsNamed", { type: type.name }),
+            )}
             onClick={() => setFieldsOf(type)}
           >
             <ListIcon aria-hidden /> {t("app.platform.imports.fields")}
@@ -144,7 +151,10 @@ function ImportTypesCard({ slug }: { slug: string }) {
             variant="ghost"
             size="sm"
             disabled={remove.isPending || Number(type.importCount) > 0}
-            aria-label={t("app.platform.imports.deleteTypeNamed", { type: type.name })}
+            aria-label={labelInName(
+              t("Delete"),
+              t("app.platform.imports.deleteTypeNamed", { type: type.name }),
+            )}
             onClick={async () => {
               if (
                 await confirm({
@@ -433,7 +443,10 @@ function ImportsCard({ slug }: { slug: string }) {
           <Button variant="outline" size="sm" asChild>
             <Link
               href={tenantConsoleHref(slug, `/imports/${job.id}`)}
-              aria-label={t("app.platform.imports.detailsNamed", { name: job.name })}
+              aria-label={labelInName(
+                t("app.platform.imports.details"),
+                t("app.platform.imports.detailsNamed", { name: job.name }),
+              )}
             >
               {t("app.platform.imports.details")}
             </Link>
@@ -443,7 +456,10 @@ function ImportsCard({ slug }: { slug: string }) {
               variant="ghost"
               size="sm"
               disabled={remove.isPending}
-              aria-label={t("app.platform.imports.deleteNamed", { name: job.name })}
+              aria-label={labelInName(
+                t("Delete"),
+                t("app.platform.imports.deleteNamed", { name: job.name }),
+              )}
               onClick={async () => {
                 if (
                   await confirm({

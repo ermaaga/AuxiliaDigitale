@@ -27,6 +27,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import { TENANT_ROLES, roleLabel } from "../../labels";
 import {
@@ -135,7 +136,10 @@ function AccountsCard({ slug }: { slug: string }) {
                 variant="outline"
                 size="sm"
                 onClick={() => setDialog({ kind: "edit", account })}
-                aria-label={t("app.platform.messaging.editNamed", { account: account.name })}
+                aria-label={labelInName(
+                  t("Edit"),
+                  t("app.platform.messaging.editNamed", { account: account.name }),
+                )}
               >
                 {t("Edit")}
               </Button>
@@ -144,7 +148,10 @@ function AccountsCard({ slug }: { slug: string }) {
                 size="sm"
                 disabled={!account.isActive}
                 onClick={() => setDialog({ kind: "test", account })}
-                aria-label={t("app.platform.messaging.testNamed", { account: account.name })}
+                aria-label={labelInName(
+                  t("app.platform.messaging.sendTest"),
+                  t("app.platform.messaging.testNamed", { account: account.name }),
+                )}
               >
                 {t("app.platform.messaging.sendTest")}
               </Button>
@@ -161,7 +168,10 @@ function AccountsCard({ slug }: { slug: string }) {
                   "app.platform.messaging.defaultSet",
                 )
               }
-              aria-label={t("app.platform.messaging.makeDefaultNamed", { account: account.name })}
+              aria-label={labelInName(
+                t("app.platform.messaging.makeDefault"),
+                t("app.platform.messaging.makeDefaultNamed", { account: account.name }),
+              )}
             >
               {t("app.platform.messaging.makeDefault")}
             </Button>
@@ -191,11 +201,16 @@ function AccountsCard({ slug }: { slug: string }) {
                   "app.platform.messaging.accountSaved",
                 );
               }}
-              aria-label={t(
+              aria-label={labelInName(
                 account.isActive
-                  ? "app.platform.messaging.deactivateNamed"
-                  : "app.platform.messaging.activateNamed",
-                { account: account.name },
+                  ? t("app.platform.messaging.deactivate")
+                  : t("app.platform.messaging.activate"),
+                t(
+                  account.isActive
+                    ? "app.platform.messaging.deactivateNamed"
+                    : "app.platform.messaging.activateNamed",
+                  { account: account.name },
+                ),
               )}
             >
               {account.isActive

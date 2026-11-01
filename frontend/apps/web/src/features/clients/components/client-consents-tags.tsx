@@ -36,6 +36,7 @@ import { badgeStyle } from "@/components/custom-fields/custom-field-value";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   createTag,
@@ -266,7 +267,10 @@ function ManageTagsDialog({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  aria-label={t("app.clients.tags.renameNamed", { name: tag.name })}
+                  aria-label={labelInName(
+                    t("Edit"),
+                    t("app.clients.tags.renameNamed", { name: tag.name }),
+                  )}
                   onClick={() => {
                     const next = window.prompt(t("app.clients.tags.renamePrompt"), tag.name);
                     if (next && next.trim() && next.trim() !== tag.name) {
@@ -282,7 +286,10 @@ function ManageTagsDialog({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  aria-label={t("app.clients.tags.deleteNamed", { name: tag.name })}
+                  aria-label={labelInName(
+                    t("Delete"),
+                    t("app.clients.tags.deleteNamed", { name: tag.name }),
+                  )}
                   onClick={async () => {
                     if (
                       await confirm({
@@ -405,13 +412,18 @@ function ClientConsentsCard({ tenant, clientId }: { tenant: string; clientId: st
                         variant="outline"
                         size="sm"
                         disabled={record.isPending}
-                        aria-label={t(
-                          state.granted
-                            ? "app.clients.consents.revokeNamed"
-                            : "app.clients.consents.grantNamed",
-                          {
-                            consent: label(state.purpose, state.channel),
-                          },
+                        aria-label={labelInName(
+                          t(
+                            state.granted
+                              ? "app.clients.consents.revoke"
+                              : "app.clients.consents.grant",
+                          ),
+                          t(
+                            state.granted
+                              ? "app.clients.consents.revokeNamed"
+                              : "app.clients.consents.grantNamed",
+                            { consent: label(state.purpose, state.channel) },
+                          ),
                         )}
                         onClick={() => void change(state)}
                       >

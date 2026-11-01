@@ -14,6 +14,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
 import { ExportMenu } from "@/features/exports";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   minutesBetween,
@@ -135,7 +136,10 @@ export function SessionsPage({ tenant, label }: { tenant: string; label: string 
                   variant="outline"
                   size="sm"
                   disabled={revoke.isPending}
-                  aria-label={t("app.sessions.revokeOf", { name: row.fullName || row.userName })}
+                  aria-label={labelInName(
+                    t("app.sessions.revoke"),
+                    t("app.sessions.revokeOf", { name: row.fullName || row.userName }),
+                  )}
                   onClick={() => void onRevoke(row)}
                 >
                   <LogOutIcon aria-hidden /> {t("app.sessions.revoke")}

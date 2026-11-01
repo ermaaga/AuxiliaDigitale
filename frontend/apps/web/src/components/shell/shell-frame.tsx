@@ -158,8 +158,9 @@ export function ShellFrame({
                 <Button
                   variant="ghost"
                   size="icon"
-                  // The visible initials are part of the name, so speech users can say what they see (WCAG 2.5.3).
-                  aria-label={`${t("app.shell.accountMenu")} (${initials(user.name)})`}
+                  // The visible initials start the name, so speech users can say what they see (WCAG 2.5.3);
+                  // no brackets around them: axe 4.14 does not match "(GC)" against the visible "GC".
+                  aria-label={`${initials(user.name)}, ${t("app.shell.accountMenu")}`}
                 >
                   <Avatar className="size-8">
                     {user.imageUrl ? <AvatarImage src={user.imageUrl} alt="" /> : null}
