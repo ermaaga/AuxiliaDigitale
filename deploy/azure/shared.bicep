@@ -58,7 +58,9 @@ param agentOpenwaPort int = 8080
 param agentOpenwaExternal bool = false
 @description('Key Vault secrets (kv-auxilia-next-shared) of agent-openwa: [{ secret, variable }].')
 param agentOpenwaSecrets array = []
-param sitePort int = 80
+param sitePort int = 3000
+@description('Key Vault secrets (kv-auxilia-next-shared) of the site: [{ secret, variable }].')
+param siteSecrets array = []
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-07-01' = {
   name: resourceGroupName
@@ -187,6 +189,7 @@ module satelliteApps 'modules/satellite-apps.bicep' = if (deploySharedServices) 
     siteImageTag: siteImageTag
     sitePort: sitePort
     siteEnv: siteEnv
+    siteSecrets: siteSecrets
   }
   dependsOn: [sharedRegistryPull]
 }

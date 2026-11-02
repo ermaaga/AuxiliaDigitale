@@ -94,11 +94,15 @@ ADR 0022 §11; after the first *Infrastructure* run (`openwa-api-key` exists). T
   secrets of the agent: `secrets.sh set shared <name>` + `agentOpenwaSecrets`;
 - one ACR Task per repository, e.g. `deploy/azure/scripts/acr-task.sh satellite site <owner/repo> main < token.txt`
   (token with *Contents: read* and *Webhooks: read and write* on that repository); a push builds
-  `auxilia/<app>:<sha>`;
+  `auxilia/<app>:<sha>`; the site task also takes its public build arguments
+  (`SITE_URL=https://… SITE_WHATSAPP_NUMBER=… acr-task.sh satellite site ermaaga/AuxiliaSalute main`, `SITE_URL`
+  defaults to the Azure FQDN of `ca-auxilia-site-01`; run it again and rebuild after adding a custom domain);
 - `deploy.sh shared --openwa <sha> --agent-openwa <sha> --site <sha>` (each one optional); the site URL is the
   output `siteUrl`, OpenWA's internal URL `openwaInternalUrl`;
 - OpenWA: link the WhatsApp number once (QR code from the logs: `az containerapp logs show -g
   rg-auxilia-next-shared -n ca-auxilia-openwa-01 --follow`); the session stays on Azure Files.
+- site cold start (from zero replicas): `deploy/azure/scripts/cold-start.sh` (waits for scale to zero, times a cold
+  and a warm request, prints the system events: scheduling, image pull, container start, probes).
 
 ## Release
 Push to `qa` → CI green → **Deploy** releases to qa. Merge to `main` → the images are built, nothing is released:

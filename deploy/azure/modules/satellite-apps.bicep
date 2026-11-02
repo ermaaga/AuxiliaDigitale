@@ -42,8 +42,13 @@ param siteName string = 'ca-auxilia-site-01'
 param siteRepository string = 'auxilia/site'
 @description('Commit SHA (or tag) of the showcase site image; empty = app not deployed.')
 param siteImageTag string = ''
-param sitePort int = 80
+@description('Port of the Next.js standalone server of the site image (its Dockerfile: PORT=3000).')
+param sitePort int = 3000
+@description('Health endpoint of the site, used by the startup and readiness probes.')
+param siteHealthPath string = '/api/health'
 param siteEnv array = []
+@description('Key Vault secrets of kv-auxilia-next-shared passed as environment variables: [{ secret, variable }].')
+param siteSecrets array = []
 param siteMaxReplicas int = 2
 param siteCpu string = '0.25'
 param siteMemory string = '0.5Gi'
@@ -256,6 +261,7 @@ resource site 'Microsoft.App/containerApps@2024-03-01' = if (!empty(siteImageTag
     configuration: {
       activeRevisionsMode: 'Single'
       registries: registries
+      secrets: map(siteSecrets, item => kvSecret(keyVaultUri, item.secret, identityId))
       ingress: {
         external: true
         targetPort: sitePort
@@ -268,11 +274,30 @@ resource site 'Microsoft.App/containerApps@2024-03-01' = if (!empty(siteImageTag
         {
           name: 'site'
           image: '${registryLoginServer}/${siteRepository}:${siteImageTag}'
-          env: siteEnv
+          env: concat(map(siteSecrets, item => { name: item.variable, secretRef: item.secret }), siteEnv)
           resources: {
             cpu: json(siteCpu)
             memory: siteMemory
           }
+          // Container Apps ignore the image HEALTHCHECK. The startup probe checks every second, so a replica woken
+          // from zero receives traffic as soon as Next.js answers (≤ 30 s); readiness then keeps it out while unhealthy.
+          probes: [
+            {
+              type: 'Startup'
+              httpGet: { path: siteHealthPath, port: sitePort }
+              initialDelaySeconds: 1
+              periodSeconds: 1
+              timeoutSeconds: 2
+              failureThreshold: 30
+            }
+            {
+              type: 'Readiness'
+              httpGet: { path: siteHealthPath, port: sitePort }
+              periodSeconds: 10
+              timeoutSeconds: 3
+              failureThreshold: 3
+            }
+          ]
         }
       ]
       scale: {
