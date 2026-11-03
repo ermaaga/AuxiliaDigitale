@@ -18,7 +18,7 @@
     "@auxilia/api-client": "workspace:*",
     "@auxilia/ui": "workspace:*",
     "@fullcalendar/react": "^7.1.3",
-    "@hookform/resolvers": "^5.9.1",
+    "@hookform/resolvers": "^7.0.0",
     "@microsoft/signalr": "^10.0.11",
     "@tanstack/react-query": "^5.105.0",
     "@tanstack/react-table": "^9.3.1",
