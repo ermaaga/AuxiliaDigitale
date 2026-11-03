@@ -42,6 +42,7 @@ import { useClients } from "@/features/clients";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   addListMembers,
@@ -347,7 +348,10 @@ export function ListDetail({ tenant, id }: { tenant: string; id: string }) {
             variant="ghost"
             size="sm"
             disabled={remove.isPending}
-            aria-label={t("app.marketing.lists.removeNamed", { name: member.fullName })}
+            aria-label={labelInName(
+              t("app.marketing.lists.remove"),
+              t("app.marketing.lists.removeNamed", { name: member.fullName }),
+            )}
             onClick={() =>
               void remove.mutateAsync(member.id).then(
                 () => notify.success("app.marketing.lists.removed"),

@@ -37,3 +37,8 @@ no longer enforced on every pull request.
 ## Consequences
 - No extra time in the E2E job; the budget is checked when `e2e:quality` runs.
 - Lighthouse major versions change scores and audits: Dependabot updates are reviewed with the report attached.
+
+## Note (2026-11-01)
+`lighthouse` 13.6.0 depends on `@sentry/node` 11 → `@sentry/bundler-plugins` → `sentry` (the Sentry CLI, licensed
+FSL-1.1-Apache-2.0, source-available and not OSI: not allowed by ADR 0011). The dependency stays on 13.5.0 and
+Dependabot ignores `lighthouse` >= 13.6.0 until a release without that path exists.

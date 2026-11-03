@@ -16,7 +16,7 @@
 | [0012](0012-error-and-exception-handling.md) | Error and exception handling | Accepted | ADR 0004, 0006, 0007 |
 | [0013](0013-local-orchestration-with-docker-compose-instead-of-aspire.md) | Local orchestration with Docker Compose instead of Aspire | Accepted | D-32, ADR 0011 |
 | [0014](0014-code-coverage-with-coverlet-mtp.md) | Code coverage with coverlet.MTP | Accepted | ADR 0011, P1-05 |
-| [0015](0015-temporary-exception-braces-advisory.md) | Temporary exception for GHSA-vfj7-8cjw-p6xm (braces), expires 2026-11-02 | Accepted | ADR 0011 |
+| [0015](0015-temporary-exception-braces-advisory.md) | Temporary exception for GHSA-vfj7-8cjw-p6xm (braces), expired 2026-11-02 | Expired | ADR 0011 |
 | [0016](0016-legacy-import-reads-a-checked-read-model-and-writes-through-persistence.md) | Legacy import: a checked read model, writes through persistence, ids in `ops.legacy_id_map` | Accepted | D-30, ADR 0004, E-01 |
 | [0017](0017-lighthouse-budget-in-the-e2e-suite.md) | Lighthouse budget (≥ 90) in the E2E suite with `lighthouse` as a dev dependency | Accepted | H-02, ADR 0011 |
 | [0018](0018-optimistic-concurrency-with-representation-etags.md) | Optimistic concurrency: representation ETags, `If-Match` required on shared records (412/428) | Accepted | H-04c, F29 |
@@ -27,3 +27,5 @@
 | [0023](0023-data-protection-keys-protected-by-azure-key-vault.md) | Data Protection keys protected at rest by an Azure Key Vault key (`Azure.Extensions.AspNetCore.DataProtection.Keys`, `Azure.Identity`) | Accepted | R4, H-03, ADR 0022 |
 | [0024](0024-infrastructure-provisioned-by-a-github-actions-workflow.md) | Infrastructure provisioned by a GitHub Actions workflow (`infrastructure.yml`), one parameter file per environment | Accepted | H-03, ADR 0022 |
 | [0025](0025-releases-without-github-environments.md) | Releases and provisioning without GitHub environments: OIDC bound to `main`, repository variables, prod released by hand | Accepted | H-03, ADR 0022, ADR 0024 |
+| [0026](0026-temporary-exception-minimatch-advisory.md) | Temporary exception for GHSA-g3hv-75wg-m249 (minimatch), expires 2026-12-02 | Accepted | ADR 0011, ADR 0015 |
+| [0027](0027-fullcalendar-7-with-temporal-polyfill.md) | FullCalendar 7 (`@fullcalendar/react` subpaths, classic theme from the tokens) with `temporal-polyfill` | Accepted | F13, N05, ADR 0011 |

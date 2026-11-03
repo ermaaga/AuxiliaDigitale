@@ -76,7 +76,7 @@ test("an Employee works with the copied mail and calendar of her connected accou
     const legend = page.getByRole("region", { name: t("app.externalCalendar.legend") });
     const account = legend.getByRole("button", { name: outlook });
     await expect(account).toHaveAttribute("aria-pressed", "true");
-    const item = page.locator(".fc-event").filter({ hasText: event });
+    const item = page.locator(".external-event").filter({ hasText: event });
     await expect(item).toBeVisible();
     await expectAccessible(page, "appointments-with-connected-calendar");
 

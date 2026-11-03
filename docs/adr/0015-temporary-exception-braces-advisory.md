@@ -1,6 +1,6 @@
 # ADR 0015 — Temporary exception for GHSA-vfj7-8cjw-p6xm (braces)
 
-- Status: Accepted (2026-10-03, approved by the user) · Expires: 2026-11-02
+- Status: Expired (2026-10-03, approved by the user; `braces` left the tree, entries removed on 2026-11-01 with ADR 0026) · Expired: 2026-11-02
 - Related: ADR 0011, `auxilia-dependency-policy` skill
 
 ## Context

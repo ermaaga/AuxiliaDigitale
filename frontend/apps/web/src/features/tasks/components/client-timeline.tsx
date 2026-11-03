@@ -38,6 +38,7 @@ import { applyApiErrors, FormField, useZodForm } from "@/components/forms/form";
 import { tenantHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
 import { useCan } from "@/lib/permissions";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   ACTIVITY_KINDS,
@@ -196,7 +197,10 @@ export function ClientTimeline({ tenant, clientId }: { tenant: string; clientId:
                           size="sm"
                           className="h-6 px-2"
                           disabled={remove.isPending}
-                          aria-label={t("app.timeline.deleteNamed", { title })}
+                          aria-label={labelInName(
+                            t("Delete"),
+                            t("app.timeline.deleteNamed", { title }),
+                          )}
                           onClick={async () => {
                             if (
                               await confirm({

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import type { EventInput } from "@fullcalendar/core";
+import type { EventInput } from "@fullcalendar/react";
 import { CircleAlertIcon, LinkIcon, RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@auxilia/ui/components/button";

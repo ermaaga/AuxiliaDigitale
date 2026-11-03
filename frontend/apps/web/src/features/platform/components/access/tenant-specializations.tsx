@@ -40,6 +40,7 @@ import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { FormField, applyApiErrors, useZodForm } from "@/components/forms/form";
 import { tenantConsoleHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   SPECIALIZATION_ROLES,
@@ -115,7 +116,10 @@ export function TenantSpecializations({ slug }: { slug: string }) {
           <Button variant="outline" size="sm" asChild>
             <Link
               href={tenantConsoleHref(slug, `/specializations/${item.id}`)}
-              aria-label={t("app.platform.specializations.membersNamed", { name: item.name })}
+              aria-label={labelInName(
+                t("app.platform.specializations.assign"),
+                t("app.platform.specializations.membersNamed", { name: item.name }),
+              )}
             >
               {t("app.platform.specializations.assign")}
             </Link>
@@ -124,7 +128,10 @@ export function TenantSpecializations({ slug }: { slug: string }) {
             variant="outline"
             size="sm"
             onClick={() => setEditing(item)}
-            aria-label={t("app.platform.specializations.editNamed", { name: item.name })}
+            aria-label={labelInName(
+              t("Edit"),
+              t("app.platform.specializations.editNamed", { name: item.name }),
+            )}
           >
             {t("Edit")}
           </Button>
@@ -132,7 +139,10 @@ export function TenantSpecializations({ slug }: { slug: string }) {
             variant="ghost"
             size="sm"
             disabled={deactivate.isPending}
-            aria-label={t("app.platform.specializations.deleteNamed", { name: item.name })}
+            aria-label={labelInName(
+              t("Delete"),
+              t("app.platform.specializations.deleteNamed", { name: item.name }),
+            )}
             onClick={async () => {
               if (
                 await confirm({

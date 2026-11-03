@@ -63,8 +63,9 @@ describe("connected calendars in the appointment calendar", () => {
       end: "2026-10-20T10:00:00",
       allDay: false,
       editable: false,
-      borderColor: "var(--account-teal)",
-      classNames: ["external-event"],
+      color: "var(--account-teal)",
+      contrastColor: "var(--foreground)",
+      className: "external-event",
     });
     expect(timed?.extendedProps?.external).toMatchObject({ id: "e1" });
   });
@@ -79,7 +80,7 @@ describe("connected calendars in the appointment calendar", () => {
       start: "2026-10-20",
       end: "2026-10-22",
       allDay: true,
-      classNames: ["external-event", "external-event-tentative"],
+      className: "external-event external-event-tentative",
     });
   });
 
