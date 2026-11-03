@@ -25,6 +25,7 @@ import {
 import { useConfirm } from "@/components/confirm/confirm-provider";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   byModule,
@@ -114,9 +115,12 @@ export function TenantPermissions({ slug }: { slug: string }) {
                     variant="ghost"
                     size="sm"
                     disabled={busy}
-                    aria-label={t("app.platform.permissions.resetNamed", {
-                      role: roleLabel(t, role),
-                    })}
+                    aria-label={labelInName(
+                      t("app.platform.permissions.reset"),
+                      t("app.platform.permissions.resetNamed", {
+                        role: roleLabel(t, role),
+                      }),
+                    )}
                     onClick={() => void restore(role)}
                   >
                     {t("app.platform.permissions.reset")}

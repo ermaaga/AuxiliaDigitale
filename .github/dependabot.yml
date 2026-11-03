@@ -31,6 +31,10 @@ updates:
       # Types follow the Node LTS of .nvmrc (24); a new major comes with the move to the next LTS.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # 13.6.0 pulls the Sentry CLI (`sentry`, FSL-1.1-Apache-2.0, not in the license allowlist) through @sentry/node 11:
+      # stay on 13.5.x (ADR 0017).
+      - dependency-name: "lighthouse"
+        versions: [">= 13.6.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

@@ -19,6 +19,7 @@ import { Switch } from "@auxilia/ui/components/switch";
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import { useSaveSetting, useTenantSettings, type TenantSetting } from "../../settings-api";
 
@@ -167,7 +168,10 @@ function SettingRow({ slug, setting }: { slug: string; setting: TenantSetting })
             className="self-start"
             disabled={save.isPending}
             onClick={() => run(null, "app.platform.settings.restored")}
-            aria-label={t("app.platform.settings.resetSetting", { setting: label })}
+            aria-label={labelInName(
+              t("app.platform.settings.reset"),
+              t("app.platform.settings.resetSetting", { setting: label }),
+            )}
           >
             {t("app.platform.settings.reset")}
           </Button>
@@ -266,7 +270,10 @@ function SettingControl({
         type="submit"
         variant="outline"
         disabled={busy || (!secret && text === effective) || (secret && text === "")}
-        aria-label={t("app.platform.settings.saveSetting", { setting: label })}
+        aria-label={labelInName(
+          t("Save"),
+          t("app.platform.settings.saveSetting", { setting: label }),
+        )}
       >
         {t("Save")}
       </Button>

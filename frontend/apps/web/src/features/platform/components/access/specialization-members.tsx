@@ -25,6 +25,7 @@ import type { DataTableColumn } from "@/components/data-table/table-model";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { tenantConsoleHref } from "@/lib/href";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   addSpecializationMembers,
@@ -161,7 +162,10 @@ function Members({ slug, specialization }: { slug: string; specialization: Speci
           variant="ghost"
           size="sm"
           disabled={remove.isPending}
-          aria-label={t("app.platform.specializations.removeNamed", { user: memberName(member) })}
+          aria-label={labelInName(
+            t("app.platform.specializations.remove"),
+            t("app.platform.specializations.removeNamed", { user: memberName(member) }),
+          )}
           onClick={async () => {
             if (
               await confirm({

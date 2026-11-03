@@ -1,17 +1,23 @@
 "use client";
 
 import * as React from "react";
-import type { DatesSetArg, EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
-import enLocale from "@fullcalendar/core/locales/en-gb";
-import itLocale from "@fullcalendar/core/locales/it";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin, {
-  type DateClickArg,
-  type EventResizeDoneArg,
-} from "@fullcalendar/interaction";
-import listPlugin from "@fullcalendar/list";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
+import FullCalendar, {
+  type DateClickInfo,
+  type DatesSetInfo,
+  type EventClickInfo,
+  type EventDropInfo,
+  type EventInput,
+  type EventResizeDoneInfo,
+} from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/react/daygrid";
+import interactionPlugin from "@fullcalendar/react/interaction";
+import listPlugin from "@fullcalendar/react/list";
+import enLocale from "@fullcalendar/react/locales/en-gb";
+import itLocale from "@fullcalendar/react/locales/it";
+import timeGridPlugin from "@fullcalendar/react/timegrid";
+import classicThemePlugin from "@fullcalendar/react/themes/classic";
+import "@fullcalendar/react/skeleton.css";
+import "@fullcalendar/react/themes/classic/theme.css";
 import { useLocale, useTranslations } from "next-intl";
 
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
@@ -24,6 +30,17 @@ import {
 
 import { useAppointmentCalendar, type AppointmentListItem, type CalendarRange } from "../api";
 import { addDays, fromWallClock, nowIn, wallClock } from "../schemas/appointment";
+
+/**
+ * Colours of an appointment by status (FullCalendar 7 sets them as `--fc-event-color`/`--fc-event-contrast-color` on
+ * the event); the other statuses keep the calendar's primary colour. The palette of the theme is in `globals.css`.
+ */
+const STATUS_COLORS: Partial<Record<string, { color: string; contrastColor: string }>> = {
+  Pending: { color: "var(--warning)", contrastColor: "var(--warning-foreground)" },
+  Rejected: { color: "var(--muted)", contrastColor: "var(--muted-foreground)" },
+  Cancelled: { color: "var(--muted)", contrastColor: "var(--muted-foreground)" },
+  Completed: { color: "var(--secondary)", contrastColor: "var(--secondary-foreground)" },
+};
 
 export type CalendarMove = {
   appointment: AppointmentListItem;
@@ -83,20 +100,21 @@ export default function AppointmentsCalendar({
     title: `${staff ? item.client.fullName : item.employee.fullName} · ${t(item.status as "Pending")}`,
     start: wallClock(item.date, item.time),
     end: wallClock(item.date, item.time, Number(item.durationMinutes)),
-    classNames: [`appointment-${item.status}`],
+    className: `appointment-${item.status}`,
+    ...STATUS_COLORS[item.status],
     editable: canMove(item),
     extendedProps: { appointment: item },
   }));
   const events =
     connected.events.length > 0 ? [...appointments, ...connected.events] : appointments;
 
-  const onDatesSet = (arg: DatesSetArg) => {
+  const onDatesSet = (arg: DatesSetInfo) => {
     const from = arg.start.toISOString().slice(0, 10);
     const to = addDays(arg.end.toISOString().slice(0, 10), -1);
     setRange((current) => (current?.from === from && current.to === to ? current : { from, to }));
   };
 
-  const onDateClick = (arg: DateClickArg) => {
+  const onDateClick = (arg: DateClickInfo) => {
     const { date, time } = fromWallClock(arg.date);
     if (
       !canCreate ||
@@ -109,7 +127,7 @@ export default function AppointmentsCalendar({
     onCreate(date, arg.allDay ? undefined : time);
   };
 
-  const moved = (arg: EventDropArg | EventResizeDoneArg) => {
+  const moved = (arg: EventDropInfo | EventResizeDoneInfo) => {
     const appointment = arg.event.extendedProps.appointment as AppointmentListItem;
     const start = arg.event.start!;
     const end =
@@ -132,14 +150,22 @@ export default function AppointmentsCalendar({
       ) : null}
       {connected.error ? <ApiErrorAlert error={connected.error} onRetry={connected.retry} /> : null}
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+        plugins={[classicThemePlugin, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+        className="aux-calendar"
         locales={[itLocale, enLocale]}
         locale={locale === "it" ? "it" : "en-gb"}
         timeZone="UTC"
         now={`${now.date}T${now.time}:00`}
         initialView={initialView}
-        // Text buttons (the locale's "previous"/"next"): the icon spans have no accessible name.
-        buttonIcons={false}
+        // Text buttons (the locale's "previous"/"next"), as with FullCalendar 6. No hints: FullCalendar 7 writes them
+        // as `aria-label` (in English for every language) instead of the visible text, so speech users could not say
+        // what they see (WCAG 2.5.3); empty, the name of a button is its text again.
+        buttonDisplay="text"
+        prevHint=""
+        nextHint=""
+        todayHint=""
+        viewHint=""
+        moreLinkHint=""
         headerToolbar={{
           left: "prev,next today",
           center: "title",
@@ -152,11 +178,11 @@ export default function AppointmentsCalendar({
         slotMaxTime="21:00:00"
         scrollTime="08:00:00"
         eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
-        slotLabelFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
+        slotHeaderFormat={{ hour: "2-digit", minute: "2-digit", hour12: false }}
         events={events}
         datesSet={onDatesSet}
         dateClick={onDateClick}
-        eventClick={(arg: EventClickArg) => {
+        eventClick={(arg: EventClickInfo) => {
           arg.jsEvent.preventDefault();
           const externalEvent = arg.event.extendedProps.external as
             ExternalCalendarEvent | undefined;

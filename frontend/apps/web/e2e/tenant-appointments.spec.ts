@@ -55,7 +55,7 @@ test("an employee and a client run an appointment from request to completion", a
     await signInWithNewPassword(page, employee.userName);
     await openAppointments(page);
     await expect(page.getByRole("button", { name: t("AppointmentNew") })).toBeVisible();
-    await expect(page.locator(".fc")).toBeVisible();
+    await expect(page.locator(".aux-calendar")).toBeVisible();
     await expectAccessible(page, "appointments calendar");
     await page.setViewportSize({ width: 360, height: 780 });
     await expectNoHorizontalScroll(page);

@@ -1,5 +1,5 @@
-# Advisories accepted temporarily, with an expiry (ADR 0015). After ignoreUntil the scan fails again.
+# Advisories accepted temporarily, with an expiry (ADR 0026). After ignoreUntil the scan fails again.
 [[IgnoredVulns]]
-id = "GHSA-vfj7-8cjw-p6xm"
-ignoreUntil = 2026-11-02T00:00:00Z
-reason = "braces@3.0.3 only via eslint-config-next (dev lint tooling, patterns from our own config); no patched version yet - ADR 0015"
+id = "GHSA-g3hv-75wg-m249"
+ignoreUntil = 2026-12-02T00:00:00Z
+reason = "minimatch 3.x/5.x/10.x only via dev tooling (eslint, openapi-typescript, lighthouse; patterns from our own config); fixed only in 11.0.1 - ADR 0026"

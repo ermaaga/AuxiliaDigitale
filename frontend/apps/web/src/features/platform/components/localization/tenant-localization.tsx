@@ -26,6 +26,7 @@ import { useTableState } from "@/components/data-table/use-table-state";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { FormField, applyApiErrors, useZodForm } from "@/components/forms/form";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import {
   createKey,
@@ -111,7 +112,10 @@ export function TenantLocalization({ slug }: { slug: string }) {
             variant="outline"
             size="sm"
             onClick={() => setDialog({ kind: "edit", key })}
-            aria-label={t("app.platform.localization.editKey", { key: key.key })}
+            aria-label={labelInName(
+              t("Edit"),
+              t("app.platform.localization.editKey", { key: key.key }),
+            )}
           >
             {t("Edit")}
           </Button>
@@ -119,7 +123,10 @@ export function TenantLocalization({ slug }: { slug: string }) {
             variant="ghost"
             size="sm"
             disabled={remove.isPending}
-            aria-label={t("app.platform.localization.deleteKey", { key: key.key })}
+            aria-label={labelInName(
+              t("Delete"),
+              t("app.platform.localization.deleteKey", { key: key.key }),
+            )}
             onClick={async () => {
               if (
                 await confirm({
@@ -194,10 +201,15 @@ export function TenantLocalization({ slug }: { slug: string }) {
                     type="button"
                     className="rounded-md border px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground"
                     onClick={() => table.setFilter("missingLanguage", language.code)}
-                    aria-label={t("app.platform.localization.showMissing", {
-                      language: language.name,
-                      count: Number(language.missingCount),
-                    })}
+                    aria-label={labelInName(
+                      `${language.name} ${t("app.platform.localization.missingCount", {
+                        count: Number(language.missingCount),
+                      })}`,
+                      t("app.platform.localization.showMissing", {
+                        language: language.name,
+                        count: Number(language.missingCount),
+                      }),
+                    )}
                   >
                     <span className="font-medium">{language.name}</span>{" "}
                     <span className="text-muted-foreground">
@@ -374,10 +386,13 @@ function TranslationCell({
           variant="ghost"
           size="sm"
           disabled={remove.isPending}
-          aria-label={t("app.platform.localization.removeTranslation", {
-            key: resourceKey.key,
-            language: language.name,
-          })}
+          aria-label={labelInName(
+            t("Remove"),
+            t("app.platform.localization.removeTranslation", {
+              key: resourceKey.key,
+              language: language.name,
+            }),
+          )}
           onClick={async () => {
             if (
               await confirm({

@@ -1,4 +1,4 @@
-import type { EventInput } from "@fullcalendar/core";
+import type { EventInput } from "@fullcalendar/react";
 
 import type { ConnectedAccount, ExternalCalendarEvent } from "./api";
 import { accountColorVar } from "./colors";
@@ -49,10 +49,10 @@ export function toCalendarEvents(
         editable: false,
         startEditable: false,
         durationEditable: false,
-        classNames: ["external-event", ...(item.tentative ? ["external-event-tentative"] : [])],
-        borderColor: color,
-        backgroundColor: `color-mix(in oklab, ${color} 18%, var(--background))`,
-        textColor: "var(--foreground)",
+        // The account colour (side bar and dot); the tint of the block and the text come from `.external-event`.
+        className: item.tentative ? "external-event external-event-tentative" : "external-event",
+        color,
+        contrastColor: "var(--foreground)",
         extendedProps: { external: item },
       },
     ];

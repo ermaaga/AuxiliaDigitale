@@ -33,6 +33,7 @@ import { DataTable } from "@/components/data-table/data-table";
 import type { DataTableColumn } from "@/components/data-table/table-model";
 import { ApiErrorAlert } from "@/components/errors/api-error-alert";
 import { useNotify } from "@/lib/notify";
+import { labelInName } from "@/lib/label-in-name";
 
 import { TENANT_ROLES, nameOf, rolesText } from "../../labels";
 import {
@@ -103,9 +104,12 @@ export function TenantModulesCard({ slug, readOnly }: { slug: string; readOnly: 
                   variant="outline"
                   size="sm"
                   onClick={() => setEditing(module)}
-                  aria-label={t("app.platform.modules.edit", {
-                    module: nameOf(t, module.nameKey, module.code),
-                  })}
+                  aria-label={labelInName(
+                    t("Edit"),
+                    t("app.platform.modules.edit", {
+                      module: nameOf(t, module.nameKey, module.code),
+                    }),
+                  )}
                 >
                   {t("Edit")}
                 </Button>
