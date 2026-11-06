@@ -8,6 +8,10 @@ param automationPrincipalIds = json(readEnvironmentVariable('AUXILIA_AUTOMATION_
 // Every environments/<name>.bicepparam, listed by scripts/deploy.sh (JSON array).
 param environmentNames = json(readEnvironmentVariable('AUXILIA_ENVIRONMENTS', '[]'))
 param deploySharedServices = readEnvironmentVariable('AUXILIA_DEPLOY_SHARED_SERVICES', 'false') == 'true'
+// ADR 0028: false once every environment runs with messagingMode 'InProcess' / valkeyEnabled false (then delete the
+// apps, runbook docs/runbooks/azure-deployment.md).
+param rabbitmqEnabled = true
+param valkeyEnabled = true
 // Satellite apps (ADR 0022 §11): deploy.sh keeps the running tags, --openwa/--agent-openwa/--site <sha> change them.
 param openwaImageTag = readEnvironmentVariable('AUXILIA_OPENWA_IMAGE_TAG', '')
 param agentOpenwaImageTag = readEnvironmentVariable('AUXILIA_AGENT_OPENWA_IMAGE_TAG', '')

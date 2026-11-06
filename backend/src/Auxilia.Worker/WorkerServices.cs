@@ -7,7 +7,6 @@ using Auxilia.Infrastructure.Messaging;
 using Auxilia.Infrastructure.Realtime;
 using Auxilia.Persistence.Catalog;
 using Auxilia.Persistence.Tenant;
-using Auxilia.Worker.Handlers.Platform;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +16,9 @@ namespace Auxilia.Worker;
 public static class WorkerServices
 {
     /// <summary>
-    /// Application, Catalog, tenant databases, cache and the message bus consuming every queue that has a handler in
-    /// this assembly (<c>ConnectionStrings:Catalog</c> and <c>ConnectionStrings:RabbitMq</c> required). In Development
+    /// Application, Catalog, tenant databases, cache and the message bus consuming every queue that has a handler
+    /// (<see cref="MessageRouting.HandledQueues"/>; <c>ConnectionStrings:Catalog</c> and <c>ConnectionStrings:RabbitMq</c>
+    /// required). With <c>Messaging:Mode = InProcess</c> the Api consumes the queues and the Worker must not run. In Development
     /// (<paramref name="isDevelopment"/>) the Data Protection keys are never protected with Key Vault.
     /// </summary>
     public static IServiceCollection AddWorkerServices(this IServiceCollection services, IConfiguration configuration, MessageBusOptions? busOptions = null, bool isDevelopment = false)
@@ -50,10 +50,14 @@ public static class WorkerServices
         // Pushes to the Api's hub connections go through the Redis backplane (without Redis they are dropped).
         services.AddRealtime(configuration.GetConnectionString("Redis"));
 
+        if (MessagingModeSetting.Parse(configuration[MessagingModeSetting.Key]) == MessagingMode.InProcess)
+        {
+            throw new InvalidOperationException($"{MessagingModeSetting.Key} is {MessagingMode.InProcess}: the Api consumes the queues, do not run the Worker.");
+        }
+
         var rabbitMq = configuration.GetConnectionString("RabbitMq")
             ?? throw new InvalidOperationException("ConnectionStrings:RabbitMq is not configured.");
-        services.AddMessageBusWorker<RunRecurringJobHandler>(
-            rabbitMq, catalog, MessageRouting.QueuesHandledBy(typeof(RunRecurringJobHandler).Assembly), busOptions);
+        services.AddMessageBusWorker(rabbitMq, catalog, busOptions);
 
         return services;
     }

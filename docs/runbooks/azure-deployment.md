@@ -135,9 +135,34 @@ The next release sets the arguments back to `migrate …`.
 - Live console output (no Log Analytics): `az containerapp logs show -g <rg> -n <app> --follow`.
 - Scale to zero: the first request after a pause wakes web, API, Valkey and RabbitMQ (10–30 s). The web app has one
   replica and keeps BFF sessions in memory: users idle beyond the cooldown sign in again.
-- Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
+- (Worker mode only) Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
   (`az containerapp replica list -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01`); if it stays awake, see
   ADR 0022 §4 for the fallback.
+
+## In-process messaging (ADR 0028): switching off RabbitMQ, the Worker and Valkey
+`Messaging:Mode = InProcess` moves the queues to the table `rebus_messages` of the Catalog database and the Api
+handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then runs one replica at most). Order:
+
+1. **qa** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/qa.bicepparam`): run the
+   Infrastructure workflow for `qa`, then release. Delete the worker app the template no longer manages:
+   `az containerapp delete -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --yes`.
+   Check: an e-mail (password reset), a document upload (status processed), an import and a large export; the queue
+   table empties (`select recipient, count(*) from rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
+2. **prod**: same two lines in `environments/prod.bicepparam`, Infrastructure workflow, release, then
+   `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`. Messages still in RabbitMQ at the
+   switch are not lost: their outbox entries are already sent, so let the old Worker drain the queues before the
+   release (no queue length in `az containerapp logs`), or run `auxctl jobs run bus.outbox --all` only for entries
+   still pending.
+3. **shared**: `rabbitmqEnabled = false` and `valkeyEnabled = false` in `shared.bicepparam`, Infrastructure workflow for
+   `shared`, then `az containerapp delete -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01 --yes` and the same for
+   `ca-auxilia-valkey-01`. The Key Vault secrets (`rabbitmq-*`, `valkey-password`, `redis-connection`) may stay.
+
+Back to the Worker: set `messagingMode = 'Worker'` (and `rabbitmqEnabled = true`), Infrastructure workflow, release.
+Messages left in `rebus_messages` are not moved to RabbitMQ: wait until the table is empty before switching back.
+
+Error queue in InProcess mode: `select id, convert_from(headers, 'UTF8') from rebus_messages where recipient = 'error'`;
+to retry a message, `update rebus_messages set recipient = '<original queue, e.g. auxilia.messaging>', visible = now()
+where id = <id>` (the original queue is the `rbs2-source-queue` header).
 
 ## Registry cleanup (Basic has no retention policy)
 ```bash

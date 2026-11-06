@@ -40,6 +40,11 @@ param valkeyDatabase int
 param imageTag string = ''
 param apiMaxReplicas int = 2
 param workerMaxReplicas int = 2
+@description('Worker (RabbitMQ + worker app) or InProcess (queues in the Catalog, consumed by the api): ADR 0028.')
+@allowed(['Worker', 'InProcess'])
+param messagingMode string = 'Worker'
+@description('false = no Valkey for this environment (memory cache, api at most one replica): ADR 0028.')
+param valkeyEnabled bool = true
 
 resource rg 'Microsoft.Resources/resourceGroups@2024-07-01' = {
   name: resourceGroupName
@@ -144,6 +149,8 @@ module apps 'modules/apps.bicep' = if (!empty(imageTag)) {
     forwardedNetworks: forwardedNetworks
     apiMaxReplicas: apiMaxReplicas
     workerMaxReplicas: workerMaxReplicas
+    messagingMode: messagingMode
+    valkeyEnabled: valkeyEnabled
   }
   dependsOn: [registryAccess]
 }

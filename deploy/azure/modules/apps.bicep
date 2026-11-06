@@ -18,6 +18,11 @@ param dataProtectionKeyUri string
 param forwardedNetworks array
 param apiMaxReplicas int = 2
 param workerMaxReplicas int = 2
+@description('Who consumes the queues (Messaging:Mode, ADR 0028): Worker = RabbitMQ + the worker app; InProcess = queue table in the Catalog, consumed by the api (no worker app, no RabbitMQ).')
+@allowed(['Worker', 'InProcess'])
+param messagingMode string = 'Worker'
+@description('Valkey as L2 cache, SignalR backplane and shared deny-list. false = memory only: the api runs one replica at most (ADR 0028).')
+param valkeyEnabled bool = true
 param webClientId string = 'web-bff'
 param consoleClientId string = 'console'
 
@@ -27,6 +32,8 @@ var webName = 'ca-auxilia-web-${environmentName}'
 var jobName = 'caj-auxilia-auxctl-${environmentName}'
 var apiUrl = 'https://${apiName}.${containerAppsDefaultDomain}'
 var webUrl = 'https://${webName}.${containerAppsDefaultDomain}'
+
+var inProcess = messagingMode == 'InProcess'
 
 // Queues consumed by the Worker (Auxilia.Contracts.Messages.V1.<Module> → auxilia.<module>, MessageRouting).
 var workerQueues = ['documents', 'imports', 'mailbox', 'marketing', 'messaging', 'platform', 'reporting']
@@ -44,27 +51,34 @@ var registries = [
   }
 ]
 
-var backendSecrets = [
-  kvSecret(keyVaultUri, 'catalog-connection', identityId)
-  kvSecret(keyVaultUri, 'redis-connection', identityId)
-  kvSecret(keyVaultUri, 'rabbitmq-connection', identityId)
-  kvSecret(keyVaultUri, 'storage-connection', identityId)
-  kvSecret(keyVaultUri, 'altcha-key', identityId)
-]
+// Valkey and RabbitMQ only when this environment uses them (valkeyEnabled, messagingMode).
+var backendSecrets = concat(
+  [
+    kvSecret(keyVaultUri, 'catalog-connection', identityId)
+    kvSecret(keyVaultUri, 'storage-connection', identityId)
+    kvSecret(keyVaultUri, 'altcha-key', identityId)
+  ],
+  valkeyEnabled ? [kvSecret(keyVaultUri, 'redis-connection', identityId)] : [],
+  inProcess ? [] : [kvSecret(keyVaultUri, 'rabbitmq-connection', identityId)]
+)
 
-var backendEnv = [
+var connectionEnv = concat(
+  valkeyEnabled ? [{ name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }] : [],
+  inProcess ? [] : [{ name: 'ConnectionStrings__RabbitMq', secretRef: 'rabbitmq-connection' }]
+)
+
+var backendEnv = concat(connectionEnv, [
   { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
   { name: 'DOTNET_ENVIRONMENT', value: 'Production' }
   { name: 'ConnectionStrings__Catalog', secretRef: 'catalog-connection' }
-  { name: 'ConnectionStrings__Redis', secretRef: 'redis-connection' }
-  { name: 'ConnectionStrings__RabbitMq', secretRef: 'rabbitmq-connection' }
+  { name: 'Messaging__Mode', value: messagingMode }
   { name: 'AuxiliaLogging__Storage', value: 'azure-blob' }
   { name: 'AuxiliaLogging__AzureBlob__ConnectionString', secretRef: 'storage-connection' }
   { name: 'AuxiliaLogging__AzureBlob__Container', value: 'logs' }
   { name: 'Captcha__Altcha__Key', secretRef: 'altcha-key' }
   { name: 'AZURE_CLIENT_ID', value: identityClientId }
   { name: 'DataProtection__KeyVaultKeyId', value: dataProtectionKeyUri }
-]
+])
 
 var forwardedEnv = [for (network, index) in forwardedNetworks: {
   name: 'ForwardedHeaders__KnownNetworks__${index}'
@@ -126,9 +140,10 @@ resource api 'Microsoft.App/containerApps@2024-03-01' = {
           ]
         }
       ]
+      // Without Valkey every replica has its own cache, deny-list and SignalR connections: one replica at most.
       scale: {
         minReplicas: 0
-        maxReplicas: apiMaxReplicas
+        maxReplicas: valkeyEnabled ? apiMaxReplicas : 1
         rules: [
           {
             name: 'http-requests'
@@ -140,7 +155,9 @@ resource api 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-resource worker 'Microsoft.App/containerApps@2024-03-01' = {
+// Not deployed in InProcess mode (the api consumes the queues). Removing it from the template does not delete an
+// existing worker app: the runbook (docs/runbooks/azure-deployment.md) deletes it after the switch.
+resource worker 'Microsoft.App/containerApps@2024-03-01' = if (!inProcess) {
   name: workerName
   location: location
   tags: tags

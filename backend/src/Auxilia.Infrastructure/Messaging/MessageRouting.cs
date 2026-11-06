@@ -13,6 +13,8 @@ public static class MessageRouting
 
     public const string PlatformQueue = "auxilia.platform";
 
+    private const string HandlersNamespace = "Auxilia.Infrastructure.Messaging.Handlers";
+
     /// <summary>Every message type of the contracts.</summary>
     public static IReadOnlyList<Type> MessageTypes { get; } = typeof(ITenantMessage).Assembly.GetTypes()
         .Where(type => type is { IsClass: true, IsAbstract: false, Namespace: not null }
@@ -20,22 +22,30 @@ public static class MessageRouting
         .OrderBy(type => type.FullName, StringComparer.Ordinal)
         .ToArray();
 
-    /// <summary>The queues whose messages have a handler in <paramref name="assembly"/> (the queues a Worker consumes).</summary>
-    public static IReadOnlyList<string> QueuesHandledBy(System.Reflection.Assembly assembly)
-    {
-        ArgumentNullException.ThrowIfNull(assembly);
+    /// <summary>
+    /// The message handlers (<c>Auxilia.Infrastructure.Messaging.Handlers.&lt;Module&gt;</c>): consumed by the Worker, or by
+    /// the Api when <see cref="MessagingMode.InProcess"/>.
+    /// </summary>
+    public static IReadOnlyList<Type> HandlerTypes { get; } = typeof(MessageRouting).Assembly.GetTypes()
+        .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false, Namespace: not null }
+            && type.Namespace.StartsWith(HandlersNamespace, StringComparison.Ordinal)
+            && HandledMessageTypes(type).Any())
+        .OrderBy(type => type.FullName, StringComparer.Ordinal)
+        .ToArray();
 
-        return assembly.GetTypes()
-            .Where(type => type is { IsClass: true, IsAbstract: false })
-            .SelectMany(type => type.GetInterfaces())
-            .Where(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(Rebus.Handlers.IHandleMessages<>))
-            .Select(contract => contract.GetGenericArguments()[0])
-            .Where(MessageTypes.Contains)
-            .Select(QueueOf)
-            .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal)
-            .ToArray();
-    }
+    /// <summary>The queues whose messages have a handler (the queues a consumer listens to).</summary>
+    public static IReadOnlyList<string> HandledQueues { get; } = HandlerTypes
+        .SelectMany(HandledMessageTypes)
+        .Select(QueueOf)
+        .Distinct(StringComparer.Ordinal)
+        .Order(StringComparer.Ordinal)
+        .ToArray();
+
+    /// <summary>The contract messages <paramref name="handlerType"/> handles (its <c>IHandleMessages&lt;T&gt;</c>).</summary>
+    internal static IEnumerable<Type> HandledMessageTypes(Type handlerType) => handlerType.GetInterfaces()
+        .Where(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(Rebus.Handlers.IHandleMessages<>))
+        .Select(contract => contract.GetGenericArguments()[0])
+        .Where(MessageTypes.Contains);
 
     public static string QueueOf(Type messageType)
     {

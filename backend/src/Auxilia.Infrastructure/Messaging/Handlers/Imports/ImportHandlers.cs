@@ -1,12 +1,11 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Imports;
 using Auxilia.Contracts.Messages.V1.Imports;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Imports;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Imports;
 
 /// <summary>Validates the rows of an uploaded import; idempotent on the import status.</summary>
 internal sealed class ValidateImportHandler(IIncomingMessageProcessor processor, IMessageContext context, IImportManager imports)

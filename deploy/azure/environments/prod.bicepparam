@@ -8,6 +8,9 @@ param apiMaxReplicas = 2
 param workerMaxReplicas = 2
 // Unique among the environments (0–15).
 param valkeyDatabase = 0
+// ADR 0028: switch to 'InProcess' / false once qa has run that way (then delete the worker app, runbook).
+param messagingMode = 'Worker'
+param valkeyEnabled = true
 // Set by scripts/deploy.sh: users and the workflow identity that write the secrets (Key Vault Secrets Officer).
 param operatorObjectIds = json(readEnvironmentVariable('AUXILIA_OPERATOR_OBJECT_IDS', '[]'))
 param automationPrincipalIds = json(readEnvironmentVariable('AUXILIA_AUTOMATION_PRINCIPAL_IDS', '[]'))

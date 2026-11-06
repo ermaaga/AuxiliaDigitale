@@ -1,13 +1,12 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Marketing;
 using Auxilia.Contracts.Messages.V1.Marketing;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 using Auxilia.SharedKernel.Tenancy;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Marketing;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Marketing;
 
 /// <summary>Sends a campaign as the user who asked for it (their roles choose the account); idempotent on the campaign status.</summary>
 internal sealed class SendCampaignHandler(IIncomingMessageProcessor processor, IMessageContext context, MessageCurrentUser caller, ICampaignManager campaigns)

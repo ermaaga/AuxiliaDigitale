@@ -8,6 +8,10 @@ param apiMaxReplicas = 1
 param workerMaxReplicas = 1
 // Unique among the environments (0–15).
 param valkeyDatabase = 1
+// ADR 0028: queues consumed by the api (no worker app, no RabbitMQ) and memory cache only (api at most one replica).
+// Verified here before prod.
+param messagingMode = 'InProcess'
+param valkeyEnabled = false
 // Set by scripts/deploy.sh: users and the workflow identity that write the secrets (Key Vault Secrets Officer).
 param operatorObjectIds = json(readEnvironmentVariable('AUXILIA_OPERATOR_OBJECT_IDS', '[]'))
 param automationPrincipalIds = json(readEnvironmentVariable('AUXILIA_AUTOMATION_PRINCIPAL_IDS', '[]'))

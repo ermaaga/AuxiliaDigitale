@@ -1,12 +1,11 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Messaging;
 using Auxilia.Contracts.Messages.V1.Messaging;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Messaging;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Messaging;
 
 /// <summary>
 /// Delivers a queued outbound message. Not one transaction: sending is an external side effect and each state change

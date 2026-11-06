@@ -160,6 +160,10 @@ jobs:
       - name: Update worker, api and web
         run: |
           for app in worker api web; do
+            # No worker app in Messaging:Mode InProcess (ADR 0028): the api consumes the queues.
+            if [ "$app" = worker ] && ! az containerapp show -g "$RG" -n "ca-auxilia-worker-$SUFFIX" --output none 2>/dev/null; then
+              echo "ca-auxilia-worker-$SUFFIX not deployed (InProcess): skipped"; continue
+            fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$SHA" --output none
             echo "ca-auxilia-$app-$SUFFIX → $SHA"
           done
@@ -177,6 +181,9 @@ jobs:
           PREVIOUS: ${{ steps.previous.outputs.tag }}
         run: |
           for app in worker api web; do
+            if [ "$app" = worker ] && ! az containerapp show -g "$RG" -n "ca-auxilia-worker-$SUFFIX" --output none 2>/dev/null; then
+              continue
+            fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$PREVIOUS" --output none
             echo "ca-auxilia-$app-$SUFFIX → $PREVIOUS"
           done
