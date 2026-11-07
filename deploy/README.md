@@ -8,6 +8,29 @@ No secrets in this folder: configuration comes from environment variables or a s
 | `compose.dev.yml` | Postgres, Valkey, RabbitMQ (project `auxilia-dev`, ports 5432/6379/5672/15672) | development: Api, Worker and Web run on the host (`dotnet run`, `pnpm dev`), E2E |
 | `compose.local.yml` | everything: infrastructure + API + Worker + web app/console + Mailpit (project `auxilia-local`) | trying the application in a browser |
 
+## Who handles the queued work (`Messaging:Mode`, ADR 0028)
+
+E-mails, document checks, imports, campaigns, large exports, tenant provisioning, mailbox sync and the console job
+runs are queued messages. The setting `Messaging:Mode` (in `appsettings.json` of Api, Worker and auxctl, default
+`Worker`) chooses who handles them:
+
+| Value | Queues | Handled by | Needs |
+|---|---|---|---|
+| `Worker` (default) | RabbitMQ, one queue per module | the Worker (`Auxilia.Worker`) | RabbitMQ (`ConnectionStrings:RabbitMq`) and a running Worker |
+| `InProcess` | table `catalog.rebus_messages` of the Catalog database (created by `auxctl migrate catalog`) | the Api itself | nothing else: no RabbitMQ, no Worker (it refuses to start in this mode) |
+
+Set the same value on the Api and on auxctl (auxctl writes the messages where the Api or the Worker reads them):
+- in a file: `"Messaging": { "Mode": "InProcess" }` in `appsettings.json` (or `appsettings.Development.json`);
+- as an environment variable, which wins over the file: `Messaging__Mode=InProcess` (Docker, Container Apps);
+- locally with user-secrets: `dotnet user-secrets set Messaging:Mode InProcess --project backend/src/Auxilia.Api`.
+
+On Azure the value comes from `messagingMode` in `azure/environments/<env>.bicepparam` (qa and prod: `InProcess`); a
+change made by hand (`az containerapp update -n ca-auxilia-api-<env> --set-env-vars Messaging__Mode=…`, and the same on
+the job `caj-auxilia-auxctl-<env>`) is overwritten by the next infrastructure deployment. In `InProcess` mode long
+work stops when the Api scales to zero and resumes at the next start; without Valkey (`valkeyEnabled = false`) the Api
+runs one replica at most. Details, limits and switching back: ADR 0028 and `docs/runbooks/azure-deployment.md`
+("In-process messaging"). `compose.dev.yml` and `compose.local.yml` use the default `Worker`.
+
 ## The whole application (`compose.local.yml`)
 
 ```bash
