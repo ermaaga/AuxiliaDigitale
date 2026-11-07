@@ -11,13 +11,13 @@ No secrets in this folder: configuration comes from environment variables or a s
 ## Who handles the queued work (`Messaging:Mode`, ADR 0028)
 
 E-mails, document checks, imports, campaigns, large exports, tenant provisioning, mailbox sync and the console job
-runs are queued messages. The setting `Messaging:Mode` (in `appsettings.json` of Api, Worker and auxctl, default
-`Worker`) chooses who handles them:
+runs are queued messages. The setting `Messaging:Mode` (in `appsettings.json` of the Api and auxctl, default `Worker`)
+chooses who handles them:
 
 | Value | Queues | Handled by | Needs |
 |---|---|---|---|
 | `Worker` (default) | RabbitMQ, one queue per module | the Worker (`Auxilia.Worker`) | RabbitMQ (`ConnectionStrings:RabbitMq`) and a running Worker |
-| `InProcess` | table `catalog.rebus_messages` of the Catalog database (created by `auxctl migrate catalog`) | the Api itself | nothing else: no RabbitMQ, no Worker (it refuses to start in this mode) |
+| `InProcess` | table `catalog.rebus_messages` of the Catalog database (created by `auxctl migrate catalog`) | the Api itself | nothing else: no RabbitMQ, no Worker (do not deploy it; if it finds `InProcess` in its environment it refuses to start) |
 
 Set the same value on the Api and on auxctl (auxctl writes the messages where the Api or the Worker reads them):
 - in a file: `"Messaging": { "Mode": "InProcess" }` in `appsettings.json` (or `appsettings.Development.json`);
