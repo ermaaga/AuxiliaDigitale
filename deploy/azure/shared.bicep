@@ -38,6 +38,9 @@ param environmentNames array
 
 @description('RabbitMQ, Valkey and the psql job: only after scripts/secrets.sh has written their Key Vault secrets.')
 param deploySharedServices bool = false
+@description('RabbitMQ / Valkey container apps: false once no environment uses them (ADR 0028). An existing app is not deleted by the template (runbook).')
+param rabbitmqEnabled bool = true
+param valkeyEnabled bool = true
 param rabbitmqImage string = 'docker.io/library/rabbitmq:4.2-alpine'
 param valkeyImage string = 'docker.io/valkey/valkey:8.1-alpine'
 param postgresClientImage string = 'docker.io/library/postgres:18-alpine'
@@ -152,6 +155,8 @@ module sharedServices 'modules/shared-services.bicep' = if (deploySharedServices
     environmentNames: environmentNames
     rabbitmqImage: rabbitmqImage
     valkeyImage: valkeyImage
+    rabbitmqEnabled: rabbitmqEnabled
+    valkeyEnabled: valkeyEnabled
     postgresClientImage: postgresClientImage
   }
 }

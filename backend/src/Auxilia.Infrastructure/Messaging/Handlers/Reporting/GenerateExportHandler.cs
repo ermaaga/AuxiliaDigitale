@@ -1,13 +1,12 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Reporting;
 using Auxilia.Contracts.Messages.V1.Reporting;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 using Auxilia.SharedKernel.Tenancy;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Reporting;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Reporting;
 
 /// <summary>Writes a large export as the user who asked for it (their roles from the message); idempotent on the export status.</summary>
 internal sealed class GenerateExportHandler(IIncomingMessageProcessor processor, IMessageContext context, MessageCurrentUser caller, IExportManager exports)

@@ -52,8 +52,13 @@ internal static class AuxctlHost
             builder.Services.AddRedisCache(redis);
         }
 
-        // Jobs run here may produce messages (e.g. bus.outbox sends the pending outbox).
-        if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
+        // Jobs run here may produce messages (e.g. bus.outbox sends the pending outbox): to RabbitMQ, or to the queue
+        // table of the Catalog that the Api consumes in InProcess mode (ADR 0028).
+        if (MessagingModeSetting.Parse(builder.Configuration[MessagingModeSetting.Key]) == MessagingMode.InProcess)
+        {
+            builder.Services.AddInProcessMessageBusClient(catalog);
+        }
+        else if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
         {
             builder.Services.AddMessageBusClient(rabbitMq);
         }

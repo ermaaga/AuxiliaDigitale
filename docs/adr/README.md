@@ -29,3 +29,4 @@
 | [0025](0025-releases-without-github-environments.md) | Releases and provisioning without GitHub environments: OIDC bound to `main`, repository variables, prod released by hand | Accepted | H-03, ADR 0022, ADR 0024 |
 | [0026](0026-temporary-exception-minimatch-advisory.md) | Temporary exception for GHSA-g3hv-75wg-m249 (minimatch), expires 2026-12-02 | Accepted | ADR 0011, ADR 0015 |
 | [0027](0027-fullcalendar-7-with-temporal-polyfill.md) | FullCalendar 7 (`@fullcalendar/react` subpaths, classic theme from the tokens) with `temporal-polyfill` | Accepted | F13, N05, ADR 0011 |
+| [0028](0028-in-process-messaging-without-rabbitmq-and-worker.md) | In-process messaging: queues in the Catalog database (Rebus PostgreSQL transport), handlers in the Api, RabbitMQ/Worker/Valkey optional | Accepted | ADR 0007, ADR 0022, D-12 |

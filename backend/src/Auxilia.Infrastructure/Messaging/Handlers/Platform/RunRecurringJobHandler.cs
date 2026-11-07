@@ -2,12 +2,11 @@ using Auxilia.Application.Bus;
 using Auxilia.Application.Jobs;
 using Auxilia.Contracts.Messages.V1.Platform;
 using Auxilia.Diagnostics;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Platform;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Platform;
 
 /// <summary>
 /// Manual job run requested by the System (D-15): runs the job for the tenant of the message. A job made of many

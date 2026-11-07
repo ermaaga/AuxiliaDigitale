@@ -46,7 +46,7 @@ Sistema multi-tenant per studi/uffici che gestiscono **clienti, pratiche, appunt
 | Deployable | Ruolo |
 |---|---|
 | `Auxilia.Api` | API REST `/api/v1` (tenant) + `/api/v1/platform` (System), hub SignalR |
-| `Auxilia.Worker` | consumer delle code Rebus/RabbitMQ (email, documenti, import, export, campagne) — **nessun timer** |
+| `Auxilia.Worker` | consumer delle code Rebus/RabbitMQ (email, documenti, import, export, campagne) — **nessun timer**; non usato con `Messaging:Mode = InProcess` (ADR 0028), dove le code sono una tabella del Catalog consumata dall'Api |
 | `Auxilia.MigrationRunner` (`auxctl`) | migrazioni, provisioning tenant, import legacy, esecuzione manuale dei job, utility |
 | `frontend/apps/web` | Next.js: app del tenant (`/{tenant}/…`) + console di piattaforma (`/platform/…`), ciascuna col suo BFF/sessione |
 
@@ -62,7 +62,8 @@ AuxiliaDigitale/
 │   ├── Auxilia.Infrastructure/Adapters/<Capability>/<Provider>/  ·  Logging/  ·  Caching/  ·  Settings/
 │   ├── Auxilia.Persistence.Catalog/  ·  Auxilia.Persistence.Tenant/Configurations/<Module>/
 │   ├── Auxilia.Api/Endpoints/<Module>/  ·  Endpoints/Platform/  ·  Hubs/  ·  Modules/
-│   ├── Auxilia.Worker/Handlers/<Module>/
+│   ├── Auxilia.Infrastructure/Messaging/Handlers/<Module>/ (handler dei messaggi, eseguiti dal Worker o dall'Api — ADR 0028)
+│   ├── Auxilia.Worker (solo host)
 │   └── Auxilia.MigrationRunner/Commands/
 ├── backend/tests/ (Domain, Application, Api.Integration, Worker.Integration, Persistence, Architecture, LegacyImport, Tests.Common)
 ├── frontend/apps/web/src/
@@ -405,7 +406,7 @@ Implementazione: Serilog con instradamento per `TenantSlug` verso un writer per 
 Job registrati: `cases.expiry` (parità F11), `engagement.task-reminders` (futuro), `documents.staging-cleanup` (in alternativa lifecycle policy dello storage).
 
 Implementazione (P1-12):
-- **Rebus su RabbitMQ**. Routing per convenzione: un messaggio in `Contracts/Messages/V<n>/<Modulo>/` va nella coda `auxilia.<modulo>` (`MessageRouting`). I messaggi per tenant implementano `ITenantMessage`. Api e auxctl hanno un bus solo invio (`AddMessageBusClient`); il Worker crea un bus per ogni coda che ha handler nel suo assembly (`AddMessageBusWorker`). Connessione in `ConnectionStrings:RabbitMq`: senza, i messaggi restano nell'outbox.
+- **Rebus su RabbitMQ**. Routing per convenzione: un messaggio in `Contracts/Messages/V<n>/<Modulo>/` va nella coda `auxilia.<modulo>` (`MessageRouting`). I messaggi per tenant implementano `ITenantMessage`. Api e auxctl hanno un bus solo invio (`AddMessageBusClient`); il Worker crea un bus per ogni coda che ha handler nel suo assembly (`AddMessageBusWorker`). Connessione in `ConnectionStrings:RabbitMq`: senza, i messaggi restano nell'outbox. **Modalità `InProcess`** (`Messaging:Mode`, ADR 0028): stesse code e stessi handler (`Infrastructure/Messaging/Handlers/<Modulo>/`) sulla tabella `catalog.rebus_messages` del Catalog (creata dalla migrazione `Catalog_RebusMessages`) (trasporto PostgreSQL di Rebus, rinvio nativo, coda `error` = righe con `recipient = 'error'`), consumate dall'Api con un messaggio per coda alla volta (3 su `auxilia.messaging`); auxctl invia sulla stessa tabella; niente RabbitMQ né Worker.
 - **Header** di ogni messaggio: `rbs2-msg-id` (chiave di idempotenza), `x-tenant-slug`, `x-correlation-id`, `x-user-id`, `x-actor-type`, `traceparent`. Vengono catturati quando il messaggio è prodotto.
 - **Outbox**: `IMessageOutbox.EnqueueAsync(scope, message)` scrive in `ops.outbox_messages` nella transazione dell'operazione e invia dopo il commit (`OnCommitted`). Nessun dispatcher in polling (D-15): se l'invio fallisce la riga resta pendente (`AUX-23008`) e la invia il job manuale `bus.outbox`. I messaggi di piattaforma senza DB tenant si inviano direttamente dopo il commit.
 - **Ricezione**: `IIncomingMessageProcessor` (Application), sotto l'operazione `Bus.HandleMessage` (`AUX-23001`). Tenant da `x-tenant-slug`: se manca → `23003`, se sconosciuto o non attivo → `23004`, in entrambi i casi coda `error` senza retry. Chiamante e correlazione dagli header; traccia unita al `traceparent`. Gli handler del Worker ereditano `MessageHandler<T>` e restano sottili.

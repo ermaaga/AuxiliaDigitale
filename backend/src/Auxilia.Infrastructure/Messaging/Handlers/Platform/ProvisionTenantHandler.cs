@@ -1,12 +1,11 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Platform;
 using Auxilia.Contracts.Messages.V1.Platform;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Platform;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Platform;
 
 /// <summary>
 /// Provisioning requested from the console (N02): not a tenant message (the tenant has no database yet). The work is

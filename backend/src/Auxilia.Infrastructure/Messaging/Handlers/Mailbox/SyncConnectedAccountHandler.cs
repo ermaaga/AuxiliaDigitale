@@ -1,12 +1,11 @@
 using Auxilia.Application.Bus;
 using Auxilia.Application.Mailbox;
 using Auxilia.Contracts.Messages.V1.Mailbox;
-using Auxilia.Infrastructure.Messaging;
 using Auxilia.SharedKernel.Results;
 
 using Rebus.Pipeline;
 
-namespace Auxilia.Worker.Handlers.Mailbox;
+namespace Auxilia.Infrastructure.Messaging.Handlers.Mailbox;
 
 /// <summary>
 /// One part of a sync run (N05, #106). Not transactional: every chunk commits on its own with its cursor, so a

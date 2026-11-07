@@ -60,8 +60,16 @@ if (builder.Configuration.GetConnectionString("Redis") is { Length: > 0 } redis)
     builder.Services.AddRedisCache(redis);
 }
 
-// RabbitMQ (send only): messages leave through the outbox; without it they stay pending in ops.outbox_messages.
-if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
+// Message bus (ADR 0028). Worker mode: RabbitMQ, send only; without it outbox entries stay pending in
+// ops.outbox_messages. InProcess mode: the queues are a Catalog table and this process runs the handlers itself,
+// tenant provisioning included (the Catalog login has CREATEDB/CREATEROLE, as for the Worker).
+if (MessagingModeSetting.Parse(builder.Configuration[MessagingModeSetting.Key]) == MessagingMode.InProcess)
+{
+    builder.Services.AddTenantAdministration();
+    builder.Services.AddTenantDatabaseAdministration(builder.Configuration["Provisioning:AdminConnectionString"] ?? catalogConnectionString);
+    builder.Services.AddInProcessMessageBus<HttpCurrentUser>(catalogConnectionString);
+}
+else if (builder.Configuration.GetConnectionString("RabbitMq") is { Length: > 0 } rabbitMq)
 {
     builder.Services.AddMessageBusClient(rabbitMq);
 }

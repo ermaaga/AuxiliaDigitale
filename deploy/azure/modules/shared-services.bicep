@@ -19,6 +19,10 @@ param rabbitmqCpu string = '0.5'
 param rabbitmqMemory string = '1Gi'
 param valkeyCpu string = '0.25'
 param valkeyMemory string = '0.5Gi'
+@description('false once no environment uses RabbitMQ (every one in Messaging:Mode InProcess, ADR 0028).')
+param rabbitmqEnabled bool = true
+@description('false once no environment uses Valkey (valkeyEnabled false everywhere, ADR 0028).')
+param valkeyEnabled bool = true
 
 func kvSecret(vaultUri string, secretName string, identity string) object => {
   name: secretName
@@ -28,7 +32,7 @@ func kvSecret(vaultUri string, secretName string, identity string) object => {
 
 // RabbitMQ: no disk. Users, vhosts (one per environment) and permissions are loaded at every start from the definitions file
 // (Key Vault secret rabbitmq-definitions, written by scripts/secrets.sh init); the Worker declares its queues.
-resource rabbitmq 'Microsoft.App/containerApps@2024-03-01' = {
+resource rabbitmq 'Microsoft.App/containerApps@2024-03-01' = if (rabbitmqEnabled) {
   name: rabbitmqName
   location: location
   tags: tags
@@ -100,7 +104,7 @@ resource rabbitmq 'Microsoft.App/containerApps@2024-03-01' = {
 
 // Valkey: cache, SignalR backplane, deny-list; in memory only. Each environment uses its own database and channel
 // prefix (in its connection string).
-resource valkey 'Microsoft.App/containerApps@2024-03-01' = {
+resource valkey 'Microsoft.App/containerApps@2024-03-01' = if (valkeyEnabled) {
   name: valkeyName
   location: location
   tags: tags
@@ -228,5 +232,5 @@ resource psqlJob 'Microsoft.App/jobs@2024-03-01' = {
   }
 }
 
-output rabbitmqHost string = rabbitmq.properties.configuration.ingress.fqdn
-output valkeyHost string = valkey.properties.configuration.ingress.fqdn
+output rabbitmqHost string = rabbitmqEnabled ? rabbitmq!.properties.configuration.ingress.fqdn : ''
+output valkeyHost string = valkeyEnabled ? valkey!.properties.configuration.ingress.fqdn : ''

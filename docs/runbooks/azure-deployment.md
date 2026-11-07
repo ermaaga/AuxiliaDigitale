@@ -142,10 +142,36 @@ The next release sets the arguments back to `migrate …`.
 - A Worker that never scales to zero is usually a Worker that never starts (crash loop: KEDA keeps one replica while
   its queues are not drained). Look for `Hosting failed to start` in `stauxilianext<env>/logs/platform/<yyyy>/<MM>/<dd>.jsonl`.
   The Worker creates no table at run time (on Azure `public` belongs to `azure_pg_admin`, the Catalog login may not
-  create in it): the Rebus timeouts table is `catalog.rebus_timeouts`, created by the Catalog migrations.
-- Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
+  create in it): the Rebus timeouts table is `catalog.rebus_timeouts` and the in-process queue table (ADR 0028)
+  `catalog.rebus_messages`, both created by the Catalog migrations.
+- (Worker mode only) Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
   (`az containerapp replica list -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01`); if it stays awake, see
   ADR 0022 §4 for the fallback.
+
+## In-process messaging (ADR 0028): switching off RabbitMQ, the Worker and Valkey
+`Messaging:Mode = InProcess` moves the queues to the table `catalog.rebus_messages` of the Catalog database (created by the Catalog migration
+`Catalog_RebusMessages`, so the release's `migrate catalog` must run before the Api starts in this mode) and the Api
+handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then runs one replica at most). Order:
+
+1. **qa** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/qa.bicepparam`): run the
+   Infrastructure workflow for `qa`, then release. Delete the worker app the template no longer manages:
+   `az containerapp delete -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --yes`.
+   Check: an e-mail (password reset), a document upload (status processed), an import and a large export; the queue
+   table empties (`select recipient, count(*) from catalog.rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
+2. **prod** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/prod.bicepparam`: prod
+   was not deployed yet, so it starts this way and has no worker app to delete). If a prod Worker was ever deployed,
+   let it drain its RabbitMQ queues before the release (their outbox entries are already marked sent, so messages
+   left there are not resent), then `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`.
+3. **shared**: `rabbitmqEnabled = false` and `valkeyEnabled = false` in `shared.bicepparam`, Infrastructure workflow for
+   `shared`, then `az containerapp delete -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01 --yes` and the same for
+   `ca-auxilia-valkey-01`. The Key Vault secrets (`rabbitmq-*`, `valkey-password`, `redis-connection`) may stay.
+
+Back to the Worker: set `messagingMode = 'Worker'` (and `rabbitmqEnabled = true`), Infrastructure workflow, release.
+Messages left in `catalog.rebus_messages` are not moved to RabbitMQ: wait until the table is empty before switching back.
+
+Error queue in InProcess mode: `select id, convert_from(headers, 'UTF8') from catalog.rebus_messages where recipient = 'error'`;
+to retry a message, `update catalog.rebus_messages set recipient = '<original queue, e.g. auxilia.messaging>', visible = now()
+where id = <id>` (the original queue is the `rbs2-source-queue` header).
 
 ## Registry cleanup (Basic has no retention policy)
 ```bash

@@ -137,6 +137,11 @@ jobs:
           image="$(az containerapp show -g "$RG" -n "ca-auxilia-api-$SUFFIX" --query 'properties.template.containers[0].image' -o tsv)"
           echo "tag=${image##*:}" >> "$GITHUB_OUTPUT"
           echo "running: ${image##*:}"
+          # Messaging:Mode of the running api (ADR 0028): InProcess has no worker app. A failed query fails the step,
+          # it never means "no worker".
+          mode="$(az containerapp show -g "$RG" -n "ca-auxilia-api-$SUFFIX" --query "properties.template.containers[0].env[?name=='Messaging__Mode'].value | [0]" -o tsv)"
+          echo "messaging=${mode:-Worker}" >> "$GITHUB_OUTPUT"
+          echo "messaging mode: ${mode:-Worker}"
 
       - name: Migrations (auxctl job)
         run: |
@@ -158,8 +163,14 @@ jobs:
           run_auxctl migrate tenants --all
 
       - name: Update worker, api and web
+        env:
+          MESSAGING: ${{ steps.previous.outputs.messaging }}
         run: |
           for app in worker api web; do
+            # No worker app in Messaging:Mode InProcess (ADR 0028): the api consumes the queues.
+            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ]; then
+              echo "ca-auxilia-worker-$SUFFIX: InProcess, skipped"; continue
+            fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$SHA" --output none
             echo "ca-auxilia-$app-$SUFFIX → $SHA"
           done
@@ -175,8 +186,12 @@ jobs:
         if: failure() && steps.previous.outputs.tag != '' && steps.previous.outputs.tag != env.SHA
         env:
           PREVIOUS: ${{ steps.previous.outputs.tag }}
+          MESSAGING: ${{ steps.previous.outputs.messaging }}
         run: |
           for app in worker api web; do
+            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ]; then
+              continue
+            fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$PREVIOUS" --output none
             echo "ca-auxilia-$app-$SUFFIX → $PREVIOUS"
           done
