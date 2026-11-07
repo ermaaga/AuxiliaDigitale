@@ -198,7 +198,18 @@ together with the shared services.
   mount uses `mfsymlinks,nobrl` because Chromium writes symlinks and byte-range locks that plain SMB refuses — to
   verify on the first start; if the session still breaks, the fallback is a session export/import offered by the
   OpenWA image or a premium NFS share (paid).
-- **Not known yet** (parameters in `shared.bicepparam`, defaults in brackets): ports (8080, 8080, 80), session
+- **Showcase site** (repository `ermaaga/AuxiliaSalute`, Next.js standalone, added 2026-11-02): port 3000, startup
+  and readiness probes on `/api/health` (Container Apps ignore the image `HEALTHCHECK`; the startup probe runs every
+  second so a replica woken from zero gets traffic as soon as Next.js answers). Its `NEXT_PUBLIC_SITE_URL` (required by
+  its Dockerfile) and `NEXT_PUBLIC_WHATSAPP_NUMBER` are inlined at build time, so they are build arguments of its ACR
+  Task (`acr-task.sh satellite site`, `SITE_URL` defaults to the Azure FQDN; a custom domain means updating the task
+  and rebuilding). App Service Free (F1) was considered and rejected: no custom domain, 60 CPU minutes a day, idle
+  after 20 minutes like scale to zero. Cold start measured with `scripts/cold-start.sh` on 2026-11-02 (0.25 vCPU,
+  image 77 MiB): **20–24 s** to the first answer (warm: 0.11 s) = replica scheduled ≈ 1–2 s + image pull ≈ 4.4 s +
+  container creation ≈ 10 s (platform, not tunable from the template) + Next.js start ≈ 3 s (locally 2.5 s at 0.25
+  vCPU, 0.3 s at 1 vCPU). Options: more CPU while awake (saves ~2 s), or `minReplicas 1` to remove the cold start
+  (an idle replica is billed all month).
+- **Not known yet** (parameters in `shared.bicepparam`, defaults in brackets): ports (8080, 8080, 3000), session
   folder, name of the API key variable (`OPENWA_API_KEY`), plain settings (`openwaEnv`, `agentOpenwaEnv`,
   `siteEnv`) and agent secrets. They are set once the repositories and images are known.
 - Reachability: the internal ingress of OpenWA is reachable by every app of the environment, so also by prod and qa
