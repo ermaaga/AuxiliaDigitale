@@ -172,10 +172,13 @@ jobs:
         env:
           MESSAGING: ${{ steps.previous.outputs.messaging }}
         run: |
+          # Messaging:Mode InProcess (ADR 0028): the api consumes the queues and the worker app, when it still exists, is
+          # stopped; its image is aligned anyway (it stays stopped), ready for a switch back to Worker. `az containerapp
+          # list` answers an empty list when the app does not exist and fails on any other error (never a silent skip).
+          worker_exists="$(az containerapp list -g "$RG" --query "length([?name=='ca-auxilia-worker-$SUFFIX'])" -o tsv)"
           for app in worker api web; do
-            # No worker app in Messaging:Mode InProcess (ADR 0028): the api consumes the queues.
-            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ]; then
-              echo "ca-auxilia-worker-$SUFFIX: InProcess, skipped"; continue
+            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ] && [ "$worker_exists" = 0 ]; then
+              echo "ca-auxilia-worker-$SUFFIX: InProcess, not deployed"; continue
             fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$SHA" --output none
             echo "ca-auxilia-$app-$SUFFIX → $SHA"
@@ -194,8 +197,9 @@ jobs:
           PREVIOUS: ${{ steps.previous.outputs.tag }}
           MESSAGING: ${{ steps.previous.outputs.messaging }}
         run: |
+          worker_exists="$(az containerapp list -g "$RG" --query "length([?name=='ca-auxilia-worker-$SUFFIX'])" -o tsv)"
           for app in worker api web; do
-            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ]; then
+            if [ "$app" = worker ] && [ "$MESSAGING" = InProcess ] && [ "$worker_exists" = 0 ]; then
               continue
             fi
             az containerapp update -g "$RG" -n "ca-auxilia-$app-$SUFFIX" --image "$LOGIN_SERVER/auxilia/$app:$PREVIOUS" --output none
