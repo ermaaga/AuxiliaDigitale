@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Rebus.Config;
 using Rebus.Handlers;
+using Rebus.PostgreSql;
 using Rebus.Retry.FailFast;
 using Rebus.Retry.Simple;
 using Rebus.Routing.TypeBased;
@@ -15,6 +16,15 @@ namespace Auxilia.Infrastructure.Messaging;
 
 public static class MessageBusRegistration
 {
+    /// <summary>
+    /// Deferred messages of the second-level retries, created by the Catalog migration <c>Catalog_RebusTimeouts</c>:
+    /// the Worker never creates tables at run time (on Azure the Catalog login may not create in <c>public</c>).
+    /// </summary>
+    public const string TimeoutsSchema = "catalog";
+
+    /// <summary>Table of <see cref="TimeoutsSchema"/> (Rebus takes the schema separately, never in the name).</summary>
+    public const string TimeoutsTable = "rebus_timeouts";
+
     /// <summary>Api and auxctl: send-only bus (no input queue) with the routing table.</summary>
     public static IServiceCollection AddMessageBusClient(this IServiceCollection services, string rabbitMqConnectionString)
     {
@@ -30,7 +40,7 @@ public static class MessageBusRegistration
 
     /// <summary>
     /// Worker: one bus per queue in <paramref name="queues"/> (the first one also sends), retries (immediate, then
-    /// second-level with deferral stored in <c>rebus_timeouts</c> of the Catalog database, then <c>error</c>), handlers
+    /// second-level with deferral stored in <c>catalog.rebus_timeouts</c> of the Catalog database, then <c>error</c>), handlers
     /// of <typeparamref name="THandlersAssembly"/>'s assembly, caller taken from the message headers.
     /// </summary>
     public static IServiceCollection AddMessageBusWorker<THandlersAssembly>(
@@ -66,7 +76,8 @@ public static class MessageBusRegistration
                 configure => configure
                     .Transport(transport => transport.UseRabbitMq(rabbitMqConnectionString, queue))
                     .Routing(routing => MapMessages(routing.TypeBased()))
-                    .Timeouts(timeouts => timeouts.StoreInPostgres(catalogConnectionString, "rebus_timeouts", automaticallyCreateTables: true))
+                    .Timeouts(timeouts => timeouts.StoreInPostgres(
+                        new PostgresConnectionHelper(catalogConnectionString), TimeoutsTable, automaticallyCreateTables: false, schemaName: TimeoutsSchema))
                     .Options(settings =>
                     {
                         settings.RetryStrategy(

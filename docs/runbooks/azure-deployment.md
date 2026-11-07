@@ -139,6 +139,10 @@ The next release sets the arguments back to `migrate …`.
 - Live console output (no Log Analytics): `az containerapp logs show -g <rg> -n <app> --follow`.
 - Scale to zero: the first request after a pause wakes web, API, Valkey and RabbitMQ (10–30 s). The web app has one
   replica and keeps BFF sessions in memory: users idle beyond the cooldown sign in again.
+- A Worker that never scales to zero is usually a Worker that never starts (crash loop: KEDA keeps one replica while
+  its queues are not drained). Look for `Hosting failed to start` in `stauxilianext<env>/logs/platform/<yyyy>/<MM>/<dd>.jsonl`.
+  The Worker creates no table at run time (on Azure `public` belongs to `azure_pg_admin`, the Catalog login may not
+  create in it): the Rebus timeouts table is `catalog.rebus_timeouts`, created by the Catalog migrations.
 - Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
   (`az containerapp replica list -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01`); if it stays awake, see
   ADR 0022 §4 for the fallback.
