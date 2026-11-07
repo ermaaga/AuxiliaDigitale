@@ -154,19 +154,24 @@ The next release sets the arguments back to `migrate …`.
 handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then runs one replica at most). Order:
 
 1. **qa** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/qa.bicepparam`): run the
-   Infrastructure workflow for `qa`, then release. Delete the worker app the template no longer manages:
-   `az containerapp delete -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --yes`.
+   Infrastructure workflow for `qa`, then release. The worker app is no longer managed by the template: **stop it, do
+   not delete it** (kept for a switch back), with `Messaging__Mode=InProcess` in its environment so that a start by
+   mistake refuses to run: `az containerapp update -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --set-env-vars
+   Messaging__Mode=InProcess`, then `POST …/containerApps/ca-auxilia-worker-qa/stop?api-version=2024-03-01` (`az rest`).
+   Every release still moves its image (it stays stopped).
    Check: an e-mail (password reset), a document upload (status processed), an import and a large export; the queue
    table empties (`select recipient, count(*) from catalog.rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
 2. **prod** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/prod.bicepparam`: prod
    was not deployed yet, so it starts this way and has no worker app to delete). If a prod Worker was ever deployed,
    let it drain its RabbitMQ queues before the release (their outbox entries are already marked sent, so messages
-   left there are not resent), then `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`.
+   left there are not resent), then stop it as for qa.
 3. **shared**: `rabbitmqEnabled = false` and `valkeyEnabled = false` in `shared.bicepparam`, Infrastructure workflow for
-   `shared`, then `az containerapp delete -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01 --yes` and the same for
-   `ca-auxilia-valkey-01`. The Key Vault secrets (`rabbitmq-*`, `valkey-password`, `redis-connection`) may stay.
+   `shared`, then stop `ca-auxilia-rabbitmq-01` and `ca-auxilia-valkey-01` (`POST …/containerApps/<app>/stop`): the
+   template no longer manages them and they are not deleted. The Key Vault secrets (`rabbitmq-*`, `valkey-password`,
+   `redis-connection`) stay.
 
-Back to the Worker: set `messagingMode = 'Worker'` (and `rabbitmqEnabled = true`), Infrastructure workflow, release.
+Back to the Worker: set `messagingMode = 'Worker'` (and `rabbitmqEnabled = true`), Infrastructure workflow, start
+RabbitMQ (and Valkey) again (`POST …/start`), release.
 Messages left in `catalog.rebus_messages` are not moved to RabbitMQ: wait until the table is empty before switching back.
 
 Error queue in InProcess mode: `select id, convert_from(headers, 'UTF8') from catalog.rebus_messages where recipient = 'error'`;

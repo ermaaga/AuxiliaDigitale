@@ -61,10 +61,12 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
   browser directly, which in `Worker` mode needs the Valkey backplane.
 - **Infrastructure** (`deploy/azure`): `environments/<env>.bicepparam` → `messagingMode` (`Worker` | `InProcess`) and
   `valkeyEnabled`; `shared.bicepparam` → `rabbitmqEnabled`, `valkeyEnabled` for the shared apps; the release workflow
-  skips the worker app when the running api has `Messaging__Mode = InProcess` (a failed query fails the release, it
-  never skips the worker silently). qa and prod (not deployed yet, so it starts this way) both use `InProcess` without
-  Valkey; the shared RabbitMQ/Valkey are removed after the qa switch (runbook `docs/runbooks/azure-deployment.md`,
-  "In-process messaging").
+  reads `Messaging__Mode` of the running api: with `InProcess` a worker app that still exists is kept **stopped** (not
+  deleted, with `Messaging__Mode = InProcess` in its environment so that a start by mistake refuses to run) and the
+  release still moves its image with the api and the web app, ready for a switch back; a worker app that does not
+  exist is skipped (a failed query fails the release, never a silent skip). qa and prod (not deployed yet, so it
+  starts this way) both use `InProcess` without Valkey; the shared RabbitMQ/Valkey are stopped after the qa switch
+  (runbook `docs/runbooks/azure-deployment.md`, "In-process messaging").
 
 ## Consequences
 - Running cost: RabbitMQ, Valkey and the two Workers can be deleted; what remains running is web + Api (scale to zero),
