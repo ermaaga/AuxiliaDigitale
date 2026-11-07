@@ -14,6 +14,8 @@ param tags object = {
 }
 @description('GitHub repository allowed to run the Infrastructure workflow through OIDC.')
 param githubRepository string = 'ermaaga/AuxiliaDigitale'
+@description('OIDC subject prefix of the repository with immutable ids (GitHub sends it when the repository uses immutable subjects: gh api repos/ermaaga/AuxiliaDigitale/actions/oidc/customization/sub).')
+param githubImmutableSubjectPrefix string = 'repo:ermaaga@56563458/AuxiliaDigitale@1394874853'
 
 // Roles the templates assign (environment.bicep, shared.bicep and their modules); the workflow may assign or remove
 // only these, so it can never make anybody Owner or User Access Administrator.
@@ -44,6 +46,7 @@ module identity 'modules/identity.bicep' = {
     tags: tags
     name: identityName
     githubRepository: githubRepository
+    githubImmutableSubjectPrefix: githubImmutableSubjectPrefix
   }
 }
 
