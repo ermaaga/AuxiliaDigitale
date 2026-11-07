@@ -12,4 +12,21 @@ public sealed class MessageBusOptions
 
     /// <summary>Messages handled in parallel by each queue of the Worker.</summary>
     public int WorkersPerQueue { get; set; } = 2;
+
+    /// <summary>Queues handling more (or fewer) messages in parallel than <see cref="WorkersPerQueue"/>.</summary>
+    public IReadOnlyDictionary<string, int> WorkersByQueue { get; set; } = new Dictionary<string, int>(StringComparer.Ordinal);
+
+    /// <summary>Messages handled in parallel by <paramref name="queue"/>.</summary>
+    public int WorkersFor(string queue) => WorkersByQueue.TryGetValue(queue, out var workers) ? workers : WorkersPerQueue;
+
+    /// <summary>
+    /// Default of <see cref="MessagingMode.InProcess"/>: the Api shares its CPU and the Catalog connections with the
+    /// requests, so one message at a time per queue, except <c>auxilia.messaging</c>, where e-mails (sign-in codes,
+    /// password resets) would otherwise wait behind every delivery of a campaign.
+    /// </summary>
+    public static MessageBusOptions InProcessDefaults() => new()
+    {
+        WorkersPerQueue = 1,
+        WorkersByQueue = new Dictionary<string, int>(StringComparer.Ordinal) { ["auxilia.messaging"] = 3 },
+    };
 }

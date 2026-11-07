@@ -103,6 +103,21 @@ public sealed class InProcessMessageBusTests(InProcessBusFixture bus)
         await EventuallyAsync(() => Count("inprocess.count") == before + 1);
     }
 
+    [Fact]
+    public async Task SendInsideAHandledMessage_IsNotLostWhenTheHandlerStopsHalfway()
+    {
+        var before = Count("inprocess.count");
+
+        // A handler's outbox marks its entries as sent when SendAsync returns: the message must already be in the queue,
+        // not held by the transaction of the message being handled, which a stop (scale to zero) never commits.
+        using (new Rebus.Transport.RebusTransactionScope())
+        {
+            await SendAsync(bus.Host.Services, new RunRecurringJobCommand("inprocess.count"), Guid.CreateVersion7());
+        }
+
+        await EventuallyAsync(() => Count("inprocess.count") == before + 1);
+    }
+
     private static int Count(string job) => InProcessBusFixture.Journal.GetValueOrDefault(job);
 
     private static Task SendAsync(IServiceProvider services, object message, Guid messageId)

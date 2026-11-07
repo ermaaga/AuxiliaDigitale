@@ -158,11 +158,10 @@ handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then r
    `az containerapp delete -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --yes`.
    Check: an e-mail (password reset), a document upload (status processed), an import and a large export; the queue
    table empties (`select recipient, count(*) from catalog.rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
-2. **prod**: same two lines in `environments/prod.bicepparam`, Infrastructure workflow, release, then
-   `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`. Messages still in RabbitMQ at the
-   switch are not lost: their outbox entries are already sent, so let the old Worker drain the queues before the
-   release (no queue length in `az containerapp logs`), or run `auxctl jobs run bus.outbox --all` only for entries
-   still pending.
+2. **prod** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/prod.bicepparam`: prod
+   was not deployed yet, so it starts this way and has no worker app to delete). If a prod Worker was ever deployed,
+   let it drain its RabbitMQ queues before the release (their outbox entries are already marked sent, so messages
+   left there are not resent), then `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`.
 3. **shared**: `rabbitmqEnabled = false` and `valkeyEnabled = false` in `shared.bicepparam`, Infrastructure workflow for
    `shared`, then `az containerapp delete -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01 --yes` and the same for
    `ca-auxilia-valkey-01`. The Key Vault secrets (`rabbitmq-*`, `valkey-password`, `redis-connection`) may stay.

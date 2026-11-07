@@ -25,7 +25,7 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
 | auxctl | send-only on RabbitMQ | send-only on the table (`AddInProcessMessageBusClient`) |
 | Deferral (second-level retries) | `catalog.rebus_timeouts` | native to the transport (`visible` column) |
 | Error queue | RabbitMQ queue `error` | rows with `recipient = 'error'` |
-| Parallelism | 2 messages per queue | 1 message per queue (CPU and connections shared with the requests) |
+| Parallelism | 2 messages per queue | 1 message per queue, 3 on `auxilia.messaging` (CPU and connections shared with the requests) |
 
 - **Handlers move** from `Auxilia.Worker/Handlers/<Module>/` to `Auxilia.Infrastructure/Messaging/Handlers/<Module>/`
   (same thin `MessageHandler<T>` classes, same namespaces per module), so that both hosts can run them; the list of
@@ -39,7 +39,13 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
 - **Durability**: a message leaves the table only when its handler has finished (the receive transaction commits
   then). If the Api stops halfway (scale to zero, restart, crash) the message is received again at the next start;
   handlers are already idempotent (`ops.processed_messages`, status checks). Nothing is lost while the Api sleeps:
-  messages wait in the table.
+  messages wait in the table. A message produced **inside** a handler (outbox of the handler's operation) is sent at
+  once, outside the receive transaction (`RebusTransactionScopeSuppressor` in `RebusMessageSender`): the outbox marks
+  the entry as sent when the send returns, so a send held until the end of the handler would be lost by a stop
+  halfway. This applies to the Worker mode too.
+- **Parallelism**: one message at a time per queue (`MessageBusOptions.InProcessDefaults`), except
+  `auxilia.messaging` with three, so that sign-in codes and password resets do not wait behind every delivery of a
+  campaign (they still share the queue: a large campaign delays them by its throughput / 3).
 - **Polling**: each queue polls the table with a back-off of 0.1 → 0.5 → 1 → 2 s while idle (7 small indexed queries
   per 2 s at most), only while the Api is running. It does not keep the Api awake (its scaler counts HTTP requests).
 - **No table is created at run time**: on Azure Database for PostgreSQL the Catalog login may not create in `public`
@@ -55,8 +61,10 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
   browser directly, which in `Worker` mode needs the Valkey backplane.
 - **Infrastructure** (`deploy/azure`): `environments/<env>.bicepparam` → `messagingMode` (`Worker` | `InProcess`) and
   `valkeyEnabled`; `shared.bicepparam` → `rabbitmqEnabled`, `valkeyEnabled` for the shared apps; the release workflow
-  skips the worker app when it does not exist. qa switches first; prod, then the shared RabbitMQ/Valkey follow
-  (runbook `docs/runbooks/azure-deployment.md`, "In-process messaging").
+  skips the worker app when the running api has `Messaging__Mode = InProcess` (a failed query fails the release, it
+  never skips the worker silently). qa and prod (not deployed yet, so it starts this way) both use `InProcess` without
+  Valkey; the shared RabbitMQ/Valkey are removed after the qa switch (runbook `docs/runbooks/azure-deployment.md`,
+  "In-process messaging").
 
 ## Consequences
 - Running cost: RabbitMQ, Valkey and the two Workers can be deleted; what remains running is web + Api (scale to zero),
@@ -69,8 +77,11 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
   the handlers resume (imports and mailbox sync are resumable, the others are short). Deferred messages
   (second-level retries, mailbox continuations) are handled only while the Api is running.
 - The Catalog database holds the queue table: its connections are shared with the requests (ADR 0022 C7); a running
-  handler holds one connection for the receive transaction. One message per queue keeps this bounded (≤ 7).
-- Without Valkey the Api cannot scale out; with the current load one replica is enough.
+  handler holds one connection for the receive transaction. The parallelism keeps this bounded (≤ 9).
+- Without Valkey the Api cannot scale out; with the current load one replica is enough. The access-token deny-list is
+  in memory, so a restart (scale to zero) forgets it: a revoked access token is accepted again until it expires
+  (`auth.accessToken.minutes`, 10 by default). Refresh tokens and sessions are revoked in the database, so the session
+  cannot be renewed; the exposure is bounded by the access-token lifetime (ASVS checklist).
 - Messages in the error queue are rows of `catalog.rebus_messages` (`recipient = 'error'`): inspect or move them with psql
   (runbook).
 

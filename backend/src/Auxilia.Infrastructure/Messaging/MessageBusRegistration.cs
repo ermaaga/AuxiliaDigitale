@@ -97,9 +97,9 @@ public static class MessageBusRegistration
     /// the queues in the <c>catalog.rebus_messages</c> table of the Catalog database (created by the migration
     /// <c>Catalog_RebusMessages</c>). A message is removed from the
     /// table only when its handler has finished, so a process stopped halfway (scale to zero, restart) leaves it there
-    /// for the next start; deferrals (second-level retries) are native to the transport. One message at a time per
-    /// queue by default (<see cref="MessageBusOptions.WorkersPerQueue"/>): the Api shares its CPU and the database
-    /// connections with the requests.
+    /// for the next start; deferrals (second-level retries) are native to the transport. Parallelism by default
+    /// <see cref="MessageBusOptions.InProcessDefaults"/>: the Api shares its CPU and the database connections with the
+    /// requests.
     /// <para>
     /// <see cref="ICurrentUser"/> is the message caller inside a handler and <typeparamref name="THostCurrentUser"/>
     /// (the HTTP caller) everywhere else.
@@ -121,7 +121,7 @@ public static class MessageBusRegistration
             : provider.GetRequiredService<MessageCurrentUser>()));
 
         return services.AddConsumerBuses(
-            options ?? new MessageBusOptions { WorkersPerQueue = 1 },
+            options ?? MessageBusOptions.InProcessDefaults(),
             (transport, queue) => transport.UsePostgreSql(catalogConnectionString, InProcessQueueTable, queue, schemaName: RebusSchema),
             configure => configure,
             InProcessBackoff);
@@ -180,8 +180,8 @@ public static class MessageBusRegistration
                             maxDeliveryAttempts: options.MaxDeliveryAttempts,
                             secondLevelRetriesEnabled: true);
                         settings.FailFastOn<MessageRejectedException>(_ => true);
-                        settings.SetNumberOfWorkers(options.WorkersPerQueue);
-                        settings.SetMaxParallelism(options.WorkersPerQueue);
+                        settings.SetNumberOfWorkers(options.WorkersFor(queue));
+                        settings.SetMaxParallelism(options.WorkersFor(queue));
                         if (backoff is not null)
                         {
                             settings.SetBackoffTimes(backoff);

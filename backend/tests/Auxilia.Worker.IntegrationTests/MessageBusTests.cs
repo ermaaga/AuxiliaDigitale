@@ -125,6 +125,16 @@ public sealed class MessageBusTests(BusFixture bus)
     {
         MessageRouting.QueueOf(typeof(RunRecurringJobCommand)).ShouldBe(MessageRouting.PlatformQueue);
         MessageRouting.MessageTypes.ShouldContain(typeof(RunRecurringJobCommand));
+        static IEnumerable<Type> Handled(Type type) => type.GetInterfaces()
+            .Where(contract => contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(Rebus.Handlers.IHandleMessages<>))
+            .Select(contract => contract.GetGenericArguments()[0]);
+        // Messages are the …Command / …Event records of the contracts (the others are parts of a message, e.g. ProvisionTenantAdministrator).
+        var messages = MessageRouting.MessageTypes.Where(type => type.Name.EndsWith("Command", StringComparison.Ordinal) || type.Name.EndsWith("Event", StringComparison.Ordinal));
+        MessageRouting.HandlerTypes.SelectMany(Handled).ShouldBe(messages, ignoreOrder: true, "every contract message needs exactly one handler");
+        typeof(MessageRouting).Assembly.GetTypes()
+            .Where(type => type is { IsClass: true, IsAbstract: false } && Handled(type).Any())
+            .Except(MessageRouting.HandlerTypes)
+            .ShouldBe([typeof(MessageRouting).Assembly.GetType("Auxilia.Infrastructure.Messaging.SecondLevelRetryHandler`1")!], "a handler of a non-contract type is never registered");
         MessageRouting.HandledQueues.ShouldBe(["auxilia.documents", "auxilia.imports", "auxilia.mailbox", "auxilia.marketing", "auxilia.messaging", MessageRouting.PlatformQueue, "auxilia.reporting"]);
         Should.Throw<ArgumentException>(() => MessageRouting.QueueOf(typeof(string)));
     }

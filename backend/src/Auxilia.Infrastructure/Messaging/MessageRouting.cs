@@ -13,8 +13,6 @@ public static class MessageRouting
 
     public const string PlatformQueue = "auxilia.platform";
 
-    private const string HandlersNamespace = "Auxilia.Infrastructure.Messaging.Handlers";
-
     /// <summary>Every message type of the contracts.</summary>
     public static IReadOnlyList<Type> MessageTypes { get; } = typeof(ITenantMessage).Assembly.GetTypes()
         .Where(type => type is { IsClass: true, IsAbstract: false, Namespace: not null }
@@ -23,12 +21,12 @@ public static class MessageRouting
         .ToArray();
 
     /// <summary>
-    /// The message handlers (<c>Auxilia.Infrastructure.Messaging.Handlers.&lt;Module&gt;</c>): consumed by the Worker, or by
-    /// the Api when <see cref="MessagingMode.InProcess"/>.
+    /// The message handlers: every class of this assembly handling a contract message, wherever it is (by convention in
+    /// <c>Auxilia.Infrastructure.Messaging.Handlers.&lt;Module&gt;</c>); consumed by the Worker, or by the Api when
+    /// <see cref="MessagingMode.InProcess"/>. A test requires one handler per message type.
     /// </summary>
     public static IReadOnlyList<Type> HandlerTypes { get; } = typeof(MessageRouting).Assembly.GetTypes()
-        .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false, Namespace: not null }
-            && type.Namespace.StartsWith(HandlersNamespace, StringComparison.Ordinal)
+        .Where(type => type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false }
             && HandledMessageTypes(type).Any())
         .OrderBy(type => type.FullName, StringComparer.Ordinal)
         .ToArray();

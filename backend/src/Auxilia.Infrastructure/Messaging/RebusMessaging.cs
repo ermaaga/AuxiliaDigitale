@@ -14,15 +14,21 @@ using Rebus.Retry.Simple;
 
 namespace Auxilia.Infrastructure.Messaging;
 
-/// <summary><see cref="IMessageSender"/> on Rebus; the headers (tenant, correlation, caller, trace, message id) come from the producer.</summary>
+/// <summary>
+/// <see cref="IMessageSender"/> on Rebus; the headers (tenant, correlation, caller, trace, message id) come from the producer.
+/// The send never joins the transaction of a message being handled: inside a handler Rebus would hold the message until
+/// the handler ends, while the outbox marks the entry as sent as soon as this returns, so a process stopped halfway
+/// (crash, restart, scale to zero) would lose it for good. Sent at once, it is either in the queue or still pending.
+/// </summary>
 internal sealed class RebusMessageSender(IBus bus) : IMessageSender
 {
-    public Task SendAsync(object message, IReadOnlyDictionary<string, string> headers, CancellationToken cancellationToken)
+    public async Task SendAsync(object message, IReadOnlyDictionary<string, string> headers, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(headers);
 
-        return bus.Send(message, headers.ToDictionary(StringComparer.Ordinal));
+        using var outsideTheHandledMessage = new Rebus.Transport.RebusTransactionScopeSuppressor();
+        await bus.Send(message, headers.ToDictionary(StringComparer.Ordinal));
     }
 }
 
