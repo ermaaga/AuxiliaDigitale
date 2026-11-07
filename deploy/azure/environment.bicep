@@ -23,6 +23,8 @@ param forwardedNetworks array = ['10.40.0.0/23']
 
 @description('GitHub repository allowed to deploy this environment through OIDC (workflow runs of main, ADR 0025).')
 param githubRepository string = 'ermaaga/AuxiliaDigitale'
+@description('OIDC subject prefix of the repository with immutable ids (GitHub sends it when the repository uses immutable subjects: gh api repos/ermaaga/AuxiliaDigitale/actions/oidc/customization/sub).')
+param githubImmutableSubjectPrefix string = 'repo:ermaaga@56563458/AuxiliaDigitale@1394874853'
 
 @description('Days after which the daily log files are deleted (D-17).')
 param logRetentionDays int
@@ -84,6 +86,7 @@ module deployIdentity 'modules/identity.bicep' = {
     tags: tags
     name: 'id-auxilia-next-deploy-${environmentName}'
     githubRepository: githubRepository
+    githubImmutableSubjectPrefix: githubImmutableSubjectPrefix
   }
 }
 
