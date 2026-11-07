@@ -19,11 +19,11 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
 
 | | `Worker` (default, unchanged) | `InProcess` |
 |---|---|---|
-| Queues | RabbitMQ, one queue per module | table `rebus_messages` of the **Catalog** database (Rebus PostgreSQL transport, already a dependency for `rebus_timeouts`), one queue per module |
+| Queues | RabbitMQ, one queue per module | table `catalog.rebus_messages` of the **Catalog** database (Rebus PostgreSQL transport, already a dependency for `catalog.rebus_timeouts`), one queue per module |
 | Consumer | `Auxilia.Worker` (KEDA rule per queue) | the **Api** itself |
 | Producer | outbox → RabbitMQ (send-only bus) | outbox → table |
 | auxctl | send-only on RabbitMQ | send-only on the table (`AddInProcessMessageBusClient`) |
-| Deferral (second-level retries) | `rebus_timeouts` | native to the transport (`visible` column) |
+| Deferral (second-level retries) | `catalog.rebus_timeouts` | native to the transport (`visible` column) |
 | Error queue | RabbitMQ queue `error` | rows with `recipient = 'error'` |
 | Parallelism | 2 messages per queue | 1 message per queue (CPU and connections shared with the requests) |
 
@@ -42,6 +42,10 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
   messages wait in the table.
 - **Polling**: each queue polls the table with a back-off of 0.1 → 0.5 → 1 → 2 s while idle (7 small indexed queries
   per 2 s at most), only while the Api is running. It does not keep the Api awake (its scaler counts HTTP requests).
+- **No table is created at run time**: on Azure Database for PostgreSQL the Catalog login may not create in `public`
+  (found on the qa Worker, #157). The queue table is `catalog.rebus_messages`, created by the Catalog migration
+  `Catalog_RebusMessages` with the DDL of Rebus' `PostgreSqlTransport`; Rebus finds it and creates nothing. The
+  tests run the host with a login that cannot create tables, and the Api fails at start (42501) without the table.
 - The Worker refuses to start with `Messaging:Mode = InProcess` (two consumers of different transports would split the
   messages).
 - **Valkey**: the code already works without `ConnectionStrings:Redis` (memory cache, in-process SignalR). The Bicep
@@ -67,7 +71,7 @@ A second messaging mode, chosen per environment with the setting **`Messaging:Mo
 - The Catalog database holds the queue table: its connections are shared with the requests (ADR 0022 C7); a running
   handler holds one connection for the receive transaction. One message per queue keeps this bounded (≤ 7).
 - Without Valkey the Api cannot scale out; with the current load one replica is enough.
-- Messages in the error queue are rows of `rebus_messages` (`recipient = 'error'`): inspect or move them with psql
+- Messages in the error queue are rows of `catalog.rebus_messages` (`recipient = 'error'`): inspect or move them with psql
   (runbook).
 
 ## Alternatives considered

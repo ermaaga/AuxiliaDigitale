@@ -108,6 +108,19 @@ public sealed class MessageBusTests(BusFixture bus)
     }
 
     [Fact]
+    public async Task Timeouts_LiveInTheCatalogSchemaAndTheWorkerCreatesNothingInPublic()
+    {
+        await using var scope = bus.Api.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<Auxilia.Persistence.Catalog.CatalogDbContext>();
+
+        var tables = await db.Database
+            .SqlQueryRaw<string>("SELECT coalesce(to_regclass('catalog.rebus_timeouts')::text, '-') || '|' || coalesce(to_regclass('public.rebus_timeouts')::text, '-') AS \"Value\"")
+            .SingleAsync(Ct);
+
+        tables.ShouldBe($"{MessageBusRegistration.TimeoutsSchema}.{MessageBusRegistration.TimeoutsTable}|-");
+    }
+
+    [Fact]
     public void Routing_MapsMessagesToTheQueueOfTheirModule()
     {
         MessageRouting.QueueOf(typeof(RunRecurringJobCommand)).ShouldBe(MessageRouting.PlatformQueue);

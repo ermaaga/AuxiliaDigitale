@@ -90,6 +90,8 @@ init_shared() {
   for name in rabbitmq-admin-password valkey-password openwa-api-key; do
     ensure_random "$shared_vault" "$name"
   done
+  # SMTP password of the showcase site (siteSecrets in shared.bicepparam): the app needs the secret to exist.
+  ensure_placeholder "$shared_vault" site-smtp-password
   for env in $(environment_names); do
     ensure_random "$shared_vault" "postgres-$env-password"
     ensure_random "$shared_vault" "rabbitmq-$env-password"

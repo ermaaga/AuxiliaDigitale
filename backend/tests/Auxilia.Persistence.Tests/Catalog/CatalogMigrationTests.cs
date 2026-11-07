@@ -31,7 +31,7 @@ public sealed class CatalogMigrationTests(CatalogDatabaseFixture database)
         [
             "__ef_migrations_history", "client_applications", "data_protection_keys", "migration_runs", "modules",
             "plan_modules", "plans", "platform_refresh_tokens", "platform_sessions", "platform_settings", "platform_user_roles",
-            "platform_user_tokens", "platform_users", "signing_keys", "tenant_domains",
+            "platform_user_tokens", "platform_users", "rebus_messages", "rebus_timeouts", "signing_keys", "tenant_domains",
             "tenant_module_overrides", "tenant_plans", "tenants",
         ]);
     }

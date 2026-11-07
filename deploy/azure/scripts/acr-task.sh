@@ -7,6 +7,11 @@
 #       Satellite app built from its own repository: image auxilia/<app>:<commit sha> (+ :<branch>) on every push to
 #       the branch (default main); context = folder of the repository (default the root), dockerfile relative to the
 #       context (default Dockerfile). Released with deploy.sh shared --<app> <sha>.
+#       site: its NEXT_PUBLIC_* values are inlined at build time, so they are build arguments of the task:
+#         SITE_URL              public origin (default https://ca-auxilia-site-01.<environment domain>); after
+#                               adding a custom domain run the command again with SITE_URL=https://… and rebuild
+#         SITE_WHATSAPP_NUMBER  optional WhatsApp number of the contact button
+#       e.g. SITE_URL=https://www.example.it deploy/azure/scripts/acr-task.sh satellite site owner/repo < pat.txt
 #
 # Standard input: a GitHub fine-grained personal access token limited to the repository with "Contents: read" and
 # "Webhooks: read and write" (the task creates the commit webhook). It is kept by the task only.
@@ -59,7 +64,22 @@ case "${1:-}" in
     dockerfile="${5:-Dockerfile}"
     context="${6:-}"
     read_token
-    create_or_update "$app-build-$branch" "${common[@]}" \
+    build_args=()
+    if [ "$app" = site ]; then
+      site_url="${SITE_URL:-}"
+      if [ -z "$site_url" ]; then
+        domain="$(az containerapp env show --resource-group rg-auxilia-next-shared --name cae-auxilia-next-01 \
+          --query properties.defaultDomain --output tsv)"
+        [ -z "$domain" ] && { echo "Container Apps environment not found: set SITE_URL" >&2; exit 1; }
+        site_url="https://ca-auxilia-site-01.$domain"
+      fi
+      case "$site_url" in https://*) ;; *) echo "SITE_URL must start with https://" >&2; exit 64 ;; esac
+      build_args+=(--arg "NEXT_PUBLIC_SITE_URL=${site_url%/}")
+      [ -n "${SITE_WHATSAPP_NUMBER:-}" ] && build_args+=(--arg "NEXT_PUBLIC_WHATSAPP_NUMBER=$SITE_WHATSAPP_NUMBER")
+      echo "site build arguments: NEXT_PUBLIC_SITE_URL=${site_url%/}${SITE_WHATSAPP_NUMBER:+, NEXT_PUBLIC_WHATSAPP_NUMBER}"
+    fi
+    # ${a[@]+…}: an empty array is an unbound variable for set -u in the bash 3.2 of macOS.
+    create_or_update "$app-build-$branch" "${common[@]}" ${build_args[@]+"${build_args[@]}"} \
       --file "$dockerfile" \
       --context "https://github.com/$repository.git#$branch${context:+:$context}" \
       --image "auxilia/$app:{{.Run.Commit}}" \

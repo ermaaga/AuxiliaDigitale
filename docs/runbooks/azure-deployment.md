@@ -94,11 +94,15 @@ ADR 0022 §11; after the first *Infrastructure* run (`openwa-api-key` exists). T
   secrets of the agent: `secrets.sh set shared <name>` + `agentOpenwaSecrets`;
 - one ACR Task per repository, e.g. `deploy/azure/scripts/acr-task.sh satellite site <owner/repo> main < token.txt`
   (token with *Contents: read* and *Webhooks: read and write* on that repository); a push builds
-  `auxilia/<app>:<sha>`;
+  `auxilia/<app>:<sha>`; the site task also takes its public build arguments
+  (`SITE_URL=https://… SITE_WHATSAPP_NUMBER=… acr-task.sh satellite site ermaaga/AuxiliaSalute main`, `SITE_URL`
+  defaults to the Azure FQDN of `ca-auxilia-site-01`; run it again and rebuild after adding a custom domain);
 - `deploy.sh shared --openwa <sha> --agent-openwa <sha> --site <sha>` (each one optional); the site URL is the
   output `siteUrl`, OpenWA's internal URL `openwaInternalUrl`;
 - OpenWA: link the WhatsApp number once (QR code from the logs: `az containerapp logs show -g
   rg-auxilia-next-shared -n ca-auxilia-openwa-01 --follow`); the session stays on Azure Files.
+- site cold start (from zero replicas): `deploy/azure/scripts/cold-start.sh` (waits for scale to zero, times a cold
+  and a warm request, prints the system events: scheduling, image pull, container start, probes).
 
 ## Release
 Push to `qa` → CI green → **Deploy** releases to qa. Merge to `main` → the images are built, nothing is released:
@@ -135,19 +139,25 @@ The next release sets the arguments back to `migrate …`.
 - Live console output (no Log Analytics): `az containerapp logs show -g <rg> -n <app> --follow`.
 - Scale to zero: the first request after a pause wakes web, API, Valkey and RabbitMQ (10–30 s). The web app has one
   replica and keeps BFF sessions in memory: users idle beyond the cooldown sign in again.
+- A Worker that never scales to zero is usually a Worker that never starts (crash loop: KEDA keeps one replica while
+  its queues are not drained). Look for `Hosting failed to start` in `stauxilianext<env>/logs/platform/<yyyy>/<MM>/<dd>.jsonl`.
+  The Worker creates no table at run time (on Azure `public` belongs to `azure_pg_admin`, the Catalog login may not
+  create in it): the Rebus timeouts table is `catalog.rebus_timeouts` and the in-process queue table (ADR 0028)
+  `catalog.rebus_messages`, both created by the Catalog migrations.
 - (Worker mode only) Check on qa that RabbitMQ really scales to zero with the Worker's KEDA rules
   (`az containerapp replica list -g rg-auxilia-next-shared -n ca-auxilia-rabbitmq-01`); if it stays awake, see
   ADR 0022 §4 for the fallback.
 
 ## In-process messaging (ADR 0028): switching off RabbitMQ, the Worker and Valkey
-`Messaging:Mode = InProcess` moves the queues to the table `rebus_messages` of the Catalog database and the Api
+`Messaging:Mode = InProcess` moves the queues to the table `catalog.rebus_messages` of the Catalog database (created by the Catalog migration
+`Catalog_RebusMessages`, so the release's `migrate catalog` must run before the Api starts in this mode) and the Api
 handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then runs one replica at most). Order:
 
 1. **qa** (already `messagingMode = 'InProcess'`, `valkeyEnabled = false` in `environments/qa.bicepparam`): run the
    Infrastructure workflow for `qa`, then release. Delete the worker app the template no longer manages:
    `az containerapp delete -g rg-auxilia-next-qa -n ca-auxilia-worker-qa --yes`.
    Check: an e-mail (password reset), a document upload (status processed), an import and a large export; the queue
-   table empties (`select recipient, count(*) from rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
+   table empties (`select recipient, count(*) from catalog.rebus_messages group by 1` with the psql job on `auxilia_catalog_qa`).
 2. **prod**: same two lines in `environments/prod.bicepparam`, Infrastructure workflow, release, then
    `az containerapp delete -g rg-auxilia-next-prod -n ca-auxilia-worker-prod --yes`. Messages still in RabbitMQ at the
    switch are not lost: their outbox entries are already sent, so let the old Worker drain the queues before the
@@ -158,10 +168,10 @@ handles them; `valkeyEnabled = false` leaves the cache in memory (the Api then r
    `ca-auxilia-valkey-01`. The Key Vault secrets (`rabbitmq-*`, `valkey-password`, `redis-connection`) may stay.
 
 Back to the Worker: set `messagingMode = 'Worker'` (and `rabbitmqEnabled = true`), Infrastructure workflow, release.
-Messages left in `rebus_messages` are not moved to RabbitMQ: wait until the table is empty before switching back.
+Messages left in `catalog.rebus_messages` are not moved to RabbitMQ: wait until the table is empty before switching back.
 
-Error queue in InProcess mode: `select id, convert_from(headers, 'UTF8') from rebus_messages where recipient = 'error'`;
-to retry a message, `update rebus_messages set recipient = '<original queue, e.g. auxilia.messaging>', visible = now()
+Error queue in InProcess mode: `select id, convert_from(headers, 'UTF8') from catalog.rebus_messages where recipient = 'error'`;
+to retry a message, `update catalog.rebus_messages set recipient = '<original queue, e.g. auxilia.messaging>', visible = now()
 where id = <id>` (the original queue is the `rbs2-source-queue` header).
 
 ## Registry cleanup (Basic has no retention policy)

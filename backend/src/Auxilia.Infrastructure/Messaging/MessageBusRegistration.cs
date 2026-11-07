@@ -9,6 +9,7 @@ using Rebus.Backoff;
 using Rebus.Config;
 using Rebus.Handlers;
 using Rebus.Pipeline;
+using Rebus.PostgreSql;
 using Rebus.Retry.FailFast;
 using Rebus.Retry.Simple;
 using Rebus.Routing.TypeBased;
@@ -19,8 +20,21 @@ namespace Auxilia.Infrastructure.Messaging;
 public static class MessageBusRegistration
 {
     /// <summary>
-    /// Table of the Catalog database holding the queues in <see cref="MessagingMode.InProcess"/> (Rebus PostgreSQL
-    /// transport, created by Rebus at start like <c>rebus_timeouts</c>).
+    /// Schema of the Rebus tables in the Catalog database, created by the Catalog migrations (<c>Catalog_RebusTimeouts</c>,
+    /// <c>Catalog_RebusMessages</c>): no host creates tables at run time (on Azure the Catalog login may not create in
+    /// <c>public</c>). Rebus takes the schema separately, never in the table name.
+    /// </summary>
+    public const string RebusSchema = "catalog";
+
+    /// <summary>Same as <see cref="RebusSchema"/>, kept for the Worker's timeouts.</summary>
+    public const string TimeoutsSchema = RebusSchema;
+
+    /// <summary>Deferred messages of the Worker's second-level retries (<see cref="MessagingMode.Worker"/>).</summary>
+    public const string TimeoutsTable = "rebus_timeouts";
+
+    /// <summary>
+    /// Queues of <see cref="MessagingMode.InProcess"/> (Rebus PostgreSQL transport, native deferral) in
+    /// <see cref="RebusSchema"/>.
     /// </summary>
     public const string InProcessQueueTable = "rebus_messages";
 
@@ -49,12 +63,12 @@ public static class MessageBusRegistration
         ArgumentNullException.ThrowIfNull(services);
         ArgumentException.ThrowIfNullOrWhiteSpace(catalogConnectionString);
 
-        return services.AddSendOnlyBus(transport => transport.UsePostgreSqlAsOneWayClient(catalogConnectionString, InProcessQueueTable));
+        return services.AddSendOnlyBus(transport => transport.UsePostgreSqlAsOneWayClient(catalogConnectionString, InProcessQueueTable, schemaName: RebusSchema));
     }
 
     /// <summary>
     /// Worker: one bus per queue of <see cref="MessageRouting.HandledQueues"/> (the first one also sends) on RabbitMQ,
-    /// retries (immediate, then second-level with deferral stored in <c>rebus_timeouts</c> of the Catalog database, then
+    /// retries (immediate, then second-level with deferral stored in <c>catalog.rebus_timeouts</c> of the Catalog database, then
     /// <c>error</c>), the handlers of <see cref="MessageRouting.HandlerTypes"/>, caller taken from the message headers.
     /// </summary>
     public static IServiceCollection AddMessageBusWorker(
@@ -73,13 +87,15 @@ public static class MessageBusRegistration
         return services.AddConsumerBuses(
             options ?? new MessageBusOptions(),
             (transport, queue) => transport.UseRabbitMq(rabbitMqConnectionString, queue),
-            configure => configure.Timeouts(timeouts => timeouts.StoreInPostgres(catalogConnectionString, "rebus_timeouts", automaticallyCreateTables: true)),
+            configure => configure.Timeouts(timeouts => timeouts.StoreInPostgres(
+                new PostgresConnectionHelper(catalogConnectionString), TimeoutsTable, automaticallyCreateTables: false, schemaName: TimeoutsSchema)),
             backoff: null);
     }
 
     /// <summary>
     /// Api in <see cref="MessagingMode.InProcess"/> (ADR 0028): the same handlers and retry policy as the Worker, with
-    /// the queues in the <see cref="InProcessQueueTable"/> table of the Catalog database. A message is removed from the
+    /// the queues in the <c>catalog.rebus_messages</c> table of the Catalog database (created by the migration
+    /// <c>Catalog_RebusMessages</c>). A message is removed from the
     /// table only when its handler has finished, so a process stopped halfway (scale to zero, restart) leaves it there
     /// for the next start; deferrals (second-level retries) are native to the transport. One message at a time per
     /// queue by default (<see cref="MessageBusOptions.WorkersPerQueue"/>): the Api shares its CPU and the database
@@ -106,7 +122,7 @@ public static class MessageBusRegistration
 
         return services.AddConsumerBuses(
             options ?? new MessageBusOptions { WorkersPerQueue = 1 },
-            (transport, queue) => transport.UsePostgreSql(catalogConnectionString, InProcessQueueTable, queue),
+            (transport, queue) => transport.UsePostgreSql(catalogConnectionString, InProcessQueueTable, queue, schemaName: RebusSchema),
             configure => configure,
             InProcessBackoff);
     }

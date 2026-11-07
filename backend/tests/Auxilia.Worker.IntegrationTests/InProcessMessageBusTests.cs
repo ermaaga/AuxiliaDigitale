@@ -121,7 +121,7 @@ public sealed class InProcessMessageBusTests(InProcessBusFixture bus)
         await using var connection = new NpgsqlConnection(bus.CatalogConnectionString);
         await connection.OpenAsync(Ct);
         await using var command = new NpgsqlCommand(
-            $"select count(*) from {MessageBusRegistration.InProcessQueueTable} where recipient = @queue and position(@id in convert_from(headers, 'UTF8')) > 0",
+            $"select count(*) from {MessageBusRegistration.RebusSchema}.{MessageBusRegistration.InProcessQueueTable} where recipient = @queue and position(@id in convert_from(headers, 'UTF8')) > 0",
             connection);
         command.Parameters.AddWithValue("queue", MessageRouting.ErrorQueue);
         command.Parameters.AddWithValue("id", messageId.ToString());

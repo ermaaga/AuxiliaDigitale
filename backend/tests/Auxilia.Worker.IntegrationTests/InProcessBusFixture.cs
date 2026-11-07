@@ -43,6 +43,13 @@ public sealed class InProcessBusFixture : IAsyncLifetime
 
     public string TenantConnectionString { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// The Catalog login of the host and of auxctl: may use the <c>catalog</c> schema but not create in <c>public</c>,
+    /// as on Azure Database for PostgreSQL. The host must start without creating tables (the queue table comes from the
+    /// Catalog migration <c>Catalog_RebusMessages</c>).
+    /// </summary>
+    public string HostCatalogConnectionString { get; private set; } = string.Empty;
+
     public IHost Host { get; private set; } = null!;
 
     public async ValueTask InitializeAsync()
@@ -63,8 +70,10 @@ public sealed class InProcessBusFixture : IAsyncLifetime
             await tenantDb.Database.MigrateAsync();
         }
 
-        Host = BuildHost();
-        await using (var scope = Host.Services.CreateAsyncScope())
+        // Catalog migrations and the test tenant with the owner login (auxctl migrate catalog), then the host with the
+        // restricted one.
+        using (var setup = BuildHost(CatalogConnectionString))
+        await using (var scope = setup.Services.CreateAsyncScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
             await db.Database.MigrateAsync();
@@ -75,6 +84,8 @@ public sealed class InProcessBusFixture : IAsyncLifetime
             await db.SaveChangesAsync();
         }
 
+        HostCatalogConnectionString = await CreateHostCatalogLoginAsync(CatalogConnectionString);
+        Host = BuildHost(HostCatalogConnectionString);
         await Host.StartAsync();
     }
 
@@ -91,7 +102,7 @@ public sealed class InProcessBusFixture : IAsyncLifetime
         await Host.StopAsync();
         Host.Dispose();
         await whileStopped();
-        Host = BuildHost();
+        Host = BuildHost(HostCatalogConnectionString);
         await Host.StartAsync();
     }
 
@@ -114,21 +125,41 @@ public sealed class InProcessBusFixture : IAsyncLifetime
         services.AddScoped<ICurrentUser, HostUser>();
         services.AddApplication();
         services.AddInfrastructure();
-        services.AddCatalogPersistence(CatalogConnectionString);
+        services.AddCatalogPersistence(HostCatalogConnectionString);
         services.AddTenantPersistence();
-        services.AddInProcessMessageBusClient(CatalogConnectionString);
+        services.AddInProcessMessageBusClient(HostCatalogConnectionString);
         return services.BuildServiceProvider();
     }
 
-    private IHost BuildHost()
+    private static async Task<string> CreateHostCatalogLoginAsync(string catalog)
+    {
+        const string login = "inprocess_api";
+        const string password = "inprocess-api-test";
+        await using (var connection = new NpgsqlConnection(catalog))
+        {
+            await connection.OpenAsync();
+            await using var grant = new NpgsqlCommand($"""
+                CREATE ROLE {login} LOGIN PASSWORD '{password}';
+                REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+                GRANT USAGE ON SCHEMA catalog TO {login};
+                GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalog TO {login};
+                GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA catalog TO {login};
+                """, connection);
+            await grant.ExecuteNonQueryAsync();
+        }
+
+        return new NpgsqlConnectionStringBuilder(catalog) { Username = login, Password = password }.ConnectionString;
+    }
+
+    private static IHost BuildHost(string catalog)
     {
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Testing" });
         builder.Services.AddScoped<ICurrentUser, HostUser>();
         builder.Services.AddApplication();
         builder.Services.AddInfrastructure();
-        builder.Services.AddCatalogPersistence(CatalogConnectionString);
+        builder.Services.AddCatalogPersistence(catalog);
         builder.Services.AddTenantPersistence();
-        builder.Services.AddInProcessMessageBus<HostUser>(CatalogConnectionString, new MessageBusOptions
+        builder.Services.AddInProcessMessageBus<HostUser>(catalog, new MessageBusOptions
         {
             MaxDeliveryAttempts = 2,
             SecondLevelRetryDelays = [TimeSpan.FromSeconds(1)],

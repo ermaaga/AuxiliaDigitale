@@ -19,3 +19,7 @@ param siteImageTag = readEnvironmentVariable('AUXILIA_SITE_IMAGE_TAG', '')
 // Ports, session folder and plain settings of the satellite apps: set them here once their images are known, e.g.
 // param openwaEnv = [{ name: 'PORT', value: '8080' }]
 // param agentOpenwaSecrets = [{ secret: 'agent-openwa-llm-key', variable: 'LLM_API_KEY' }]
+// Showcase site (ermaaga/AuxiliaSalute): contact form over SMTP. The password is a Key Vault secret (placeholder written
+// by secrets.sh init shared, value: printf '%s' "$PASSWORD" | secrets.sh set shared site-smtp-password); the other
+// values are plain settings in siteEnv (SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, MAIL_FROM, MAIL_TO).
+param siteSecrets = [{ secret: 'site-smtp-password', variable: 'SMTP_PASSWORD' }]

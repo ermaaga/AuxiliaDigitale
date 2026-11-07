@@ -79,8 +79,9 @@ public sealed class BusFixture : IAsyncLifetime
         var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = "Testing" });
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["ConnectionStrings:Catalog"] = catalog,
+            ["ConnectionStrings:Catalog"] = await CreateWorkerCatalogLoginAsync(catalog),
             ["ConnectionStrings:RabbitMq"] = RabbitMqConnectionString,
+            ["Provisioning:AdminConnectionString"] = catalog,
         });
         builder.Services.AddWorkerServices(builder.Configuration, new MessageBusOptions
         {
@@ -103,6 +104,31 @@ public sealed class BusFixture : IAsyncLifetime
 
         await Api.DisposeAsync();
         await Task.WhenAll(postgres.DisposeAsync().AsTask(), rabbitMq.DisposeAsync().AsTask());
+    }
+
+    /// <summary>
+    /// The Worker reads the Catalog with a login that may use the <c>catalog</c> schema but not create in
+    /// <c>public</c>, as on Azure Database for PostgreSQL where <c>public</c> belongs to <c>azure_pg_admin</c>: the
+    /// Worker must start without creating tables (the Rebus timeouts table comes from the Catalog migrations).
+    /// </summary>
+    private static async Task<string> CreateWorkerCatalogLoginAsync(string catalog)
+    {
+        const string login = "bus_worker";
+        const string password = "bus-worker-test";
+        await using (var connection = new NpgsqlConnection(catalog))
+        {
+            await connection.OpenAsync();
+            await using var grant = new NpgsqlCommand($"""
+                CREATE ROLE {login} LOGIN PASSWORD '{password}';
+                REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+                GRANT USAGE ON SCHEMA catalog TO {login};
+                GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA catalog TO {login};
+                GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA catalog TO {login};
+                """, connection);
+            await grant.ExecuteNonQueryAsync();
+        }
+
+        return new NpgsqlConnectionStringBuilder(catalog) { Username = login, Password = password }.ConnectionString;
     }
 
     public TenantDbContext TenantDb() => new(TenantDbContextOptions.Create(NpgsqlDataSource.Create(TenantConnectionString)));
