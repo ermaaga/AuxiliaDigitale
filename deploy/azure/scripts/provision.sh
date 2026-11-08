@@ -61,7 +61,7 @@ if $what_if; then
 fi
 
 step "1/7 Shared core"
-"$here/deploy.sh" shared --core > /dev/null
+shared_outputs="$("$here/deploy.sh" shared --core)"
 end_step
 
 step "2/7 Shared secrets"
@@ -100,6 +100,7 @@ client_id="$(output deployClientId)"
 client_id_variable="$(output clientIdVariable)"
 api_url="$(output apiUrl)"
 web_url="$(output webUrl)"
+promote_client_id="$(python3 -I -c 'import json, sys; print(json.load(sys.stdin)["promoteClientId"]["value"])' <<< "$shared_outputs")"
 
 summary="$(cat <<EOF
 ## Infrastructure: $env
@@ -111,8 +112,10 @@ summary="$(cat <<EOF
 | API | $api_url |
 | Web | $web_url |
 | Repository variable of the releases | \`$client_id_variable\` = \`$client_id\` |
+| Repository variable of the promotion | \`AZURE_CLIENT_ID_PROMOTE\` = \`$promote_client_id\` |
 
-Releases (deploy.yml) need the repository variable \`$client_id_variable\` above (Settings → Secrets and variables → Actions → Variables).
+Releases (deploy.yml) need the repository variable \`$client_id_variable\` above (Settings → Secrets and variables → Actions → Variables);
+promote.yml needs \`AZURE_CLIENT_ID_PROMOTE\`.
 First applications of a new environment: runbook docs/runbooks/azure-deployment.md, "New environment".
 EOF
 )"

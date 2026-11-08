@@ -1,7 +1,8 @@
-# Multi-step ACR Task (ADR 0022 §7): on every commit of main or qa it builds the four images and tags each with the
-# commit SHA (immutable, used by .github/workflows/deploy.yml) and with the branch name (moving, informative).
-# Created by deploy/azure/scripts/acr-task.sh (one task per branch). The images are pushed together at the end, so the
-# release waits for a complete set.
+# Multi-step ACR Task (ADR 0022 §7): on every commit of qa it builds the four images and tags each with the commit SHA
+# (immutable, used by .github/workflows/deploy.yml) and with the branch name "qa" (moving). The images of main are not
+# built: .github/workflows/promote.yml promotes the qa images when qa is merged into main.
+# Created by deploy/azure/scripts/acr-task.sh (task auxilia-build-qa). The images are pushed together at the end, so
+# the release waits for a complete set.
 version: v1.1.0
 stepTimeout: 2400
 steps:
