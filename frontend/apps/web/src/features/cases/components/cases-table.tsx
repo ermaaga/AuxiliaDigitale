@@ -79,9 +79,11 @@ export function CasesTable({
 
   const columns: DataTableColumn<CaseListItem>[] = [
     {
+      // The practice number is always the first column and cannot be hidden (saved layouts cannot move it).
       id: "number",
       header: t("Number"),
       sortField: "number",
+      hideable: false,
       cell: (row) => (
         <Link
           href={tenantHref(tenant, `/cases/${row.id}`)}
@@ -149,6 +151,11 @@ export function CasesTable({
       !(clientOnly && column.id === "specialization"),
   );
   const laid = applyLayout(visible, grid.layout);
+  // The number leads the table whatever the saved layout says; the other columns keep their saved order.
+  const numberColumns = laid.columns.filter((column) => column.id === "number");
+  const otherColumns = laid.columns.filter((column) => column.id !== "number");
+  const orderedColumns = [...numberColumns, ...otherColumns];
+  const hiddenColumns = laid.hidden.filter((id) => id !== "number");
 
   const toolbar = (
     <>
@@ -217,8 +224,8 @@ export function CasesTable({
         exportMenu={(columns) => (
           <ExportMenu tenant={tenant} source="cases" params={exportParams} columns={columns} />
         )}
-        columns={laid.columns}
-        initiallyHidden={grid.layout ? laid.hidden : ["specialization"]}
+        columns={orderedColumns}
+        initiallyHidden={grid.layout ? hiddenColumns : ["specialization"]}
         rows={query.data?.items}
         getRowId={(row) => row.id}
         totalCount={Number(query.data?.totalCount ?? 0)}
