@@ -1,7 +1,9 @@
 name: Deploy
 
 # Release to Azure Container Apps (ADR 0022 §8, ADR 0025, runbook docs/runbooks/azure-deployment.md). The images are
-# built by the ACR Tasks on every push to main and qa; this workflow releases them:
+# built by the ACR Task on every push to qa (tags: commit SHA and "qa"); when qa is merged into main,
+# .github/workflows/promote.yml copies them to the tags "main" and <main commit SHA>, without a rebuild. This workflow
+# releases them:
 #   qa   → environment qa, automatically once CI is green on the push to qa
 #   prod → by hand only (Run workflow from main with environment "prod" and a commit SHA of main): starting the run is
 #          the approval, since a private repository on GitHub Free has no GitHub environments nor required reviewers

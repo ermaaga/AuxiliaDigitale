@@ -49,12 +49,16 @@ common=(
 
 case "${1:-}" in
   "")
+    # Only qa builds (ADR 0022 §7, promote.yml): main receives the qa images by promotion, nothing is rebuilt on main.
+    # The task of main, created by earlier versions of this script, is deleted.
     read_token
-    for branch in main qa; do
-      create_or_update "auxilia-build-$branch" "${common[@]}" \
-        --file deploy/azure/acr-task.yaml \
-        --context "https://github.com/ermaaga/AuxiliaDigitale.git#$branch"
-    done
+    create_or_update "auxilia-build-qa" "${common[@]}" \
+      --file deploy/azure/acr-task.yaml \
+      --context "https://github.com/ermaaga/AuxiliaDigitale.git#qa"
+    if az acr task show --registry "$registry" --name auxilia-build-main --output none 2>/dev/null; then
+      az acr task delete --registry "$registry" --name auxilia-build-main --yes --output none
+      echo "deleted auxilia-build-main (main is promoted from qa)"
+    fi
     ;;
   satellite)
     app="${2:-}"

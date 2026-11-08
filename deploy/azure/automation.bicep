@@ -24,6 +24,7 @@ var rbacAdministratorRole = 'f58310d9-a9f6-439a-9e8d-f62e7b41a168'
 var assignableRoles = [
   contributorRole
   '7f951dda-4ed3-4680-a7ca-43fe172d538d' // AcrPull
+  '8311e382-0749-4cb8-b61a-304f252e45ec' // AcrPush (promote identity, shared.bicep)
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader
   '4633458b-17de-408a-b874-0445c86b69e6' // Key Vault Secrets User
   'b86a8fe4-44ce-4948-aee5-eccb2c155cd7' // Key Vault Secrets Officer

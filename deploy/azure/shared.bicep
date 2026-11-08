@@ -20,6 +20,12 @@ param registryName string = 'acrauxilianext01'
 param registrySku string = 'Basic'
 param keyVaultName string = 'kv-auxilia-next-shared'
 param identityName string = 'id-auxilia-next-shared'
+@description('Identity of the Promote workflow (.github/workflows/promote.yml): AcrPush on the registry, trusts the runs of main.')
+param promoteIdentityName string = 'id-auxilia-next-promote'
+@description('owner/repo trusted by the promotion identity.')
+param githubRepository string = 'ermaaga/AuxiliaDigitale'
+@description('Subject prefix with the immutable owner and repository ids (same value as environment.bicep).')
+param githubImmutableSubjectPrefix string = 'repo:ermaaga@56563458/AuxiliaDigitale@1394874853'
 
 param postgresServerName string = 'psql-auxilia-next-01'
 param postgresVersion string = '18'
@@ -170,6 +176,29 @@ module sharedRegistryPull 'modules/registry-pull.bicep' = {
   }
 }
 
+// Promote workflow (ADR 0022 §7, promote.yml): signs in from main and copies the qa images to main with AcrPush only.
+module promoteIdentity 'modules/identity.bicep' = {
+  scope: rg
+  name: 'identity-promote'
+  params: {
+    location: location
+    tags: tags
+    name: promoteIdentityName
+    githubRepository: githubRepository
+    githubRef: 'refs/heads/main'
+    githubImmutableSubjectPrefix: githubImmutableSubjectPrefix
+  }
+}
+
+module promoteRegistryPush 'modules/registry-push.bicep' = {
+  scope: rg
+  name: 'registry-push-promote'
+  params: {
+    registryName: registry.outputs.name
+    principalId: promoteIdentity.outputs.principalId
+  }
+}
+
 module satelliteApps 'modules/satellite-apps.bicep' = if (deploySharedServices) {
   scope: rg
   name: 'satellite-apps'
@@ -200,6 +229,8 @@ module satelliteApps 'modules/satellite-apps.bicep' = if (deploySharedServices) 
 }
 
 output resourceGroupName string = rg.name
+@description('Set as the repository variable AZURE_CLIENT_ID_PROMOTE (summary of the Infrastructure workflow).')
+output promoteClientId string = promoteIdentity.outputs.clientId
 output containerAppsEnvironmentName string = environment.outputs.name
 output containerAppsDefaultDomain string = environment.outputs.defaultDomain
 output containerAppsSubnetPrefix string = network.outputs.containerAppsSubnetPrefix

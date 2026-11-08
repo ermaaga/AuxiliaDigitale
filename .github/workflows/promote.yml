@@ -1,0 +1,118 @@
+name: Promote
+
+# Promotion of the qa images to main (no rebuild). The images of every commit of qa are built by the ACR Task
+# auxilia-build-qa and tagged with the commit SHA and with "qa" (deploy/azure/acr-task.yaml). When qa is merged into
+# main (squash merge, D-01) this workflow finds the qa commit of that pull request and, for every image:
+#   auxilia/<app>:main_<yyyy_mm_dd>  ← the image that was main until now (kept, dated)  [only if "main" exists]
+#   auxilia/<app>:main               ← the qa commit's image
+#   auxilia/<app>:<main commit SHA>  ← the qa commit's image, so deploy.yml can release that main commit (prod)
+# The images are copied in the registry (az acr import), never rebuilt. A push to main that does not come from a
+# pull request qa → main fails: nothing is promoted.
+# Azure login with OIDC: the identity of the promotion (repository variable AZURE_CLIENT_ID_PROMOTE, role AcrPush on
+# the shared registry, federated credential trusting the runs of main). Printed by the Infrastructure workflow.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-main
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Promote qa images to main
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MAIN_SHA: ${{ github.sha }}
+      REGISTRY: acrauxilianext01
+      LOGIN_SERVER: acrauxilianext01.azurecr.io
+    steps:
+      - name: Find the qa commit of the pull request
+        id: qa
+        run: |
+          # The pull request qa → main that brought this commit into main (squash merge: the commit is the merge commit).
+          qa_sha="$(gh api "repos/$GITHUB_REPOSITORY/commits/$MAIN_SHA/pulls" \
+            --jq '[.[] | select(.base.ref == "main" and .head.ref == "qa" and .merged_at != null)] | sort_by(.merged_at) | last | .head.sha // empty')"
+          if [ -z "$qa_sha" ]; then
+            echo "::error::$MAIN_SHA is not the merge of a pull request qa → main: nothing to promote"; exit 1
+          fi
+          if ! [[ "$qa_sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::not a full commit SHA: $qa_sha"; exit 1
+          fi
+          echo "qa commit promoted: $qa_sha"
+          echo "sha=$qa_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Promotion identity
+        env:
+          AZURE_CLIENT_ID_PROMOTE: ${{ vars.AZURE_CLIENT_ID_PROMOTE }}
+        run: |
+          if [ -z "$AZURE_CLIENT_ID_PROMOTE" ]; then
+            echo "::error::repository variable AZURE_CLIENT_ID_PROMOTE not set (summary of the Infrastructure workflow)"; exit 1
+          fi
+
+      - name: Azure login (OIDC)
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID_PROMOTE }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Wait for the qa images
+        env:
+          QA_SHA: ${{ steps.qa.outputs.sha }}
+        run: |
+          deadline=$(( $(date +%s) + 1800 ))
+          for repository in api worker web auxctl; do
+            until az acr repository show --name "$REGISTRY" --image "auxilia/$repository:$QA_SHA" --output none 2>/dev/null; do
+              if [ "$(date +%s)" -ge "$deadline" ]; then
+                echo "::error::auxilia/$repository:$QA_SHA not found after 30 minutes (ACR Task auxilia-build-qa failed?)"; exit 1
+              fi
+              sleep 30
+            done
+            echo "auxilia/$repository:$QA_SHA ready"
+          done
+
+      - name: Keep the previous main as a dated tag
+        run: |
+          # Tag main_<yyyy_mm_dd> (UTC date of the promotion) keeps the image that was main until now. A second
+          # promotion on the same day adds the time (main_<yyyy_mm_dd>_<hhmmss>), so no dated tag is overwritten.
+          date_tag="main_$(date -u +%Y_%m_%d)"
+          for repository in api worker web auxctl; do
+            if az acr repository show --name "$REGISTRY" --image "auxilia/$repository:main" --output none 2>/dev/null; then
+              archive="$date_tag"
+              if az acr repository show --name "$REGISTRY" --image "auxilia/$repository:$archive" --output none 2>/dev/null; then
+                archive="${date_tag}_$(date -u +%H%M%S)"
+              fi
+              az acr import --name "$REGISTRY" --source "$LOGIN_SERVER/auxilia/$repository:main" \
+                --image "auxilia/$repository:$archive" --output none
+              echo "auxilia/$repository:main (previous) → $archive"
+            else
+              echo "auxilia/$repository: no previous main tag"
+            fi
+          done
+
+      - name: Promote the qa images to main
+        env:
+          QA_SHA: ${{ steps.qa.outputs.sha }}
+        run: |
+          for repository in api worker web auxctl; do
+            az acr import --name "$REGISTRY" --source "$LOGIN_SERVER/auxilia/$repository:$QA_SHA" \
+              --image "auxilia/$repository:main" --force --output none
+            az acr import --name "$REGISTRY" --source "$LOGIN_SERVER/auxilia/$repository:$QA_SHA" \
+              --image "auxilia/$repository:$MAIN_SHA" --force --output none
+            echo "auxilia/$repository: $QA_SHA → main, $MAIN_SHA"
+          done
+          {
+            echo "### Promoted to main"
+            echo "qa commit \`$QA_SHA\` → main commit \`$MAIN_SHA\`"
+          } >> "$GITHUB_STEP_SUMMARY"
